@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+﻿import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // RANDOM QUESTION SELECTION
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function selectRandomQuestions(count) {
   const arr = [...QUESTIONS];
@@ -24,10 +24,16 @@ const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "";
 const ONLINE_PROFILES_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SUPABASE_PROFILE_TABLE = "study_profiles";
-const MASTERY_STREAK_TARGET = 2;
+const MASTERY_STREAK_TARGET = 3;
+const DAILY_CHALLENGE_SIZE = 10;
+const RANDOM_SESSION_SIZE = 10;
+const SPRINT_SESSION_SIZE = 10;
+const WEAKNESS_SESSION_SIZE = 15;
+const SPRINT_TIME_LIMIT_MS = 30000;
+const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 
 function createEmptyMcqProgress() {
-  return { version: 1, questions: {}, updatedAt: null };
+  return { version: 2, questions: {}, attempts: [], dailyChallenges: {}, updatedAt: null };
 }
 
 function loadMcqProgress() {
@@ -217,7 +223,7 @@ function summarizeMcqProgress(progress) {
   const total = QUESTIONS.length;
   const seen = QUESTIONS.filter(q => !!records[q.id]?.seenAt).length;
   const attempted = QUESTIONS.filter(q => (records[q.id]?.attempts || 0) > 0).length;
-  const mastered = QUESTIONS.filter(q => !!records[q.id]?.mastered).length;
+  const mastered = QUESTIONS.filter(q => isQuestionMastered(records[q.id])).length;
   const correct = QUESTIONS.reduce((sum, q) => sum + (records[q.id]?.correctCount || 0), 0);
   const attempts = QUESTIONS.reduce((sum, q) => sum + (records[q.id]?.attempts || 0), 0);
 
@@ -232,21 +238,247 @@ function summarizeMcqProgress(progress) {
   };
 }
 
-function firstOrderedStudyIndex(progress) {
-  const records = progress.questions || {};
-  const idx = QUESTIONS.findIndex(q => !records[q.id]?.mastered);
-  return idx === -1 ? 0 : idx;
-}
-
 function getQuestionProgress(progress, questionId) {
   return progress.questions?.[questionId] || {};
 }
 
+function isQuestionMastered(record = {}) {
+  return record.masteryLevel === 5 || record.mastery_level === 5 || record.mastered === true;
+}
+
 function getQuestionStatus(record) {
-  if (record.mastered) return "Mastered";
+  if (isQuestionMastered(record)) return "Mastered";
   if ((record.attempts || 0) > 0) return "Review";
   if (record.seenAt) return "Seen";
   return "New";
+}
+
+function getMasteryLevel(record = {}) {
+  if (Number.isInteger(record.masteryLevel)) return record.masteryLevel;
+  if (Number.isInteger(record.mastery_level)) return record.mastery_level;
+  if (record.mastered) return 5;
+  if ((record.streak || 0) >= 2) return 4;
+  if ((record.attempts || 0) > 0) return record.lastCorrect ? 3 : 1;
+  return 0;
+}
+
+function getConsecutiveCorrect(record = {}) {
+  return record.consecutiveCorrect ?? record.consecutive_correct ?? record.streak ?? 0;
+}
+
+function addDays(date, days) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function isDue(record = {}, now = new Date()) {
+  if (!record.nextReviewAt) return (record.attempts || 0) > 0;
+  return new Date(record.nextReviewAt) <= now;
+}
+
+function calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs, currentStreak }) {
+  if (!isCorrect) return { base: 0, speed: 0, streak: 0, total: 0 };
+
+  let speed = 10;
+  const ratio = timeTakenMs / timeLimitMs;
+
+  if (ratio <= 0.33) speed = 50;
+  else if (ratio <= 0.66) speed = 30;
+
+  const streak = Math.min(currentStreak * 35, 250);
+
+  return { base: 100, speed, streak, total: 100 + speed + streak };
+}
+
+function calculateStandardPoints({ isCorrect, mode, currentStreak }) {
+  if (!isCorrect) return { base: 0, speed: 0, streak: 0, total: 0 };
+  const base = mode === "weakness" ? 120 : 100;
+  const streak = Math.min(currentStreak * 20, 120);
+  return { base, speed: 0, streak, total: base + streak };
+}
+
+function getNextReviewIntervalDays({ masteryLevel, isCorrect, confidence, consecutiveCorrect }) {
+  if (!isCorrect && confidence >= 3) return 0.25;
+  if (!isCorrect) return 1;
+  if (consecutiveCorrect >= MASTERY_STREAK_TARGET) return 21;
+  if (masteryLevel <= 1) return 1;
+  if (masteryLevel === 2) return 3;
+  if (masteryLevel === 3) return 7;
+  if (masteryLevel === 4) return 14;
+  return 21;
+}
+
+function updateMasteryLevel({ previousMastery, isCorrect, confidence, consecutiveCorrect }) {
+  if (isCorrect && consecutiveCorrect >= MASTERY_STREAK_TARGET) return 5;
+
+  let mastery = previousMastery ?? 0;
+
+  if (isCorrect) {
+    mastery += confidence === 4 ? 2 : 1;
+  } else if (previousMastery >= 5) {
+    mastery = 3;
+  } else {
+    mastery -= confidence >= 3 ? 2 : 1;
+  }
+
+  return Math.max(0, Math.min(5, mastery));
+}
+
+function scoreQuestionForWeakness(question, progress, now = new Date()) {
+  const record = getQuestionProgress(progress, question.id);
+  const attempts = record.attempts || 0;
+  const correct = record.correctCount || 0;
+  const accuracy = attempts > 0 ? correct / attempts : 1;
+  const mastery = getMasteryLevel(record);
+  let score = 0;
+
+  if ((record.confidentWrongCount || 0) > 0) score += 70;
+  if ((record.consecutiveWrong || 0) >= 2) score += 60;
+  if (mastery <= 1 && attempts > 0) score += 50;
+  if (mastery === 2) score += 30;
+  if (attempts >= 3 && accuracy < 0.5) score += 50;
+  if (isDue(record, now)) score += 25;
+  if (!record.seenAt) score += 5;
+
+  return score + Math.random() * 5;
+}
+
+function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
+  const selected = [];
+
+  for (const item of candidates) {
+    const question = item.question || item;
+    if (!question || usedIds.has(question.id)) continue;
+    usedIds.add(question.id);
+    selected.push(item);
+    if (selected.length >= count) break;
+  }
+
+  return selected;
+}
+
+function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
+  const usedIds = new Set();
+  const scored = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
+    .sort((a, b) => b.score - a.score);
+  const selected = selectUniqueQuestions(scored.filter(item => item.score > 5), count, usedIds);
+  const fallback = selectRandomQuestions(QUESTIONS.length)
+    .filter(question => !usedIds.has(question.id))
+    .slice(0, count - selected.length)
+    .map(question => ({ question, score: 0 }));
+
+  return [...selected, ...fallback].slice(0, count).map(item => item.question);
+}
+
+function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
+  return progress.dailyChallenges?.[dateKey] || null;
+}
+
+function createDailyChallenge(progress, dateKey = getLocalDateKey()) {
+  const existing = getDailyChallenge(progress, dateKey);
+  if (existing?.questionIds?.length) return existing;
+
+  const now = new Date();
+  const records = progress.questions || {};
+  const usedIds = new Set();
+  const byWeakness = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress, now), reason: "repeated_wrong" }))
+    .sort((a, b) => b.score - a.score);
+  const repeatedWrong = selectUniqueQuestions(byWeakness.filter(item => item.score >= 50), 4, usedIds);
+  const masteredDue = selectUniqueQuestions(
+    QUESTIONS
+      .filter(question => isQuestionMastered(records[question.id]) && isDue(records[question.id], now))
+      .map(question => ({ question, reason: "mastered_due" })),
+    3,
+    usedIds
+  );
+  const normalDue = selectUniqueQuestions(
+    QUESTIONS
+      .filter(question => {
+        const record = records[question.id];
+        const mastery = getMasteryLevel(record);
+        return mastery > 0 && mastery < 5 && isDue(record, now);
+      })
+      .map(question => ({ question, reason: "normal_due" })),
+    2,
+    usedIds
+  );
+  const novelty = selectUniqueQuestions(
+    selectRandomQuestions(QUESTIONS.length)
+      .filter(question => !records[question.id]?.seenAt)
+      .map(question => ({ question, reason: "unseen_or_random" })),
+    1,
+    usedIds
+  );
+  const selected = [...repeatedWrong, ...masteredDue, ...normalDue, ...novelty];
+  const fallback = selectUniqueQuestions(
+    selectRandomQuestions(QUESTIONS.length).map(question => ({ question, reason: "fallback_random" })),
+    DAILY_CHALLENGE_SIZE - selected.length,
+    usedIds
+  );
+  const items = [...selected, ...fallback].slice(0, DAILY_CHALLENGE_SIZE).map((item, index) => ({
+    questionId: item.question.id,
+    reason: item.reason,
+    position: index + 1,
+    answered: false,
+  }));
+
+  return {
+    date: dateKey,
+    questionIds: items.map(item => item.questionId),
+    items,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function ensureDailyChallenge(progress, dateKey = getLocalDateKey()) {
+  const challenge = createDailyChallenge(progress, dateKey);
+
+  return {
+    progress: {
+      ...progress,
+      dailyChallenges: {
+        ...(progress.dailyChallenges || {}),
+        [dateKey]: challenge,
+      },
+      updatedAt: new Date().toISOString(),
+    },
+    challenge,
+  };
+}
+
+function getSessionQuestions(mode, progress) {
+  if (mode === "daily") {
+    return createDailyChallenge(progress).questionIds
+      .map(id => QUESTIONS.find(question => question.id === id))
+      .filter(Boolean);
+  }
+  if (mode === "sprint") return selectWeaknessQuestions(progress, SPRINT_SESSION_SIZE);
+  if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
+  return selectRandomQuestions(RANDOM_SESSION_SIZE);
+}
+
+function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
+  const item = progress.dailyChallenges?.[dateKey]?.items?.find(entry => entry.questionId === questionId);
+  return item?.reason || null;
+}
+
+function getDailyReasonLabel(reason) {
+  const labels = {
+    repeated_wrong: "Repeatedly wrong",
+    mastered_due: "Mastered review",
+    normal_due: "Due review",
+    unseen_or_random: "New item",
+    fallback_random: "Mixed review",
+  };
+  return labels[reason] || null;
 }
 
 function markQuestionSeen(progress, questionId) {
@@ -266,13 +498,58 @@ function markQuestionSeen(progress, questionId) {
   };
 }
 
-function recordQuestionAnswer(progress, question, selected) {
+function recordQuestionAnswer(progress, question, selected, {
+  mode = "random",
+  confidence = 3,
+  timeTakenMs = null,
+  pointsAwarded = 0,
+  pointBreakdown = null,
+  sessionId = null,
+  streakPosition = 0,
+} = {}) {
   const current = getQuestionProgress(progress, question.id);
   const isCorrect = selected === question.correct;
-  const streak = isCorrect ? (current.streak || 0) + 1 : 0;
+  const previousMastery = getMasteryLevel(current);
+  const consecutiveCorrect = isCorrect ? getConsecutiveCorrect(current) + 1 : 0;
+  const consecutiveWrong = isCorrect ? 0 : (current.consecutiveWrong || 0) + 1;
+  const masteryLevel = updateMasteryLevel({ previousMastery, isCorrect, confidence, consecutiveCorrect });
+  const intervalDays = getNextReviewIntervalDays({ masteryLevel, isCorrect, confidence, consecutiveCorrect });
+  const now = new Date();
+  const attempt = {
+    id: `${now.getTime()}-${question.id}`,
+    sessionId,
+    mode,
+    questionId: question.id,
+    selected,
+    selectedOption: Number.isInteger(selected) ? OPTION_LETTERS[selected] : null,
+    isCorrect,
+    confidence,
+    timeTakenMs,
+    pointsAwarded,
+    pointBreakdown,
+    streakPosition,
+    attemptedAt: now.toISOString(),
+  };
+  const attempts = [attempt, ...(progress.attempts || [])].slice(0, 500);
+  const dailyChallenges = { ...(progress.dailyChallenges || {}) };
+
+  if (mode === "daily") {
+    const dateKey = getLocalDateKey(now);
+    const challenge = dailyChallenges[dateKey];
+    if (challenge) {
+      dailyChallenges[dateKey] = {
+        ...challenge,
+        items: (challenge.items || []).map(item =>
+          item.questionId === question.id ? { ...item, answered: true } : item
+        ),
+      };
+    }
+  }
 
   return {
     ...progress,
+    attempts,
+    dailyChallenges,
     updatedAt: new Date().toISOString(),
     questions: {
       ...(progress.questions || {}),
@@ -282,18 +559,30 @@ function recordQuestionAnswer(progress, question, selected) {
         lastAnsweredAt: new Date().toISOString(),
         lastSelected: selected,
         lastCorrect: isCorrect,
+        lastConfidence: confidence,
+        lastTimeTakenMs: timeTakenMs,
+        lastPointsAwarded: pointsAwarded,
         attempts: (current.attempts || 0) + 1,
+        seenCount: (current.seenCount || current.attempts || 0) + 1,
         correctCount: (current.correctCount || 0) + (isCorrect ? 1 : 0),
         incorrectCount: (current.incorrectCount || 0) + (isCorrect ? 0 : 1),
-        streak,
-        mastered: streak >= MASTERY_STREAK_TARGET,
+        wrongCount: (current.wrongCount || current.incorrectCount || 0) + (isCorrect ? 0 : 1),
+        streak: consecutiveCorrect,
+        consecutiveCorrect,
+        consecutiveWrong,
+        confidentWrongCount: (current.confidentWrongCount || 0) + (!isCorrect && confidence >= 3 ? 1 : 0),
+        masteryLevel,
+        mastery_level: masteryLevel,
+        mastered: masteryLevel === 5,
+        nextReviewAt: addDays(now, intervalDays).toISOString(),
+        totalPoints: (current.totalPoints || 0) + pointsAwarded,
       },
     },
   };
 }
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ICONS
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const Icons = {
   Brain: () => (
@@ -380,9 +669,9 @@ const Icons = {
   ),
 };
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STYLES
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
@@ -429,7 +718,7 @@ const STYLES = `
     overflow-x: hidden;
   }
 
-  /* ─── HOME SCREEN ─── */
+  /* â”€â”€â”€ HOME SCREEN â”€â”€â”€ */
   .home {
     max-width: 720px;
     margin: 0 auto;
@@ -720,7 +1009,7 @@ const STYLES = `
     color: #fbbf24;
   }
 
-  /* ─── MCQ SELECTION ─── */
+  /* â”€â”€â”€ MCQ SELECTION â”€â”€â”€ */
   .mcq-select {
     max-width: 560px;
     margin: 0 auto;
@@ -805,6 +1094,92 @@ const STYLES = `
     margin-top: 2px;
   }
 
+  .game-hud {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 0 0 18px;
+  }
+
+  .hud-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .hud-value {
+    display: block;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hud-label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 10px;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .confidence-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: -10px 0 22px;
+  }
+
+  .confidence-label {
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .confidence-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .confidence-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--border-active);
+    color: var(--text);
+  }
+
+  .point-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .point-pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 5px 9px;
+  }
+
+  .point-pill.total {
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.35);
+    color: var(--green);
+    font-weight: 700;
+  }
+
   .reset-progress-btn {
     border: none;
     background: none;
@@ -851,7 +1226,7 @@ const STYLES = `
   }
   .home-btn:hover { color: var(--text); background: var(--bg-card-hover); }
 
-  /* ─── MCQ TEST ─── */
+  /* â”€â”€â”€ MCQ TEST â”€â”€â”€ */
   .test-container {
     max-width: 720px;
     margin: 0 auto;
@@ -1033,7 +1408,7 @@ const STYLES = `
     letter-spacing: 0.05em;
   }
 
-  /* ─── NAVIGATION BAR ─── */
+  /* â”€â”€â”€ NAVIGATION BAR â”€â”€â”€ */
   .nav-bar {
     position: fixed;
     bottom: 0;
@@ -1082,7 +1457,7 @@ const STYLES = `
     color: #fca5a5;
   }
 
-  /* ─── RESULTS ─── */
+  /* â”€â”€â”€ RESULTS â”€â”€â”€ */
   .results {
     max-width: 600px;
     margin: 0 auto;
@@ -1139,7 +1514,7 @@ const STYLES = `
   .results-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
   .results-btn.primary:hover { background: #2563eb; }
 
-  /* ─── MODAL ─── */
+  /* â”€â”€â”€ MODAL â”€â”€â”€ */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -1183,7 +1558,7 @@ const STYLES = `
     justify-content: center;
   }
 
-  /* ─── PLACEHOLDER ─── */
+  /* â”€â”€â”€ PLACEHOLDER â”€â”€â”€ */
   .placeholder-page {
     max-width: 560px;
     margin: 0 auto;
@@ -1225,7 +1600,7 @@ const STYLES = `
 
   .fade-in { animation: fadeIn 0.35s ease; }
 
-  /* ─── REVIEW MODE ─── */
+  /* â”€â”€â”€ REVIEW MODE â”€â”€â”€ */
   .review-header {
     display: flex;
     align-items: center;
@@ -1259,7 +1634,7 @@ const STYLES = `
   .review-dot.incorrect { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
   .review-dot.current { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* ── Oral Accordion ─────────────────────────────── */
+  /* â”€â”€ Oral Accordion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   .oral-container {
     max-width: 720px;
@@ -1395,7 +1770,7 @@ const STYLES = `
     white-space: nowrap;
   }
 
-  /* ── Oral Question Viewer ─────────────────────────── */
+  /* â”€â”€ Oral Question Viewer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   .oral-viewer {
     max-width: 720px;
@@ -1458,7 +1833,7 @@ const STYLES = `
     font-style: italic;
   }
 
-  /* ── Oral Reference Table ─────────────────────────── */
+  /* â”€â”€ Oral Reference Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   .ref-table {
     max-width: 720px;
@@ -1495,14 +1870,15 @@ const STYLES = `
     .home-title { font-size: 32px; }
     .profile-form { flex-direction: column; }
     .mcq-memory { grid-template-columns: 1fr; }
+    .game-hud { grid-template-columns: repeat(2, 1fr); }
     .nav-bar { gap: 6px; padding: 12px 16px; }
     .nav-btn { padding: 8px 12px; font-size: 13px; }
   }
 `;
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // COMPONENTS
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile, onCreateProfile }) {
   const [username, setUsername] = useState("");
@@ -1575,7 +1951,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                   onClick={() => onSelectProfile(profile.id)}
                 >
                   <span>{profile.name}</span>
-                  <small>{summary.mastered} mastered · {summary.review} review</small>
+                  <small>{summary.mastered} mastered Â· {summary.review} review</small>
                 </button>
               );
             })}
@@ -1588,16 +1964,16 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 
 function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Ερωτήσεις πολλαπλής επιλογής με πρόοδο mastery', active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Oral Examination Questions', desc: '134 ερωτήσεις κατά βαρύτητα θεμάτων', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Î•ÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ Ï€Î¿Î»Î»Î±Ï€Î»Î®Ï‚ ÎµÏ€Î¹Î»Î¿Î³Î®Ï‚ Î¼Îµ Ï€ÏÏŒÎ¿Î´Î¿ mastery', active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Oral Examination Questions', desc: '134 ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Ï„Î¬ Î²Î±ÏÏÏ„Î·Ï„Î± Î¸ÎµÎ¼Î¬Ï„Ï‰Î½', active: true },
   ];
 
   return (
     <div className="home fade-in">
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
-        <h1 className="home-title">Ψυχιατρική Ειδικότητα</h1>
-        <p className="home-subtitle">Πλατφόρμα προετοιμασίας εξετάσεων</p>
+        <h1 className="home-title">Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ® Î•Î¹Î´Î¹ÎºÏŒÏ„Î·Ï„Î±</h1>
+        <p className="home-subtitle">Î Î»Î±Ï„Ï†ÏŒÏÎ¼Î± Ï€ÏÎ¿ÎµÏ„Î¿Î¹Î¼Î±ÏƒÎ¯Î±Ï‚ ÎµÎ¾ÎµÏ„Î¬ÏƒÎµÏ‰Î½</p>
         <div className="profile-bar">
           <span>{profileName}</span>
           <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
@@ -1613,7 +1989,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
             <div className={`card-icon ${s.iconClass} card-icon-lg`}>{s.icon}</div>
             <div className="card-title" style={{fontSize:19}}>{s.title}</div>
             <div className="card-desc">{s.desc}</div>
-            {!s.active && <span className="card-badge">Σύντομα</span>}
+            {!s.active && <span className="card-badge">Î£ÏÎ½Ï„Î¿Î¼Î±</span>}
           </div>
         ))}
       </div>
@@ -1626,14 +2002,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
     <div className="mcq-select fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
+          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
         </button>
       </div>
       <h2>MCQ Study</h2>
-      <p>Choose how to move through the same remembered question bank.</p>
+      <p>Choose a gamified practice mode. All modes update the same mastery memory.</p>
 
       <div className="mcq-memory" aria-label="MCQ progress">
         <div className="mcq-memory-stat">
@@ -1650,15 +2026,21 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
         </div>
       </div>
 
-      <button className="mode-btn featured" onClick={() => onStart('study')}>
-        In order
-        <small>
-          Resume at the first question that is not mastered. Mastery requires {MASTERY_STREAK_TARGET} correct answers in a row.
-        </small>
+      <button className="mode-btn featured" onClick={() => onStart('daily')}>
+        Daily
+        <small>Spaced repetition, weak questions, mastered maintenance, and a little novelty.</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
         Random
-        <small>Study the same questions in a shuffled order. Review and mastery are saved to this profile.</small>
+        <small>Relaxed mixed practice with streak and session counters.</small>
+      </button>
+      <button className="mode-btn" onClick={() => onStart('sprint')}>
+        Sprint
+        <small>10 timed questions, 30 seconds each, with speed and streak points.</small>
+      </button>
+      <button className="mode-btn" onClick={() => onStart('weakness')}>
+        Weakness
+        <small>Targets repeatedly wrong, confidently wrong, low mastery, and due questions.</small>
       </button>
       {progressSummary.seen > 0 && (
         <button className="reset-progress-btn" onClick={onResetProgress}>
@@ -1670,13 +2052,23 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
 }
 
 function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
-  const isRandom = mode === 'random';
-
-  // Questions are initialised once so a random session keeps its shuffled order.
-  const [questions] = useState(() => isRandom ? selectRandomQuestions(QUESTIONS.length) : QUESTIONS);
-  const [currentIdx, setCurrentIdx] = useState(() => isRandom ? 0 : firstOrderedStudyIndex(progress));
-  const [answers, setAnswers] = useState({}); // id -> selected index
-  const [locked, setLocked] = useState({}); // id -> true
+  const sessionIdRef = useRef(`${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const startedAtRef = useRef(Date.now());
+  const [questions] = useState(() => getSessionQuestions(mode, progress));
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [locked, setLocked] = useState({});
+  const [confidence, setConfidence] = useState(3);
+  const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
+  const [lastBreakdown, setLastBreakdown] = useState(null);
+  const [sessionStats, setSessionStats] = useState({
+    correct: 0,
+    incorrect: 0,
+    total: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    points: 0,
+  });
   const q = questions[currentIdx];
   const totalQ = questions.length;
   const selected = answers[q?.id];
@@ -1686,21 +2078,85 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const progressStats = summarizeMcqProgress(progress);
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
+  const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
+  const latestAttempt = q
+    ? (progress.attempts || []).find(attempt =>
+        attempt.sessionId === sessionIdRef.current && attempt.questionId === q.id
+      )
+    : null;
+  const displayedBreakdown = lastBreakdown || latestAttempt?.pointBreakdown || (isLocked ? { base: 0, speed: 0, streak: 0, total: 0 } : null);
+  const modeTitle = {
+    daily: "Daily",
+    random: "Random",
+    sprint: "Sprint",
+    weakness: "Weakness",
+  }[mode] || "MCQ";
+
+  useEffect(() => {
+    if (mode !== "daily") return;
+    onProgressChange(prev => ensureDailyChallenge(prev).progress);
+  }, [mode, onProgressChange]);
 
   useEffect(() => {
     if (!q?.id) return;
+    startedAtRef.current = Date.now();
+    setConfidence(3);
+    setLastBreakdown(null);
+    setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
     onProgressChange(prev => markQuestionSeen(prev, q.id));
   }, [q?.id, onProgressChange]);
+
+  const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
+    if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
+    if (isLocked || !q) return;
+
+    const isCorrect = selectedOverride === q.correct;
+    const nextStreak = isCorrect ? sessionStats.currentStreak + 1 : 0;
+    const timeTakenMs = Math.max(0, Date.now() - startedAtRef.current);
+    const pointBreakdown = mode === "sprint"
+      ? calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs: SPRINT_TIME_LIMIT_MS, currentStreak: nextStreak })
+      : calculateStandardPoints({ isCorrect, mode, currentStreak: nextStreak });
+
+    setLocked(prev => ({ ...prev, [q.id]: true }));
+    setLastBreakdown(pointBreakdown);
+    setSessionStats(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      incorrect: prev.incorrect + (isCorrect ? 0 : 1),
+      total: prev.total + 1,
+      currentStreak: nextStreak,
+      maxStreak: Math.max(prev.maxStreak, nextStreak),
+      points: prev.points + pointBreakdown.total,
+    }));
+    onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
+      mode,
+      confidence,
+      timeTakenMs,
+      pointsAwarded: pointBreakdown.total,
+      pointBreakdown,
+      sessionId: sessionIdRef.current,
+      streakPosition: nextStreak,
+    }));
+  }, [selected, isLocked, q, sessionStats.currentStreak, mode, confidence, onProgressChange]);
+
+  useEffect(() => {
+    if (mode !== "sprint" || isLocked || !q) return;
+
+    const intervalId = setInterval(() => {
+      setTimeLeftMs(prev => Math.max(0, prev - 250));
+    }, 250);
+
+    return () => clearInterval(intervalId);
+  }, [mode, isLocked, q?.id]);
+
+  useEffect(() => {
+    if (mode === "sprint" && timeLeftMs <= 0 && !isLocked && q) {
+      submitAnswer(null, true);
+    }
+  }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer]);
 
   const selectOption = (idx) => {
     if (isLocked) return;
     setAnswers(prev => ({ ...prev, [q.id]: idx }));
-  };
-
-  const lockIn = () => {
-    if (selected === undefined || isLocked) return;
-    setLocked(prev => ({ ...prev, [q.id]: true }));
-    onProgressChange(prev => recordQuestionAnswer(prev, q, selected));
   };
 
   return (
@@ -1713,6 +2169,26 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <Icons.Home /> Αρχική
         </button>
       </div>
+
+      <div className="game-hud">
+        <div className="hud-stat">
+          <span className="hud-value">{mode === "sprint" ? Math.ceil(timeLeftMs / 1000) : sessionStats.currentStreak}</span>
+          <span className="hud-label">{mode === "sprint" ? "Seconds" : "Streak"}</span>
+        </div>
+        <div className="hud-stat">
+          <span className="hud-value">{mode === "sprint" ? sessionStats.points : sessionStats.correct}</span>
+          <span className="hud-label">{mode === "sprint" ? "Points" : "Correct"}</span>
+        </div>
+        <div className="hud-stat">
+          <span className="hud-value">{mode === "sprint" ? sessionStats.currentStreak : sessionStats.incorrect}</span>
+          <span className="hud-label">{mode === "sprint" ? "Streak" : "Incorrect"}</span>
+        </div>
+        <div className="hud-stat">
+          <span className="hud-value">{sessionStats.total}</span>
+          <span className="hud-label">Answered</span>
+        </div>
+      </div>
+
       <div className="test-header">
         <span className="progress-text">
           Mastered {progressStats.mastered}/{progressStats.total}
@@ -1721,15 +2197,35 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <div className="progress-fill" style={{ width: `${(progressStats.mastered / progressStats.total) * 100}%` }} />
         </div>
         <span className="progress-text">
-          {isRandom ? 'Random' : 'In order'} {currentIdx + 1}/{totalQ}
+          {modeTitle} {currentIdx + 1}/{totalQ}
         </span>
       </div>
 
       <div className="question-num">
         Question {q.id}
         <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>
+        {dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
       </div>
       <div className="question-stem">{q.stem}</div>
+
+      <div className="confidence-row">
+        <span className="confidence-label">Confidence</span>
+        {[
+          [1, "Guess"],
+          [2, "Unsure"],
+          [3, "Fairly sure"],
+          [4, "Certain"],
+        ].map(([value, label]) => (
+          <button
+            key={value}
+            className={`confidence-btn ${confidence === value ? "active" : ""}`}
+            onClick={() => setConfidence(value)}
+            disabled={isLocked}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <div className="options-list">
         {q.options.map((opt, i) => {
@@ -1752,7 +2248,19 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         })}
       </div>
 
-      {isLocked && <div className="explanation-box"><strong>💡 Εξήγηση</strong>{q.explanation}</div>}
+      {isLocked && (
+        <div className="explanation-box">
+          <strong>💡 Εξήγηση</strong>{q.explanation}
+          {displayedBreakdown && (
+            <div className="point-breakdown">
+              <span className="point-pill">Correct +{displayedBreakdown.base}</span>
+              {mode === "sprint" && <span className="point-pill">Speed +{displayedBreakdown.speed}</span>}
+              <span className="point-pill">Streak +{displayedBreakdown.streak}</span>
+              <span className="point-pill total">Total +{displayedBreakdown.total}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={{ height: 80 }} />
 
@@ -1761,7 +2269,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <Icons.ChevronLeft />
         </button>
         {!isLocked && (
-          <button className="nav-btn primary" onClick={lockIn} disabled={selected === undefined}>
+          <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
             <Icons.Lock /> Κλείδωμα
           </button>
         )}
@@ -1773,9 +2281,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
 // ORAL EXAMINATION COMPONENTS
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }) {
   const [expandedGravity, setExpandedGravity] = useState({});
@@ -1800,14 +2307,14 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
     <div className="oral-container fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
+          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
         </button>
       </div>
       <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Oral Examination Questions</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Ερωτήσεις κατά βαρύτητα θέματος</p>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Î•ÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Ï„Î¬ Î²Î±ÏÏÏ„Î·Ï„Î± Î¸Î­Î¼Î±Ï„Î¿Ï‚</p>
 
       {oralData.map(gravity => (
         <div key={gravity.id}>
@@ -1855,7 +2362,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
                       <div className="topic-title">{topic.title}</div>
                       {topic.description && <div className="topic-desc">{topic.description}</div>}
                     </div>
-                    <span className="q-count">{countQuestions(topic)} ερ.</span>
+                    <span className="q-count">{countQuestions(topic)} ÎµÏ.</span>
                     {topic.subtopics ? (
                       <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}>
                         <Icons.ChevronDown />
@@ -1876,7 +2383,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
                         >
                           <span className="sub-letter">{sub.letter}.</span>
                           <span className="sub-title">{sub.title}</span>
-                          <span className="q-count">{sub.questions.length} ερ.</span>
+                          <span className="q-count">{sub.questions.length} ÎµÏ.</span>
                           <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
                         </div>
                       ))}
@@ -1917,15 +2424,15 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
     <div className="oral-viewer fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
+          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
         </button>
       </div>
 
       <p style={{fontSize:13, color:'var(--text-dim)', marginBottom:4}}>{title}</p>
-      <div className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</div>
+      <div className="oral-q-counter">Î•ÏÏŽÏ„Î·ÏƒÎ· {currentIdx + 1} / {total}</div>
 
       <div className="oral-q-text">{q.text}</div>
 
@@ -1938,7 +2445,7 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
         {!showAnswer ? (
           <div className="answer-placeholder">
             <Icons.Eye />
-            <div style={{marginTop:8}}>Πατήστε για να δείτε την απάντηση</div>
+            <div style={{marginTop:8}}>Î Î±Ï„Î®ÏƒÏ„Îµ Î³Î¹Î± Î½Î± Î´ÎµÎ¯Ï„Îµ Ï„Î·Î½ Î±Ï€Î¬Î½Ï„Î·ÏƒÎ·</div>
           </div>
         ) : (
           <div className="answer-content">{q.answer}</div>
@@ -1949,10 +2456,10 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
 
       <div className="nav-bar">
         <button className="nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
-          <Icons.ChevronLeft /> Προηγούμενη
+          <Icons.ChevronLeft /> Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î·
         </button>
         <button className="nav-btn" onClick={goNext} disabled={currentIdx === total - 1}>
-          Επόμενη <Icons.ChevronRight />
+          Î•Ï€ÏŒÎ¼ÎµÎ½Î· <Icons.ChevronRight />
         </button>
       </div>
     </div>
@@ -1964,14 +2471,14 @@ function OralTable({ rows, onBack, onHome }) {
     <div className="ref-table fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
+          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
         </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Γρήγορες Απαντήσεις</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Αριθμοί που πρέπει να ξέρεις</p>
+      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Î“ÏÎ®Î³Î¿ÏÎµÏ‚ Î‘Ï€Î±Î½Ï„Î®ÏƒÎµÎ¹Ï‚</h2>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Î‘ÏÎ¹Î¸Î¼Î¿Î¯ Ï€Î¿Ï… Ï€ÏÎ­Ï€ÎµÎ¹ Î½Î± Î¾Î­ÏÎµÎ¹Ï‚</p>
 
       {rows.map((row, i) => (
         <div key={i} className="ref-row">
@@ -1988,25 +2495,25 @@ function PlaceholderPage({ title, description, icon, onBack, onHome }) {
     <div className="placeholder-page fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
+          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
         </button>
       </div>
       <div className="placeholder-icon">{icon}</div>
       <h2>{title}</h2>
       <p>{description}</p>
       <button className="results-btn" onClick={onBack}>
-        Επιστροφή στην Αρχική
+        Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î·Î½ Î‘ÏÏ‡Î¹ÎºÎ®
       </button>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MAIN APP
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export default function App() {
   const [screen, setScreen] = useState('home');
@@ -2255,3 +2762,4 @@ export default function App() {
     </>
   );
 }
+
