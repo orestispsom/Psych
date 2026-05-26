@@ -26,7 +26,6 @@ const ONLINE_PROFILES_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SUPABASE_PROFILE_TABLE = "study_profiles";
 const MASTERY_STREAK_TARGET = 3;
 const DAILY_CHALLENGE_SIZE = 10;
-const RANDOM_SESSION_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const SPRINT_TIME_LIMIT_MS = 30000;
@@ -175,6 +174,33 @@ async function supabaseProfilesRequest(searchParams = {}, options = {}) {
   return response.json();
 }
 
+async function supabaseTableRequest(tableName, searchParams = {}, options = {}) {
+  if (!ONLINE_PROFILES_ENABLED) {
+    throw new Error("Online profiles are not configured.");
+  }
+
+  const url = new URL(`${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/${tableName}`);
+  Object.entries(searchParams).forEach(([key, value]) => url.searchParams.set(key, value));
+
+  const response = await fetch(url.toString(), {
+    ...options,
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Supabase request failed with ${response.status}`);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
 async function loadRemoteProfileStore(activeProfileId = null) {
   const rows = await supabaseProfilesRequest({
     select: "id,name,mcq_progress,created_at",
@@ -213,6 +239,63 @@ async function saveRemoteMcqProgress(profileId, progress) {
       body: JSON.stringify({
         mcq_progress: progress,
         updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+}
+
+async function saveRemoteAnswerBehavior(profileId, progress) {
+  const attempt = progress.attempts?.[0];
+  if (!attempt) return;
+
+  const questionState = progress.questions?.[attempt.questionId];
+  if (!questionState) return;
+
+  await supabaseTableRequest(
+    "user_question_state",
+    { on_conflict: "profile_id,question_id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        profile_id: profileId,
+        question_id: attempt.questionId,
+        seen_count: questionState.seenCount || questionState.attempts || 0,
+        correct_count: questionState.correctCount || 0,
+        wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
+        consecutive_correct: questionState.consecutiveCorrect || 0,
+        consecutive_wrong: questionState.consecutiveWrong || 0,
+        mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
+        last_seen_at: questionState.seenAt || null,
+        next_review_at: questionState.nextReviewAt || null,
+        last_answer_correct: questionState.lastCorrect ?? null,
+        last_confidence: questionState.lastConfidence || null,
+        confident_wrong_count: questionState.confidentWrongCount || 0,
+        average_time_ms: questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null,
+        total_points: questionState.totalPoints || 0,
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+
+  await supabaseTableRequest(
+    "question_attempts",
+    {},
+    {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        client_attempt_id: attempt.id,
+        profile_id: profileId,
+        question_id: attempt.questionId,
+        mode: attempt.mode,
+        selected_option: attempt.selectedOption,
+        is_correct: attempt.isCorrect,
+        confidence: attempt.confidence,
+        time_taken_ms: attempt.timeTakenMs ? Math.round(attempt.timeTakenMs) : null,
+        points_awarded: attempt.pointsAwarded || 0,
+        streak_position: attempt.streakPosition || 0,
+        attempted_at: attempt.attemptedAt,
       }),
     }
   );
@@ -303,6 +386,15 @@ function calculateStandardPoints({ isCorrect, mode, currentStreak }) {
   return { base, speed: 0, streak, total: base + streak };
 }
 
+function inferAnswerConfidence({ mode, timeTakenMs, timeLimitMs, isCorrect }) {
+  if (mode !== "sprint") return 3;
+
+  const ratio = timeTakenMs / timeLimitMs;
+  if (ratio <= 0.33) return isCorrect ? 4 : 3;
+  if (ratio <= 0.66) return 3;
+  return 2;
+}
+
 function getNextReviewIntervalDays({ masteryLevel, isCorrect, confidence, consecutiveCorrect }) {
   if (!isCorrect && confidence >= 3) return 0.25;
   if (!isCorrect) return 1;
@@ -375,6 +467,19 @@ function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
     .map(question => ({ question, score: 0 }));
 
   return [...selected, ...fallback].slice(0, count).map(item => item.question);
+}
+
+function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
+  const records = progress.questions || {};
+  const shuffled = selectRandomQuestions(QUESTIONS.length);
+  const unseen = shuffled.filter(question => !records[question.id]?.seenAt);
+  const lightlySeen = shuffled.filter(question => {
+    const record = records[question.id];
+    return record?.seenAt && (record.seenCount || record.attempts || 0) <= 1;
+  });
+  const fallback = shuffled.filter(question => !isQuestionMastered(records[question.id]));
+
+  return selectUniqueQuestions([...unseen, ...lightlySeen, ...fallback, ...shuffled], count);
 }
 
 function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
@@ -460,9 +565,9 @@ function getSessionQuestions(mode, progress) {
       .map(id => QUESTIONS.find(question => question.id === id))
       .filter(Boolean);
   }
-  if (mode === "sprint") return selectWeaknessQuestions(progress, SPRINT_SESSION_SIZE);
+  if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE);
   if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
-  return selectRandomQuestions(RANDOM_SESSION_SIZE);
+  return selectRandomQuestions(QUESTIONS.length);
 }
 
 function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
@@ -1126,6 +1231,30 @@ const STYLES = `
     letter-spacing: 0.05em;
   }
 
+  .sprint-timer-track {
+    height: 7px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: -8px 0 18px;
+  }
+
+  .sprint-timer-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: inherit;
+    transition: width 0.25s linear, background 0.2s ease;
+  }
+
+  .sprint-timer-fill.warning {
+    background: var(--gold);
+  }
+
+  .sprint-timer-fill.danger {
+    background: var(--red);
+  }
+
   .confidence-row {
     display: flex;
     align-items: center;
@@ -1163,6 +1292,21 @@ const STYLES = `
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
+    animation: point-pop 0.35s ease-out;
+  }
+
+  @keyframes point-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+    }
+    70% {
+      transform: translateY(-2px) scale(1.02);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .point-pill {
@@ -1178,6 +1322,24 @@ const STYLES = `
     border-color: rgba(34,197,94,0.35);
     color: var(--green);
     font-weight: 700;
+  }
+
+  .point-breakdown.low .point-pill.total {
+    background: var(--red-bg);
+    border-color: rgba(239,68,68,0.35);
+    color: var(--red);
+  }
+
+  .point-breakdown.medium .point-pill.total {
+    background: var(--gold-bg);
+    border-color: rgba(245,158,11,0.35);
+    color: var(--gold);
+  }
+
+  .point-breakdown.high .point-pill.total {
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.35);
+    color: var(--green);
   }
 
   .reset-progress-btn {
@@ -1964,16 +2126,16 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 
 function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Î•ÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ Ï€Î¿Î»Î»Î±Ï€Î»Î®Ï‚ ÎµÏ€Î¹Î»Î¿Î³Î®Ï‚ Î¼Îµ Ï€ÏÏŒÎ¿Î´Î¿ mastery', active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Oral Examination Questions', desc: '134 ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Ï„Î¬ Î²Î±ÏÏÏ„Î·Ï„Î± Î¸ÎµÎ¼Î¬Ï„Ï‰Î½', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Gamified multiple-choice practice with saved mastery progress', active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Oral Examination Questions', desc: 'Oral exam practice organized by topic priority', active: true },
   ];
 
   return (
     <div className="home fade-in">
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
-        <h1 className="home-title">Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ® Î•Î¹Î´Î¹ÎºÏŒÏ„Î·Ï„Î±</h1>
-        <p className="home-subtitle">Î Î»Î±Ï„Ï†ÏŒÏÎ¼Î± Ï€ÏÎ¿ÎµÏ„Î¿Î¹Î¼Î±ÏƒÎ¯Î±Ï‚ ÎµÎ¾ÎµÏ„Î¬ÏƒÎµÏ‰Î½</p>
+        <h1 className="home-title">Psychiatry Specialty Exam</h1>
+        <p className="home-subtitle">Study companion for MCQ and oral preparation</p>
         <div className="profile-bar">
           <span>{profileName}</span>
           <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
@@ -1989,7 +2151,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
             <div className={`card-icon ${s.iconClass} card-icon-lg`}>{s.icon}</div>
             <div className="card-title" style={{fontSize:19}}>{s.title}</div>
             <div className="card-desc">{s.desc}</div>
-            {!s.active && <span className="card-badge">Î£ÏÎ½Ï„Î¿Î¼Î±</span>}
+            {!s.active && <span className="card-badge">Soon</span>}
           </div>
         ))}
       </div>
@@ -2002,10 +2164,10 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
     <div className="mcq-select fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Back
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Home
         </button>
       </div>
       <h2>MCQ Study</h2>
@@ -2032,11 +2194,11 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
         Random
-        <small>Relaxed mixed practice with streak and session counters.</small>
+        <small>Relaxed mixed practice through the full question bank, shuffled each time.</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('sprint')}>
         Sprint
-        <small>10 timed questions, 30 seconds each, with speed and streak points.</small>
+        <small>10 timed unseen-first questions, 30 seconds each, with speed and streak points.</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('weakness')}>
         Weakness
@@ -2058,7 +2220,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
-  const [confidence, setConfidence] = useState(3);
   const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [sessionStats, setSessionStats] = useState({
@@ -2085,6 +2246,13 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       )
     : null;
   const displayedBreakdown = lastBreakdown || latestAttempt?.pointBreakdown || (isLocked ? { base: 0, speed: 0, streak: 0, total: 0 } : null);
+  const sprintRatio = Math.max(0, Math.min(1, timeLeftMs / SPRINT_TIME_LIMIT_MS));
+  const sprintTimerClass = sprintRatio <= 0.25 ? "danger" : sprintRatio <= 0.5 ? "warning" : "";
+  const pointTier = displayedBreakdown?.total >= 250
+    ? "high"
+    : displayedBreakdown?.total >= 100
+      ? "medium"
+      : "low";
   const modeTitle = {
     daily: "Daily",
     random: "Random",
@@ -2100,7 +2268,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   useEffect(() => {
     if (!q?.id) return;
     startedAtRef.current = Date.now();
-    setConfidence(3);
     setLastBreakdown(null);
     setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
     onProgressChange(prev => markQuestionSeen(prev, q.id));
@@ -2113,6 +2280,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     const isCorrect = selectedOverride === q.correct;
     const nextStreak = isCorrect ? sessionStats.currentStreak + 1 : 0;
     const timeTakenMs = Math.max(0, Date.now() - startedAtRef.current);
+    const inferredConfidence = inferAnswerConfidence({
+      mode,
+      timeTakenMs,
+      timeLimitMs: SPRINT_TIME_LIMIT_MS,
+      isCorrect,
+    });
     const pointBreakdown = mode === "sprint"
       ? calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs: SPRINT_TIME_LIMIT_MS, currentStreak: nextStreak })
       : calculateStandardPoints({ isCorrect, mode, currentStreak: nextStreak });
@@ -2129,14 +2302,14 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     }));
     onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
       mode,
-      confidence,
+      confidence: inferredConfidence,
       timeTakenMs,
       pointsAwarded: pointBreakdown.total,
       pointBreakdown,
       sessionId: sessionIdRef.current,
       streakPosition: nextStreak,
     }));
-  }, [selected, isLocked, q, sessionStats.currentStreak, mode, confidence, onProgressChange]);
+  }, [selected, isLocked, q, sessionStats.currentStreak, mode, onProgressChange]);
 
   useEffect(() => {
     if (mode !== "sprint" || isLocked || !q) return;
@@ -2166,7 +2339,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <Icons.ChevronLeft /> MCQ Menu
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
+          <Icons.Home /> Home
         </button>
       </div>
 
@@ -2189,6 +2362,15 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </div>
       </div>
 
+      {mode === "sprint" && (
+        <div className="sprint-timer-track" aria-label="Sprint countdown">
+          <div
+            className={`sprint-timer-fill ${sprintTimerClass}`}
+            style={{ width: `${sprintRatio * 100}%` }}
+          />
+        </div>
+      )}
+
       <div className="test-header">
         <span className="progress-text">
           Mastered {progressStats.mastered}/{progressStats.total}
@@ -2207,25 +2389,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         {dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
       </div>
       <div className="question-stem">{q.stem}</div>
-
-      <div className="confidence-row">
-        <span className="confidence-label">Confidence</span>
-        {[
-          [1, "Guess"],
-          [2, "Unsure"],
-          [3, "Fairly sure"],
-          [4, "Certain"],
-        ].map(([value, label]) => (
-          <button
-            key={value}
-            className={`confidence-btn ${confidence === value ? "active" : ""}`}
-            onClick={() => setConfidence(value)}
-            disabled={isLocked}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
 
       <div className="options-list">
         {q.options.map((opt, i) => {
@@ -2250,9 +2413,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       {isLocked && (
         <div className="explanation-box">
-          <strong>💡 Εξήγηση</strong>{q.explanation}
+          <strong>Explanation</strong>{q.explanation}
           {displayedBreakdown && (
-            <div className="point-breakdown">
+            <div className={`point-breakdown ${pointTier}`}>
               <span className="point-pill">Correct +{displayedBreakdown.base}</span>
               {mode === "sprint" && <span className="point-pill">Speed +{displayedBreakdown.speed}</span>}
               <span className="point-pill">Streak +{displayedBreakdown.streak}</span>
@@ -2270,7 +2433,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </button>
         {!isLocked && (
           <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-            <Icons.Lock /> Κλείδωμα
+            <Icons.Lock /> Lock
           </button>
         )}
         <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
@@ -2523,6 +2686,7 @@ export default function App() {
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const remoteSaveTimerRef = useRef(null);
+  const lastRemoteAttemptIdRef = useRef(null);
   const activeProfile = profileStore.activeProfileId
     ? profileStore.profiles[profileStore.activeProfileId]
     : null;
@@ -2587,6 +2751,16 @@ export default function App() {
     remoteSaveTimerRef.current = setTimeout(async () => {
       try {
         await saveRemoteMcqProgress(profileId, progress);
+        const latestAttemptId = progress.attempts?.[0]?.id;
+        if (latestAttemptId && latestAttemptId !== lastRemoteAttemptIdRef.current) {
+          try {
+            await saveRemoteAnswerBehavior(profileId, progress);
+          } catch {
+            // The normalized gamification tables are optional; the profile JSON remains the source of truth.
+          } finally {
+            lastRemoteAttemptIdRef.current = latestAttemptId;
+          }
+        }
         setSyncStatus("online");
       } catch {
         setSyncStatus("offline");
