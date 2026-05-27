@@ -649,6 +649,41 @@ function scoreQuestionForStudyPriority(question, progress, now = new Date()) {
   return score + Math.random() * 10;
 }
 
+function isWeaknessCandidate(question, progress) {
+  const record = getQuestionProgress(progress, question.id);
+  const attempts = getAttemptsCount(record);
+  const accuracy = getAccuracy(record);
+
+  return attempts > 0 && (
+    getWrongCount(record) > 0 ||
+    (record.consecutiveWrong || 0) > 0 ||
+    (record.confidentWrongCount || 0) > 0 ||
+    (attempts >= 3 && accuracy !== null && accuracy < 0.7)
+  );
+}
+
+function scoreQuestionForRandomReview(question, progress, now = new Date()) {
+  const record = getQuestionProgress(progress, question.id);
+  const attempts = getAttemptsCount(record);
+  if (!attempts) return -Infinity;
+
+  const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
+  if (record.lastCorrect && daysSinceAnswer !== null && daysSinceAnswer < 7 && !isDue(record, now)) {
+    return -Infinity;
+  }
+
+  let score = 0;
+  if (getWrongCount(record) > 0) score += 30;
+  if ((record.consecutiveWrong || 0) > 0) score += 35;
+  if ((record.confidentWrongCount || 0) > 0) score += 30;
+  if (isDue(record, now)) score += 25;
+  if (daysSinceAnswer === null) score += 5;
+  else score += Math.min(daysSinceAnswer, 60);
+  if (record.lastCorrect) score -= 12;
+
+  return score + Math.random() * 4;
+}
+
 function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
   const selected = [];
 
@@ -664,17 +699,12 @@ function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
 }
 
 function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
-  const usedIds = new Set();
   const scored = QUESTIONS
     .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
+    .filter(item => isWeaknessCandidate(item.question, progress) && item.score >= 25)
     .sort((a, b) => b.score - a.score);
-  const selected = selectUniqueQuestions(scored.filter(item => item.score >= 25), count, usedIds);
-  const fallback = selectRandomQuestions(QUESTIONS.length)
-    .filter(question => !usedIds.has(question.id))
-    .slice(0, count - selected.length)
-    .map(question => ({ question, score: 0 }));
 
-  return [...selected, ...fallback].slice(0, count).map(item => item.question);
+  return selectUniqueQuestions(scored, count).map(item => item.question);
 }
 
 function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
@@ -694,23 +724,42 @@ function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
   return selectUniqueQuestions([...unseen, ...lightlySeen, ...weakOrDue, ...fallback, ...shuffled], count);
 }
 
-function selectWeightedRandomQuestions(progress) {
+function selectRandomPracticeQuestions(progress) {
   const now = new Date();
-  const records = progress.questions || {};
   const shuffled = selectRandomQuestions(QUESTIONS.length);
-  const unseen = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
-  const dueOrWeak = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now) }))
-    .filter(item => item.score >= 45)
+  const usedIds = new Set();
+  const reviewCandidates = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForRandomReview(question, progress, now) }))
+    .filter(item => Number.isFinite(item.score))
     .sort((a, b) => b.score - a.score)
     .map(item => item.question);
-  const activeLearning = shuffled.filter(question => {
-    const record = records[question.id];
-    return hasSeenQuestion(record) && !isQuestionMastered(record);
-  });
-  const masteredMaintenance = shuffled.filter(question => isQuestionMastered(records[question.id]));
+  const randomQueue = [...shuffled];
+  const reviewQueue = [...reviewCandidates];
+  const selected = [];
 
-  return selectUniqueQuestions([...dueOrWeak, ...unseen, ...activeLearning, ...masteredMaintenance, ...shuffled], QUESTIONS.length);
+  for (let index = 0; index < QUESTIONS.length; index += 1) {
+    const shouldUseReviewSlot = (index + 1) % 7 === 0;
+    const queue = shouldUseReviewSlot ? reviewQueue : randomQueue;
+    let next = null;
+
+    while (queue.length && !next) {
+      const candidate = queue.shift();
+      if (!usedIds.has(candidate.id)) next = candidate;
+    }
+
+    if (!next) {
+      while (randomQueue.length && !next) {
+        const candidate = randomQueue.shift();
+        if (!usedIds.has(candidate.id)) next = candidate;
+      }
+    }
+
+    if (!next) break;
+    usedIds.add(next.id);
+    selected.push(next);
+  }
+
+  return selected;
 }
 
 function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
@@ -801,7 +850,7 @@ function getSessionQuestions(mode, progress) {
   }
   if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE);
   if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
-  return selectWeightedRandomQuestions(progress);
+  return selectRandomPracticeQuestions(progress);
 }
 
 function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
@@ -1607,6 +1656,34 @@ const STYLES = `
     color: var(--green);
   }
 
+  .sprint-auto-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 78px;
+    z-index: 120;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+  }
+
+  .sprint-auto-toggle.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .sprint-auto-toggle:hover {
+    transform: translateY(-1px);
+  }
+
   .reset-progress-btn {
     border: none;
     background: none;
@@ -2371,6 +2448,7 @@ const STYLES = `
     .game-hud { grid-template-columns: repeat(2, 1fr); }
     .nav-bar { gap: 6px; padding: 12px 16px; }
     .nav-btn { padding: 8px 12px; font-size: 13px; }
+    .sprint-auto-toggle { right: 12px; bottom: 68px; }
   }
 `;
 
@@ -2563,6 +2641,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [finalSprintSession, setFinalSprintSession] = useState(null);
+  const [autoAdvanceSprint, setAutoAdvanceSprint] = useState(true);
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     incorrect: 0,
@@ -2663,6 +2742,20 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     }, 900);
   }, [currentIdx, finishSprint, mode, totalQ]);
 
+  const goToNextQuestion = useCallback(() => {
+    if (mode === "sprint") {
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      if (currentIdx >= totalQ - 1) {
+        finishSprint(sessionStats);
+        return;
+      }
+      setCurrentIdx(index => Math.min(index + 1, totalQ - 1));
+      return;
+    }
+
+    setCurrentIdx(nextIdx);
+  }, [currentIdx, finishSprint, mode, nextIdx, sessionStats, totalQ]);
+
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
@@ -2689,7 +2782,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       points: sessionStats.points + pointBreakdown.total,
     };
 
-    if (mode === "sprint") advancingRef.current = true;
+    if (mode === "sprint" && autoAdvanceSprint) advancingRef.current = true;
     setLocked(prev => ({ ...prev, [q.id]: true }));
     setLastBreakdown(pointBreakdown);
     setSessionStats(nextStats);
@@ -2703,8 +2796,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       streakPosition: nextStreak,
     }));
 
-    if (mode === "sprint") advanceSprint(nextStats);
-  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, advanceSprint, finalSprintSession]);
+    if (mode === "sprint" && autoAdvanceSprint) advanceSprint(nextStats);
+  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, autoAdvanceSprint, advanceSprint, finalSprintSession]);
 
   useEffect(() => {
     if (mode !== "sprint" || isLocked || !q || finalSprintSession) return;
@@ -2757,6 +2850,25 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       points: 0,
     });
   };
+
+  if (!q) {
+    return (
+      <div className="test-container fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <div className="explanation-box">
+          <strong>No questions in this mode yet</strong>
+          Weakness mode will fill after this profile has wrong or high-risk answers to review.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="test-container fade-in">
@@ -2853,6 +2965,16 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       <div style={{ height: 80 }} />
 
+      {mode === "sprint" && (
+        <button
+          className={`sprint-auto-toggle ${autoAdvanceSprint ? "active" : ""}`}
+          onClick={() => setAutoAdvanceSprint(value => !value)}
+          title="Toggle automatic movement after each Sprint answer"
+        >
+          Auto-advance {autoAdvanceSprint ? "On" : "Off"}
+        </button>
+      )}
+
       <div className="nav-bar">
         <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={mode === "sprint" || prevIdx < 0}>
           <Icons.ChevronLeft />
@@ -2862,8 +2984,14 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
             <Icons.Lock /> Lock
           </button>
         )}
-        <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={mode === "sprint" || nextIdx < 0 || nextIdx >= totalQ}>
-          <Icons.ChevronRight />
+        <button
+          className="nav-btn"
+          onClick={goToNextQuestion}
+          disabled={mode === "sprint" ? !isLocked : nextIdx < 0 || nextIdx >= totalQ}
+        >
+          {mode === "sprint" && isLocked
+            ? currentIdx >= totalQ - 1 ? "Finish" : "Next"
+            : <Icons.ChevronRight />}
         </button>
       </div>
 
