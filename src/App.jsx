@@ -1,11 +1,11 @@
-﻿import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 function selectRandomQuestions(count) {
   const arr = [...QUESTIONS];
@@ -30,6 +30,56 @@ const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const SPRINT_TIME_LIMIT_MS = 30000;
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
+
+function createEmptyOralProgress() {
+  return {
+    version: 1,
+    mastered: {},
+    updatedAt: null,
+  };
+}
+
+function normalizeOralProgress(progress) {
+  const empty = createEmptyOralProgress();
+  if (!progress || typeof progress !== "object") return empty;
+
+  const mastered = progress.mastered && typeof progress.mastered === "object"
+    ? Object.fromEntries(
+        Object.entries(progress.mastered).filter(([, value]) => Boolean(value))
+      )
+    : {};
+
+  return {
+    ...empty,
+    ...progress,
+    version: 1,
+    mastered,
+  };
+}
+
+function getOralQuestionsFromTopic(topic) {
+  if (topic.subtopics) {
+    return topic.subtopics.flatMap(subtopic => subtopic.questions || []);
+  }
+  return topic.questions || [];
+}
+
+function getOralQuestionsFromGravity(gravity) {
+  return (gravity.topics || []).flatMap(getOralQuestionsFromTopic);
+}
+
+function countMasteredOralQuestions(questions, oralProgress) {
+  const mastered = normalizeOralProgress(oralProgress).mastered;
+  return questions.reduce((sum, question) => sum + (mastered[question.id] ? 1 : 0), 0);
+}
+
+function summarizeOralProgress(oralProgress, questions = null) {
+  const targetQuestions = questions || oralData.flatMap(getOralQuestionsFromGravity);
+  return {
+    mastered: countMasteredOralQuestions(targetQuestions, oralProgress),
+    total: targetQuestions.length,
+  };
+}
 
 function createEmptyMcqProgress() {
   return {
@@ -102,13 +152,14 @@ function getProfileId(name) {
   return normalizeProfileName(name).toLocaleLowerCase();
 }
 
-function createStudyProfile(name, mcqProgress = createEmptyMcqProgress()) {
+function createStudyProfile(name, mcqProgress = createEmptyMcqProgress(), oralProgress = createEmptyOralProgress()) {
   const displayName = normalizeProfileName(name);
   return {
     id: getProfileId(displayName),
     name: displayName,
     createdAt: new Date().toISOString(),
     mcqProgress: normalizeMcqProgress(mcqProgress),
+    oralProgress: normalizeOralProgress(oralProgress),
   };
 }
 
@@ -132,6 +183,7 @@ function loadProfileStore() {
           {
             ...profile,
             mcqProgress: normalizeMcqProgress(profile.mcqProgress),
+            oralProgress: normalizeOralProgress(profile.oralProgress),
           },
         ])
     );
@@ -159,6 +211,7 @@ function profileFromRemoteRow(row) {
     name: row.name,
     createdAt: row.created_at || new Date().toISOString(),
     mcqProgress: normalizeMcqProgress(row.mcq_progress),
+    oralProgress: normalizeOralProgress(row.oral_progress),
   };
 }
 
@@ -167,6 +220,7 @@ function profileToRemoteRow(profile) {
     id: profile.id,
     name: profile.name,
     mcq_progress: normalizeMcqProgress(profile.mcqProgress),
+    oral_progress: normalizeOralProgress(profile.oralProgress),
   };
 }
 
@@ -326,10 +380,18 @@ async function loadRemoteQuestionStates(profileIds) {
 }
 
 async function loadRemoteProfileStore(activeProfileId = null) {
-  const rows = await supabaseProfilesRequest({
-    select: "id,name,mcq_progress,created_at",
-    order: "name.asc",
-  });
+  let rows;
+  try {
+    rows = await supabaseProfilesRequest({
+      select: "id,name,mcq_progress,oral_progress,created_at",
+      order: "name.asc",
+    });
+  } catch {
+    rows = await supabaseProfilesRequest({
+      select: "id,name,mcq_progress,created_at",
+      order: "name.asc",
+    });
+  }
   const profiles = Object.fromEntries(
     rows.map(row => {
       const profile = profileFromRemoteRow(row);
@@ -352,14 +414,28 @@ async function loadRemoteProfileStore(activeProfileId = null) {
 }
 
 async function upsertRemoteProfile(profile) {
-  const rows = await supabaseProfilesRequest(
-    { on_conflict: "id" },
-    {
-      method: "POST",
-      headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-      body: JSON.stringify(profileToRemoteRow(profile)),
-    }
-  );
+  let rows;
+  try {
+    rows = await supabaseProfilesRequest(
+      { on_conflict: "id" },
+      {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify(profileToRemoteRow(profile)),
+      }
+    );
+  } catch {
+    const fallbackRow = profileToRemoteRow(profile);
+    delete fallbackRow.oral_progress;
+    rows = await supabaseProfilesRequest(
+      { on_conflict: "id" },
+      {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify(fallbackRow),
+      }
+    );
+  }
 
   return profileFromRemoteRow(rows[0]);
 }
@@ -372,6 +448,20 @@ async function saveRemoteMcqProgress(profileId, progress) {
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
         mcq_progress: progress,
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+}
+
+async function saveRemoteOralProgress(profileId, progress) {
+  await supabaseProfilesRequest(
+    { id: `eq.${profileId}` },
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        oral_progress: normalizeOralProgress(progress),
         updated_at: new Date().toISOString(),
       }),
     }
@@ -999,9 +1089,9 @@ function getSprintHighScore(progress) {
     return Math.max(best, session.points || 0);
   }, 0);
 }
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // ICONS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 const Icons = {
   Brain: () => (
@@ -1088,9 +1178,9 @@ const Icons = {
   ),
 };
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // STYLES
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
@@ -1137,7 +1227,7 @@ const STYLES = `
     overflow-x: hidden;
   }
 
-  /* â”€â”€â”€ HOME SCREEN â”€â”€â”€ */
+  /* ─── HOME SCREEN ─── */
   .home {
     max-width: 720px;
     margin: 0 auto;
@@ -1428,7 +1518,7 @@ const STYLES = `
     color: #fbbf24;
   }
 
-  /* â”€â”€â”€ MCQ SELECTION â”€â”€â”€ */
+  /* ─── MCQ SELECTION ─── */
   .mcq-select {
     max-width: 560px;
     margin: 0 auto;
@@ -1730,7 +1820,7 @@ const STYLES = `
   }
   .home-btn:hover { color: var(--text); background: var(--bg-card-hover); }
 
-  /* â”€â”€â”€ MCQ TEST â”€â”€â”€ */
+  /* ─── MCQ TEST ─── */
   .test-container {
     max-width: 720px;
     margin: 0 auto;
@@ -1912,7 +2002,7 @@ const STYLES = `
     letter-spacing: 0.05em;
   }
 
-  /* â”€â”€â”€ NAVIGATION BAR â”€â”€â”€ */
+  /* ─── NAVIGATION BAR ─── */
   .nav-bar {
     position: fixed;
     bottom: 0;
@@ -1961,7 +2051,7 @@ const STYLES = `
     color: #fca5a5;
   }
 
-  /* â”€â”€â”€ RESULTS â”€â”€â”€ */
+  /* ─── RESULTS ─── */
   .results {
     max-width: 600px;
     margin: 0 auto;
@@ -2018,7 +2108,7 @@ const STYLES = `
   .results-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
   .results-btn.primary:hover { background: #2563eb; }
 
-  /* â”€â”€â”€ MODAL â”€â”€â”€ */
+  /* ─── MODAL ─── */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -2133,7 +2223,7 @@ const STYLES = `
     color: var(--text);
   }
 
-  /* â”€â”€â”€ PLACEHOLDER â”€â”€â”€ */
+  /* ─── PLACEHOLDER ─── */
   .placeholder-page {
     max-width: 560px;
     margin: 0 auto;
@@ -2175,7 +2265,7 @@ const STYLES = `
 
   .fade-in { animation: fadeIn 0.35s ease; }
 
-  /* â”€â”€â”€ REVIEW MODE â”€â”€â”€ */
+  /* ─── REVIEW MODE ─── */
   .review-header {
     display: flex;
     align-items: center;
@@ -2209,12 +2299,42 @@ const STYLES = `
   .review-dot.incorrect { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
   .review-dot.current { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* â”€â”€ Oral Accordion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Accordion ─────────────────────────────── */
 
   .oral-container {
     max-width: 720px;
     margin: 0 auto;
     padding: 20px;
+  }
+
+  .oral-overview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: -14px auto 24px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .oral-overview strong {
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  .oral-progress-pill {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .oral-progress-pill.complete {
+    color: var(--green);
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.35);
   }
 
   .gravity-bar {
@@ -2345,7 +2465,7 @@ const STYLES = `
     white-space: nowrap;
   }
 
-  /* â”€â”€ Oral Question Viewer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Question Viewer ─────────────────────────── */
 
   .oral-viewer {
     max-width: 720px;
@@ -2356,6 +2476,13 @@ const STYLES = `
   .oral-q-counter {
     font-size: 13px;
     color: var(--text-dim);
+  }
+
+  .oral-viewer-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 8px;
   }
 
@@ -2365,6 +2492,32 @@ const STYLES = `
     color: var(--text);
     margin-bottom: 28px;
     font-weight: 500;
+  }
+
+  .oral-mastery-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: -12px 0 24px;
+    padding: 9px 13px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .oral-mastery-toggle:hover {
+    background: var(--bg-card-hover);
+    color: var(--text);
+  }
+  .oral-mastery-toggle.mastered {
+    color: var(--green);
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.35);
   }
 
   .answer-box {
@@ -2408,7 +2561,7 @@ const STYLES = `
     font-style: italic;
   }
 
-  /* â”€â”€ Oral Reference Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Reference Table ─────────────────────────── */
 
   .ref-table {
     max-width: 720px;
@@ -2452,9 +2605,9 @@ const STYLES = `
   }
 `;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // COMPONENTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile, onCreateProfile }) {
   const [username, setUsername] = useState("");
@@ -2520,6 +2673,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
             <div className="profile-list-title">Existing profiles</div>
             {profiles.map(profile => {
               const summary = summarizeMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
+              const oralSummary = summarizeOralProgress(profile.oralProgress || createEmptyOralProgress());
               return (
                 <button
                   key={profile.id}
@@ -2527,7 +2681,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                   onClick={() => onSelectProfile(profile.id)}
                 >
                   <span>{profile.name}</span>
-                  <small>{summary.mastered} mastered Â· {summary.review} review</small>
+                  <small>MCQ {summary.mastered} mastered · Oral {oralSummary.mastered}/{oralSummary.total}</small>
                 </button>
               );
             })}
@@ -3053,11 +3207,13 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 }
 
 // ORAL EXAMINATION COMPONENTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
-function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }) {
+function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress }) {
   const [expandedGravity, setExpandedGravity] = useState({});
   const [expandedTopic, setExpandedTopic] = useState({});
+  const normalizedOralProgress = normalizeOralProgress(oralProgress);
+  const overallSummary = summarizeOralProgress(normalizedOralProgress);
 
   const toggleGravity = (id) => {
     setExpandedGravity(prev => ({ ...prev, [id]: !prev[id] }));
@@ -3074,18 +3230,31 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
     return topic.questions?.length || 0;
   };
 
+  const renderProgressPill = (questions) => {
+    const summary = summarizeOralProgress(normalizedOralProgress, questions);
+    return (
+      <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
+        {summary.mastered}/{summary.total}
+      </span>
+    );
+  };
+
   return (
     <div className="oral-container fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
       <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Oral Examination Questions</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Î•ÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Ï„Î¬ Î²Î±ÏÏÏ„Î·Ï„Î± Î¸Î­Î¼Î±Ï„Î¿Ï‚</p>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Ερωτήσεις κατά βαρύτητα θέματος</p>
+      <div className="oral-overview">
+        <strong>{overallSummary.mastered}/{overallSummary.total}</strong>
+        <span>mastered across oral questions</span>
+      </div>
 
       {oralData.map(gravity => (
         <div key={gravity.id}>
@@ -3103,6 +3272,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
             <span className="bar-label" style={{color: gravity.color}}>{gravity.label}</span>
             <span className="bar-title">{gravity.title}</span>
             <span className="bar-tagline">{gravity.tagline}</span>
+            {!gravity.isTable && renderProgressPill(getOralQuestionsFromGravity(gravity))}
             {!gravity.isTable && (
               <span className={`bar-chevron ${expandedGravity[gravity.id] ? 'open' : ''}`}>
                 <Icons.ChevronDown />
@@ -3133,7 +3303,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
                       <div className="topic-title">{topic.title}</div>
                       {topic.description && <div className="topic-desc">{topic.description}</div>}
                     </div>
-                    <span className="q-count">{countQuestions(topic)} ÎµÏ.</span>
+                    {renderProgressPill(getOralQuestionsFromTopic(topic))}
                     {topic.subtopics ? (
                       <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}>
                         <Icons.ChevronDown />
@@ -3154,7 +3324,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
                         >
                           <span className="sub-letter">{sub.letter}.</span>
                           <span className="sub-title">{sub.title}</span>
-                          <span className="q-count">{sub.questions.length} ÎµÏ.</span>
+                          {renderProgressPill(sub.questions)}
                           <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
                         </div>
                       ))}
@@ -3170,12 +3340,15 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable }
   );
 }
 
-function OralQuestionViewer({ questions, title, onBack, onHome }) {
+function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered, onBack, onHome }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
   const q = questions[currentIdx];
   const total = questions.length;
+  const normalizedOralProgress = normalizeOralProgress(oralProgress);
+  const sectionSummary = summarizeOralProgress(normalizedOralProgress, questions);
+  const isMastered = Boolean(normalizedOralProgress.mastered[q.id]);
 
   const goPrev = () => {
     if (currentIdx > 0) {
@@ -3195,17 +3368,29 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
     <div className="oral-viewer fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
 
       <p style={{fontSize:13, color:'var(--text-dim)', marginBottom:4}}>{title}</p>
-      <div className="oral-q-counter">Î•ÏÏŽÏ„Î·ÏƒÎ· {currentIdx + 1} / {total}</div>
+      <div className="oral-viewer-meta">
+        <div className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</div>
+        <span className={`oral-progress-pill ${sectionSummary.total > 0 && sectionSummary.mastered === sectionSummary.total ? "complete" : ""}`}>
+          {sectionSummary.mastered}/{sectionSummary.total} mastered
+        </span>
+      </div>
 
       <div className="oral-q-text">{q.text}</div>
+      <button
+        className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+        onClick={() => onQuestionMastered(q.id, !isMastered)}
+      >
+        <Icons.Check />
+        {isMastered ? "Mastered" : "Mark as mastered"}
+      </button>
 
       {q.source && <div className="oral-source">{q.source}</div>}
 
@@ -3216,7 +3401,7 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
         {!showAnswer ? (
           <div className="answer-placeholder">
             <Icons.Eye />
-            <div style={{marginTop:8}}>Î Î±Ï„Î®ÏƒÏ„Îµ Î³Î¹Î± Î½Î± Î´ÎµÎ¯Ï„Îµ Ï„Î·Î½ Î±Ï€Î¬Î½Ï„Î·ÏƒÎ·</div>
+            <div style={{marginTop:8}}>Πατήστε για να δείτε την απάντηση</div>
           </div>
         ) : (
           <div className="answer-content">{q.answer}</div>
@@ -3227,10 +3412,10 @@ function OralQuestionViewer({ questions, title, onBack, onHome }) {
 
       <div className="nav-bar">
         <button className="nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
-          <Icons.ChevronLeft /> Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î·
+          <Icons.ChevronLeft /> Προηγούμενη
         </button>
         <button className="nav-btn" onClick={goNext} disabled={currentIdx === total - 1}>
-          Î•Ï€ÏŒÎ¼ÎµÎ½Î· <Icons.ChevronRight />
+          Επόμενη <Icons.ChevronRight />
         </button>
       </div>
     </div>
@@ -3242,14 +3427,14 @@ function OralTable({ rows, onBack, onHome }) {
     <div className="ref-table fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Î“ÏÎ®Î³Î¿ÏÎµÏ‚ Î‘Ï€Î±Î½Ï„Î®ÏƒÎµÎ¹Ï‚</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Î‘ÏÎ¹Î¸Î¼Î¿Î¯ Ï€Î¿Ï… Ï€ÏÎ­Ï€ÎµÎ¹ Î½Î± Î¾Î­ÏÎµÎ¹Ï‚</p>
+      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Γρήγορες Απαντήσεις</h2>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Αριθμοί που πρέπει να ξέρεις</p>
 
       {rows.map((row, i) => (
         <div key={i} className="ref-row">
@@ -3266,25 +3451,25 @@ function PlaceholderPage({ title, description, icon, onBack, onHome }) {
     <div className="placeholder-page fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="placeholder-icon">{icon}</div>
       <h2>{title}</h2>
       <p>{description}</p>
       <button className="results-btn" onClick={onBack}>
-        Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î·Î½ Î‘ÏÏ‡Î¹ÎºÎ®
+        Επιστροφή στην Αρχική
       </button>
     </div>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // MAIN APP
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 export default function App() {
   const [screen, setScreen] = useState('home');
@@ -3294,12 +3479,15 @@ export default function App() {
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const remoteSaveTimerRef = useRef(null);
+  const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
   const activeProfile = profileStore.activeProfileId
     ? profileStore.profiles[profileStore.activeProfileId]
     : null;
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
+  const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
   const mcqProgressSummary = useMemo(() => summarizeMcqProgress(mcqProgress), [mcqProgress]);
+  const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Local profiles only. Add Supabase environment variables for online sync.";
     if (syncStatus === "loading") return "Loading online profiles...";
@@ -3348,6 +3536,7 @@ export default function App() {
   useEffect(() => {
     return () => {
       if (remoteSaveTimerRef.current) clearTimeout(remoteSaveTimerRef.current);
+      if (oralRemoteSaveTimerRef.current) clearTimeout(oralRemoteSaveTimerRef.current);
     };
   }, []);
 
@@ -3369,6 +3558,21 @@ export default function App() {
             lastRemoteAttemptIdRef.current = latestAttemptId;
           }
         }
+        setSyncStatus("online");
+      } catch {
+        setSyncStatus("offline");
+      }
+    }, 500);
+  }, []);
+
+  const queueRemoteOralProgressSave = useCallback((profileId, progress) => {
+    if (!ONLINE_PROFILES_ENABLED || !profileId) return;
+
+    setSyncStatus("saving");
+    if (oralRemoteSaveTimerRef.current) clearTimeout(oralRemoteSaveTimerRef.current);
+    oralRemoteSaveTimerRef.current = setTimeout(async () => {
+      try {
+        await saveRemoteOralProgress(profileId, progress);
         setSyncStatus("online");
       } catch {
         setSyncStatus("offline");
@@ -3462,6 +3666,49 @@ export default function App() {
     queueRemoteProgressSave(profileId, nextProgress);
   }, [profileStore.activeProfileId, profileStore.profiles, queueRemoteProgressSave]);
 
+  const updateOralProgress = useCallback((nextOrUpdater) => {
+    const profileId = profileStore.activeProfileId;
+    const profile = profileId ? profileStore.profiles[profileId] : null;
+    if (!profile) return;
+
+    const currentProgress = profile.oralProgress || createEmptyOralProgress();
+    const nextProgress = normalizeOralProgress(
+      typeof nextOrUpdater === "function"
+        ? nextOrUpdater(currentProgress)
+        : nextOrUpdater
+    );
+
+    setProfileStore(prev => ({
+      ...prev,
+      profiles: {
+        ...prev.profiles,
+        [profileId]: {
+          ...prev.profiles[profileId],
+          oralProgress: nextProgress,
+        },
+      },
+    }));
+    queueRemoteOralProgressSave(profileId, nextProgress);
+  }, [profileStore.activeProfileId, profileStore.profiles, queueRemoteOralProgressSave]);
+
+  const setOralQuestionMastered = useCallback((questionId, mastered) => {
+    updateOralProgress(progress => {
+      const current = normalizeOralProgress(progress);
+      const nextMastered = { ...current.mastered };
+      if (mastered) {
+        nextMastered[questionId] = true;
+      } else {
+        delete nextMastered[questionId];
+      }
+
+      return {
+        ...current,
+        mastered: nextMastered,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  }, [updateOralProgress]);
+
   const resetMcqProgress = useCallback(() => {
     if (typeof window !== "undefined" && !window.confirm("Reset MCQ progress for this profile?")) return;
     const profileId = profileStore.activeProfileId;
@@ -3529,12 +3776,15 @@ export default function App() {
               setOralTableData(rows);
               setScreen('oral-table');
             }}
+            oralProgress={oralProgress}
           />
         )}
         {activeProfile && screen === 'oral-viewer' && oralViewerData && (
           <OralQuestionViewer
             questions={oralViewerData.questions}
             title={oralViewerData.title}
+            oralProgress={oralProgress}
+            onQuestionMastered={setOralQuestionMastered}
             onBack={() => setScreen('oral')}
             onHome={() => { setOralViewerData(null); setScreen('home'); }}
           />
