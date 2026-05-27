@@ -32,7 +32,29 @@ const SPRINT_TIME_LIMIT_MS = 30000;
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 
 function createEmptyMcqProgress() {
-  return { version: 2, questions: {}, attempts: [], dailyChallenges: {}, updatedAt: null };
+  return {
+    version: 2,
+    questions: {},
+    attempts: [],
+    dailyChallenges: {},
+    sprintSessions: [],
+    updatedAt: null,
+  };
+}
+
+function normalizeMcqProgress(progress) {
+  const empty = createEmptyMcqProgress();
+  if (!progress || typeof progress !== "object") return empty;
+
+  return {
+    ...empty,
+    ...progress,
+    version: 2,
+    questions: progress.questions && typeof progress.questions === "object" ? progress.questions : {},
+    attempts: Array.isArray(progress.attempts) ? progress.attempts : [],
+    dailyChallenges: progress.dailyChallenges && typeof progress.dailyChallenges === "object" ? progress.dailyChallenges : {},
+    sprintSessions: Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [],
+  };
 }
 
 function loadMcqProgress() {
@@ -47,11 +69,7 @@ function loadMcqProgress() {
       return createEmptyMcqProgress();
     }
 
-    return {
-      version: 1,
-      questions: parsed.questions || {},
-      updatedAt: parsed.updatedAt || null,
-    };
+    return normalizeMcqProgress(parsed);
   } catch {
     return createEmptyMcqProgress();
   }
@@ -85,7 +103,7 @@ function createStudyProfile(name, mcqProgress = createEmptyMcqProgress()) {
     id: getProfileId(displayName),
     name: displayName,
     createdAt: new Date().toISOString(),
-    mcqProgress,
+    mcqProgress: normalizeMcqProgress(mcqProgress),
   };
 }
 
@@ -108,7 +126,7 @@ function loadProfileStore() {
           id,
           {
             ...profile,
-            mcqProgress: profile.mcqProgress || createEmptyMcqProgress(),
+            mcqProgress: normalizeMcqProgress(profile.mcqProgress),
           },
         ])
     );
@@ -135,7 +153,7 @@ function profileFromRemoteRow(row) {
     id: row.id,
     name: row.name,
     createdAt: row.created_at || new Date().toISOString(),
-    mcqProgress: row.mcq_progress || createEmptyMcqProgress(),
+    mcqProgress: normalizeMcqProgress(row.mcq_progress),
   };
 }
 
@@ -143,7 +161,7 @@ function profileToRemoteRow(profile) {
   return {
     id: profile.id,
     name: profile.name,
-    mcq_progress: profile.mcqProgress || createEmptyMcqProgress(),
+    mcq_progress: normalizeMcqProgress(profile.mcqProgress),
   };
 }
 
@@ -684,6 +702,29 @@ function recordQuestionAnswer(progress, question, selected, {
       },
     },
   };
+}
+
+function recordSprintSession(progress, session) {
+  const currentSessions = Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [];
+  const sessions = [session, ...currentSessions.filter(item => item.id !== session.id)].slice(0, 30);
+
+  return {
+    ...progress,
+    sprintSessions: sessions,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function getSprintSessions(progress) {
+  return [...(progress.sprintSessions || [])].sort((a, b) => {
+    return new Date(b.completedAt || 0) - new Date(a.completedAt || 0);
+  });
+}
+
+function getSprintHighScore(progress) {
+  return getSprintSessions(progress).reduce((best, session) => {
+    return Math.max(best, session.points || 0);
+  }, 0);
 }
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ICONS
@@ -1720,6 +1761,77 @@ const STYLES = `
     justify-content: center;
   }
 
+  .sprint-results-modal {
+    max-width: 520px;
+  }
+
+  .sprint-score {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin: 6px 0 18px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sprint-result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .sprint-result-stat {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+  }
+
+  .sprint-result-stat strong {
+    display: block;
+    color: var(--text);
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sprint-result-stat span {
+    display: block;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sprint-history {
+    margin: 18px 0 22px;
+    text-align: left;
+  }
+
+  .sprint-history-title {
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sprint-history-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+    padding: 8px 0;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .sprint-history-row strong {
+    color: var(--text);
+  }
+
   /* â”€â”€â”€ PLACEHOLDER â”€â”€â”€ */
   .placeholder-page {
     max-width: 560px;
@@ -2216,12 +2328,17 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
 function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const sessionIdRef = useRef(`${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const startedAtRef = useRef(Date.now());
-  const [questions] = useState(() => getSessionQuestions(mode, progress));
+  const deadlineRef = useRef(Date.now() + SPRINT_TIME_LIMIT_MS);
+  const advanceTimerRef = useRef(null);
+  const advancingRef = useRef(false);
+  const sessionFinishedRef = useRef(false);
+  const [questions, setQuestions] = useState(() => getSessionQuestions(mode, progress));
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
   const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
   const [lastBreakdown, setLastBreakdown] = useState(null);
+  const [finalSprintSession, setFinalSprintSession] = useState(null);
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     incorrect: 0,
@@ -2240,6 +2357,14 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
+  const sprintSessions = getSprintSessions(progress);
+  const previousSprintSessions = finalSprintSession
+    ? sprintSessions.filter(session => session.id !== finalSprintSession.id)
+    : sprintSessions;
+  const sprintHighScore = getSprintHighScore({
+    ...progress,
+    sprintSessions: previousSprintSessions,
+  });
   const latestAttempt = q
     ? (progress.attempts || []).find(attempt =>
         attempt.sessionId === sessionIdRef.current && attempt.questionId === q.id
@@ -2268,14 +2393,56 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   useEffect(() => {
     if (!q?.id) return;
     startedAtRef.current = Date.now();
+    deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
+    advancingRef.current = false;
     setLastBreakdown(null);
     setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
     onProgressChange(prev => markQuestionSeen(prev, q.id));
-  }, [q?.id, onProgressChange]);
+  }, [q?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    };
+  }, []);
+
+  const finishSprint = useCallback((finalStats) => {
+    if (mode !== "sprint" || sessionFinishedRef.current) return;
+
+    sessionFinishedRef.current = true;
+    const session = {
+      id: sessionIdRef.current,
+      completedAt: new Date().toISOString(),
+      totalQuestions: totalQ,
+      correct: finalStats.correct,
+      incorrect: finalStats.incorrect,
+      points: finalStats.points,
+      maxStreak: finalStats.maxStreak,
+      accuracy: finalStats.total > 0 ? Math.round((finalStats.correct / finalStats.total) * 100) : 0,
+    };
+
+    setFinalSprintSession(session);
+    onProgressChange(prev => recordSprintSession(prev, session));
+  }, [mode, onProgressChange, totalQ]);
+
+  const advanceSprint = useCallback((finalStats) => {
+    if (mode !== "sprint") return;
+
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = setTimeout(() => {
+      if (currentIdx >= totalQ - 1) {
+        finishSprint(finalStats);
+        return;
+      }
+
+      setCurrentIdx(index => Math.min(index + 1, totalQ - 1));
+    }, 900);
+  }, [currentIdx, finishSprint, mode, totalQ]);
 
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
+    if (mode === "sprint" && (advancingRef.current || finalSprintSession)) return;
 
     const isCorrect = selectedOverride === q.correct;
     const nextStreak = isCorrect ? sessionStats.currentStreak + 1 : 0;
@@ -2289,17 +2456,19 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     const pointBreakdown = mode === "sprint"
       ? calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs: SPRINT_TIME_LIMIT_MS, currentStreak: nextStreak })
       : calculateStandardPoints({ isCorrect, mode, currentStreak: nextStreak });
+    const nextStats = {
+      correct: sessionStats.correct + (isCorrect ? 1 : 0),
+      incorrect: sessionStats.incorrect + (isCorrect ? 0 : 1),
+      total: sessionStats.total + 1,
+      currentStreak: nextStreak,
+      maxStreak: Math.max(sessionStats.maxStreak, nextStreak),
+      points: sessionStats.points + pointBreakdown.total,
+    };
 
+    if (mode === "sprint") advancingRef.current = true;
     setLocked(prev => ({ ...prev, [q.id]: true }));
     setLastBreakdown(pointBreakdown);
-    setSessionStats(prev => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      incorrect: prev.incorrect + (isCorrect ? 0 : 1),
-      total: prev.total + 1,
-      currentStreak: nextStreak,
-      maxStreak: Math.max(prev.maxStreak, nextStreak),
-      points: prev.points + pointBreakdown.total,
-    }));
+    setSessionStats(nextStats);
     onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
       mode,
       confidence: inferredConfidence,
@@ -2309,27 +2478,60 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       sessionId: sessionIdRef.current,
       streakPosition: nextStreak,
     }));
-  }, [selected, isLocked, q, sessionStats.currentStreak, mode, onProgressChange]);
+
+    if (mode === "sprint") advanceSprint(nextStats);
+  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, advanceSprint, finalSprintSession]);
 
   useEffect(() => {
-    if (mode !== "sprint" || isLocked || !q) return;
+    if (mode !== "sprint" || isLocked || !q || finalSprintSession) return;
 
     const intervalId = setInterval(() => {
-      setTimeLeftMs(prev => Math.max(0, prev - 250));
-    }, 250);
+      setTimeLeftMs(Math.max(0, deadlineRef.current - Date.now()));
+    }, 100);
 
     return () => clearInterval(intervalId);
-  }, [mode, isLocked, q?.id]);
+  }, [mode, isLocked, q?.id, finalSprintSession]);
 
   useEffect(() => {
-    if (mode === "sprint" && timeLeftMs <= 0 && !isLocked && q) {
+    if (
+      mode === "sprint" &&
+      timeLeftMs <= 0 &&
+      Date.now() >= deadlineRef.current &&
+      !isLocked &&
+      q &&
+      !finalSprintSession
+    ) {
       submitAnswer(null, true);
     }
-  }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer]);
+  }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer, finalSprintSession]);
 
   const selectOption = (idx) => {
     if (isLocked) return;
     setAnswers(prev => ({ ...prev, [q.id]: idx }));
+  };
+
+  const restartSprint = () => {
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    sessionIdRef.current = `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    sessionFinishedRef.current = false;
+    advancingRef.current = false;
+    startedAtRef.current = Date.now();
+    deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
+    setQuestions(getSessionQuestions(mode, progress));
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setLastBreakdown(null);
+    setFinalSprintSession(null);
+    setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
+    setSessionStats({
+      correct: 0,
+      incorrect: 0,
+      total: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      points: 0,
+    });
   };
 
   return (
@@ -2428,7 +2630,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       <div style={{ height: 80 }} />
 
       <div className="nav-bar">
-        <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0}>
+        <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={mode === "sprint" || prevIdx < 0}>
           <Icons.ChevronLeft />
         </button>
         {!isLocked && (
@@ -2436,10 +2638,64 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
             <Icons.Lock /> Lock
           </button>
         )}
-        <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
+        <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={mode === "sprint" || nextIdx < 0 || nextIdx >= totalQ}>
           <Icons.ChevronRight />
         </button>
       </div>
+
+      {finalSprintSession && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Sprint results">
+          <div className="modal sprint-results-modal">
+            <h3>Sprint complete</h3>
+            <div className="sprint-score">{finalSprintSession.points}</div>
+            <div className="sprint-result-grid">
+              <div className="sprint-result-stat">
+                <strong>{finalSprintSession.correct}/{finalSprintSession.totalQuestions}</strong>
+                <span>Correct</span>
+              </div>
+              <div className="sprint-result-stat">
+                <strong>{finalSprintSession.accuracy}%</strong>
+                <span>Accuracy</span>
+              </div>
+              <div className="sprint-result-stat">
+                <strong>{finalSprintSession.maxStreak}</strong>
+                <span>Best streak</span>
+              </div>
+            </div>
+            <p>
+              {finalSprintSession.points > sprintHighScore
+                ? "New high score for this profile."
+                : sprintHighScore > 0
+                  ? `Profile high score: ${sprintHighScore} points.`
+                  : "This is the first saved Sprint for this profile."}
+            </p>
+            <div className="sprint-history">
+              <div className="sprint-history-title">Previous scores</div>
+              {previousSprintSessions.length === 0 ? (
+                <div className="sprint-history-row">
+                  <span>No previous Sprint scores yet</span>
+                  <strong>-</strong>
+                </div>
+              ) : (
+                previousSprintSessions.slice(0, 5).map(session => (
+                  <div className="sprint-history-row" key={session.id}>
+                    <span>{new Date(session.completedAt).toLocaleDateString()}</span>
+                    <strong>{session.points} pts</strong>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="results-btn primary" onClick={restartSprint}>
+                Go again
+              </button>
+              <button className="results-btn" onClick={onBack}>
+                MCQ menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
