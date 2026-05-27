@@ -42,6 +42,11 @@ function createEmptyMcqProgress() {
   };
 }
 
+function createResetMcqProgress() {
+  const now = new Date().toISOString();
+  return { ...createEmptyMcqProgress(), resetAt: now, updatedAt: now };
+}
+
 function normalizeMcqProgress(progress) {
   const empty = createEmptyMcqProgress();
   if (!progress || typeof progress !== "object") return empty;
@@ -165,6 +170,76 @@ function profileToRemoteRow(profile) {
   };
 }
 
+function getRecordTimestamp(record = {}) {
+  return record.updatedAt || record.lastAnsweredAt || record.seenAt || null;
+}
+
+function shouldUseRemoteQuestionState(progress, localRecord, remoteUpdatedAt) {
+  if (!remoteUpdatedAt) return !localRecord || Object.keys(localRecord).length === 0;
+  if (progress.resetAt && new Date(remoteUpdatedAt) <= new Date(progress.resetAt)) return false;
+  if (!localRecord || Object.keys(localRecord).length === 0) return true;
+
+  const localTimestamp = getRecordTimestamp(localRecord);
+  return !localTimestamp || new Date(remoteUpdatedAt) >= new Date(localTimestamp);
+}
+
+function questionStateRowToRecord(row) {
+  const correctCount = row.correct_count || 0;
+  const wrongCount = row.wrong_count || 0;
+  const seenCount = row.seen_count || correctCount + wrongCount;
+  const masteryLevel = row.mastery_level || 0;
+
+  return {
+    seenAt: row.last_seen_at || row.updated_at || null,
+    lastAnsweredAt: row.updated_at || row.last_seen_at || null,
+    lastCorrect: row.last_answer_correct,
+    lastConfidence: row.last_confidence || null,
+    lastTimeTakenMs: row.average_time_ms || null,
+    attempts: correctCount + wrongCount,
+    seenCount,
+    correctCount,
+    incorrectCount: wrongCount,
+    wrongCount,
+    streak: row.consecutive_correct || 0,
+    consecutiveCorrect: row.consecutive_correct || 0,
+    consecutiveWrong: row.consecutive_wrong || 0,
+    confidentWrongCount: row.confident_wrong_count || 0,
+    masteryLevel,
+    mastery_level: masteryLevel,
+    mastered: masteryLevel === 5,
+    nextReviewAt: row.next_review_at || null,
+    averageTimeMs: row.average_time_ms || null,
+    totalPoints: row.total_points || 0,
+    updatedAt: row.updated_at || null,
+  };
+}
+
+function mergeQuestionStateRowsIntoProfile(profile, rows) {
+  if (!rows.length) return profile;
+
+  const progress = normalizeMcqProgress(profile.mcqProgress);
+  const questions = { ...(progress.questions || {}) };
+
+  rows.forEach(row => {
+    const questionId = String(row.question_id);
+    const localRecord = questions[questionId];
+    if (!shouldUseRemoteQuestionState(progress, localRecord, row.updated_at)) return;
+
+    questions[questionId] = {
+      ...(localRecord || {}),
+      ...questionStateRowToRecord(row),
+    };
+  });
+
+  return {
+    ...profile,
+    mcqProgress: {
+      ...progress,
+      questions,
+    },
+  };
+}
+
 async function supabaseProfilesRequest(searchParams = {}, options = {}) {
   if (!ONLINE_PROFILES_ENABLED) {
     throw new Error("Online profiles are not configured.");
@@ -219,6 +294,37 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
   return response.json();
 }
 
+function quoteSupabaseInValue(value) {
+  return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
+async function loadRemoteQuestionStates(profileIds) {
+  if (!profileIds.length) return [];
+
+  return supabaseTableRequest("user_question_state", {
+    select: [
+      "profile_id",
+      "question_id",
+      "seen_count",
+      "correct_count",
+      "wrong_count",
+      "consecutive_correct",
+      "consecutive_wrong",
+      "mastery_level",
+      "last_seen_at",
+      "next_review_at",
+      "last_answer_correct",
+      "last_confidence",
+      "confident_wrong_count",
+      "average_time_ms",
+      "total_points",
+      "updated_at",
+    ].join(","),
+    profile_id: `in.(${profileIds.map(quoteSupabaseInValue).join(",")})`,
+    limit: "10000",
+  });
+}
+
 async function loadRemoteProfileStore(activeProfileId = null) {
   const rows = await supabaseProfilesRequest({
     select: "id,name,mcq_progress,created_at",
@@ -230,6 +336,16 @@ async function loadRemoteProfileStore(activeProfileId = null) {
       return [profile.id, profile];
     })
   );
+  try {
+    const questionStateRows = await loadRemoteQuestionStates(Object.keys(profiles));
+    questionStateRows.forEach(row => {
+      const profile = profiles[row.profile_id];
+      if (!profile) return;
+      profiles[row.profile_id] = mergeQuestionStateRowsIntoProfile(profile, [row]);
+    });
+  } catch {
+    // Keep profile JSON loading reliable if the optional normalized table is not present yet.
+  }
   const activeId = profiles[activeProfileId] ? activeProfileId : null;
 
   return { version: 1, activeProfileId: activeId, profiles };
@@ -289,7 +405,7 @@ async function saveRemoteAnswerBehavior(profileId, progress) {
         last_answer_correct: questionState.lastCorrect ?? null,
         last_confidence: questionState.lastConfidence || null,
         confident_wrong_count: questionState.confidentWrongCount || 0,
-        average_time_ms: questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null,
+        average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
         total_points: questionState.totalPoints || 0,
         updated_at: new Date().toISOString(),
       }),
@@ -319,14 +435,34 @@ async function saveRemoteAnswerBehavior(profileId, progress) {
   );
 }
 
+async function deleteRemoteQuestionBehavior(profileId) {
+  await supabaseTableRequest(
+    "question_attempts",
+    { profile_id: `eq.${profileId}` },
+    {
+      method: "DELETE",
+      headers: { Prefer: "return=minimal" },
+    }
+  );
+
+  await supabaseTableRequest(
+    "user_question_state",
+    { profile_id: `eq.${profileId}` },
+    {
+      method: "DELETE",
+      headers: { Prefer: "return=minimal" },
+    }
+  );
+}
+
 function summarizeMcqProgress(progress) {
   const records = progress.questions || {};
   const total = QUESTIONS.length;
-  const seen = QUESTIONS.filter(q => !!records[q.id]?.seenAt).length;
-  const attempted = QUESTIONS.filter(q => (records[q.id]?.attempts || 0) > 0).length;
+  const seen = QUESTIONS.filter(q => hasSeenQuestion(records[q.id])).length;
+  const attempted = QUESTIONS.filter(q => getAttemptsCount(records[q.id]) > 0).length;
   const mastered = QUESTIONS.filter(q => isQuestionMastered(records[q.id])).length;
   const correct = QUESTIONS.reduce((sum, q) => sum + (records[q.id]?.correctCount || 0), 0);
-  const attempts = QUESTIONS.reduce((sum, q) => sum + (records[q.id]?.attempts || 0), 0);
+  const attempts = QUESTIONS.reduce((sum, q) => sum + getAttemptsCount(records[q.id]), 0);
 
   return {
     total,
@@ -343,14 +479,36 @@ function getQuestionProgress(progress, questionId) {
   return progress.questions?.[questionId] || {};
 }
 
+function getAttemptsCount(record = {}) {
+  return Math.max(record.attempts || 0, (record.correctCount || 0) + (record.wrongCount || record.incorrectCount || 0));
+}
+
+function getSeenCount(record = {}) {
+  return Math.max(record.seenCount || 0, getAttemptsCount(record), record.seenAt ? 1 : 0);
+}
+
+function getWrongCount(record = {}) {
+  return record.wrongCount ?? record.incorrectCount ?? 0;
+}
+
+function getAccuracy(record = {}) {
+  const attempts = getAttemptsCount(record);
+  if (!attempts) return null;
+  return (record.correctCount || 0) / attempts;
+}
+
+function hasSeenQuestion(record = {}) {
+  return !!record.seenAt || getSeenCount(record) > 0;
+}
+
 function isQuestionMastered(record = {}) {
   return record.masteryLevel === 5 || record.mastery_level === 5 || record.mastered === true;
 }
 
 function getQuestionStatus(record) {
   if (isQuestionMastered(record)) return "Mastered";
-  if ((record.attempts || 0) > 0) return "Review";
-  if (record.seenAt) return "Seen";
+  if (getAttemptsCount(record) > 0) return "Review";
+  if (hasSeenQuestion(record)) return "Seen";
   return "New";
 }
 
@@ -359,7 +517,7 @@ function getMasteryLevel(record = {}) {
   if (Number.isInteger(record.mastery_level)) return record.mastery_level;
   if (record.mastered) return 5;
   if ((record.streak || 0) >= 2) return 4;
-  if ((record.attempts || 0) > 0) return record.lastCorrect ? 3 : 1;
+  if (getAttemptsCount(record) > 0) return record.lastCorrect ? 3 : 1;
   return 0;
 }
 
@@ -378,9 +536,18 @@ function getLocalDateKey(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+function getDaysSince(timestamp, now = new Date()) {
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return null;
+  return Math.max(0, (now.getTime() - date.getTime()) / (24 * 60 * 60 * 1000));
+}
+
 function isDue(record = {}, now = new Date()) {
-  if (!record.nextReviewAt) return (record.attempts || 0) > 0;
-  return new Date(record.nextReviewAt) <= now;
+  if (!record.nextReviewAt) return getAttemptsCount(record) > 0;
+  const dueAt = new Date(record.nextReviewAt);
+  if (Number.isNaN(dueAt.getTime())) return getAttemptsCount(record) > 0;
+  return dueAt <= now;
 }
 
 function calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs, currentStreak }) {
@@ -442,21 +609,44 @@ function updateMasteryLevel({ previousMastery, isCorrect, confidence, consecutiv
 
 function scoreQuestionForWeakness(question, progress, now = new Date()) {
   const record = getQuestionProgress(progress, question.id);
-  const attempts = record.attempts || 0;
-  const correct = record.correctCount || 0;
-  const accuracy = attempts > 0 ? correct / attempts : 1;
+  const attempts = getAttemptsCount(record);
+  const wrongCount = getWrongCount(record);
+  const accuracy = getAccuracy(record);
   const mastery = getMasteryLevel(record);
+  const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
   let score = 0;
 
-  if ((record.confidentWrongCount || 0) > 0) score += 70;
-  if ((record.consecutiveWrong || 0) >= 2) score += 60;
-  if (mastery <= 1 && attempts > 0) score += 50;
+  if (!hasSeenQuestion(record)) return 8 + Math.random() * 3;
+  if ((record.confidentWrongCount || 0) > 0) score += 45 + Math.min(record.confidentWrongCount || 0, 4) * 10;
+  if ((record.consecutiveWrong || 0) >= 2) score += 70;
+  else if ((record.consecutiveWrong || 0) === 1) score += 35;
+  if (wrongCount >= 3) score += 45;
+  if (attempts >= 3 && accuracy !== null && accuracy < 0.5) score += 55;
+  else if (attempts >= 2 && accuracy !== null && accuracy < 0.7) score += 30;
+  if (mastery <= 1 && attempts > 0) score += 45;
   if (mastery === 2) score += 30;
-  if (attempts >= 3 && accuracy < 0.5) score += 50;
-  if (isDue(record, now)) score += 25;
-  if (!record.seenAt) score += 5;
+  if (isDue(record, now)) score += isQuestionMastered(record) ? 18 : 35;
+  if (daysSinceAnswer !== null && daysSinceAnswer >= 14 && !isQuestionMastered(record)) score += 12;
 
   return score + Math.random() * 5;
+}
+
+function scoreQuestionForStudyPriority(question, progress, now = new Date()) {
+  const record = getQuestionProgress(progress, question.id);
+  const weaknessScore = scoreQuestionForWeakness(question, progress, now);
+  const mastery = getMasteryLevel(record);
+  const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
+  let score = weaknessScore;
+
+  if (!hasSeenQuestion(record)) score += 55;
+  if (isDue(record, now)) score += 35;
+  if (mastery > 0 && mastery < 5) score += 25;
+  if (isQuestionMastered(record) && isDue(record, now)) score += 20;
+  if (daysSinceAnswer === null) score += 20;
+  else if (daysSinceAnswer >= 30) score += 18;
+  else if (daysSinceAnswer >= 14) score += 10;
+
+  return score + Math.random() * 10;
 }
 
 function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
@@ -478,7 +668,7 @@ function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
   const scored = QUESTIONS
     .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
     .sort((a, b) => b.score - a.score);
-  const selected = selectUniqueQuestions(scored.filter(item => item.score > 5), count, usedIds);
+  const selected = selectUniqueQuestions(scored.filter(item => item.score >= 25), count, usedIds);
   const fallback = selectRandomQuestions(QUESTIONS.length)
     .filter(question => !usedIds.has(question.id))
     .slice(0, count - selected.length)
@@ -490,14 +680,37 @@ function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
 function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
   const records = progress.questions || {};
   const shuffled = selectRandomQuestions(QUESTIONS.length);
-  const unseen = shuffled.filter(question => !records[question.id]?.seenAt);
+  const unseen = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
   const lightlySeen = shuffled.filter(question => {
     const record = records[question.id];
-    return record?.seenAt && (record.seenCount || record.attempts || 0) <= 1;
+    return hasSeenQuestion(record) && getSeenCount(record) <= 1;
   });
-  const fallback = shuffled.filter(question => !isQuestionMastered(records[question.id]));
+  const weakOrDue = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress) }))
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.question);
+  const fallback = shuffled.filter(question => !isQuestionMastered(records[question.id]) || isDue(records[question.id]));
 
-  return selectUniqueQuestions([...unseen, ...lightlySeen, ...fallback, ...shuffled], count);
+  return selectUniqueQuestions([...unseen, ...lightlySeen, ...weakOrDue, ...fallback, ...shuffled], count);
+}
+
+function selectWeightedRandomQuestions(progress) {
+  const now = new Date();
+  const records = progress.questions || {};
+  const shuffled = selectRandomQuestions(QUESTIONS.length);
+  const unseen = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
+  const dueOrWeak = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now) }))
+    .filter(item => item.score >= 45)
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.question);
+  const activeLearning = shuffled.filter(question => {
+    const record = records[question.id];
+    return hasSeenQuestion(record) && !isQuestionMastered(record);
+  });
+  const masteredMaintenance = shuffled.filter(question => isQuestionMastered(records[question.id]));
+
+  return selectUniqueQuestions([...dueOrWeak, ...unseen, ...activeLearning, ...masteredMaintenance, ...shuffled], QUESTIONS.length);
 }
 
 function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
@@ -511,31 +724,34 @@ function createDailyChallenge(progress, dateKey = getLocalDateKey()) {
   const now = new Date();
   const records = progress.questions || {};
   const usedIds = new Set();
-  const byWeakness = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress, now), reason: "repeated_wrong" }))
+  const byPriority = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "repeated_wrong" }))
     .sort((a, b) => b.score - a.score);
-  const repeatedWrong = selectUniqueQuestions(byWeakness.filter(item => item.score >= 50), 4, usedIds);
+  const repeatedWrong = selectUniqueQuestions(byPriority.filter(item => {
+    const record = records[item.question.id];
+    return getWrongCount(record) > 0 || (record?.consecutiveWrong || 0) > 0 || (record?.confidentWrongCount || 0) > 0;
+  }), 4, usedIds);
   const masteredDue = selectUniqueQuestions(
     QUESTIONS
       .filter(question => isQuestionMastered(records[question.id]) && isDue(records[question.id], now))
       .map(question => ({ question, reason: "mastered_due" })),
-    3,
+    2,
     usedIds
   );
   const normalDue = selectUniqueQuestions(
-    QUESTIONS
-      .filter(question => {
-        const record = records[question.id];
+    byPriority
+      .filter(item => {
+        const record = records[item.question.id];
         const mastery = getMasteryLevel(record);
         return mastery > 0 && mastery < 5 && isDue(record, now);
       })
-      .map(question => ({ question, reason: "normal_due" })),
-    2,
+      .map(item => ({ question: item.question, reason: "normal_due" })),
+    3,
     usedIds
   );
   const novelty = selectUniqueQuestions(
     selectRandomQuestions(QUESTIONS.length)
-      .filter(question => !records[question.id]?.seenAt)
+      .filter(question => !hasSeenQuestion(records[question.id]))
       .map(question => ({ question, reason: "unseen_or_random" })),
     1,
     usedIds
@@ -585,7 +801,7 @@ function getSessionQuestions(mode, progress) {
   }
   if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE);
   if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
-  return selectRandomQuestions(QUESTIONS.length);
+  return selectWeightedRandomQuestions(progress);
 }
 
 function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
@@ -616,6 +832,7 @@ function markQuestionSeen(progress, questionId) {
       [questionId]: {
         ...current,
         seenAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     },
   };
@@ -634,10 +851,15 @@ function recordQuestionAnswer(progress, question, selected, {
   const isCorrect = selected === question.correct;
   const previousMastery = getMasteryLevel(current);
   const consecutiveCorrect = isCorrect ? getConsecutiveCorrect(current) + 1 : 0;
-  const consecutiveWrong = isCorrect ? 0 : (current.consecutiveWrong || 0) + 1;
+  const consecutiveWrong = isCorrect ? 0 : (current.consecutiveWrong || current.consecutive_wrong || 0) + 1;
   const masteryLevel = updateMasteryLevel({ previousMastery, isCorrect, confidence, consecutiveCorrect });
   const intervalDays = getNextReviewIntervalDays({ masteryLevel, isCorrect, confidence, consecutiveCorrect });
   const now = new Date();
+  const previousAttempts = getAttemptsCount(current);
+  const previousAverageTime = current.averageTimeMs || current.average_time_ms || current.lastTimeTakenMs || 0;
+  const averageTimeMs = timeTakenMs !== null
+    ? Math.round(((previousAverageTime * previousAttempts) + timeTakenMs) / (previousAttempts + 1))
+    : previousAverageTime || null;
   const attempt = {
     id: `${now.getTime()}-${question.id}`,
     sessionId,
@@ -685,11 +907,11 @@ function recordQuestionAnswer(progress, question, selected, {
         lastConfidence: confidence,
         lastTimeTakenMs: timeTakenMs,
         lastPointsAwarded: pointsAwarded,
-        attempts: (current.attempts || 0) + 1,
-        seenCount: (current.seenCount || current.attempts || 0) + 1,
+        attempts: previousAttempts + 1,
+        seenCount: getSeenCount(current) + 1,
         correctCount: (current.correctCount || 0) + (isCorrect ? 1 : 0),
-        incorrectCount: (current.incorrectCount || 0) + (isCorrect ? 0 : 1),
-        wrongCount: (current.wrongCount || current.incorrectCount || 0) + (isCorrect ? 0 : 1),
+        incorrectCount: getWrongCount(current) + (isCorrect ? 0 : 1),
+        wrongCount: getWrongCount(current) + (isCorrect ? 0 : 1),
         streak: consecutiveCorrect,
         consecutiveCorrect,
         consecutiveWrong,
@@ -698,7 +920,9 @@ function recordQuestionAnswer(progress, question, selected, {
         mastery_level: masteryLevel,
         mastered: masteryLevel === 5,
         nextReviewAt: addDays(now, intervalDays).toISOString(),
+        averageTimeMs,
         totalPoints: (current.totalPoints || 0) + pointsAwarded,
+        updatedAt: now.toISOString(),
       },
     },
   };
@@ -3112,8 +3336,14 @@ export default function App() {
 
   const resetMcqProgress = useCallback(() => {
     if (typeof window !== "undefined" && !window.confirm("Reset MCQ progress for this profile?")) return;
-    updateMcqProgress(createEmptyMcqProgress());
-  }, [updateMcqProgress]);
+    const profileId = profileStore.activeProfileId;
+    updateMcqProgress(createResetMcqProgress());
+    if (ONLINE_PROFILES_ENABLED && profileId) {
+      deleteRemoteQuestionBehavior(profileId).catch(() => {
+        // The profile reset still wins because resetAt prevents older question-state rows from hydrating.
+      });
+    }
+  }, [profileStore.activeProfileId, updateMcqProgress]);
 
   const switchProfile = useCallback(() => {
     setScreen('home');
