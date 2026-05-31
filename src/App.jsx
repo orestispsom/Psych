@@ -4909,7 +4909,6 @@ function OralExamSimulator({ onBack, onHome }) {
   const [examinerIndex, setExaminerIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [notes, setNotes] = useState({});
 
   const currentExaminer = session[examinerIndex];
   const currentQuestions = currentExaminer
@@ -4927,7 +4926,6 @@ function OralExamSimulator({ onBack, onHome }) {
     setExaminerIndex(0);
     setQuestionIndex(0);
     setShowAnswer(false);
-    setNotes({});
     setPhase("session");
   };
 
@@ -4947,10 +4945,6 @@ function OralExamSimulator({ onBack, onHome }) {
     setPhase("result");
   };
 
-  const updateNotes = (questionId, value) => {
-    setNotes(prev => ({ ...prev, [questionId]: value }));
-  };
-
   if (phase === "result") {
     return (
       <div className="oral-simulator fade-in">
@@ -4967,7 +4961,6 @@ function OralExamSimulator({ onBack, onHome }) {
           {askedQuestions.map((question, index) => (
             <div className="oral-exam-summary-row" key={`${question.id}-${index}`}>
               <span>{index + 1}. {getOralExamQuestionText(question)}</span>
-              {notes[question.id] && <small>Υπάρχουν σημειώσεις απάντησης</small>}
             </div>
           ))}
         </div>
@@ -5046,17 +5039,6 @@ function OralExamSimulator({ onBack, onHome }) {
       </div>
 
       <div className="oral-q-text">{getOralExamQuestionText(currentQuestion)}</div>
-
-      <label className="oral-notes-label" htmlFor="oral-answer-notes">
-        Σημειώσεις απάντησης
-      </label>
-      <textarea
-        id="oral-answer-notes"
-        className="oral-answer-notes"
-        value={notes[currentQuestion.id] || ""}
-        onChange={event => updateNotes(currentQuestion.id, event.target.value)}
-        placeholder="Γράψτε σύντομες σημειώσεις για την απάντησή σας."
-      />
 
       <div
         className={`answer-box ${showAnswer ? 'revealed' : ''}`}
@@ -5211,7 +5193,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
         >
           <Icons.Check />
-          {isMastered ? "Κατακτήθηκε" : "Κατακτήθηκε"}
+          Mastered
         </button>
         <div className="sos-detail-answer">{selectedEntry.answer}</div>
         <div style={{ height: 80 }} />
