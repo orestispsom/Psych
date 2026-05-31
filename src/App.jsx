@@ -4919,6 +4919,7 @@ function OralExamSimulator({ onBack, onHome }) {
   const isAnchorQuestion = currentQuestion?.id === currentExaminer?.anchor?.id;
   const isLastQuestionForExaminer = questionIndex >= currentQuestions.length - 1;
   const isLastExaminer = examinerIndex >= session.length - 1;
+  const canGoPrevious = examinerIndex > 0 || questionIndex > 0;
 
   const startExam = () => {
     const nextSession = createOralExamSession();
@@ -4943,6 +4944,20 @@ function OralExamSimulator({ onBack, onHome }) {
     }
 
     setPhase("result");
+  };
+
+  const goPreviousQuestion = () => {
+    if (!canGoPrevious) return;
+
+    setShowAnswer(false);
+    if (questionIndex > 0) {
+      setQuestionIndex(index => index - 1);
+      return;
+    }
+
+    const previousExaminer = session[examinerIndex - 1];
+    setExaminerIndex(index => index - 1);
+    setQuestionIndex(previousExaminer ? previousExaminer.followUps.length : 0);
   };
 
   if (phase === "result") {
@@ -5057,6 +5072,9 @@ function OralExamSimulator({ onBack, onHome }) {
       <div style={{ height: 80 }} />
 
       <div className="nav-bar">
+        <button className="nav-btn" onClick={goPreviousQuestion} disabled={!canGoPrevious}>
+          <Icons.ChevronLeft /> Προηγούμενη Ερώτηση
+        </button>
         <button className="nav-btn primary" onClick={advanceQuestion}>
           {nextButtonLabel} <Icons.ChevronRight />
         </button>
