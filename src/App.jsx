@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
+import oralCoreQuestions from "./data/oralCore.js";
+import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -18,6 +20,17 @@ function selectRandomQuestions(count) {
   return arr.slice(0, Math.min(count, arr.length));
 }
 
+function shuffleItems(items) {
+  const arr = [...items];
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
@@ -28,8 +41,27 @@ const MASTERY_STREAK_TARGET = 3;
 const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
+const WRITTEN_EXAM_SIZE = 100;
 const SPRINT_TIME_LIMIT_MS = 30000;
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
+const MCQ_FEEDBACK_OPTIONS = [
+  { value: "duplicate", label: "Duplicate" },
+  { value: "too_easy_wording", label: "Υπερβολικά εύκολη διατύπωση" },
+  { value: "wrong_terminology", label: "Λάθος ορολογία" },
+  { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη Απάντηση" },
+];
+const WRITTEN_WEAK_AREA_LABELS = [
+  "diagnostic exclusion",
+  "risk assessment",
+  "emergency psychiatry",
+  "psychopharmacology sequencing",
+  "capacity / legal issues",
+  "differential diagnosis",
+  "organic and substance-induced disorders",
+  "management decisiveness",
+  "adverse effects and monitoring",
+  "over-nuance traps",
+];
 
 function createEmptyOralProgress() {
   return {
@@ -57,6 +89,48 @@ function normalizeOralProgress(progress) {
   };
 }
 
+function createEmptySosProgress() {
+  return {
+    version: 1,
+    mastered: {
+      critical_topics: {},
+      differential_diagnosis: {},
+    },
+    updatedAt: null,
+  };
+}
+
+function normalizeSosProgress(progress) {
+  const empty = createEmptySosProgress();
+  if (!progress || typeof progress !== "object") return empty;
+
+  const mastered = progress.mastered && typeof progress.mastered === "object"
+    ? progress.mastered
+    : {};
+
+  return {
+    ...empty,
+    ...progress,
+    version: 1,
+    mastered: {
+      critical_topics: Object.fromEntries(
+        Object.entries(mastered.critical_topics || {}).filter(([, value]) => Boolean(value))
+      ),
+      differential_diagnosis: Object.fromEntries(
+        Object.entries(mastered.differential_diagnosis || {}).filter(([, value]) => Boolean(value))
+      ),
+    },
+  };
+}
+
+function summarizeSosProgress(sosProgress, section, entries) {
+  const mastered = normalizeSosProgress(sosProgress).mastered[section] || {};
+  return {
+    mastered: entries.reduce((sum, entry) => sum + (mastered[entry.id] ? 1 : 0), 0),
+    total: entries.length,
+  };
+}
+
 function getOralQuestionsFromTopic(topic) {
   if (topic.subtopics) {
     return topic.subtopics.flatMap(subtopic => subtopic.questions || []);
@@ -79,6 +153,130 @@ function summarizeOralProgress(oralProgress, questions = null) {
     mastered: countMasteredOralQuestions(targetQuestions, oralProgress),
     total: targetQuestions.length,
   };
+}
+
+function getOralQuestionRole(question) {
+  return question?.role || "anchor";
+}
+
+function getOralQuestionDifficulty(question) {
+  return question?.difficulty || "core";
+}
+
+function flattenOralQuestionBank() {
+  return oralData.flatMap(gravity =>
+    (gravity.topics || []).flatMap(topic => {
+      const topicQuestions = [];
+      const addQuestions = (questions, subtopic = null) => {
+        (questions || []).forEach(question => {
+          topicQuestions.push({
+            ...question,
+            role: getOralQuestionRole(question),
+            difficulty: getOralQuestionDifficulty(question),
+            followUpType: question.followUpType || null,
+            linkedAnchorIds: Array.isArray(question.linkedAnchorIds) ? question.linkedAnchorIds : [],
+            followUpQuestionIds: Array.isArray(question.followUpQuestionIds) ? question.followUpQuestionIds : [],
+            relatedQuestionIds: Array.isArray(question.relatedQuestionIds) ? question.relatedQuestionIds : [],
+            trigger: question.trigger || "always",
+            oralContext: {
+              gravityId: gravity.id,
+              gravityLabel: gravity.label,
+              gravityTitle: gravity.title,
+              topicId: topic.id,
+              topicTitle: topic.title,
+              subtopicId: subtopic?.id || null,
+              subtopicTitle: subtopic?.title || null,
+            },
+          });
+        });
+      };
+
+      if (topic.subtopics) {
+        topic.subtopics.forEach(subtopic => addQuestions(subtopic.questions, subtopic));
+      } else {
+        addQuestions(topic.questions);
+      }
+
+      return topicQuestions;
+    })
+  );
+}
+
+function getRelatedOralFollowUps(anchor, allQuestions, maxCount = 2) {
+  const explicitIds = Array.isArray(anchor.followUpQuestionIds) ? anchor.followUpQuestionIds : [];
+  const explicit = explicitIds
+    .map(id => allQuestions.find(question => question.id === id))
+    .filter(Boolean);
+  if (explicit.length) return explicit.slice(0, maxCount);
+
+  return allQuestions
+    .filter(question => question.id !== anchor.id)
+    .filter(question => {
+      if (Array.isArray(question.linkedAnchorIds) && question.linkedAnchorIds.includes(anchor.id)) return true;
+      if (question.oralContext?.subtopicId && question.oralContext.subtopicId === anchor.oralContext?.subtopicId) return true;
+      return question.oralContext?.topicId && question.oralContext.topicId === anchor.oralContext?.topicId;
+    })
+    .slice(0, maxCount);
+}
+
+const MAJOR_ORAL_EXAM_TOPICS = new Set([
+  "Ψυχωτικές διαταραχές",
+  "Διαταραχές διάθεσης",
+  "Αγχώδεις διαταραχές",
+  "Ιδεοψυχαναγκαστική διαταραχή",
+  "Τραύμα και στρες",
+]);
+
+function isOralCoreAnchor(question) {
+  return ["anchor", "case_anchor", "cross_topic"].includes(question?.role);
+}
+
+function getOralCoreFollowUps(anchor) {
+  const followUpIds = Array.isArray(anchor.followUpQuestionIds) ? anchor.followUpQuestionIds : [];
+  return followUpIds
+    .map(id => oralCoreQuestions.find(question => question.id === id))
+    .filter(Boolean);
+}
+
+function getOralExamQuestionText(question) {
+  return question?.question || question?.text || "";
+}
+
+function getOralExamQuestionAnswer(question) {
+  return question?.answer || "Δεν έχει προστεθεί ακόμη ενδεικτική απάντηση για αυτή την ερώτηση.";
+}
+
+function getOralExamQuestionContext(question) {
+  if (question?.oralContext) {
+    return [
+      question.oralContext.topicTitle,
+      question.oralContext.subtopicTitle,
+    ].filter(Boolean).join(" / ");
+  }
+  return [question?.topic, question?.subtopic].filter(Boolean).join(" / ");
+}
+
+function createOralExamSession() {
+  const anchors = oralCoreQuestions.filter(isOralCoreAnchor);
+  const majorAnchors = anchors.filter(question => MAJOR_ORAL_EXAM_TOPICS.has(question.topic));
+  const selected = [];
+  const usedIds = new Set();
+  const addAnchor = (anchor) => {
+    if (!anchor || usedIds.has(anchor.id)) return;
+    selected.push(anchor);
+    usedIds.add(anchor.id);
+  };
+
+  addAnchor(shuffleItems(majorAnchors)[0]);
+  shuffleItems(anchors).forEach(anchor => {
+    if (selected.length < 3) addAnchor(anchor);
+  });
+
+  return selected.map((anchor, index) => ({
+    examinerNumber: index + 1,
+    anchor,
+    followUps: getOralCoreFollowUps(anchor),
+  }));
 }
 
 function createEmptyMcqProgress() {
@@ -152,7 +350,12 @@ function getProfileId(name) {
   return normalizeProfileName(name).toLocaleLowerCase();
 }
 
-function createStudyProfile(name, mcqProgress = createEmptyMcqProgress(), oralProgress = createEmptyOralProgress()) {
+function createStudyProfile(
+  name,
+  mcqProgress = createEmptyMcqProgress(),
+  oralProgress = createEmptyOralProgress(),
+  sosProgress = createEmptySosProgress()
+) {
   const displayName = normalizeProfileName(name);
   return {
     id: getProfileId(displayName),
@@ -160,6 +363,7 @@ function createStudyProfile(name, mcqProgress = createEmptyMcqProgress(), oralPr
     createdAt: new Date().toISOString(),
     mcqProgress: normalizeMcqProgress(mcqProgress),
     oralProgress: normalizeOralProgress(oralProgress),
+    sosProgress: normalizeSosProgress(sosProgress),
   };
 }
 
@@ -184,6 +388,7 @@ function loadProfileStore() {
             ...profile,
             mcqProgress: normalizeMcqProgress(profile.mcqProgress),
             oralProgress: normalizeOralProgress(profile.oralProgress),
+            sosProgress: normalizeSosProgress(profile.sosProgress),
           },
         ])
     );
@@ -212,6 +417,7 @@ function profileFromRemoteRow(row) {
     createdAt: row.created_at || new Date().toISOString(),
     mcqProgress: normalizeMcqProgress(row.mcq_progress),
     oralProgress: normalizeOralProgress(row.oral_progress),
+    sosProgress: createEmptySosProgress(),
   };
 }
 
@@ -348,6 +554,97 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
   return response.json();
 }
 
+async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
+  return supabaseTableRequest(
+    "mcq_feedback",
+    {},
+    {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        question_id: String(questionId),
+        feedback_type: feedbackType,
+        question_text_snapshot: optionalMetadata.questionTextSnapshot || null,
+        topic: optionalMetadata.topic || null,
+        subtopic: optionalMetadata.subtopic || null,
+      }),
+    }
+  );
+}
+
+async function getAllMcqFeedback() {
+  return supabaseTableRequest("mcq_feedback", {
+    select: "id,question_id,feedback_type,question_text_snapshot,topic,subtopic,created_at",
+    order: "created_at.desc",
+    limit: "10000",
+  });
+}
+
+async function getFeedbackForQuestion(questionId) {
+  return supabaseTableRequest("mcq_feedback", {
+    select: "id,question_id,feedback_type,question_text_snapshot,topic,subtopic,created_at",
+    question_id: `eq.${String(questionId)}`,
+    order: "created_at.desc",
+  });
+}
+
+async function loadRemoteSosMastery(profileIds) {
+  if (!profileIds.length) return [];
+
+  return supabaseTableRequest("sos_mastery", {
+    select: "profile_id,entry_id,section,mastered,mastered_at,updated_at",
+    profile_id: `in.(${profileIds.map(quoteSupabaseInValue).join(",")})`,
+    limit: "10000",
+  });
+}
+
+function mergeSosMasteryRowsIntoProfile(profile, rows) {
+  if (!rows.length) return profile;
+
+  const progress = normalizeSosProgress(profile.sosProgress);
+  const nextMastered = {
+    critical_topics: { ...progress.mastered.critical_topics },
+    differential_diagnosis: { ...progress.mastered.differential_diagnosis },
+  };
+
+  rows.forEach(row => {
+    if (!nextMastered[row.section]) return;
+    if (row.mastered) {
+      nextMastered[row.section][row.entry_id] = true;
+    } else {
+      delete nextMastered[row.section][row.entry_id];
+    }
+  });
+
+  return {
+    ...profile,
+    sosProgress: {
+      ...progress,
+      mastered: nextMastered,
+      updatedAt: new Date().toISOString(),
+    },
+  };
+}
+
+async function saveRemoteSosMastery(profileId, section, entryId, mastered) {
+  return supabaseTableRequest(
+    "sos_mastery",
+    { on_conflict: "profile_id,entry_id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        profile_id: profileId,
+        entry_id: entryId,
+        section,
+        mastered,
+        mastered_at: mastered ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+}
+
 function quoteSupabaseInValue(value) {
   return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
@@ -407,6 +704,16 @@ async function loadRemoteProfileStore(activeProfileId = null) {
     });
   } catch {
     // Keep profile JSON loading reliable if the optional normalized table is not present yet.
+  }
+  try {
+    const sosMasteryRows = await loadRemoteSosMastery(Object.keys(profiles));
+    sosMasteryRows.forEach(row => {
+      const profile = profiles[row.profile_id];
+      if (!profile) return;
+      profiles[row.profile_id] = mergeSosMasteryRowsIntoProfile(profile, [row]);
+    });
+  } catch {
+    // SOS mastery is optional until its SQL migration has been applied.
   }
   const activeId = profiles[activeProfileId] ? activeProfileId : null;
 
@@ -468,61 +775,86 @@ async function saveRemoteOralProgress(profileId, progress) {
   );
 }
 
-async function saveRemoteAnswerBehavior(profileId, progress) {
-  const attempt = progress.attempts?.[0];
-  if (!attempt) return;
+function getRemoteAttemptsToSync(progress, lastSyncedAttemptId = null) {
+  const attempts = progress.attempts || [];
+  if (!attempts.length) return [];
 
-  const questionState = progress.questions?.[attempt.questionId];
-  if (!questionState) return;
+  if (lastSyncedAttemptId) {
+    const syncedIndex = attempts.findIndex(attempt => attempt.id === lastSyncedAttemptId);
+    if (syncedIndex > 0) return attempts.slice(0, syncedIndex);
+    if (syncedIndex === 0) return [];
+  }
 
-  await supabaseTableRequest(
-    "user_question_state",
-    { on_conflict: "profile_id,question_id" },
-    {
-      method: "POST",
-      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-      body: JSON.stringify({
-        profile_id: profileId,
-        question_id: attempt.questionId,
-        seen_count: questionState.seenCount || questionState.attempts || 0,
-        correct_count: questionState.correctCount || 0,
-        wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
-        consecutive_correct: questionState.consecutiveCorrect || 0,
-        consecutive_wrong: questionState.consecutiveWrong || 0,
-        mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
-        last_seen_at: questionState.seenAt || null,
-        next_review_at: questionState.nextReviewAt || null,
-        last_answer_correct: questionState.lastCorrect ?? null,
-        last_confidence: questionState.lastConfidence || null,
-        confident_wrong_count: questionState.confidentWrongCount || 0,
-        average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
-        total_points: questionState.totalPoints || 0,
-        updated_at: new Date().toISOString(),
-      }),
+  const latestAttempt = attempts[0];
+  if (latestAttempt.mode === "written" && latestAttempt.sessionId) {
+    return attempts.filter(attempt => attempt.sessionId === latestAttempt.sessionId);
+  }
+
+  return [latestAttempt];
+}
+
+async function saveRemoteAnswerBehavior(profileId, progress, lastSyncedAttemptId = null) {
+  const attempts = getRemoteAttemptsToSync(progress, lastSyncedAttemptId);
+  if (!attempts.length) return;
+
+  const syncedQuestionIds = new Set();
+
+  for (const attempt of attempts) {
+    const questionState = progress.questions?.[attempt.questionId];
+    if (!questionState) continue;
+
+    if (!syncedQuestionIds.has(attempt.questionId)) {
+      await supabaseTableRequest(
+        "user_question_state",
+        { on_conflict: "profile_id,question_id" },
+        {
+          method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify({
+            profile_id: profileId,
+            question_id: attempt.questionId,
+            seen_count: questionState.seenCount || questionState.attempts || 0,
+            correct_count: questionState.correctCount || 0,
+            wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
+            consecutive_correct: questionState.consecutiveCorrect || 0,
+            consecutive_wrong: questionState.consecutiveWrong || 0,
+            mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
+            last_seen_at: questionState.seenAt || null,
+            next_review_at: questionState.nextReviewAt || null,
+            last_answer_correct: questionState.lastCorrect ?? null,
+            last_confidence: questionState.lastConfidence || null,
+            confident_wrong_count: questionState.confidentWrongCount || 0,
+            average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
+            total_points: questionState.totalPoints || 0,
+            updated_at: new Date().toISOString(),
+          }),
+        }
+      );
+      syncedQuestionIds.add(attempt.questionId);
     }
-  );
 
-  await supabaseTableRequest(
-    "question_attempts",
-    {},
-    {
-      method: "POST",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        client_attempt_id: attempt.id,
-        profile_id: profileId,
-        question_id: attempt.questionId,
-        mode: attempt.mode,
-        selected_option: attempt.selectedOption,
-        is_correct: attempt.isCorrect,
-        confidence: attempt.confidence,
-        time_taken_ms: attempt.timeTakenMs ? Math.round(attempt.timeTakenMs) : null,
-        points_awarded: attempt.pointsAwarded || 0,
-        streak_position: attempt.streakPosition || 0,
-        attempted_at: attempt.attemptedAt,
-      }),
-    }
-  );
+    await supabaseTableRequest(
+      "question_attempts",
+      { on_conflict: "profile_id,client_attempt_id" },
+      {
+        method: "POST",
+        headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+        body: JSON.stringify({
+          client_attempt_id: attempt.id,
+          profile_id: profileId,
+          question_id: attempt.questionId,
+          mode: attempt.mode,
+          selected_option: attempt.selectedOption,
+          is_correct: attempt.isCorrect,
+          confidence: attempt.confidence,
+          time_taken_ms: attempt.timeTakenMs ? Math.round(attempt.timeTakenMs) : null,
+          points_awarded: attempt.pointsAwarded || 0,
+          streak_position: attempt.streakPosition || 0,
+          attempted_at: attempt.attemptedAt,
+        }),
+      }
+    );
+  }
 }
 
 async function deleteRemoteQuestionBehavior(profileId) {
@@ -774,6 +1106,100 @@ function scoreQuestionForRandomReview(question, progress, now = new Date()) {
   return score + Math.random() * 4;
 }
 
+function getQuestionAttempts(progress, questionId) {
+  return (progress.attempts || []).filter(attempt => String(attempt.questionId) === String(questionId));
+}
+
+function getLatestIncorrectAttempt(progress, questionId) {
+  return getQuestionAttempts(progress, questionId).find(attempt => attempt.isCorrect === false) || null;
+}
+
+function getRecentDailyQuestionRepeatCount(progress, questionId, recentDays = 14) {
+  const now = new Date();
+  return Object.values(progress.dailyChallenges || {}).reduce((count, challenge) => {
+    if (!challenge?.createdAt || !Array.isArray(challenge.items)) return count;
+    const daysSinceChallenge = getDaysSince(challenge.createdAt, now);
+    if (daysSinceChallenge === null || daysSinceChallenge > recentDays) return count;
+    return count + challenge.items.filter(item => String(item.questionId) === String(questionId)).length;
+  }, 0);
+}
+
+function scoreQuestionForDailyWrongPriority(question, progress, now = new Date()) {
+  const record = getQuestionProgress(progress, question.id);
+  const wrongCount = getWrongCount(record);
+  const latestIncorrectAttempt = getLatestIncorrectAttempt(progress, question.id);
+  if (wrongCount <= 0 && !latestIncorrectAttempt) return -Infinity;
+
+  const lastWrongAt = latestIncorrectAttempt?.attemptedAt || (record.lastCorrect === false ? record.lastAnsweredAt : null);
+  const daysSinceWrong = getDaysSince(lastWrongAt, now);
+  const weakAreaCount = getQuestionWeakAreaTags(question).length;
+  const recentDailyRepeats = getRecentDailyQuestionRepeatCount(progress, question.id);
+  let score = 0;
+
+  score += Math.min(wrongCount, 5) * 50;
+  if ((record.consecutiveWrong || 0) >= 2) score += 80;
+  else if ((record.consecutiveWrong || 0) === 1) score += 45;
+  if ((record.confidentWrongCount || 0) > 0) score += Math.min(record.confidentWrongCount, 4) * 25;
+  if (weakAreaCount > 0) score += Math.min(weakAreaCount, 3) * 10;
+  if (daysSinceWrong === null) score += 10;
+  else if (daysSinceWrong <= 1) score += 70;
+  else if (daysSinceWrong <= 3) score += 55;
+  else if (daysSinceWrong <= 7) score += 40;
+  else if (daysSinceWrong <= 21) score += 20;
+  else score += 8;
+  if (isDue(record, now)) score += 20;
+
+  score -= recentDailyRepeats * 45;
+
+  return score + Math.random() * 6;
+}
+
+function selectDailyWrongQuestions(progress, count, usedIds, now = new Date()) {
+  return selectUniqueQuestions(
+    QUESTIONS
+      .map(question => ({
+        question,
+        score: scoreQuestionForDailyWrongPriority(question, progress, now),
+        reason: "repeated_wrong",
+      }))
+      .filter(item => Number.isFinite(item.score))
+      .sort((a, b) => b.score - a.score),
+    count,
+    usedIds
+  );
+}
+
+function selectDailyReviewQuestions(progress, count, usedIds, now = new Date()) {
+  const records = progress.questions || {};
+  const dueMastered = QUESTIONS
+    .filter(question => isQuestionMastered(records[question.id]) && isDue(records[question.id], now))
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "mastered_due" }))
+    .sort((a, b) => b.score - a.score);
+  const dueReview = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "normal_due" }))
+    .filter(item => {
+      const record = records[item.question.id];
+      const mastery = getMasteryLevel(record);
+      return hasSeenQuestion(record) && mastery > 0 && mastery < 5 && isDue(record, now);
+    })
+    .sort((a, b) => b.score - a.score);
+  const weakReview = QUESTIONS
+    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress, now), reason: "normal_due" }))
+    .filter(item => isWeaknessCandidate(item.question, progress))
+    .sort((a, b) => b.score - a.score);
+  const novelty = shuffleItems(QUESTIONS)
+    .filter(question => !hasSeenQuestion(records[question.id]))
+    .map(question => ({ question, reason: "unseen_or_random" }));
+  const fallback = shuffleItems(QUESTIONS)
+    .map(question => ({ question, reason: "fallback_random" }));
+
+  return selectUniqueQuestions(
+    [...dueMastered, ...dueReview, ...weakReview, ...novelty, ...fallback],
+    count,
+    usedIds
+  );
+}
+
 function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
   const selected = [];
 
@@ -852,6 +1278,176 @@ function selectRandomPracticeQuestions(progress) {
   return selected;
 }
 
+function normalizeQuestionText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function getQuestionSearchText(question) {
+  return normalizeQuestionText([
+    question?.stem,
+    ...(question?.options || []),
+    question?.explanation,
+    question?.topic,
+    question?.topicTag,
+    question?.category,
+    question?.weakArea,
+    question?.weaknessTag,
+    ...(Array.isArray(question?.tags) ? question.tags : []),
+  ].filter(Boolean).join(" "));
+}
+
+function firstQuestionField(question, keys) {
+  for (const key of keys) {
+    const value = question?.[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function getQuestionTopic(question) {
+  const explicitTopic = firstQuestionField(question, ["topic", "topicTag", "category", "section", "domain"]);
+  if (explicitTopic) return explicitTopic;
+
+  const text = getQuestionSearchText(question);
+  const topicRules = [
+    ["Psychosis and Schizophrenia", /\b(schizo|psychosis|psychotic|delusion|hallucination|clozapine|dopamine|negative symptoms|catatonia)\b/],
+    ["Mood Disorders", /\b(depress|mania|manic|bipolar|cyclothym|dysthym|lithium|valproate|ketamine|ect)\b/],
+    ["Anxiety, OCD and Trauma", /\b(anxiety|panic|phobia|agoraphobia|ocd|obsess|compuls|ptsd|trauma|emdr)\b/],
+    ["Substance Use and Addictions", /\b(alcohol|opioid|cannabis|cocaine|amphetamine|withdrawal|dependence|wernicke|benzodiazepine)\b/],
+    ["Neurocognitive and Organic Psychiatry", /\b(delirium|dementia|alzheimer|lewy|parkinson|huntington|organic|neurocognitive|encephalitis)\b/],
+    ["Child, Adolescent and Neurodevelopmental", /\b(autism|adhd|intellectual disability|child|adolescent|tics|tourette|enuresis)\b/],
+    ["Personality Disorders", /\b(personality|borderline|antisocial|narcissistic|avoidant|cluster)\b/],
+    ["Eating and Somatic Disorders", /\b(anorexia|bulimia|binge|eating disorder|somatic|body dysmorphic|conversion)\b/],
+    ["Psychopharmacology and Biological Treatment", /\b(ssri|snri|maoi|antipsychotic|antidepressant|benzodiazepine|stabilizer|tardive|akathisia|serotonin syndrome|nms|prolactin|hyponatremia)\b/],
+    ["Legal, Ethics and Capacity", /\b(capacity|consent|confidential|involuntary|forensic|legal|court|duty|competence)\b/],
+    ["Emergency and Risk", /\b(suicide|homicide|violence|emergency|agitation|restraint|rapid tranquil|self-harm|overdose)\b/],
+  ];
+
+  return topicRules.find(([, pattern]) => pattern.test(text))?.[0] || "General Psychiatry";
+}
+
+function getQuestionWeakAreaTags(question) {
+  const explicitSingle = firstQuestionField(question, ["weakArea", "weak_area", "weakTag", "weak_tag", "weaknessTag", "weakness_tag"]);
+  const explicitArray = Array.isArray(question?.weakAreas)
+    ? question.weakAreas
+    : Array.isArray(question?.weak_areas)
+      ? question.weak_areas
+      : Array.isArray(question?.weakTags)
+        ? question.weakTags
+        : Array.isArray(question?.tags)
+          ? question.tags.filter(tag => WRITTEN_WEAK_AREA_LABELS.includes(normalizeQuestionText(tag)))
+          : [];
+  const explicitTags = [
+    ...(explicitSingle ? [explicitSingle] : []),
+    ...explicitArray,
+  ].map(tag => String(tag).trim()).filter(Boolean);
+
+  if (explicitTags.length) return [...new Set(explicitTags)];
+
+  const text = getQuestionSearchText(question);
+  const tags = [];
+  const addIf = (label, pattern) => {
+    if (pattern.test(text)) tags.push(label);
+  };
+
+  addIf("diagnostic exclusion", /\b(exclude|rule out|not diagnose|before diagnosing|medical cause|substance-induced|duration|criterion|criteria)\b/);
+  addIf("risk assessment", /\b(suicide|homicide|self-harm|violence|risk|protective factor|danger)\b/);
+  addIf("emergency psychiatry", /\b(emergency|acute agitation|rapid tranquil|restraint|seclusion|overdose|nms|serotonin syndrome|catatonia|delirium tremens)\b/);
+  addIf("psychopharmacology sequencing", /\b(first-line|next step|after failure|treatment-resistant|augment|switch|sequence|clozapine|lithium|ect)\b/);
+  addIf("capacity / legal issues", /\b(capacity|consent|confidential|involuntary|forensic|legal|competence|court|duty)\b/);
+  addIf("differential diagnosis", /\b(differential|distinguish|distinguished|versus|mimic|most likely diagnosis|diagnosis)\b/);
+  addIf("organic and substance-induced disorders", /\b(organic|substance-induced|delirium|dementia|intoxication|withdrawal|medical cause|neurological|endocrine)\b/);
+  addIf("management decisiveness", /\b(management|next step|best treatment|admit|hospital|urgent|immediate|start|refer)\b/);
+  addIf("adverse effects and monitoring", /\b(adverse|side effect|monitor|monitoring|toxicity|levels|agranulocytosis|metabolic|qtc|prolactin|hyponatremia|tardive)\b/);
+  addIf("over-nuance traps", /\b(except|least likely|most appropriate|best answer|always|never|subtle|trap)\b/);
+
+  return [...new Set(tags)];
+}
+
+function getPrimaryWeakArea(question) {
+  return getQuestionWeakAreaTags(question)[0] || "No weak-area tag";
+}
+
+function getQuestionExamLesson(question) {
+  return firstQuestionField(question, ["examLesson", "exam_lesson", "examTip", "exam_tip", "lesson"]);
+}
+
+function getQuestionSignature(question) {
+  const tokens = normalizeQuestionText(question?.stem)
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .split(/\s+/)
+    .filter(token => token.length > 3 && !["which", "what", "with", "from", "that", "this", "most", "best", "following", "patient", "correct"].includes(token));
+
+  return tokens.slice(0, 18).join(" ") || `question-${question?.id}`;
+}
+
+function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
+  const eligible = QUESTIONS.filter(question =>
+    Array.isArray(question.options) &&
+    question.options.length === 5 &&
+    Number.isInteger(question.correct) &&
+    question.correct >= 0 &&
+    question.correct < question.options.length
+  );
+  const targetCount = Math.min(count, eligible.length);
+  const weakTarget = Math.max(0, Math.round(targetCount * 0.25));
+  const selected = [];
+  const usedIds = new Set();
+  const usedSignatures = new Set();
+
+  const pushQuestion = (question) => {
+    if (!question || usedIds.has(question.id)) return false;
+    const signature = getQuestionSignature(question);
+    if (usedSignatures.has(signature)) return false;
+    usedIds.add(question.id);
+    usedSignatures.add(signature);
+    selected.push(question);
+    return true;
+  };
+
+  const weakCandidates = eligible
+    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
+    .filter(item => isWeaknessCandidate(item.question, progress) && item.score >= 25)
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.question);
+
+  for (const question of weakCandidates) {
+    if (selected.length >= weakTarget) break;
+    pushQuestion(question);
+  }
+
+  const byTopic = new Map();
+  shuffleItems(eligible).forEach(question => {
+      const topic = getQuestionTopic(question);
+      byTopic.set(topic, [...(byTopic.get(topic) || []), question]);
+    });
+
+  while (selected.length < targetCount) {
+    let addedInRound = false;
+    for (const [, topicQuestions] of byTopic) {
+      while (topicQuestions.length) {
+        const candidate = topicQuestions.shift();
+        if (pushQuestion(candidate)) {
+          addedInRound = true;
+          break;
+        }
+      }
+      if (selected.length >= targetCount) break;
+    }
+    if (!addedInRound) break;
+  }
+
+  for (const question of shuffleItems(eligible)) {
+    if (selected.length >= targetCount) break;
+    pushQuestion(question);
+  }
+
+  return shuffleItems(selected);
+}
+
 function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
   return progress.dailyChallenges?.[dateKey] || null;
 }
@@ -861,47 +1457,20 @@ function createDailyChallenge(progress, dateKey = getLocalDateKey()) {
   if (existing?.questionIds?.length) return existing;
 
   const now = new Date();
-  const records = progress.questions || {};
   const usedIds = new Set();
-  const byPriority = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "repeated_wrong" }))
-    .sort((a, b) => b.score - a.score);
-  const repeatedWrong = selectUniqueQuestions(byPriority.filter(item => {
-    const record = records[item.question.id];
-    return getWrongCount(record) > 0 || (record?.consecutiveWrong || 0) > 0 || (record?.confidentWrongCount || 0) > 0;
-  }), 4, usedIds);
-  const masteredDue = selectUniqueQuestions(
-    QUESTIONS
-      .filter(question => isQuestionMastered(records[question.id]) && isDue(records[question.id], now))
-      .map(question => ({ question, reason: "mastered_due" })),
-    2,
-    usedIds
-  );
-  const normalDue = selectUniqueQuestions(
-    byPriority
-      .filter(item => {
-        const record = records[item.question.id];
-        const mastery = getMasteryLevel(record);
-        return mastery > 0 && mastery < 5 && isDue(record, now);
-      })
-      .map(item => ({ question: item.question, reason: "normal_due" })),
-    3,
-    usedIds
-  );
-  const novelty = selectUniqueQuestions(
-    selectRandomQuestions(QUESTIONS.length)
-      .filter(question => !hasSeenQuestion(records[question.id]))
-      .map(question => ({ question, reason: "unseen_or_random" })),
-    1,
-    usedIds
-  );
-  const selected = [...repeatedWrong, ...masteredDue, ...normalDue, ...novelty];
-  const fallback = selectUniqueQuestions(
-    selectRandomQuestions(QUESTIONS.length).map(question => ({ question, reason: "fallback_random" })),
-    DAILY_CHALLENGE_SIZE - selected.length,
-    usedIds
-  );
-  const items = [...selected, ...fallback].slice(0, DAILY_CHALLENGE_SIZE).map((item, index) => ({
+  const wrongTarget = Math.min(DAILY_CHALLENGE_SIZE, Math.round(DAILY_CHALLENGE_SIZE * 0.8));
+  const repeatedWrong = selectDailyWrongQuestions(progress, wrongTarget, usedIds, now);
+  const reviewTarget = DAILY_CHALLENGE_SIZE - repeatedWrong.length;
+  const reviewQuestions = selectDailyReviewQuestions(progress, reviewTarget, usedIds, now);
+  const remaining = DAILY_CHALLENGE_SIZE - repeatedWrong.length - reviewQuestions.length;
+  const fallback = remaining > 0
+    ? selectUniqueQuestions(
+        shuffleItems(QUESTIONS).map(question => ({ question, reason: "fallback_random" })),
+        remaining,
+        usedIds
+      )
+    : [];
+  const items = [...repeatedWrong, ...reviewQuestions, ...fallback].slice(0, DAILY_CHALLENGE_SIZE).map((item, index) => ({
     questionId: item.question.id,
     reason: item.reason,
     position: index + 1,
@@ -940,6 +1509,7 @@ function getSessionQuestions(mode, progress) {
   }
   if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE);
   if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
+  if (mode === "written") return selectWrittenExamQuestions(progress, WRITTEN_EXAM_SIZE);
   return selectRandomPracticeQuestions(progress);
 }
 
@@ -1088,6 +1658,85 @@ function getSprintHighScore(progress) {
   return getSprintSessions(progress).reduce((best, session) => {
     return Math.max(best, session.points || 0);
   }, 0);
+}
+
+function recordWrittenExamSubmission(progress, questions, answers, sessionId) {
+  return questions.reduce((nextProgress, question) => {
+    const selected = answers[question.id];
+    if (selected === undefined || selected === null) {
+      return markQuestionSeen(nextProgress, question.id);
+    }
+
+    return recordQuestionAnswer(nextProgress, question, selected, {
+      mode: "written",
+      confidence: 3,
+      timeTakenMs: null,
+      pointsAwarded: selected === question.correct ? 100 : 0,
+      pointBreakdown: null,
+      sessionId,
+      streakPosition: 0,
+    });
+  }, progress);
+}
+
+function getWrittenPerformanceCategory(scorePercent) {
+  if (scorePercent >= 90) return { label: "Exam-ready", className: "excellent" };
+  if (scorePercent > 70) return { label: "Good performance", className: "good" };
+  if (scorePercent >= 50) return { label: "Barely passing / borderline", className: "pass" };
+  return { label: "Not yet passing level", className: "fail" };
+}
+
+function buildBreakdown(items, getLabel) {
+  const map = new Map();
+
+  items.forEach(item => {
+    const labels = getLabel(item.question);
+    const normalizedLabels = Array.isArray(labels) && labels.length ? labels : [labels || "No weak-area tag"];
+
+    normalizedLabels.forEach(label => {
+      const current = map.get(label) || { label, total: 0, correct: 0, wrong: 0, unanswered: 0 };
+      current.total += 1;
+      if (item.selected === undefined || item.selected === null) current.unanswered += 1;
+      else if (item.isCorrect) current.correct += 1;
+      else current.wrong += 1;
+      map.set(label, current);
+    });
+  });
+
+  return [...map.values()]
+    .map(row => ({
+      ...row,
+      percent: row.total > 0 ? Math.round((row.correct / row.total) * 100) : 0,
+    }))
+    .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+}
+
+function getWrittenExamResult(questions, answers) {
+  const items = questions.map(question => {
+    const selected = answers[question.id];
+    return {
+      question,
+      selected,
+      isCorrect: selected !== undefined && selected !== null && selected === question.correct,
+      isUnanswered: selected === undefined || selected === null,
+    };
+  });
+  const correct = items.filter(item => item.isCorrect).length;
+  const unanswered = items.filter(item => item.isUnanswered).length;
+  const wrong = items.length - correct - unanswered;
+  const scorePercent = items.length > 0 ? Math.round((correct / items.length) * 100) : 0;
+
+  return {
+    total: items.length,
+    correct,
+    wrong,
+    unanswered,
+    scorePercent,
+    performance: getWrittenPerformanceCategory(scorePercent),
+    topicBreakdown: buildBreakdown(items, question => getQuestionTopic(question)),
+    weakAreaBreakdown: buildBreakdown(items, question => getQuestionWeakAreaTags(question)),
+    wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
+  };
 }
 // ═══════════════════════════════════════════════════════════════
 // ICONS
@@ -1505,6 +2154,22 @@ const STYLES = `
     line-height: 1.5;
   }
 
+  .home-sharing-note {
+    margin: 26px auto 0;
+    max-width: 520px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .home-sharing-note small {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
   .card-badge {
     display: inline-block;
     font-size: 10px;
@@ -1864,6 +2529,7 @@ const STYLES = `
     margin-bottom: 12px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
@@ -1893,6 +2559,92 @@ const STYLES = `
     background: rgba(59,130,246,0.12);
     border-color: rgba(59,130,246,0.3);
     color: #93c5fd;
+  }
+
+  .mcq-feedback {
+    position: relative;
+    margin-left: auto;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .mcq-feedback-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mcq-feedback-btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--text);
+  }
+
+  .mcq-feedback-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .mcq-feedback-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 140;
+    min-width: 250px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+  }
+
+  .mcq-feedback-option {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .mcq-feedback-option:last-child {
+    border-bottom: 0;
+  }
+
+  .mcq-feedback-option:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .mcq-feedback-message {
+    display: inline-flex;
+    margin: -4px 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 9px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .mcq-feedback-message.success {
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.35);
+    color: var(--green);
+  }
+
+  .mcq-feedback-message.error {
+    background: var(--red-bg);
+    border-color: rgba(239,68,68,0.35);
+    color: var(--red);
   }
 
   .question-stem {
@@ -2224,6 +2976,154 @@ const STYLES = `
   }
 
   /* ─── PLACEHOLDER ─── */
+  .written-results {
+    max-width: 960px;
+    text-align: left;
+  }
+
+  .written-results .results-score,
+  .written-results .results-label,
+  .written-results .results-detail {
+    text-align: center;
+  }
+
+  .written-result-grid,
+  .written-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px 0;
+  }
+
+  .written-breakdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .written-result-stat,
+  .written-breakdown,
+  .wrong-answer-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+  }
+
+  .written-result-stat {
+    text-align: center;
+  }
+
+  .written-result-stat strong {
+    display: block;
+    color: var(--text);
+    font-size: 26px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .written-result-stat span,
+  .wrong-answer-topline,
+  .written-breakdown h3 {
+    color: var(--text-dim);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .written-breakdown h3 {
+    margin-bottom: 12px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+    padding: 10px 0;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .breakdown-row strong {
+    color: var(--text);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .written-review {
+    max-width: 900px;
+  }
+
+  .written-review h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 30px;
+    font-weight: 400;
+    margin-bottom: 18px;
+  }
+
+  .wrong-answer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 80px;
+  }
+
+  .wrong-answer-topline,
+  .written-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .wrong-question-stem {
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .written-answer-row {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .written-answer-row strong {
+    display: block;
+    color: var(--text);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .written-answer-row.correct {
+    border-color: rgba(34,197,94,0.35);
+    background: var(--green-bg);
+  }
+
+  .written-answer-row.incorrect {
+    border-color: rgba(239,68,68,0.35);
+    background: var(--red-bg);
+  }
+
+  .meta-pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .exam-lesson {
+    border-left-color: var(--gold);
+  }
+
   .placeholder-page {
     max-width: 560px;
     margin: 0 auto;
@@ -2305,6 +3205,113 @@ const STYLES = `
     max-width: 720px;
     margin: 0 auto;
     padding: 20px;
+  }
+
+  .oral-choice,
+  .oral-simulator {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 36px 20px;
+  }
+
+  .oral-choice h2,
+  .oral-simulator h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .oral-choice p,
+  .oral-simulator p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  .oral-simulator {
+    padding-bottom: 92px;
+  }
+
+  .oral-exam-meta,
+  .oral-exam-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .oral-exam-meta span {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 999px;
+    padding: 4px 9px;
+  }
+
+  .oral-exam-context {
+    justify-content: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .oral-notes-label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .oral-answer-notes {
+    width: 100%;
+    min-height: 96px;
+    resize: vertical;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  .oral-answer-notes:focus {
+    outline: none;
+    border-color: var(--border-active);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.16);
+  }
+
+  .oral-exam-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 24px 0;
+  }
+
+  .oral-exam-summary-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .oral-exam-summary-row small {
+    display: block;
+    color: var(--text-dim);
+    margin-top: 4px;
   }
 
   .oral-overview {
@@ -2593,12 +3600,131 @@ const STYLES = `
     white-space: nowrap;
   }
 
+  /* SOS */
+
+  .sos-screen {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .sos-screen h2 {
+    font-size: 24px;
+    margin-bottom: 22px;
+  }
+
+  .sos-option-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .sos-option-card,
+  .sos-list-entry,
+  .sos-accordion-entry {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sos-option-card {
+    min-height: 92px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .sos-option-card:hover,
+  .sos-list-entry:hover,
+  .sos-accordion-entry:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-active);
+  }
+
+  .sos-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .sos-list-entry {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .sos-list-entry.mastered {
+    border-color: rgba(34,197,94,0.35);
+    background: var(--green-bg);
+  }
+
+  .sos-list-entry.mastered svg {
+    color: var(--green);
+    flex-shrink: 0;
+  }
+
+  .sos-accordion-entry {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .sos-entry-title {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .sos-accordion-entry.open .sos-entry-title svg {
+    transform: rotate(180deg);
+  }
+
+  .sos-answer-box {
+    margin: 0 16px 16px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .sos-detail-answer {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-surface);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+  }
+
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
     .home-title { font-size: 32px; }
     .profile-form { flex-direction: column; }
     .mcq-memory { grid-template-columns: 1fr; }
     .game-hud { grid-template-columns: repeat(2, 1fr); }
+    .written-result-grid,
+    .written-breakdown-grid { grid-template-columns: 1fr; }
+    .breakdown-row { flex-direction: column; gap: 4px; }
+    .breakdown-row strong { white-space: normal; }
     .nav-bar { gap: 6px; padding: 12px 16px; }
     .nav-btn { padding: 8px 12px; font-size: 13px; }
     .sprint-auto-toggle { right: 12px; bottom: 68px; }
@@ -2695,7 +3821,8 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
     { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Gamified multiple-choice practice with saved mastery progress', active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Oral Examination Questions', desc: 'Oral exam practice organized by topic priority', active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
+    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
   ];
 
   return (
@@ -2722,6 +3849,10 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
             {!s.active && <span className="card-badge">Soon</span>}
           </div>
         ))}
+      </div>
+      <div className="home-sharing-note">
+        <div>Χρησιμοποιήστε την εφαρμογή ελεύθερα, μοιραστείτε την υπεύθηνα</div>
+        <small>Μακριά από εξεταστές</small>
       </div>
     </div>
   );
@@ -2772,6 +3903,10 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
         Weakness
         <small>Targets repeatedly wrong, confidently wrong, low mastery, and due questions.</small>
       </button>
+      <button className="mode-btn" onClick={() => onStart('written')}>
+        Written Exam Simulation
+        <small>100-question exam simulation with no timer, no feedback during the exam, and full results after submission.</small>
+      </button>
       {progressSummary.seen > 0 && (
         <button className="reset-progress-btn" onClick={onResetProgress}>
           Reset saved MCQ progress
@@ -2796,6 +3931,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [finalSprintSession, setFinalSprintSession] = useState(null);
   const [autoAdvanceSprint, setAutoAdvanceSprint] = useState(true);
+  const [writtenResult, setWrittenResult] = useState(null);
+  const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
+  const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
+  const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState(null);
+  const [feedbackSavingType, setFeedbackSavingType] = useState(null);
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     incorrect: 0,
@@ -2835,11 +3976,16 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     : displayedBreakdown?.total >= 100
       ? "medium"
       : "low";
+  const writtenAnsweredCount = mode === "written"
+    ? questions.filter(question => answers[question.id] !== undefined && answers[question.id] !== null).length
+    : 0;
+  const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
   const modeTitle = {
     daily: "Daily",
     random: "Random",
     sprint: "Sprint",
     weakness: "Weakness",
+    written: "Written Exam Simulation",
   }[mode] || "MCQ";
 
   useEffect(() => {
@@ -2854,6 +4000,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     advancingRef.current = false;
     setLastBreakdown(null);
     setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
+    setFeedbackMenuOpen(false);
+    setFeedbackStatus(null);
     onProgressChange(prev => markQuestionSeen(prev, q.id));
   }, [q?.id]);
 
@@ -2911,6 +4059,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   }, [currentIdx, finishSprint, mode, nextIdx, sessionStats, totalQ]);
 
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
+    if (mode === "written") return;
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
     if (mode === "sprint" && (advancingRef.current || finalSprintSession)) return;
@@ -2977,8 +4126,63 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer, finalSprintSession]);
 
   const selectOption = (idx) => {
-    if (isLocked) return;
+    if (isLocked || writtenResult) return;
     setAnswers(prev => ({ ...prev, [q.id]: idx }));
+  };
+
+  const submitMcqFeedback = async (feedbackType) => {
+    if (!q || feedbackSavingType) return;
+
+    setFeedbackSavingType(feedbackType);
+    setFeedbackStatus(null);
+    try {
+      await saveMcqFeedback(q.id, feedbackType, {
+        questionTextSnapshot: q.stem,
+        topic: getQuestionTopic(q),
+        subtopic: getPrimaryWeakArea(q),
+      });
+      setFeedbackMenuOpen(false);
+      setFeedbackStatus({ type: "success", message: "Feedback saved." });
+    } catch {
+      setFeedbackStatus({ type: "error", message: "Could not save feedback." });
+    } finally {
+      setFeedbackSavingType(null);
+    }
+  };
+
+  const submitWrittenExam = useCallback((forceSubmit = false) => {
+    if (mode !== "written" || writtenResult) return;
+    const result = getWrittenExamResult(questions, answers);
+    if (!forceSubmit && result.unanswered > 0) {
+      setShowWrittenSubmitWarning(true);
+      return;
+    }
+
+    setShowWrittenSubmitWarning(false);
+    setWrittenResult(result);
+    onProgressChange(prev => recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current));
+  }, [answers, mode, onProgressChange, questions, writtenResult]);
+
+  const restartWrittenExam = () => {
+    sessionIdRef.current = `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    sessionFinishedRef.current = false;
+    advancingRef.current = false;
+    startedAtRef.current = Date.now();
+    setQuestions(getSessionQuestions(mode, progress));
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setWrittenResult(null);
+    setReviewWrittenWrong(false);
+    setShowWrittenSubmitWarning(false);
+    setSessionStats({
+      correct: 0,
+      incorrect: 0,
+      total: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      points: 0,
+    });
   };
 
   const restartSprint = () => {
@@ -3004,6 +4208,164 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       points: 0,
     });
   };
+
+  if (mode === "written" && writtenResult && reviewWrittenWrong) {
+    return (
+      <div className="test-container written-review fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={() => setReviewWrittenWrong(false)}>
+            <Icons.ChevronLeft /> Results
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Wrong Answer Review</h2>
+        {writtenResult.wrongItems.length === 0 ? (
+          <div className="explanation-box">
+            <strong>No wrong answers</strong>
+            This written simulation had no answered questions marked incorrect.
+          </div>
+        ) : (
+          <div className="wrong-answer-list">
+            {writtenResult.wrongItems.map((item, index) => {
+              const question = item.question;
+              const examLesson = getQuestionExamLesson(question);
+              const weakTags = getQuestionWeakAreaTags(question);
+              return (
+                <div className="wrong-answer-card" key={question.id}>
+                  <div className="wrong-answer-topline">
+                    <span>Question {index + 1}</span>
+                    <span>Bank ID {question.id}</span>
+                  </div>
+                  <div className="wrong-question-stem">{question.stem}</div>
+                  <div className="written-answer-row incorrect">
+                    <strong>Your answer</strong>
+                    <span>{OPTION_LETTERS[item.selected]}. {question.options[item.selected]}</span>
+                  </div>
+                  <div className="written-answer-row correct">
+                    <strong>Correct answer</strong>
+                    <span>{OPTION_LETTERS[question.correct]}. {question.options[question.correct]}</span>
+                  </div>
+                  <div className="written-meta-row">
+                    <span className="meta-pill">{getQuestionTopic(question)}</span>
+                    {(weakTags.length ? weakTags : ["No weak-area tag"]).map(tag => (
+                      <span className="meta-pill" key={tag}>{tag}</span>
+                    ))}
+                  </div>
+                  <div className="explanation-box">
+                    <strong>Explanation</strong>
+                    {question.explanation}
+                  </div>
+                  {examLesson && (
+                    <div className="explanation-box exam-lesson">
+                      <strong>Exam lesson</strong>
+                      {examLesson}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (mode === "written" && writtenResult) {
+    return (
+      <div className="results written-results fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+
+        <div className={`results-score ${writtenResult.performance.className}`}>
+          {writtenResult.scorePercent}%
+        </div>
+        <div className="results-label">{writtenResult.performance.label}</div>
+        <div className="results-detail">
+          {writtenResult.correct}/{writtenResult.total} correct, {writtenResult.wrong} wrong
+          {writtenResult.unanswered > 0 ? `, ${writtenResult.unanswered} unanswered` : ""}
+        </div>
+
+        <div className="written-result-grid">
+          <div className="written-result-stat">
+            <strong>{writtenResult.correct}</strong>
+            <span>Correct</span>
+          </div>
+          <div className="written-result-stat">
+            <strong>{writtenResult.wrong}</strong>
+            <span>Wrong</span>
+          </div>
+          <div className="written-result-stat">
+            <strong>{writtenResult.unanswered}</strong>
+            <span>Unanswered</span>
+          </div>
+        </div>
+
+        <div className="written-breakdown-grid">
+          <div className="written-breakdown">
+            <h3>Topic Breakdown</h3>
+            {writtenResult.topicBreakdown.map(row => (
+              <div className="breakdown-row" key={row.label}>
+                <span>{row.label}</span>
+                <strong>{row.correct}/{row.total} ({row.percent}%)</strong>
+              </div>
+            ))}
+          </div>
+          <div className="written-breakdown">
+            <h3>Weak-Area Breakdown</h3>
+            {writtenResult.weakAreaBreakdown.map(row => (
+              <div className="breakdown-row" key={row.label}>
+                <span>{row.label}</span>
+                <strong>{row.correct}/{row.total} ({row.percent}%)</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="written-breakdown">
+          <h3>Wrong Answers</h3>
+          {writtenResult.wrongItems.length === 0 ? (
+            <div className="breakdown-row">
+              <span>No wrong answers</span>
+              <strong>-</strong>
+            </div>
+          ) : (
+            writtenResult.wrongItems.slice(0, 12).map(item => (
+              <div className="breakdown-row" key={item.question.id}>
+                <span>Question {item.question.id}: {getQuestionTopic(item.question)}</span>
+                <strong>{OPTION_LETTERS[item.selected]} to {OPTION_LETTERS[item.question.correct]}</strong>
+              </div>
+            ))
+          )}
+          {writtenResult.wrongItems.length > 12 && (
+            <div className="breakdown-row">
+              <span>Additional wrong answers</span>
+              <strong>{writtenResult.wrongItems.length - 12}</strong>
+            </div>
+          )}
+        </div>
+
+        <div className="results-actions">
+          <button className="results-btn primary" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
+            Review all wrong answers
+          </button>
+          <button className="results-btn" onClick={restartWrittenExam}>
+            Restart simulation
+          </button>
+          <button className="results-btn" onClick={onBack}>
+            MCQ section
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!q) {
     return (
@@ -3035,24 +4397,45 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </button>
       </div>
 
-      <div className="game-hud">
-        <div className="hud-stat">
-          <span className="hud-value">{mode === "sprint" ? Math.ceil(timeLeftMs / 1000) : sessionStats.currentStreak}</span>
-          <span className="hud-label">{mode === "sprint" ? "Seconds" : "Streak"}</span>
+      {mode === "written" ? (
+        <div className="game-hud">
+          <div className="hud-stat">
+            <span className="hud-value">{currentIdx + 1}</span>
+            <span className="hud-label">Current</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{writtenAnsweredCount}</span>
+            <span className="hud-label">Answered</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{writtenUnansweredCount}</span>
+            <span className="hud-label">Unanswered</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{totalQ}</span>
+            <span className="hud-label">Total</span>
+          </div>
         </div>
-        <div className="hud-stat">
-          <span className="hud-value">{mode === "sprint" ? sessionStats.points : sessionStats.correct}</span>
-          <span className="hud-label">{mode === "sprint" ? "Points" : "Correct"}</span>
+      ) : (
+        <div className="game-hud">
+          <div className="hud-stat">
+            <span className="hud-value">{mode === "sprint" ? Math.ceil(timeLeftMs / 1000) : sessionStats.currentStreak}</span>
+            <span className="hud-label">{mode === "sprint" ? "Seconds" : "Streak"}</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{mode === "sprint" ? sessionStats.points : sessionStats.correct}</span>
+            <span className="hud-label">{mode === "sprint" ? "Points" : "Correct"}</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{mode === "sprint" ? sessionStats.currentStreak : sessionStats.incorrect}</span>
+            <span className="hud-label">{mode === "sprint" ? "Streak" : "Incorrect"}</span>
+          </div>
+          <div className="hud-stat">
+            <span className="hud-value">{sessionStats.total}</span>
+            <span className="hud-label">Answered</span>
+          </div>
         </div>
-        <div className="hud-stat">
-          <span className="hud-value">{mode === "sprint" ? sessionStats.currentStreak : sessionStats.incorrect}</span>
-          <span className="hud-label">{mode === "sprint" ? "Streak" : "Incorrect"}</span>
-        </div>
-        <div className="hud-stat">
-          <span className="hud-value">{sessionStats.total}</span>
-          <span className="hud-label">Answered</span>
-        </div>
-      </div>
+      )}
 
       {mode === "sprint" && (
         <div className="sprint-timer-track" aria-label="Sprint countdown">
@@ -3065,10 +4448,17 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       <div className="test-header">
         <span className="progress-text">
-          Mastered {progressStats.mastered}/{progressStats.total}
+          {mode === "written" ? `Answered ${writtenAnsweredCount}/${totalQ}` : `Mastered ${progressStats.mastered}/${progressStats.total}`}
         </span>
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${(progressStats.mastered / progressStats.total) * 100}%` }} />
+          <div
+            className="progress-fill"
+            style={{
+              width: mode === "written"
+                ? `${totalQ > 0 ? (writtenAnsweredCount / totalQ) * 100 : 0}%`
+                : `${(progressStats.mastered / progressStats.total) * 100}%`,
+            }}
+          />
         </div>
         <span className="progress-text">
           {modeTitle} {currentIdx + 1}/{totalQ}
@@ -3077,9 +4467,40 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       <div className="question-num">
         Question {q.id}
-        <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>
-        {dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
+        {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
+        {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
+        <div className="mcq-feedback">
+          <button
+            className="mcq-feedback-btn"
+            onClick={() => {
+              setFeedbackMenuOpen(open => !open);
+              setFeedbackStatus(null);
+            }}
+            disabled={Boolean(feedbackSavingType)}
+          >
+            Feedback
+          </button>
+          {feedbackMenuOpen && (
+            <div className="mcq-feedback-menu">
+              {MCQ_FEEDBACK_OPTIONS.map(option => (
+                <button
+                  key={option.value}
+                  className="mcq-feedback-option"
+                  onClick={() => submitMcqFeedback(option.value)}
+                  disabled={Boolean(feedbackSavingType)}
+                >
+                  {feedbackSavingType === option.value ? "Saving..." : option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+      {feedbackStatus && (
+        <div className={`mcq-feedback-message ${feedbackStatus.type}`}>
+          {feedbackStatus.message}
+        </div>
+      )}
       <div className="question-stem">{q.stem}</div>
 
       <div className="options-list">
@@ -3103,7 +4524,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         })}
       </div>
 
-      {isLocked && (
+      {isLocked && mode !== "written" && (
         <div className="explanation-box">
           <strong>Explanation</strong>{q.explanation}
           {displayedBreakdown && (
@@ -3129,25 +4550,59 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </button>
       )}
 
-      <div className="nav-bar">
-        <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={mode === "sprint" || prevIdx < 0}>
-          <Icons.ChevronLeft />
-        </button>
-        {!isLocked && (
-          <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-            <Icons.Lock /> Lock
+      {mode === "written" ? (
+        <div className="nav-bar">
+          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0}>
+            <Icons.ChevronLeft />
           </button>
-        )}
-        <button
-          className="nav-btn"
-          onClick={goToNextQuestion}
-          disabled={mode === "sprint" ? !isLocked : nextIdx < 0 || nextIdx >= totalQ}
-        >
-          {mode === "sprint" && isLocked
-            ? currentIdx >= totalQ - 1 ? "Finish" : "Next"
-            : <Icons.ChevronRight />}
-        </button>
-      </div>
+          <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
+            <Icons.ChevronRight />
+          </button>
+          <button className="nav-btn primary" onClick={() => submitWrittenExam(false)}>
+            Submit exam
+          </button>
+        </div>
+      ) : (
+        <div className="nav-bar">
+          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={mode === "sprint" || prevIdx < 0}>
+            <Icons.ChevronLeft />
+          </button>
+          {!isLocked && (
+            <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+              <Icons.Lock /> Lock
+            </button>
+          )}
+          <button
+            className="nav-btn"
+            onClick={goToNextQuestion}
+            disabled={mode === "sprint" ? !isLocked : nextIdx < 0 || nextIdx >= totalQ}
+          >
+            {mode === "sprint" && isLocked
+              ? currentIdx >= totalQ - 1 ? "Finish" : "Next"
+              : <Icons.ChevronRight />}
+          </button>
+        </div>
+      )}
+
+      {showWrittenSubmitWarning && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Unanswered questions warning">
+          <div className="modal">
+            <h3>Submit with unanswered questions?</h3>
+            <p>
+              {writtenUnansweredCount} question{writtenUnansweredCount === 1 ? "" : "s"} are unanswered.
+              Unanswered questions count as not correct in the final score.
+            </p>
+            <div className="modal-actions">
+              <button className="results-btn primary" onClick={() => submitWrittenExam(true)}>
+                Submit anyway
+              </button>
+              <button className="results-btn" onClick={() => setShowWrittenSubmitWarning(false)}>
+                Continue exam
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {finalSprintSession && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Sprint results">
@@ -3209,6 +4664,32 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 // ORAL EXAMINATION COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
+function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenSimulator }) {
+  return (
+    <div className="oral-choice fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Πίσω
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <h2>Προφορικά</h2>
+      <p>Επιλέξτε τρόπο εξάσκησης για το προφορικό μέρος της εξέτασης.</p>
+
+      <button className="mode-btn" onClick={onOpenPastTopics}>
+        Προηγούμενα Θέματα
+        <small>Εξάσκηση με τα υπάρχοντα προφορικά θέματα και ερωτήσεις της τράπεζας.</small>
+      </button>
+      <button className="mode-btn featured" onClick={onOpenSimulator}>
+        Προφορική Εξέταση
+        <small>Προσομοίωση προφορικής εξέτασης με βασικές και follow-up ερωτήσεις.</small>
+      </button>
+    </div>
+  );
+}
+
 function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress }) {
   const [expandedGravity, setExpandedGravity] = useState({});
   const [expandedTopic, setExpandedTopic] = useState({});
@@ -3249,11 +4730,11 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
           <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Oral Examination Questions</h2>
+      <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Προηγούμενα Θέματα</h2>
       <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Ερωτήσεις κατά βαρύτητα θέματος</p>
       <div className="oral-overview">
         <strong>{overallSummary.mastered}/{overallSummary.total}</strong>
-        <span>mastered across oral questions</span>
+        <span>κατακτημένες ερωτήσεις</span>
       </div>
 
       {oralData.map(gravity => (
@@ -3422,6 +4903,186 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
   );
 }
 
+function OralExamSimulator({ onBack, onHome }) {
+  const [phase, setPhase] = useState("start");
+  const [session, setSession] = useState([]);
+  const [examinerIndex, setExaminerIndex] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [notes, setNotes] = useState({});
+
+  const currentExaminer = session[examinerIndex];
+  const currentQuestions = currentExaminer
+    ? [currentExaminer.anchor, ...currentExaminer.followUps]
+    : [];
+  const currentQuestion = currentQuestions[questionIndex];
+  const askedQuestions = session.flatMap(item => [item.anchor, ...item.followUps]);
+  const isAnchorQuestion = currentQuestion?.id === currentExaminer?.anchor?.id;
+  const isLastQuestionForExaminer = questionIndex >= currentQuestions.length - 1;
+  const isLastExaminer = examinerIndex >= session.length - 1;
+
+  const startExam = () => {
+    const nextSession = createOralExamSession();
+    setSession(nextSession);
+    setExaminerIndex(0);
+    setQuestionIndex(0);
+    setShowAnswer(false);
+    setNotes({});
+    setPhase("session");
+  };
+
+  const advanceQuestion = () => {
+    setShowAnswer(false);
+    if (!isLastQuestionForExaminer) {
+      setQuestionIndex(index => index + 1);
+      return;
+    }
+
+    if (!isLastExaminer) {
+      setExaminerIndex(index => index + 1);
+      setQuestionIndex(0);
+      return;
+    }
+
+    setPhase("result");
+  };
+
+  const updateNotes = (questionId, value) => {
+    setNotes(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  if (phase === "result") {
+    return (
+      <div className="oral-simulator fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Αρχική
+          </button>
+        </div>
+        <h2>Ολοκλήρωση Προφορικής Εξέτασης</h2>
+        <div className="oral-exam-summary">
+          {askedQuestions.map((question, index) => (
+            <div className="oral-exam-summary-row" key={`${question.id}-${index}`}>
+              <span>{index + 1}. {getOralExamQuestionText(question)}</span>
+              {notes[question.id] && <small>Υπάρχουν σημειώσεις απάντησης</small>}
+            </div>
+          ))}
+        </div>
+        <div className="results-actions">
+          <button className="results-btn primary" onClick={startExam}>
+            Νέα Προφορική Εξέταση
+          </button>
+          <button className="results-btn" onClick={onBack}>
+            Επιστροφή στα Προφορικά
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "start") {
+    return (
+      <div className="oral-simulator fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Αρχική
+          </button>
+        </div>
+        <h2>Προφορική Εξέταση</h2>
+        <p>
+          Η εξέταση ξεκινά με βασικές ερωτήσεις και μπορεί να συνεχίσει με follow-up ερωτήσεις,
+          όπως σε πραγματική προφορική εξέταση.
+        </p>
+        <button className="results-btn primary" onClick={startExam}>
+          Έναρξη Εξέτασης
+        </button>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return (
+      <div className="oral-simulator fade-in">
+        <div className="explanation-box">
+          <strong>Δεν υπάρχουν διαθέσιμες ερωτήσεις</strong>
+          Η προσομοίωση χρησιμοποιεί την υπάρχουσα τράπεζα προφορικών ερωτήσεων.
+        </div>
+        <button className="results-btn" onClick={onBack}>
+          Επιστροφή στα Προφορικά
+        </button>
+      </div>
+    );
+  }
+
+  const nextButtonLabel = !isLastQuestionForExaminer
+    ? "Επόμενη Ερώτηση"
+    : !isLastExaminer
+      ? "Επόμενος Εξεταστής"
+      : "Τέλος Εξέτασης";
+
+  return (
+    <div className="oral-simulator fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+
+      <div className="oral-exam-meta">
+        <span>Εξεταστής {examinerIndex + 1} / {session.length}</span>
+        <span>{isAnchorQuestion ? "Βασική ερώτηση" : "Follow-up ερώτηση"}</span>
+      </div>
+      <div className="oral-exam-context">
+        {getOralExamQuestionContext(currentQuestion)}
+      </div>
+
+      <div className="oral-q-text">{getOralExamQuestionText(currentQuestion)}</div>
+
+      <label className="oral-notes-label" htmlFor="oral-answer-notes">
+        Σημειώσεις απάντησης
+      </label>
+      <textarea
+        id="oral-answer-notes"
+        className="oral-answer-notes"
+        value={notes[currentQuestion.id] || ""}
+        onChange={event => updateNotes(currentQuestion.id, event.target.value)}
+        placeholder="Γράψτε σύντομες σημειώσεις για την απάντησή σας."
+      />
+
+      <div
+        className={`answer-box ${showAnswer ? 'revealed' : ''}`}
+        onClick={() => setShowAnswer(!showAnswer)}
+      >
+        {!showAnswer ? (
+          <div className="answer-placeholder">
+            <Icons.Eye />
+            <div style={{marginTop:8}}>Πατήστε για να δείτε την ενδεικτική απάντηση</div>
+          </div>
+        ) : (
+          <div className="answer-content">{getOralExamQuestionAnswer(currentQuestion)}</div>
+        )}
+      </div>
+
+      <div style={{ height: 80 }} />
+
+      <div className="nav-bar">
+        <button className="nav-btn primary" onClick={advanceQuestion}>
+          {nextButtonLabel} <Icons.ChevronRight />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function OralTable({ rows, onBack, onHome }) {
   return (
     <div className="ref-table fade-in">
@@ -3442,6 +5103,158 @@ function OralTable({ rows, onBack, onHome }) {
           <span className="ref-value">{row.value}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function SosHome({ onBack, onHome, onOpenSection }) {
+  const sections = [
+    { id: "numbers", title: "Αριθμοί που πρέπει να θυμάμαι" },
+    { id: "critical", title: "Κρίσιμα Θέματα" },
+    { id: "differential", title: "Διαφοροδιάγνωση" },
+  ];
+
+  return (
+    <div className="sos-screen fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Πίσω
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <h2>SOS Ψυχιατρικής</h2>
+      <div className="sos-option-grid">
+        {sections.map(section => (
+          <button
+            key={section.id}
+            className="sos-option-card"
+            onClick={() => onOpenSection(section.id)}
+          >
+            {section.title}
+            <Icons.ChevronRight />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SosNumbersList({ onBack, onHome }) {
+  const [openEntryId, setOpenEntryId] = useState(null);
+
+  return (
+    <div className="sos-screen fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
+      <div className="sos-list">
+        {sosNumbers.map(entry => {
+          const isOpen = openEntryId === entry.id;
+          return (
+            <button
+              key={entry.id}
+              className={`sos-accordion-entry ${isOpen ? "open" : ""}`}
+              onClick={() => setOpenEntryId(isOpen ? null : entry.id)}
+            >
+              <div className="sos-entry-title">
+                <span>{entry.title}</span>
+                <Icons.ChevronDown />
+              </div>
+              {isOpen && <div className="sos-answer-box">{entry.answer}</div>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome }) {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const normalizedProgress = normalizeSosProgress(sosProgress);
+  const mastered = normalizedProgress.mastered[section] || {};
+  const summary = summarizeSosProgress(normalizedProgress, section, entries);
+  const selectedEntry = Number.isInteger(selectedIndex) ? entries[selectedIndex] : null;
+
+  const goPrev = () => setSelectedIndex(index => Math.max(0, index - 1));
+  const goNext = () => setSelectedIndex(index => Math.min(entries.length - 1, index + 1));
+
+  if (selectedEntry) {
+    const isMastered = Boolean(mastered[selectedEntry.id]);
+    return (
+      <div className="sos-screen fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={() => setSelectedIndex(null)}>
+            <Icons.ChevronLeft /> {title}
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Αρχική
+          </button>
+        </div>
+        <div className="oral-viewer-meta">
+          <div className="oral-q-counter">{selectedIndex + 1} / {entries.length}</div>
+          <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
+            {summary.mastered}/{summary.total} κατακτημένα
+          </span>
+        </div>
+        <h2>{selectedEntry.title}</h2>
+        <button
+          className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+          onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
+        >
+          <Icons.Check />
+          {isMastered ? "Κατακτήθηκε" : "Κατακτήθηκε"}
+        </button>
+        <div className="sos-detail-answer">{selectedEntry.answer}</div>
+        <div style={{ height: 80 }} />
+        <div className="nav-bar">
+          <button className="nav-btn" onClick={goPrev} disabled={selectedIndex === 0}>
+            <Icons.ChevronLeft /> Προηγούμενο
+          </button>
+          <button className="nav-btn" onClick={goNext} disabled={selectedIndex === entries.length - 1}>
+            Επόμενο <Icons.ChevronRight />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="sos-screen fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <div className="oral-viewer-meta">
+        <h2>{title}</h2>
+        <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
+          {summary.mastered}/{summary.total} κατακτημένα
+        </span>
+      </div>
+      <div className="sos-list">
+        {entries.map((entry, index) => (
+          <button
+            key={entry.id}
+            className={`sos-list-entry ${mastered[entry.id] ? "mastered" : ""}`}
+            onClick={() => setSelectedIndex(index)}
+          >
+            <span>{entry.title}</span>
+            {mastered[entry.id] && <Icons.Check />}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -3486,6 +5299,7 @@ export default function App() {
     : null;
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
   const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
+  const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
   const mcqProgressSummary = useMemo(() => summarizeMcqProgress(mcqProgress), [mcqProgress]);
   const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
   const syncMessage = useMemo(() => {
@@ -3551,7 +5365,7 @@ export default function App() {
         const latestAttemptId = progress.attempts?.[0]?.id;
         if (latestAttemptId && latestAttemptId !== lastRemoteAttemptIdRef.current) {
           try {
-            await saveRemoteAnswerBehavior(profileId, progress);
+            await saveRemoteAnswerBehavior(profileId, progress, lastRemoteAttemptIdRef.current);
           } catch {
             // The normalized gamification tables are optional; the profile JSON remains the source of truth.
           } finally {
@@ -3709,6 +5523,47 @@ export default function App() {
     });
   }, [updateOralProgress]);
 
+  const setSosEntryMastered = useCallback((section, entryId, mastered) => {
+    const profileId = profileStore.activeProfileId;
+    const profile = profileId ? profileStore.profiles[profileId] : null;
+    if (!profile) return;
+
+    const current = normalizeSosProgress(profile.sosProgress);
+    const nextSection = { ...(current.mastered[section] || {}) };
+    if (mastered) {
+      nextSection[entryId] = true;
+    } else {
+      delete nextSection[entryId];
+    }
+
+    const nextProgress = {
+      ...current,
+      mastered: {
+        ...current.mastered,
+        [section]: nextSection,
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    setProfileStore(prev => ({
+      ...prev,
+      profiles: {
+        ...prev.profiles,
+        [profileId]: {
+          ...prev.profiles[profileId],
+          sosProgress: nextProgress,
+        },
+      },
+    }));
+
+    if (ONLINE_PROFILES_ENABLED) {
+      setSyncStatus("saving");
+      saveRemoteSosMastery(profileId, section, entryId, mastered)
+        .then(() => setSyncStatus("online"))
+        .catch(() => setSyncStatus("offline"));
+    }
+  }, [profileStore.activeProfileId, profileStore.profiles]);
+
   const resetMcqProgress = useCallback(() => {
     if (typeof window !== "undefined" && !window.confirm("Reset MCQ progress for this profile?")) return;
     const profileId = profileStore.activeProfileId;
@@ -3765,8 +5620,20 @@ export default function App() {
           />
         )}
         {activeProfile && screen === 'oral' && (
-          <OralAccordion
+          <OralChoiceScreen
             onBack={() => setScreen('home')}
+            onHome={() => setScreen('home')}
+            onOpenPastTopics={() => {
+              setOralViewerData(null);
+              setOralTableData(null);
+              setScreen('oral-past');
+            }}
+            onOpenSimulator={() => setScreen('oral-simulator')}
+          />
+        )}
+        {activeProfile && screen === 'oral-past' && (
+          <OralAccordion
+            onBack={() => setScreen('oral')}
             onHome={() => setScreen('home')}
             onNavigateToViewer={(questions, title) => {
               setOralViewerData({ questions, title });
@@ -3779,21 +5646,62 @@ export default function App() {
             oralProgress={oralProgress}
           />
         )}
+        {activeProfile && screen === 'oral-simulator' && (
+          <OralExamSimulator
+            onBack={() => setScreen('oral')}
+            onHome={() => setScreen('home')}
+          />
+        )}
         {activeProfile && screen === 'oral-viewer' && oralViewerData && (
           <OralQuestionViewer
             questions={oralViewerData.questions}
             title={oralViewerData.title}
             oralProgress={oralProgress}
             onQuestionMastered={setOralQuestionMastered}
-            onBack={() => setScreen('oral')}
+            onBack={() => setScreen('oral-past')}
             onHome={() => { setOralViewerData(null); setScreen('home'); }}
           />
         )}
         {activeProfile && screen === 'oral-table' && oralTableData && (
           <OralTable
             rows={oralTableData}
-            onBack={() => setScreen('oral')}
+            onBack={() => setScreen('oral-past')}
             onHome={() => { setOralTableData(null); setScreen('home'); }}
+          />
+        )}
+        {activeProfile && screen === 'sos' && (
+          <SosHome
+            onBack={() => setScreen('home')}
+            onHome={() => setScreen('home')}
+            onOpenSection={(sectionId) => setScreen(`sos-${sectionId}`)}
+          />
+        )}
+        {activeProfile && screen === 'sos-numbers' && (
+          <SosNumbersList
+            onBack={() => setScreen('sos')}
+            onHome={() => setScreen('home')}
+          />
+        )}
+        {activeProfile && screen === 'sos-critical' && (
+          <SosEntrySection
+            title="Κρίσιμα Θέματα"
+            section="critical_topics"
+            entries={sosCriticalTopics}
+            sosProgress={sosProgress}
+            onToggleMastery={setSosEntryMastered}
+            onBack={() => setScreen('sos')}
+            onHome={() => setScreen('home')}
+          />
+        )}
+        {activeProfile && screen === 'sos-differential' && (
+          <SosEntrySection
+            title="Διαφοροδιάγνωση"
+            section="differential_diagnosis"
+            entries={sosDifferentialDiagnosis}
+            sosProgress={sosProgress}
+            onToggleMastery={setSosEntryMastered}
+            onBack={() => setScreen('sos')}
+            onHome={() => setScreen('home')}
           />
         )}
       </div>
