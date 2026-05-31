@@ -1,3 +1,5 @@
+import { oralCoreAnswerMap, oralCoreQuestionOverrides } from "./oralCoreAnswerContent.js";
+
 const oralCoreAnchors = [
   {
     id: "oral_core_001",
@@ -558,6 +560,7 @@ const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
   const { followUps: anchorFollowUps, ...anchorQuestion } = anchor;
   const followUps = anchor.followUps.map(followUp => ({
     ...followUp,
+    answer: oralCoreAnswerMap[followUp.id] || followUp.answer,
     followUpType: normalizeFollowUpType(followUp.followUpType),
     topic: anchor.topic,
     subtopic: anchor.subtopic,
@@ -569,6 +572,8 @@ const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
   return [
     {
       ...anchorQuestion,
+      question: oralCoreQuestionOverrides[anchor.id] || anchorQuestion.question,
+      answer: oralCoreAnswerMap[anchor.id] || anchorQuestion.answer,
       followUpQuestionIds: followUps.map(followUp => followUp.id),
       relatedQuestionIds: [],
       linkedAnchorIds: [],
@@ -580,6 +585,7 @@ const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
 
 const oralCoreGenericChallenges = genericChallenges.map(question => ({
   ...question,
+  answer: oralCoreAnswerMap[question.id] || question.answer,
   followUpType: normalizeFollowUpType(question.followUpType),
   topic: "Examiner challenge",
   subtopic: "Reusable follow-ups",
