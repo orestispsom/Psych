@@ -555,21 +555,52 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
 }
 
 async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
-  return supabaseTableRequest(
+  const basePayload = {
+    question_id: String(questionId),
+    feedback_type: feedbackType,
+  };
+  const metadataPayload = {
+    ...basePayload,
+    question_text_snapshot: optionalMetadata.questionTextSnapshot || null,
+    topic: optionalMetadata.topic || null,
+    subtopic: optionalMetadata.subtopic || null,
+  };
+  const insertFeedback = payload => supabaseTableRequest(
     "mcq_feedback",
     {},
     {
       method: "POST",
       headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        question_id: String(questionId),
-        feedback_type: feedbackType,
-        question_text_snapshot: optionalMetadata.questionTextSnapshot || null,
-        topic: optionalMetadata.topic || null,
-        subtopic: optionalMetadata.subtopic || null,
-      }),
+      body: JSON.stringify(payload),
     }
   );
+
+  try {
+    return await insertFeedback(metadataPayload);
+  } catch (error) {
+    const message = String(error?.message || "");
+    const isOptionalColumnProblem = /column|schema cache|PGRST204|record .* has no field/i.test(message);
+    if (!isOptionalColumnProblem) throw error;
+    return insertFeedback(basePayload);
+  }
+}
+
+function getMcqFeedbackErrorMessage(error) {
+  const detail = String(error?.message || "");
+
+  if (/Online profiles are not configured/i.test(detail)) {
+    return "Could not save feedback. Supabase is not configured.";
+  }
+
+  if (/relation .*mcq_feedback.* does not exist|Could not find the table|PGRST205|mcq_feedback/i.test(detail)) {
+    return "Could not save feedback. Run the mcq_feedback SQL in Supabase.";
+  }
+
+  if (/row-level security|permission denied|42501|violates row-level security/i.test(detail)) {
+    return "Could not save feedback. Check mcq_feedback RLS policies in Supabase.";
+  }
+
+  return "Could not save feedback. Check the Supabase mcq_feedback table.";
 }
 
 async function getAllMcqFeedback() {
@@ -4143,8 +4174,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       });
       setFeedbackMenuOpen(false);
       setFeedbackStatus({ type: "success", message: "Feedback saved." });
-    } catch {
-      setFeedbackStatus({ type: "error", message: "Could not save feedback." });
+    } catch (error) {
+      console.error("MCQ feedback save failed", error);
+      setFeedbackStatus({ type: "error", message: getMcqFeedbackErrorMessage(error) });
     } finally {
       setFeedbackSavingType(null);
     }
