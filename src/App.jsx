@@ -2127,6 +2127,10 @@ const STYLES = `
   }
 
   .profile-btn small {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 4px 8px;
     color: var(--text-dim);
     font-size: 12px;
   }
@@ -3863,7 +3867,11 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                   onClick={() => onSelectProfile(profile.id)}
                 >
                   <span>{profile.name}</span>
-                  <small>MCQ {summary.mastered} mastered · Oral {oralSummary.mastered}/{oralSummary.total}</small>
+                  <small>
+                    <span>MCQ {summary.mastered} mastered</span>
+                    <span>{summary.review} review</span>
+                    <span>Oral {oralSummary.mastered}/{oralSummary.total}</span>
+                  </small>
                 </button>
               );
             })}
