@@ -1954,6 +1954,25 @@ const STYLES = `
     font-weight: 400;
   }
 
+  .home-update-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px auto 14px;
+    padding: 8px 12px;
+    border: 1px solid rgba(59,130,246,0.28);
+    border-radius: var(--radius-sm);
+    background: rgba(59,130,246,0.1);
+    color: #bfdbfe;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .home-update-note strong {
+    color: #dbeafe;
+    font-weight: 700;
+  }
+
   .profile-bar {
     display: flex;
     justify-content: center;
@@ -3867,6 +3886,10 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
         <h1 className="home-title">Psychiatry Specialty Exam</h1>
+        <div className="home-update-note">
+          <strong>Νεότερη ενημέρωση:</strong>
+          <span>Το κουμπί για Feedback τώρα δουλεύει κανονικά.</span>
+        </div>
         <p className="home-subtitle">Study companion for MCQ and oral preparation</p>
         <div className="profile-bar">
           <span>{profileName}</span>
