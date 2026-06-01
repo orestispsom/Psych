@@ -524,7 +524,10 @@ async function supabaseProfilesRequest(searchParams = {}, options = {}) {
   }
 
   if (response.status === 204) return null;
-  return response.json();
+
+  const body = await response.text();
+  if (!body) return null;
+  return JSON.parse(body);
 }
 
 async function supabaseTableRequest(tableName, searchParams = {}, options = {}) {
@@ -551,7 +554,10 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
   }
 
   if (response.status === 204) return null;
-  return response.json();
+
+  const body = await response.text();
+  if (!body) return null;
+  return JSON.parse(body);
 }
 
 async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
