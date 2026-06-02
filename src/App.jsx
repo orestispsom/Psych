@@ -1955,12 +1955,13 @@ function buildBreakdown(items, getLabel) {
     const normalizedLabels = Array.isArray(labels) && labels.length ? labels : [labels || "No weak-area tag"];
 
     normalizedLabels.forEach(label => {
-      const current = map.get(label) || { label, total: 0, correct: 0, wrong: 0, unanswered: 0 };
+      const normalizedLabel = String(label || "No weak-area tag");
+      const current = map.get(normalizedLabel) || { label: normalizedLabel, total: 0, correct: 0, wrong: 0, unanswered: 0 };
       current.total += 1;
       if (item.selected === undefined || item.selected === null) current.unanswered += 1;
       else if (item.isCorrect) current.correct += 1;
       else current.wrong += 1;
-      map.set(label, current);
+      map.set(normalizedLabel, current);
     });
   });
 
@@ -4289,6 +4290,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
+  const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
@@ -4575,32 +4577,47 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   };
 
   const submitWrittenExam = useCallback((forceSubmit = false) => {
-    if (mode !== "written" || writtenResult) return;
-    const result = getWrittenExamResult(questions, answers);
+    if (mode !== "written") return;
     if (!forceSubmit) {
+      setWrittenSubmitError(null);
       setShowWrittenSubmitWarning(true);
       return;
     }
+    if (writtenResult) return;
 
-    setShowWrittenSubmitWarning(false);
-    setWrittenResult(result);
-    const alreadyRecordedQuestionIds = [...writtenRecordedAnswerIdsRef.current];
-    const sessionSummary = {
-      id: sessionIdRef.current,
-      completedAt: new Date().toISOString(),
-      total: result.total,
-      correct: result.correct,
-      wrong: result.wrong,
-      unanswered: result.unanswered,
-      scorePercent: result.scorePercent,
-      performanceLabel: result.performance.label,
-    };
-    onProgressChange(prev => clearWrittenExamDraft(
-      recordWrittenExamSession(
-        recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds),
-        sessionSummary
-      )
-    ));
+    try {
+      const result = getWrittenExamResult(questions, answers);
+      const alreadyRecordedQuestionIds = [...writtenRecordedAnswerIdsRef.current];
+      const sessionSummary = {
+        id: sessionIdRef.current,
+        completedAt: new Date().toISOString(),
+        total: result.total,
+        correct: result.correct,
+        wrong: result.wrong,
+        unanswered: result.unanswered,
+        scorePercent: result.scorePercent,
+        performanceLabel: result.performance.label,
+      };
+
+      setShowWrittenSubmitWarning(false);
+      setWrittenSubmitError(null);
+      setWrittenResult(result);
+
+      try {
+        onProgressChange(prev => clearWrittenExamDraft(
+          recordWrittenExamSession(
+            recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds),
+            sessionSummary
+          )
+        ));
+      } catch (progressError) {
+        console.error("Written exam progress save failed", progressError);
+      }
+    } catch (error) {
+      console.error("Written exam submission failed", error);
+      setWrittenSubmitError("Δεν μπόρεσε να ολοκληρωθεί η υποβολή. Δοκιμάστε ξανά.");
+      setShowWrittenSubmitWarning(false);
+    }
   }, [answers, mode, onProgressChange, questions, writtenResult]);
 
   const startNewWrittenExam = useCallback(() => {
@@ -4627,6 +4644,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setWrittenResult(null);
     setReviewWrittenWrong(false);
     setShowWrittenSubmitWarning(false);
+    setWrittenSubmitError(null);
     setWrittenDraftChoice("active");
     setSessionStats({
       correct: 0,
@@ -5020,6 +5038,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       {feedbackStatus && (
         <div className={`mcq-feedback-message ${feedbackStatus.type}`}>
           {feedbackStatus.message}
+        </div>
+      )}
+      {mode === "written" && writtenSubmitError && (
+        <div className="mcq-feedback-message error">
+          {writtenSubmitError}
         </div>
       )}
       <div className="question-stem">{q.stem}</div>
