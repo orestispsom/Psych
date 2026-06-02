@@ -4159,17 +4159,17 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
         </div>
       </div>
 
-      <button className="mode-btn featured" onClick={() => onStart('daily')}>
-        Αδύναμες Απαντήσεις
-      </button>
-      <button className="mode-btn" onClick={() => onStart('random')}>
-        Τυχαία Θέματα
-      </button>
       <button className="mode-btn" onClick={() => onStart('sprint')}>
         Mini-test
       </button>
+      <button className="mode-btn featured" onClick={() => onStart('random')}>
+        Τυχαία Θέματα
+      </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
         Προσομοίωση με 100 Πολλαπλής
+      </button>
+      <button className="mode-btn" onClick={() => onStart('daily')}>
+        Αδύναμα Θέματα
       </button>
       {progressSummary.seen > 0 && (
         <button className="reset-progress-btn" onClick={onResetProgress}>
@@ -4250,7 +4250,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     : 0;
   const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
   const modeTitle = {
-    daily: "Αδύναμες Απαντήσεις",
+    daily: "Αδύναμα Θέματα",
     random: "Τυχαία Θέματα",
     sprint: "Mini-test",
     weakness: "Αδυναμίες",
