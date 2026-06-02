@@ -4159,10 +4159,10 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
         </div>
       </div>
 
-      <button className="mode-btn" onClick={() => onStart('sprint')}>
+      <button className="mode-btn featured" onClick={() => onStart('sprint')}>
         Mini-test
       </button>
-      <button className="mode-btn featured" onClick={() => onStart('random')}>
+      <button className="mode-btn" onClick={() => onStart('random')}>
         Τυχαία Θέματα
       </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
