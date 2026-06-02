@@ -286,6 +286,7 @@ function createEmptyMcqProgress() {
     attempts: [],
     dailyChallenges: {},
     sprintSessions: [],
+    writtenExamDraft: null,
     updatedAt: null,
   };
 }
@@ -307,6 +308,7 @@ function normalizeMcqProgress(progress) {
     attempts: Array.isArray(progress.attempts) ? progress.attempts : [],
     dailyChallenges: progress.dailyChallenges && typeof progress.dailyChallenges === "object" ? progress.dailyChallenges : {},
     sprintSessions: Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [],
+    writtenExamDraft: normalizeWrittenExamDraft(progress.writtenExamDraft),
   };
 }
 
@@ -1279,14 +1281,21 @@ function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
 
 function selectRandomPracticeQuestions(progress) {
   const now = new Date();
+  const records = progress.questions || {};
   const shuffled = selectRandomQuestions(QUESTIONS.length);
   const usedIds = new Set();
+  const unseenQueue = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
+  const lightlySeenQueue = shuffled.filter(question => {
+    const record = records[question.id];
+    return hasSeenQuestion(record) && getSeenCount(record) <= 1 && !isQuestionMastered(record);
+  });
+  const fallbackQueue = shuffled.filter(question => !isQuestionMastered(records[question.id]) || isDue(records[question.id], now));
   const reviewCandidates = QUESTIONS
     .map(question => ({ question, score: scoreQuestionForRandomReview(question, progress, now) }))
     .filter(item => Number.isFinite(item.score))
     .sort((a, b) => b.score - a.score)
     .map(item => item.question);
-  const randomQueue = [...shuffled];
+  const randomQueue = [...unseenQueue, ...lightlySeenQueue, ...fallbackQueue, ...shuffled];
   const reviewQueue = [...reviewCandidates];
   const selected = [];
 
@@ -1421,6 +1430,57 @@ function getQuestionSignature(question) {
   return tokens.slice(0, 18).join(" ") || `question-${question?.id}`;
 }
 
+function getLatestQuestionAttempt(progress, questionId, mode = null) {
+  return (progress.attempts || []).find(attempt =>
+    String(attempt.questionId) === String(questionId) &&
+    (!mode || attempt.mode === mode)
+  ) || null;
+}
+
+function scoreQuestionForWrittenExam(question, progress, now = new Date()) {
+  const record = getQuestionProgress(progress, question.id);
+  const attempts = getAttemptsCount(record);
+  const wrongCount = getWrongCount(record);
+  const mastery = getMasteryLevel(record);
+  const accuracy = getAccuracy(record);
+  const seen = hasSeenQuestion(record);
+  const mastered = isQuestionMastered(record);
+  const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
+  const latestWrittenAttempt = getLatestQuestionAttempt(progress, question.id, "written");
+  const daysSinceWritten = getDaysSince(latestWrittenAttempt?.attemptedAt, now);
+  const weakAreaCount = getQuestionWeakAreaTags(question).length;
+  let score = Math.random() * 8;
+
+  if (!seen) score += 70;
+  if (isWeaknessCandidate(question, progress)) score += Math.min(90, scoreQuestionForWeakness(question, progress, now));
+  if (wrongCount > 0) score += Math.min(wrongCount, 5) * 16;
+  if ((record.consecutiveWrong || 0) > 0) score += Math.min(record.consecutiveWrong, 3) * 22;
+  if ((record.confidentWrongCount || 0) > 0) score += Math.min(record.confidentWrongCount, 4) * 14;
+  if (attempts >= 3 && accuracy !== null && accuracy < 0.7) score += 28;
+  if (isDue(record, now)) score += mastered ? 26 : 42;
+  if (mastery > 0 && mastery < 3) score += 32;
+  else if (mastery >= 3 && mastery < 5) score += 18;
+  if (weakAreaCount > 0) score += Math.min(weakAreaCount, 3) * 8;
+  if (daysSinceAnswer === null) score += 12;
+  else if (daysSinceAnswer >= 60) score += 24;
+  else if (daysSinceAnswer >= 30) score += 16;
+  else if (daysSinceAnswer >= 14) score += 8;
+
+  if (mastered) {
+    score -= 26;
+    if (daysSinceAnswer !== null && daysSinceAnswer >= 30) score += 18;
+  }
+
+  if (daysSinceWritten !== null) {
+    if (daysSinceWritten <= 3) score -= 90;
+    else if (daysSinceWritten <= 14) score -= 45;
+    else if (daysSinceWritten <= 30) score -= 18;
+  }
+
+  score -= Math.max(0, getSeenCount(record) - 3) * 3;
+  return score;
+}
+
 function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   const eligible = QUESTIONS.filter(question =>
     Array.isArray(question.options) &&
@@ -1430,57 +1490,73 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
     question.correct < question.options.length
   );
   const targetCount = Math.min(count, eligible.length);
-  const weakTarget = Math.max(0, Math.round(targetCount * 0.25));
+  const now = new Date();
+  const records = progress.questions || {};
+  const topicCount = Math.max(1, new Set(eligible.map(getQuestionTopic)).size);
+  const perTopicSoftCap = Math.max(4, Math.ceil((targetCount / topicCount) * 1.8));
+  const weakTarget = Math.round(targetCount * 0.30);
+  const unseenTarget = Math.round(targetCount * 0.25);
+  const dueTarget = Math.round(targetCount * 0.20);
+  const masteredTarget = Math.min(Math.round(targetCount * 0.12), eligible.filter(question => isQuestionMastered(records[question.id])).length);
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
+  const topicCounts = new Map();
 
-  const pushQuestion = (question) => {
+  const pushQuestion = (question, { respectTopicCap = true } = {}) => {
     if (!question || usedIds.has(question.id)) return false;
     const signature = getQuestionSignature(question);
     if (usedSignatures.has(signature)) return false;
+    const topic = getQuestionTopic(question);
+    if (respectTopicCap && (topicCounts.get(topic) || 0) >= perTopicSoftCap) return false;
     usedIds.add(question.id);
     usedSignatures.add(signature);
+    topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
     selected.push(question);
     return true;
   };
 
-  const weakCandidates = eligible
-    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
-    .filter(item => isWeaknessCandidate(item.question, progress) && item.score >= 25)
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.question);
+  const rank = (questions) => questions
+    .map(question => ({ question, score: scoreQuestionForWrittenExam(question, progress, now) }))
+    .sort((a, b) => b.score - a.score);
 
-  for (const question of weakCandidates) {
-    if (selected.length >= weakTarget) break;
-    pushQuestion(question);
-  }
+  const pickFrom = (candidates, target, { allowOverTopicCap = false } = {}) => {
+    const startCount = selected.length;
+    const take = Math.max(0, Math.min(target, targetCount - selected.length));
+    if (!take) return;
 
-  const byTopic = new Map();
-  shuffleItems(eligible).forEach(question => {
-      const topic = getQuestionTopic(question);
-      byTopic.set(topic, [...(byTopic.get(topic) || []), question]);
-    });
-
-  while (selected.length < targetCount) {
-    let addedInRound = false;
-    for (const [, topicQuestions] of byTopic) {
-      while (topicQuestions.length) {
-        const candidate = topicQuestions.shift();
-        if (pushQuestion(candidate)) {
-          addedInRound = true;
-          break;
-        }
-      }
-      if (selected.length >= targetCount) break;
+    for (const item of candidates) {
+      if (selected.length - startCount >= take || selected.length >= targetCount) break;
+      pushQuestion(item.question || item, { respectTopicCap: true });
     }
-    if (!addedInRound) break;
-  }
 
-  for (const question of shuffleItems(eligible)) {
-    if (selected.length >= targetCount) break;
-    pushQuestion(question);
-  }
+    if (allowOverTopicCap || selected.length - startCount < take) {
+      for (const item of candidates) {
+        if (selected.length - startCount >= take || selected.length >= targetCount) break;
+        pushQuestion(item.question || item, { respectTopicCap: false });
+      }
+    }
+  };
+
+  const weakCandidates = rank(eligible.filter(question => isWeaknessCandidate(question, progress)));
+  const unseenCandidates = rank(eligible.filter(question => !hasSeenQuestion(records[question.id])));
+  const dueCandidates = rank(eligible.filter(question => {
+    const record = records[question.id];
+    return hasSeenQuestion(record) && !isQuestionMastered(record) && isDue(record, now);
+  }));
+  const masteredCandidates = rank(eligible.filter(question => isQuestionMastered(records[question.id])));
+  const learningCandidates = rank(eligible.filter(question => {
+    const record = records[question.id];
+    return hasSeenQuestion(record) && !isQuestionMastered(record);
+  }));
+  const broadCandidates = rank(eligible);
+
+  pickFrom(weakCandidates, weakTarget);
+  pickFrom(unseenCandidates, unseenTarget);
+  pickFrom(dueCandidates, dueTarget);
+  pickFrom(masteredCandidates, masteredTarget);
+  pickFrom(learningCandidates, targetCount - selected.length);
+  pickFrom(broadCandidates, targetCount - selected.length, { allowOverTopicCap: true });
 
   return shuffleItems(selected);
 }
@@ -1548,6 +1624,129 @@ function getSessionQuestions(mode, progress) {
   if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
   if (mode === "written") return selectWrittenExamQuestions(progress, WRITTEN_EXAM_SIZE);
   return selectRandomPracticeQuestions(progress);
+}
+
+function makeWrittenExamSessionId() {
+  return `written-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function getQuestionById(questionId) {
+  const normalizedId = Number(questionId);
+  return QUESTIONS.find(question => question.id === questionId || question.id === normalizedId) || null;
+}
+
+function normalizeWrittenExamDraft(draft) {
+  if (!draft || typeof draft !== "object") return null;
+
+  const questionIds = Array.isArray(draft.questionIds)
+    ? draft.questionIds.filter(id => getQuestionById(id))
+    : [];
+  if (!questionIds.length) return null;
+
+  const answers = draft.answers && typeof draft.answers === "object" ? draft.answers : {};
+  const currentIdx = Number.isInteger(draft.currentIdx)
+    ? Math.max(0, Math.min(draft.currentIdx, questionIds.length - 1))
+    : 0;
+
+  return {
+    id: draft.id || draft.sessionId || makeWrittenExamSessionId(),
+    sessionId: draft.sessionId || draft.id || makeWrittenExamSessionId(),
+    questionIds,
+    answers,
+    currentIdx,
+    viewedQuestionIds: Array.isArray(draft.viewedQuestionIds) ? [...new Set(draft.viewedQuestionIds.map(String))] : [],
+    recordedAnswerQuestionIds: Array.isArray(draft.recordedAnswerQuestionIds)
+      ? [...new Set(draft.recordedAnswerQuestionIds.map(String))]
+      : [],
+    startedAt: draft.startedAt || new Date().toISOString(),
+    updatedAt: draft.updatedAt || new Date().toISOString(),
+  };
+}
+
+function getWrittenExamDraft(progress) {
+  return normalizeWrittenExamDraft(progress?.writtenExamDraft);
+}
+
+function getWrittenExamDraftQuestions(draft) {
+  const normalizedDraft = normalizeWrittenExamDraft(draft);
+  if (!normalizedDraft) return [];
+  return normalizedDraft.questionIds.map(getQuestionById).filter(Boolean);
+}
+
+function createWrittenExamDraft(questions, {
+  sessionId = makeWrittenExamSessionId(),
+  currentIdx = 0,
+  answers = {},
+  viewedQuestionIds = [],
+  recordedAnswerQuestionIds = [],
+  startedAt = new Date().toISOString(),
+} = {}) {
+  const questionIds = questions.map(question => question.id);
+  return normalizeWrittenExamDraft({
+    id: sessionId,
+    sessionId,
+    questionIds,
+    answers,
+    currentIdx,
+    viewedQuestionIds,
+    recordedAnswerQuestionIds,
+    startedAt,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+function saveWrittenExamDraft(progress, draft) {
+  const normalizedDraft = normalizeWrittenExamDraft(draft);
+  if (!normalizedDraft) return progress;
+
+  return {
+    ...progress,
+    writtenExamDraft: normalizedDraft,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function clearWrittenExamDraft(progress) {
+  return {
+    ...progress,
+    writtenExamDraft: null,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function recordWrittenDraftView(progress, draft, questionId) {
+  const questionKey = String(questionId);
+  const viewedQuestionIds = [...new Set([...(draft.viewedQuestionIds || []), questionKey])];
+  const viewedDraft = { ...draft, viewedQuestionIds, updatedAt: new Date().toISOString() };
+  return saveWrittenExamDraft(markQuestionSeen(progress, questionId), viewedDraft);
+}
+
+function recordWrittenDraftAnswer(progress, draft, question, selected) {
+  const questionKey = String(question.id);
+  const recorded = new Set((draft.recordedAnswerQuestionIds || []).map(String));
+  const answers = { ...(draft.answers || {}), [question.id]: selected };
+
+  if (recorded.has(questionKey)) {
+    return saveWrittenExamDraft(progress, { ...draft, answers, updatedAt: new Date().toISOString() });
+  }
+
+  recorded.add(questionKey);
+  const nextProgress = recordQuestionAnswer(progress, question, selected, {
+    mode: "written",
+    confidence: 3,
+    timeTakenMs: null,
+    pointsAwarded: selected === question.correct ? 100 : 0,
+    pointBreakdown: null,
+    sessionId: draft.sessionId,
+    streakPosition: 0,
+  });
+
+  return saveWrittenExamDraft(nextProgress, {
+    ...draft,
+    answers,
+    recordedAnswerQuestionIds: [...recorded],
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
@@ -1697,10 +1896,16 @@ function getSprintHighScore(progress) {
   }, 0);
 }
 
-function recordWrittenExamSubmission(progress, questions, answers, sessionId) {
+function recordWrittenExamSubmission(progress, questions, answers, sessionId, alreadyRecordedQuestionIds = []) {
+  const alreadyRecorded = new Set(alreadyRecordedQuestionIds.map(String));
+
   return questions.reduce((nextProgress, question) => {
     const selected = answers[question.id];
     if (selected === undefined || selected === null) {
+      return markQuestionSeen(nextProgress, question.id);
+    }
+
+    if (alreadyRecorded.has(String(question.id))) {
       return markQuestionSeen(nextProgress, question.id);
     }
 
@@ -3884,7 +4089,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 
 function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'MCQ Study', desc: 'Gamified multiple-choice practice with saved mastery progress', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
     { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
     { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
   ];
@@ -3937,8 +4142,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
           <Icons.Home /> Home
         </button>
       </div>
-      <h2>MCQ Study</h2>
-      <p>Choose a gamified practice mode. All modes update the same mastery memory.</p>
+      <h2>Πολλαπλής Επιλογής</h2>
 
       <div className="mcq-memory" aria-label="MCQ progress">
         <div className="mcq-memory-stat">
@@ -3956,24 +4160,16 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
       </div>
 
       <button className="mode-btn featured" onClick={() => onStart('daily')}>
-        Daily
-        <small>Spaced repetition, weak questions, mastered maintenance, and a little novelty.</small>
+        Αδύναμες Απαντήσεις
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
-        Random
-        <small>Relaxed mixed practice through the full question bank, shuffled each time.</small>
+        Τυχαία Θέματα
       </button>
       <button className="mode-btn" onClick={() => onStart('sprint')}>
-        Sprint
-        <small>10 timed unseen-first questions, 30 seconds each, with speed and streak points.</small>
-      </button>
-      <button className="mode-btn" onClick={() => onStart('weakness')}>
-        Weakness
-        <small>Targets repeatedly wrong, confidently wrong, low mastery, and due questions.</small>
+        Mini-test
       </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
-        Written Exam Simulation
-        <small>100-question exam simulation with no timer, no feedback during the exam, and full results after submission.</small>
+        Προσομοίωση με 100 Πολλαπλής
       </button>
       {progressSummary.seen > 0 && (
         <button className="reset-progress-btn" onClick={onResetProgress}>
@@ -3985,15 +4181,19 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
 }
 
 function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
-  const sessionIdRef = useRef(`${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
+  const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
+  const sessionIdRef = useRef(initialWrittenDraftRef.current?.sessionId || `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
+  const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
   const startedAtRef = useRef(Date.now());
   const deadlineRef = useRef(Date.now() + SPRINT_TIME_LIMIT_MS);
   const advanceTimerRef = useRef(null);
   const advancingRef = useRef(false);
   const sessionFinishedRef = useRef(false);
-  const [questions, setQuestions] = useState(() => getSessionQuestions(mode, progress));
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [questions, setQuestions] = useState(() => initialWrittenQuestionsRef.current?.length ? initialWrittenQuestionsRef.current : getSessionQuestions(mode, progress));
+  const [currentIdx, setCurrentIdx] = useState(() => initialWrittenDraftRef.current?.currentIdx || 0);
+  const [answers, setAnswers] = useState(() => initialWrittenDraftRef.current?.answers || {});
   const [locked, setLocked] = useState({});
   const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
   const [lastBreakdown, setLastBreakdown] = useState(null);
@@ -4002,6 +4202,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
+  const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
@@ -4049,12 +4250,55 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     : 0;
   const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
   const modeTitle = {
-    daily: "Daily",
-    random: "Random",
-    sprint: "Sprint",
-    weakness: "Weakness",
-    written: "Written Exam Simulation",
+    daily: "Αδύναμες Απαντήσεις",
+    random: "Τυχαία Θέματα",
+    sprint: "Mini-test",
+    weakness: "Αδυναμίες",
+    written: "Προσομοίωση με 100 Πολλαπλής",
   }[mode] || "MCQ";
+
+  const buildCurrentWrittenDraft = useCallback((overrides = {}) => {
+    const draftQuestions = overrides.questions || questions;
+    return createWrittenExamDraft(draftQuestions, {
+      sessionId: overrides.sessionId || sessionIdRef.current,
+      currentIdx: overrides.currentIdx ?? currentIdx,
+      answers: overrides.answers || answers,
+      viewedQuestionIds: overrides.viewedQuestionIds || [...writtenViewedQuestionIdsRef.current],
+      recordedAnswerQuestionIds: overrides.recordedAnswerQuestionIds || [...writtenRecordedAnswerIdsRef.current],
+      startedAt: initialWrittenDraftRef.current?.startedAt || new Date(startedAtRef.current).toISOString(),
+    });
+  }, [answers, currentIdx, questions]);
+
+  const persistWrittenDraft = useCallback((overrides = {}) => {
+    if (mode !== "written") return;
+    const draft = buildCurrentWrittenDraft(overrides);
+    if (!draft) return;
+    onProgressChange(prev => saveWrittenExamDraft(prev, draft));
+  }, [buildCurrentWrittenDraft, mode, onProgressChange]);
+
+  const goToWrittenIndex = useCallback((index) => {
+    if (mode !== "written") {
+      setCurrentIdx(index);
+      return;
+    }
+
+    const boundedIndex = Math.max(0, Math.min(index, totalQ - 1));
+    const targetQuestion = questions[boundedIndex];
+    setCurrentIdx(boundedIndex);
+
+    const draft = buildCurrentWrittenDraft({ currentIdx: boundedIndex });
+    if (!draft) return;
+
+    if (targetQuestion) {
+      writtenViewedQuestionIdsRef.current.add(String(targetQuestion.id));
+      onProgressChange(prev => recordWrittenDraftView(prev, {
+        ...draft,
+        viewedQuestionIds: [...writtenViewedQuestionIdsRef.current],
+      }, targetQuestion.id));
+    } else {
+      onProgressChange(prev => saveWrittenExamDraft(prev, draft));
+    }
+  }, [buildCurrentWrittenDraft, mode, onProgressChange, questions, totalQ]);
 
   useEffect(() => {
     if (mode !== "daily") return;
@@ -4063,6 +4307,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
   useEffect(() => {
     if (!q?.id) return;
+    if (mode === "written" && writtenDraftChoice === "choice") return;
     startedAtRef.current = Date.now();
     deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
     advancingRef.current = false;
@@ -4070,8 +4315,17 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
     setFeedbackMenuOpen(false);
     setFeedbackStatus(null);
+    if (mode === "written") {
+      writtenViewedQuestionIdsRef.current.add(String(q.id));
+      const draft = buildCurrentWrittenDraft({
+        currentIdx,
+        viewedQuestionIds: [...writtenViewedQuestionIdsRef.current],
+      });
+      if (draft) onProgressChange(prev => recordWrittenDraftView(prev, draft, q.id));
+      return;
+    }
     onProgressChange(prev => markQuestionSeen(prev, q.id));
-  }, [q?.id]);
+  }, [q?.id, mode, writtenDraftChoice, buildCurrentWrittenDraft, currentIdx, onProgressChange]);
 
   useEffect(() => {
     return () => {
@@ -4194,8 +4448,19 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer, finalSprintSession]);
 
   const selectOption = (idx) => {
-    if (isLocked || writtenResult) return;
-    setAnswers(prev => ({ ...prev, [q.id]: idx }));
+    if (isLocked || writtenResult || !q) return;
+    const nextAnswers = { ...answers, [q.id]: idx };
+    setAnswers(nextAnswers);
+
+    if (mode === "written") {
+      const questionKey = String(q.id);
+      const wasRecorded = writtenRecordedAnswerIdsRef.current.has(questionKey);
+      const draft = buildCurrentWrittenDraft({ answers: nextAnswers });
+      if (!draft) return;
+
+      onProgressChange(prev => recordWrittenDraftAnswer(prev, draft, q, idx));
+      if (!wasRecorded) writtenRecordedAnswerIdsRef.current.add(questionKey);
+    }
   };
 
   const submitMcqFeedback = async (feedbackType) => {
@@ -4229,21 +4494,37 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
     setShowWrittenSubmitWarning(false);
     setWrittenResult(result);
-    onProgressChange(prev => recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current));
+    const alreadyRecordedQuestionIds = [...writtenRecordedAnswerIdsRef.current];
+    onProgressChange(prev => clearWrittenExamDraft(
+      recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds)
+    ));
   }, [answers, mode, onProgressChange, questions, writtenResult]);
 
-  const restartWrittenExam = () => {
-    sessionIdRef.current = `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const startNewWrittenExam = useCallback(() => {
+    const nextQuestions = getSessionQuestions("written", progress);
+    const nextSessionId = makeWrittenExamSessionId();
+    const nextDraft = createWrittenExamDraft(nextQuestions, {
+      sessionId: nextSessionId,
+      currentIdx: 0,
+      answers: {},
+      viewedQuestionIds: [],
+      recordedAnswerQuestionIds: [],
+    });
+
+    sessionIdRef.current = nextSessionId;
+    writtenViewedQuestionIdsRef.current = new Set();
+    writtenRecordedAnswerIdsRef.current = new Set();
     sessionFinishedRef.current = false;
     advancingRef.current = false;
     startedAtRef.current = Date.now();
-    setQuestions(getSessionQuestions(mode, progress));
+    setQuestions(nextQuestions);
     setCurrentIdx(0);
     setAnswers({});
     setLocked({});
     setWrittenResult(null);
     setReviewWrittenWrong(false);
     setShowWrittenSubmitWarning(false);
+    setWrittenDraftChoice("active");
     setSessionStats({
       correct: 0,
       incorrect: 0,
@@ -4252,6 +4533,18 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       maxStreak: 0,
       points: 0,
     });
+    if (nextDraft) {
+      onProgressChange(prev => saveWrittenExamDraft(clearWrittenExamDraft(prev), nextDraft));
+    }
+  }, [onProgressChange, progress]);
+
+  const continueWrittenExam = useCallback(() => {
+    setWrittenDraftChoice("active");
+    persistWrittenDraft();
+  }, [persistWrittenDraft]);
+
+  const restartWrittenExam = () => {
+    startNewWrittenExam();
   };
 
   const restartSprint = () => {
@@ -4277,6 +4570,62 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       points: 0,
     });
   };
+
+  if (mode === "written" && writtenDraftChoice === "choice") {
+    const draftUpdatedAt = initialWrittenDraftRef.current?.updatedAt
+      ? new Date(initialWrittenDraftRef.current.updatedAt).toLocaleString("el-GR")
+      : null;
+
+    return (
+      <div className="test-container fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+
+        <div className="oral-choice">
+          <h2>Προσομοίωση με 100 Πολλαπλής</h2>
+          <p>There is an unfinished written exam saved for this profile.</p>
+          <div className="game-hud">
+            <div className="hud-stat">
+              <span className="hud-value">{currentIdx + 1}</span>
+              <span className="hud-label">Current</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{writtenAnsweredCount}</span>
+              <span className="hud-label">Answered</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{writtenUnansweredCount}</span>
+              <span className="hud-label">Unanswered</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{totalQ}</span>
+              <span className="hud-label">Total</span>
+            </div>
+          </div>
+          {draftUpdatedAt && (
+            <div className="explanation-box">
+              <strong>Saved draft</strong>
+              Last updated: {draftUpdatedAt}
+            </div>
+          )}
+          <button className="mode-btn featured" onClick={continueWrittenExam}>
+            Continue saved exam
+            <small>Resume from question {currentIdx + 1} with your saved selected answers.</small>
+          </button>
+          <button className="mode-btn" onClick={startNewWrittenExam}>
+            Start new exam
+            <small>Discard the saved written simulation for this profile and draw a new exam.</small>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === "written" && writtenResult && reviewWrittenWrong) {
     return (
@@ -4449,7 +4798,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </div>
         <div className="explanation-box">
           <strong>No questions in this mode yet</strong>
-          Weakness mode will fill after this profile has wrong or high-risk answers to review.
+          This profile does not have enough eligible questions for this mode yet.
         </div>
       </div>
     );
@@ -4621,10 +4970,10 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       {mode === "written" ? (
         <div className="nav-bar">
-          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0}>
+          <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0}>
             <Icons.ChevronLeft />
           </button>
-          <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
+          <button className="nav-btn" onClick={() => goToWrittenIndex(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
             <Icons.ChevronRight />
           </button>
           <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
