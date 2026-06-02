@@ -4191,6 +4191,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const advanceTimerRef = useRef(null);
   const advancingRef = useRef(false);
   const sessionFinishedRef = useRef(false);
+  const questionViewEffectKeyRef = useRef(null);
   const [questions, setQuestions] = useState(() => initialWrittenQuestionsRef.current?.length ? initialWrittenQuestionsRef.current : getSessionQuestions(mode, progress));
   const [currentIdx, setCurrentIdx] = useState(() => initialWrittenDraftRef.current?.currentIdx || 0);
   const [answers, setAnswers] = useState(() => initialWrittenDraftRef.current?.answers || {});
@@ -4308,6 +4309,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   useEffect(() => {
     if (!q?.id) return;
     if (mode === "written" && writtenDraftChoice === "choice") return;
+    const viewEffectKey = `${mode}:${q.id}:${writtenDraftChoice}`;
+    if (questionViewEffectKeyRef.current === viewEffectKey) return;
+    questionViewEffectKeyRef.current = viewEffectKey;
     startedAtRef.current = Date.now();
     deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
     advancingRef.current = false;
