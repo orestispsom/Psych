@@ -286,6 +286,7 @@ function createEmptyMcqProgress() {
     attempts: [],
     dailyChallenges: {},
     sprintSessions: [],
+    writtenExamSessions: [],
     writtenExamDraft: null,
     updatedAt: null,
   };
@@ -308,6 +309,7 @@ function normalizeMcqProgress(progress) {
     attempts: Array.isArray(progress.attempts) ? progress.attempts : [],
     dailyChallenges: progress.dailyChallenges && typeof progress.dailyChallenges === "object" ? progress.dailyChallenges : {},
     sprintSessions: Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [],
+    writtenExamSessions: Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [],
     writtenExamDraft: normalizeWrittenExamDraft(progress.writtenExamDraft),
   };
 }
@@ -1896,6 +1898,23 @@ function getSprintHighScore(progress) {
   }, 0);
 }
 
+function recordWrittenExamSession(progress, session) {
+  const currentSessions = Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [];
+  const sessions = [session, ...currentSessions.filter(item => item.id !== session.id)].slice(0, 30);
+
+  return {
+    ...progress,
+    writtenExamSessions: sessions,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function getWrittenExamSessions(progress) {
+  return [...(progress.writtenExamSessions || [])].sort((a, b) => {
+    return new Date(b.completedAt || 0) - new Date(a.completedAt || 0);
+  });
+}
+
 function recordWrittenExamSubmission(progress, questions, answers, sessionId, alreadyRecordedQuestionIds = []) {
   const alreadyRecorded = new Set(alreadyRecordedQuestionIds.map(String));
 
@@ -2531,6 +2550,59 @@ const STYLES = `
     color: var(--text-dim);
     font-size: 11px;
     margin-top: 2px;
+  }
+
+  .written-history {
+    margin-top: 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+
+  .written-history h3 {
+    font-size: 14px;
+    margin: 0 0 10px;
+    color: var(--text);
+  }
+
+  .written-history-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .written-history-row:first-of-type {
+    border-top: none;
+  }
+
+  .written-history-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .written-history-date {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .written-history-detail {
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .written-history-score {
+    align-self: center;
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
   }
 
   .game-hud {
@@ -4098,12 +4170,11 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
     <div className="home fade-in">
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
-        <h1 className="home-title">Psychiatry Specialty Exam</h1>
+        <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
         <div className="home-update-note">
           <strong>Νεότερη ενημέρωση:</strong>
           <span>Το κουμπί για Feedback τώρα δουλεύει κανονικά.</span>
         </div>
-        <p className="home-subtitle">Study companion for MCQ and oral preparation</p>
         <div className="profile-bar">
           <span>{profileName}</span>
           <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
@@ -4123,15 +4194,13 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
           </div>
         ))}
       </div>
-      <div className="home-sharing-note">
-        <div>Χρησιμοποιήστε την εφαρμογή ελεύθερα, μοιραστείτε την υπεύθηνα</div>
-        <small>Μακριά από εξεταστές</small>
-      </div>
     </div>
   );
 }
 
-function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }) {
+function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
+  const recentWrittenExamSessions = writtenExamSessions.slice(0, 6);
+
   return (
     <div className="mcq-select fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
@@ -4165,16 +4234,33 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, onResetProgress }
       <button className="mode-btn" onClick={() => onStart('random')}>
         Τυχαία Θέματα
       </button>
-      <button className="mode-btn" onClick={() => onStart('written')}>
-        Προσομοίωση με 100 Πολλαπλής
-      </button>
       <button className="mode-btn" onClick={() => onStart('daily')}>
         Αδύναμα Θέματα
       </button>
-      {progressSummary.seen > 0 && (
-        <button className="reset-progress-btn" onClick={onResetProgress}>
-          Reset saved MCQ progress
-        </button>
+      <button className="mode-btn" onClick={() => onStart('written')}>
+        Προσομοίωση με 100 Πολλαπλής
+      </button>
+
+      {recentWrittenExamSessions.length > 0 && (
+        <div className="written-history">
+          <h3>Προηγούμενες Προσομοιώσεις</h3>
+          {recentWrittenExamSessions.map(session => (
+            <div className="written-history-row" key={session.id}>
+              <div className="written-history-main">
+                <span className="written-history-date">
+                  {new Date(session.completedAt).toLocaleString("el-GR")}
+                </span>
+                <span className="written-history-detail">
+                  {session.correct}/{session.total} σωστές
+                  {session.wrong > 0 ? `, ${session.wrong} λάθος` : ""}
+                  {session.unanswered > 0 ? `, ${session.unanswered} αναπάντητες` : ""}
+                </span>
+                <span className="written-history-detail">{session.performanceLabel}</span>
+              </div>
+              <strong className="written-history-score">{session.scorePercent}%</strong>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -4499,8 +4585,21 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setShowWrittenSubmitWarning(false);
     setWrittenResult(result);
     const alreadyRecordedQuestionIds = [...writtenRecordedAnswerIdsRef.current];
+    const sessionSummary = {
+      id: sessionIdRef.current,
+      completedAt: new Date().toISOString(),
+      total: result.total,
+      correct: result.correct,
+      wrong: result.wrong,
+      unanswered: result.unanswered,
+      scorePercent: result.scorePercent,
+      performanceLabel: result.performance.label,
+    };
     onProgressChange(prev => clearWrittenExamDraft(
-      recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds)
+      recordWrittenExamSession(
+        recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds),
+        sessionSummary
+      )
     ));
   }, [answers, mode, onProgressChange, questions, writtenResult]);
 
@@ -5713,6 +5812,7 @@ export default function App() {
   const [testMode, setTestMode] = useState(null);
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
+  const [showOpeningRequest, setShowOpeningRequest] = useState(true);
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const remoteSaveTimerRef = useRef(null);
@@ -6031,7 +6131,7 @@ export default function App() {
             onStart={(mode) => setTestMode(mode)}
             onHome={() => setScreen('home')}
             progressSummary={mcqProgressSummary}
-            onResetProgress={resetMcqProgress}
+            writtenExamSessions={getWrittenExamSessions(mcqProgress)}
           />
         )}
         {activeProfile && screen === 'mcq' && testMode && (
@@ -6127,6 +6227,22 @@ export default function App() {
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
+        )}
+        {activeProfile && screen === 'home' && showOpeningRequest && (
+          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Μικρό request">
+            <div className="modal">
+              <h3>Ένα μικρό request 🙂</h3>
+              <p>
+                Αν σας βοηθά η εφαρμογή, μοιραστείτε τη με συναδέλφους, αλλά ας μην τη φτάσει στα μάτια των εξεταστών.
+                Θα ήταν κρίμα ένα εργαλείο που φτιάχτηκε για να βοηθήσει στην προετοιμασία να οδηγήσει τελικά σε αλλαγές στη διαδικασία των εξετάσεων.
+              </p>
+              <div className="modal-actions">
+                <button className="results-btn primary" onClick={() => setShowOpeningRequest(false)}>
+                  Το κατάλαβα
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </>
