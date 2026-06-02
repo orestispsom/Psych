@@ -4174,7 +4174,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
         <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
         <div className="home-update-note">
           <strong>Νεότερη ενημέρωση:</strong>
-          <span>Το κουμπί για Feedback τώρα δουλεύει κανονικά.</span>
+          <span>Καλή επιτυχία! Με το που περάσετε με το καλό, στείλτε και τα θέματα για εμάς τους επόμενους.</span>
         </div>
         <div className="profile-bar">
           <span>{profileName}</span>
