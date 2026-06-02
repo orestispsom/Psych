@@ -4222,7 +4222,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const submitWrittenExam = useCallback((forceSubmit = false) => {
     if (mode !== "written" || writtenResult) return;
     const result = getWrittenExamResult(questions, answers);
-    if (!forceSubmit && result.unanswered > 0) {
+    if (!forceSubmit) {
       setShowWrittenSubmitWarning(true);
       return;
     }
@@ -4627,7 +4627,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <button className="nav-btn" onClick={() => setCurrentIdx(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
             <Icons.ChevronRight />
           </button>
-          <button className="nav-btn primary" onClick={() => submitWrittenExam(false)}>
+          <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
             Submit exam
           </button>
         </div>
@@ -4654,16 +4654,18 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       )}
 
       {showWrittenSubmitWarning && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Unanswered questions warning">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Written exam submit confirmation">
           <div className="modal">
-            <h3>Submit with unanswered questions?</h3>
+            <h3>Submit written exam?</h3>
             <p>
-              {writtenUnansweredCount} question{writtenUnansweredCount === 1 ? "" : "s"} are unanswered.
-              Unanswered questions count as not correct in the final score.
+              You have answered {writtenAnsweredCount} out of {totalQ} questions.
+              {writtenUnansweredCount > 0
+                ? ` ${writtenUnansweredCount} question${writtenUnansweredCount === 1 ? "" : "s"} will remain unanswered and count as not correct.`
+                : " No questions are unanswered."}
             </p>
             <div className="modal-actions">
               <button className="results-btn primary" onClick={() => submitWrittenExam(true)}>
-                Submit anyway
+                Confirm and see results
               </button>
               <button className="results-btn" onClick={() => setShowWrittenSubmitWarning(false)}>
                 Continue exam
