@@ -31,6 +31,62 @@ function shuffleItems(items) {
   return arr;
 }
 
+function createOptionOrder(question) {
+  if (!question || !Array.isArray(question.options)) return [];
+  return shuffleItems(question.options.map((_, index) => index));
+}
+
+function normalizeOptionOrder(question, order) {
+  if (!question || !Array.isArray(question.options)) return [];
+  const optionIndexes = question.options.map((_, index) => index);
+  if (
+    Array.isArray(order) &&
+    order.length === optionIndexes.length &&
+    new Set(order).size === optionIndexes.length &&
+    order.every(index => Number.isInteger(index) && index >= 0 && index < optionIndexes.length)
+  ) {
+    return order;
+  }
+
+  return createOptionOrder(question);
+}
+
+function createOptionOrders(questions, existingOrders = {}) {
+  return Object.fromEntries(
+    questions.map(question => [
+      question.id,
+      normalizeOptionOrder(question, existingOrders?.[question.id] || existingOrders?.[String(question.id)]),
+    ])
+  );
+}
+
+function getStoredOptionOrder(question, optionOrders = {}) {
+  if (!question || !Array.isArray(question.options)) return [];
+  const order = optionOrders?.[question.id] || optionOrders?.[String(question.id)];
+  const optionIndexes = question.options.map((_, index) => index);
+  if (
+    Array.isArray(order) &&
+    order.length === optionIndexes.length &&
+    new Set(order).size === optionIndexes.length &&
+    order.every(index => Number.isInteger(index) && index >= 0 && index < optionIndexes.length)
+  ) {
+    return order;
+  }
+
+  return optionIndexes;
+}
+
+function getDisplayedOptionIndex(question, originalIndex, optionOrders = {}) {
+  const optionOrder = getStoredOptionOrder(question, optionOrders);
+  const displayIndex = optionOrder.indexOf(originalIndex);
+  return displayIndex >= 0 ? displayIndex : originalIndex;
+}
+
+function getDisplayedOptionLetter(question, originalIndex, optionOrders = {}) {
+  if (!Number.isInteger(originalIndex)) return "-";
+  return OPTION_LETTERS[getDisplayedOptionIndex(question, originalIndex, optionOrders)] || "-";
+}
+
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
@@ -1649,6 +1705,10 @@ function normalizeWrittenExamDraft(draft) {
   const currentIdx = Number.isInteger(draft.currentIdx)
     ? Math.max(0, Math.min(draft.currentIdx, questionIds.length - 1))
     : 0;
+  const optionOrders = createOptionOrders(
+    questionIds.map(getQuestionById).filter(Boolean),
+    draft.optionOrders && typeof draft.optionOrders === "object" ? draft.optionOrders : {}
+  );
 
   return {
     id: draft.id || draft.sessionId || makeWrittenExamSessionId(),
@@ -1656,6 +1716,7 @@ function normalizeWrittenExamDraft(draft) {
     questionIds,
     answers,
     currentIdx,
+    optionOrders,
     viewedQuestionIds: Array.isArray(draft.viewedQuestionIds) ? [...new Set(draft.viewedQuestionIds.map(String))] : [],
     recordedAnswerQuestionIds: Array.isArray(draft.recordedAnswerQuestionIds)
       ? [...new Set(draft.recordedAnswerQuestionIds.map(String))]
@@ -1679,6 +1740,7 @@ function createWrittenExamDraft(questions, {
   sessionId = makeWrittenExamSessionId(),
   currentIdx = 0,
   answers = {},
+  optionOrders = {},
   viewedQuestionIds = [],
   recordedAnswerQuestionIds = [],
   startedAt = new Date().toISOString(),
@@ -1690,6 +1752,7 @@ function createWrittenExamDraft(questions, {
     questionIds,
     answers,
     currentIdx,
+    optionOrders: createOptionOrders(questions, optionOrders),
     viewedQuestionIds,
     recordedAnswerQuestionIds,
     startedAt,
@@ -4270,6 +4333,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
+  const initialSessionQuestionsRef = useRef(initialWrittenQuestionsRef.current?.length ? initialWrittenQuestionsRef.current : getSessionQuestions(mode, progress));
   const sessionIdRef = useRef(initialWrittenDraftRef.current?.sessionId || `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
   const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
@@ -4279,7 +4343,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const advancingRef = useRef(false);
   const sessionFinishedRef = useRef(false);
   const questionViewEffectKeyRef = useRef(null);
-  const [questions, setQuestions] = useState(() => initialWrittenQuestionsRef.current?.length ? initialWrittenQuestionsRef.current : getSessionQuestions(mode, progress));
+  const [questions, setQuestions] = useState(() => initialSessionQuestionsRef.current);
+  const [optionOrders, setOptionOrders] = useState(() => createOptionOrders(
+    initialSessionQuestionsRef.current,
+    initialWrittenDraftRef.current?.optionOrders || {}
+  ));
   const [currentIdx, setCurrentIdx] = useState(() => initialWrittenDraftRef.current?.currentIdx || 0);
   const [answers, setAnswers] = useState(() => initialWrittenDraftRef.current?.answers || {});
   const [locked, setLocked] = useState({});
@@ -4306,6 +4374,13 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const q = questions[currentIdx];
   const totalQ = questions.length;
   const selected = answers[q?.id];
+  const currentOptionOrder = q ? getStoredOptionOrder(q, optionOrders) : [];
+  const displayedOptions = q
+    ? currentOptionOrder.map(originalIndex => ({
+        originalIndex,
+        text: q.options[originalIndex],
+      }))
+    : [];
   const isLocked = !!locked[q?.id];
   const questionRecord = getQuestionProgress(progress, q?.id);
   const questionStatus = getQuestionStatus(questionRecord);
@@ -4352,11 +4427,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       sessionId: overrides.sessionId || sessionIdRef.current,
       currentIdx: overrides.currentIdx ?? currentIdx,
       answers: overrides.answers || answers,
+      optionOrders: overrides.optionOrders || optionOrders,
       viewedQuestionIds: overrides.viewedQuestionIds || [...writtenViewedQuestionIdsRef.current],
       recordedAnswerQuestionIds: overrides.recordedAnswerQuestionIds || [...writtenRecordedAnswerIdsRef.current],
       startedAt: initialWrittenDraftRef.current?.startedAt || new Date(startedAtRef.current).toISOString(),
     });
-  }, [answers, currentIdx, questions]);
+  }, [answers, currentIdx, optionOrders, questions]);
 
   const persistWrittenDraft = useCallback((overrides = {}) => {
     if (mode !== "written") return;
@@ -4393,6 +4469,10 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     if (mode !== "daily") return;
     onProgressChange(prev => ensureDailyChallenge(prev).progress);
   }, [mode, onProgressChange]);
+
+  useEffect(() => {
+    setOptionOrders(currentOrders => createOptionOrders(questions, currentOrders));
+  }, [questions]);
 
   useEffect(() => {
     if (!q?.id) return;
@@ -4623,10 +4703,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const startNewWrittenExam = useCallback(() => {
     const nextQuestions = getSessionQuestions("written", progress);
     const nextSessionId = makeWrittenExamSessionId();
+    const nextOptionOrders = createOptionOrders(nextQuestions);
     const nextDraft = createWrittenExamDraft(nextQuestions, {
       sessionId: nextSessionId,
       currentIdx: 0,
       answers: {},
+      optionOrders: nextOptionOrders,
       viewedQuestionIds: [],
       recordedAnswerQuestionIds: [],
     });
@@ -4638,6 +4720,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     advancingRef.current = false;
     startedAtRef.current = Date.now();
     setQuestions(nextQuestions);
+    setOptionOrders(nextOptionOrders);
     setCurrentIdx(0);
     setAnswers({});
     setLocked({});
@@ -4675,7 +4758,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     advancingRef.current = false;
     startedAtRef.current = Date.now();
     deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
-    setQuestions(getSessionQuestions(mode, progress));
+    const nextQuestions = getSessionQuestions(mode, progress);
+    setQuestions(nextQuestions);
+    setOptionOrders(createOptionOrders(nextQuestions));
     setCurrentIdx(0);
     setAnswers({});
     setLocked({});
@@ -4780,11 +4865,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                   <div className="wrong-question-stem">{question.stem}</div>
                   <div className="written-answer-row incorrect">
                     <strong>Your answer</strong>
-                    <span>{OPTION_LETTERS[item.selected]}. {question.options[item.selected]}</span>
+                    <span>{getDisplayedOptionLetter(question, item.selected, optionOrders)}. {question.options[item.selected]}</span>
                   </div>
                   <div className="written-answer-row correct">
                     <strong>Correct answer</strong>
-                    <span>{OPTION_LETTERS[question.correct]}. {question.options[question.correct]}</span>
+                    <span>{getDisplayedOptionLetter(question, question.correct, optionOrders)}. {question.options[question.correct]}</span>
                   </div>
                   <div className="written-meta-row">
                     <span className="meta-pill">{getQuestionTopic(question)}</span>
@@ -4879,7 +4964,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
             writtenResult.wrongItems.slice(0, 12).map(item => (
               <div className="breakdown-row" key={item.question.id}>
                 <span>Question {item.question.id}: {getQuestionTopic(item.question)}</span>
-                <strong>{OPTION_LETTERS[item.selected]} to {OPTION_LETTERS[item.question.correct]}</strong>
+                <strong>
+                  {getDisplayedOptionLetter(item.question, item.selected, optionOrders)} to {getDisplayedOptionLetter(item.question, item.question.correct, optionOrders)}
+                </strong>
               </div>
             ))
           )}
@@ -5048,21 +5135,22 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       <div className="question-stem">{q.stem}</div>
 
       <div className="options-list">
-        {q.options.map((opt, i) => {
+        {displayedOptions.map((option, i) => {
+          const originalIndex = option.originalIndex;
           const letter = String.fromCharCode(913 + i);
           let cls = 'option-btn';
           if (isLocked) {
             cls += ' locked';
-            if (i === q.correct)                       cls += ' correct';
-            else if (i === selected && i !== q.correct) cls += ' incorrect';
-          } else if (i === selected) cls += ' selected';
+            if (originalIndex === q.correct)                                  cls += ' correct';
+            else if (originalIndex === selected && originalIndex !== q.correct) cls += ' incorrect';
+          } else if (originalIndex === selected) cls += ' selected';
           return (
-            <button key={i} className={cls} onClick={() => selectOption(i)}>
+            <button key={originalIndex} className={cls} onClick={() => selectOption(originalIndex)}>
               <span className="option-letter">
-                {isLocked && i === q.correct ? <Icons.Check /> :
-                 isLocked && i === selected && i !== q.correct ? <Icons.X /> : letter}
+                {isLocked && originalIndex === q.correct ? <Icons.Check /> :
+                 isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : letter}
               </span>
-              <span>{opt}</span>
+              <span>{option.text}</span>
             </button>
           );
         })}
