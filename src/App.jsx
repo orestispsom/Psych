@@ -1994,6 +1994,16 @@ function getWrittenPerformanceCategory(scorePercent) {
   return { label: "Not yet passing level", className: "fail" };
 }
 
+function getWrittenHistoryScoreClass(scorePercent) {
+  if (scorePercent >= 99) return "elite";
+  if (scorePercent > 90) return "excellent";
+  if (scorePercent >= 70) return "good";
+  if (scorePercent === 69) return "pink";
+  if (scorePercent >= 50) return "pass";
+  if (scorePercent >= 30) return "fail";
+  return "low";
+}
+
 function buildBreakdown(items, getLabel) {
   const map = new Map();
 
@@ -2617,12 +2627,12 @@ const STYLES = `
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px;
+    padding: 12px 14px;
   }
 
   .written-history h3 {
     font-size: 14px;
-    margin: 0 0 10px;
+    margin: 0 0 6px;
     color: var(--text);
   }
 
@@ -2630,7 +2640,8 @@ const STYLES = `
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 10px;
-    padding: 10px 0;
+    align-items: center;
+    padding: 8px 0;
     border-top: 1px solid var(--border);
   }
 
@@ -2640,29 +2651,62 @@ const STYLES = `
 
   .written-history-main {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    gap: 8px;
     min-width: 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.3;
+    flex-wrap: wrap;
   }
 
   .written-history-date {
     color: var(--text);
     font-size: 13px;
     font-weight: 700;
+    white-space: nowrap;
   }
 
   .written-history-detail {
     color: var(--text-dim);
     font-size: 12px;
-    line-height: 1.4;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .written-history-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex: 0 0 auto;
   }
 
   .written-history-score {
     align-self: center;
-    color: var(--accent);
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+
+  .written-history-score.elite { color: #a855f7; }
+  .written-history-score.excellent { color: var(--gold); }
+  .written-history-score.good { color: var(--accent); }
+  .written-history-score.pink { color: #f472b6; }
+  .written-history-score.pass { color: var(--green); }
+  .written-history-score.fail { color: var(--red); }
+  .written-history-score.low { color: var(--text-muted); }
+
+  @media (max-width: 520px) {
+    .written-history-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .written-history-score {
+      justify-self: start;
+    }
   }
 
   .game-hud {
@@ -4311,15 +4355,19 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 
       <button className="mode-btn featured" onClick={() => onStart('sprint')}>
         Mini-test
+        <small>10 ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
         Τυχαία Θέματα
+        <small>βαρύτητα σε unseen ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('daily')}>
         Αδύναμα Θέματα
+        <small>επανάληψη σε λάθος απαντήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
-        Προσομοίωση με 100 Πολλαπλής
+        Προσομοίωση 100 πολλαπλής
+        <small>δίνει απαντήσεις μόνο στο τέλος</small>
       </button>
 
       {recentWrittenExamSessions.length > 0 && (
@@ -4329,16 +4377,23 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             <div className="written-history-row" key={session.id}>
               <div className="written-history-main">
                 <span className="written-history-date">
-                  {new Date(session.completedAt).toLocaleString("el-GR")}
+                  {new Date(session.completedAt).toLocaleDateString("el-GR")}
                 </span>
                 <span className="written-history-detail">
                   {session.correct}/{session.total} σωστές
-                  {session.wrong > 0 ? `, ${session.wrong} λάθος` : ""}
-                  {session.unanswered > 0 ? `, ${session.unanswered} αναπάντητες` : ""}
                 </span>
+                {session.unanswered > 0 && (
+                  <>
+                    <span className="written-history-dot" aria-hidden="true" />
+                    <span className="written-history-detail">{session.unanswered} αναπάντητες</span>
+                  </>
+                )}
+                <span className="written-history-dot" aria-hidden="true" />
                 <span className="written-history-detail">{session.performanceLabel}</span>
               </div>
-              <strong className="written-history-score">{session.scorePercent}%</strong>
+              <strong className={`written-history-score ${getWrittenHistoryScoreClass(session.scorePercent)}`}>
+                {session.scorePercent}%
+              </strong>
             </div>
           ))}
         </div>
