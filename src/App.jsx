@@ -105,6 +105,10 @@ const MCQ_FEEDBACK_OPTIONS = [
   { value: "wrong_terminology", label: "Λάθος ορολογία" },
   { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη Απάντηση" },
 ];
+const MCQ_QUALITY_FEEDBACK = {
+  up: "quality_up",
+  down: "quality_down",
+};
 const WRITTEN_WEAK_AREA_LABELS = [
   "diagnostic exclusion",
   "risk assessment",
@@ -2130,6 +2134,18 @@ const Icons = {
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
     </svg>
   ),
+  ThumbsUp: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
+      <path d="M7 10v11"/>
+      <path d="M15 5.9 14 10h5.8a2 2 0 0 1 2 2.3l-1.2 7a2 2 0 0 1-2 1.7H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.7-.9L15 3a2.6 2.6 0 0 1 0 2.9z"/>
+    </svg>
+  ),
+  ThumbsDown: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
+      <path d="M17 14V3"/>
+      <path d="M9 18.1 10 14H4.2a2 2 0 0 1-2-2.3l1.2-7a2 2 0 0 1 2-1.7H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.7.9L9 21a2.6 2.6 0 0 1 0-2.9z"/>
+    </svg>
+  ),
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -2920,8 +2936,14 @@ const STYLES = `
 
   .mcq-feedback {
     position: relative;
-    margin-left: auto;
     font-family: 'DM Sans', sans-serif;
+  }
+
+  .mcq-feedback-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
   }
 
   .mcq-feedback-btn {
@@ -2943,6 +2965,45 @@ const STYLES = `
   }
 
   .mcq-feedback-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .mcq-quality-btn {
+    width: 31px;
+    height: 31px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .mcq-quality-btn.up {
+    border-color: rgba(34,197,94,0.35);
+    color: var(--green);
+  }
+
+  .mcq-quality-btn.down {
+    border-color: rgba(239,68,68,0.35);
+    color: var(--red);
+  }
+
+  .mcq-quality-btn.up:hover {
+    background: var(--green-bg);
+    border-color: rgba(34,197,94,0.65);
+  }
+
+  .mcq-quality-btn.down:hover {
+    background: var(--red-bg);
+    border-color: rgba(239,68,68,0.65);
+  }
+
+  .mcq-quality-btn:disabled {
     opacity: 0.55;
     cursor: default;
   }
@@ -4192,8 +4253,8 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
         <div className="home-logo"><Icons.Brain /></div>
         <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
         <div className="home-update-note">
-          <strong>Νεότερη ενημέρωση:</strong>
-          <span>+1,000 ερωτήσεις από Oxford, εκκρεμούν διορθώσεις.</span>
+          <strong>Update:</strong>
+          <span>Μοιραστείτε την εφαρμογή υπεύθηνα.</span>
         </div>
         <div className="profile-bar">
           <span>{profileName}</span>
@@ -4914,31 +4975,55 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         Question {q.id}
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
         {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
-        <div className="mcq-feedback">
+        <div className="mcq-feedback-controls">
+          <div className="mcq-feedback">
+            <button
+              type="button"
+              className="mcq-feedback-btn"
+              onClick={() => {
+                setFeedbackMenuOpen(open => !open);
+                setFeedbackStatus(null);
+              }}
+              disabled={Boolean(feedbackSavingType)}
+            >
+              Feedback
+            </button>
+            {feedbackMenuOpen && (
+              <div className="mcq-feedback-menu">
+                {MCQ_FEEDBACK_OPTIONS.map(option => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className="mcq-feedback-option"
+                    onClick={() => submitMcqFeedback(option.value)}
+                    disabled={Boolean(feedbackSavingType)}
+                  >
+                    {feedbackSavingType === option.value ? "Saving..." : option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
-            className="mcq-feedback-btn"
-            onClick={() => {
-              setFeedbackMenuOpen(open => !open);
-              setFeedbackStatus(null);
-            }}
+            type="button"
+            className="mcq-quality-btn up"
+            title="Καλή ερώτηση"
+            aria-label="Καλή ερώτηση"
+            onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.up)}
             disabled={Boolean(feedbackSavingType)}
           >
-            Feedback
+            <Icons.ThumbsUp />
           </button>
-          {feedbackMenuOpen && (
-            <div className="mcq-feedback-menu">
-              {MCQ_FEEDBACK_OPTIONS.map(option => (
-                <button
-                  key={option.value}
-                  className="mcq-feedback-option"
-                  onClick={() => submitMcqFeedback(option.value)}
-                  disabled={Boolean(feedbackSavingType)}
-                >
-                  {feedbackSavingType === option.value ? "Saving..." : option.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <button
+            type="button"
+            className="mcq-quality-btn down"
+            title="Προβληματική ερώτηση"
+            aria-label="Προβληματική ερώτηση"
+            onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.down)}
+            disabled={Boolean(feedbackSavingType)}
+          >
+            <Icons.ThumbsDown />
+          </button>
         </div>
       </div>
       {feedbackStatus && (
