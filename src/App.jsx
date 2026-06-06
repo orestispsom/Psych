@@ -2004,6 +2004,33 @@ function getWrittenHistoryScoreClass(scorePercent) {
   return "low";
 }
 
+const SOS_NUMBER_PATTERN = /(≥|≤|>|<|~|≈)?\s*\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|ημέρες|ημέρα|εβδομάδες|εβδομάδα|μήνες|μήνας|έτη|ετών|ώρες|ωρών|λεπτά|bpm|kg\/m²)?/gi;
+
+function renderSosNumberText(text) {
+  const parts = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(SOS_NUMBER_PATTERN)) {
+    const value = match[0];
+    const index = match.index ?? 0;
+    if (!value.trim()) continue;
+    if (index > lastIndex) parts.push(text.slice(lastIndex, index));
+    parts.push(
+      <span className="sos-number-mark" key={`${index}-${value}`}>
+        {value}
+      </span>
+    );
+    lastIndex = index + value.length;
+  }
+
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts;
+}
+
+function getSosNumberFact(entry) {
+  return `${entry.title} - ${entry.answer}`;
+}
+
 function buildBreakdown(items, getLabel) {
   const map = new Map();
 
@@ -4137,6 +4164,51 @@ const STYLES = `
     flex-shrink: 0;
   }
 
+  .sos-number-list {
+    display: grid;
+    gap: 7px;
+  }
+
+  .sos-number-entry {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, rgba(17,24,39,0.94), rgba(21,29,46,0.86));
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: left;
+  }
+
+  .sos-number-entry:nth-child(3n + 1) .sos-number-mark {
+    color: var(--gold);
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.25);
+  }
+
+  .sos-number-entry:nth-child(3n + 2) .sos-number-mark {
+    color: #60a5fa;
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.25);
+  }
+
+  .sos-number-entry:nth-child(3n) .sos-number-mark {
+    color: #34d399;
+    background: rgba(52,211,153,0.12);
+    border-color: rgba(52,211,153,0.25);
+  }
+
+  .sos-number-mark {
+    display: inline-block;
+    margin: 0 1px;
+    padding: 1px 5px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
   .sos-accordion-entry {
     padding: 0;
     overflow: hidden;
@@ -5670,8 +5742,6 @@ function SosHome({ onBack, onHome, onOpenSection }) {
 }
 
 function SosNumbersList({ onBack, onHome }) {
-  const [openEntryId, setOpenEntryId] = useState(null);
-
   return (
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
@@ -5683,23 +5753,12 @@ function SosNumbersList({ onBack, onHome }) {
         </button>
       </div>
       <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
-      <div className="sos-list">
-        {sosNumbers.map(entry => {
-          const isOpen = openEntryId === entry.id;
-          return (
-            <button
-              key={entry.id}
-              className={`sos-accordion-entry ${isOpen ? "open" : ""}`}
-              onClick={() => setOpenEntryId(isOpen ? null : entry.id)}
-            >
-              <div className="sos-entry-title">
-                <span>{entry.title}</span>
-                <Icons.ChevronDown />
-              </div>
-              {isOpen && <div className="sos-answer-box">{entry.answer}</div>}
-            </button>
-          );
-        })}
+      <div className="sos-number-list">
+        {sosNumbers.map(entry => (
+          <div key={entry.id} className="sos-number-entry">
+            {renderSosNumberText(getSosNumberFact(entry))}
+          </div>
+        ))}
       </div>
     </div>
   );
