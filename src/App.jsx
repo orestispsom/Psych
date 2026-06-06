@@ -98,7 +98,6 @@ const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const WRITTEN_EXAM_SIZE = 100;
-const SPRINT_TIME_LIMIT_MS = 30000;
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Duplicate" },
@@ -1069,20 +1068,6 @@ function isDue(record = {}, now = new Date()) {
   return dueAt <= now;
 }
 
-function calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs, currentStreak }) {
-  if (!isCorrect) return { base: 0, speed: 0, streak: 0, total: 0 };
-
-  let speed = 10;
-  const ratio = timeTakenMs / timeLimitMs;
-
-  if (ratio <= 0.33) speed = 50;
-  else if (ratio <= 0.66) speed = 30;
-
-  const streak = Math.min(currentStreak * 35, 250);
-
-  return { base: 100, speed, streak, total: 100 + speed + streak };
-}
-
 function calculateStandardPoints({ isCorrect, mode, currentStreak }) {
   if (!isCorrect) return { base: 0, speed: 0, streak: 0, total: 0 };
   const base = mode === "weakness" ? 120 : 100;
@@ -1090,13 +1075,8 @@ function calculateStandardPoints({ isCorrect, mode, currentStreak }) {
   return { base, speed: 0, streak, total: base + streak };
 }
 
-function inferAnswerConfidence({ mode, timeTakenMs, timeLimitMs, isCorrect }) {
-  if (mode !== "sprint") return 3;
-
-  const ratio = timeTakenMs / timeLimitMs;
-  if (ratio <= 0.33) return isCorrect ? 4 : 3;
-  if (ratio <= 0.66) return 3;
-  return 2;
+function inferAnswerConfidence() {
+  return 3;
 }
 
 function getNextReviewIntervalDays({ masteryLevel, isCorrect, confidence, consecutiveCorrect }) {
@@ -2701,30 +2681,6 @@ const STYLES = `
     letter-spacing: 0.05em;
   }
 
-  .sprint-timer-track {
-    height: 7px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    overflow: hidden;
-    margin: -8px 0 18px;
-  }
-
-  .sprint-timer-fill {
-    height: 100%;
-    background: var(--green);
-    border-radius: inherit;
-    transition: width 0.25s linear, background 0.2s ease;
-  }
-
-  .sprint-timer-fill.warning {
-    background: var(--gold);
-  }
-
-  .sprint-timer-fill.danger {
-    background: var(--red);
-  }
-
   .confidence-row {
     display: flex;
     align-items: center;
@@ -4237,7 +4193,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
         <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
         <div className="home-update-note">
           <strong>Νεότερη ενημέρωση:</strong>
-          <span>Καλή επιτυχία! Με το που περάσετε με το καλό, στείλτε και τα θέματα για εμάς τους επόμενους.</span>
+          <span>+1,000 ερωτήσεις από Oxford, εκκρεμούν διορθώσεις.</span>
         </div>
         <div className="profile-bar">
           <span>{profileName}</span>
@@ -4338,10 +4294,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
   const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
   const startedAtRef = useRef(Date.now());
-  const deadlineRef = useRef(Date.now() + SPRINT_TIME_LIMIT_MS);
-  const advanceTimerRef = useRef(null);
-  const advancingRef = useRef(false);
-  const sessionFinishedRef = useRef(false);
   const questionViewEffectKeyRef = useRef(null);
   const [questions, setQuestions] = useState(() => initialSessionQuestionsRef.current);
   const [optionOrders, setOptionOrders] = useState(() => createOptionOrders(
@@ -4351,10 +4303,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [currentIdx, setCurrentIdx] = useState(() => initialWrittenDraftRef.current?.currentIdx || 0);
   const [answers, setAnswers] = useState(() => initialWrittenDraftRef.current?.answers || {});
   const [locked, setLocked] = useState({});
-  const [timeLeftMs, setTimeLeftMs] = useState(SPRINT_TIME_LIMIT_MS);
   const [lastBreakdown, setLastBreakdown] = useState(null);
-  const [finalSprintSession, setFinalSprintSession] = useState(null);
-  const [autoAdvanceSprint, setAutoAdvanceSprint] = useState(true);
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
@@ -4388,22 +4337,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
-  const sprintSessions = getSprintSessions(progress);
-  const previousSprintSessions = finalSprintSession
-    ? sprintSessions.filter(session => session.id !== finalSprintSession.id)
-    : sprintSessions;
-  const sprintHighScore = getSprintHighScore({
-    ...progress,
-    sprintSessions: previousSprintSessions,
-  });
   const latestAttempt = q
     ? (progress.attempts || []).find(attempt =>
         attempt.sessionId === sessionIdRef.current && attempt.questionId === q.id
       )
     : null;
-  const displayedBreakdown = lastBreakdown || latestAttempt?.pointBreakdown || (isLocked ? { base: 0, speed: 0, streak: 0, total: 0 } : null);
-  const sprintRatio = Math.max(0, Math.min(1, timeLeftMs / SPRINT_TIME_LIMIT_MS));
-  const sprintTimerClass = sprintRatio <= 0.25 ? "danger" : sprintRatio <= 0.5 ? "warning" : "";
+  const displayedBreakdown = mode === "sprint" ? null : (lastBreakdown || latestAttempt?.pointBreakdown || null);
   const pointTier = displayedBreakdown?.total >= 250
     ? "high"
     : displayedBreakdown?.total >= 100
@@ -4481,10 +4420,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     if (questionViewEffectKeyRef.current === viewEffectKey) return;
     questionViewEffectKeyRef.current = viewEffectKey;
     startedAtRef.current = Date.now();
-    deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
-    advancingRef.current = false;
     setLastBreakdown(null);
-    setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
     setFeedbackMenuOpen(false);
     setFeedbackStatus(null);
     if (mode === "written") {
@@ -4499,87 +4435,32 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     onProgressChange(prev => markQuestionSeen(prev, q.id));
   }, [q?.id, mode, writtenDraftChoice, buildCurrentWrittenDraft, currentIdx, onProgressChange]);
 
-  useEffect(() => {
-    return () => {
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-    };
-  }, []);
-
-  const finishSprint = useCallback((finalStats) => {
-    if (mode !== "sprint" || sessionFinishedRef.current) return;
-
-    sessionFinishedRef.current = true;
-    const session = {
-      id: sessionIdRef.current,
-      completedAt: new Date().toISOString(),
-      totalQuestions: totalQ,
-      correct: finalStats.correct,
-      incorrect: finalStats.incorrect,
-      points: finalStats.points,
-      maxStreak: finalStats.maxStreak,
-      accuracy: finalStats.total > 0 ? Math.round((finalStats.correct / finalStats.total) * 100) : 0,
-    };
-
-    setFinalSprintSession(session);
-    onProgressChange(prev => recordSprintSession(prev, session));
-  }, [mode, onProgressChange, totalQ]);
-
-  const advanceSprint = useCallback((finalStats) => {
-    if (mode !== "sprint") return;
-
-    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-    advanceTimerRef.current = setTimeout(() => {
-      if (currentIdx >= totalQ - 1) {
-        finishSprint(finalStats);
-        return;
-      }
-
-      setCurrentIdx(index => Math.min(index + 1, totalQ - 1));
-    }, 900);
-  }, [currentIdx, finishSprint, mode, totalQ]);
-
   const goToNextQuestion = useCallback(() => {
-    if (mode === "sprint") {
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-      if (currentIdx >= totalQ - 1) {
-        finishSprint(sessionStats);
-        return;
-      }
-      setCurrentIdx(index => Math.min(index + 1, totalQ - 1));
-      return;
-    }
-
     setCurrentIdx(nextIdx);
-  }, [currentIdx, finishSprint, mode, nextIdx, sessionStats, totalQ]);
+  }, [nextIdx]);
 
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
     if (mode === "written") return;
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
-    if (mode === "sprint" && (advancingRef.current || finalSprintSession)) return;
 
     const isCorrect = selectedOverride === q.correct;
     const nextStreak = isCorrect ? sessionStats.currentStreak + 1 : 0;
     const timeTakenMs = Math.max(0, Date.now() - startedAtRef.current);
-    const inferredConfidence = inferAnswerConfidence({
-      mode,
-      timeTakenMs,
-      timeLimitMs: SPRINT_TIME_LIMIT_MS,
-      isCorrect,
-    });
+    const inferredConfidence = inferAnswerConfidence();
     const pointBreakdown = mode === "sprint"
-      ? calculateSprintPoints({ isCorrect, timeTakenMs, timeLimitMs: SPRINT_TIME_LIMIT_MS, currentStreak: nextStreak })
+      ? null
       : calculateStandardPoints({ isCorrect, mode, currentStreak: nextStreak });
+    const pointsAwarded = pointBreakdown?.total || 0;
     const nextStats = {
       correct: sessionStats.correct + (isCorrect ? 1 : 0),
       incorrect: sessionStats.incorrect + (isCorrect ? 0 : 1),
       total: sessionStats.total + 1,
       currentStreak: nextStreak,
       maxStreak: Math.max(sessionStats.maxStreak, nextStreak),
-      points: sessionStats.points + pointBreakdown.total,
+      points: sessionStats.points + pointsAwarded,
     };
 
-    if (mode === "sprint" && autoAdvanceSprint) advancingRef.current = true;
     setLocked(prev => ({ ...prev, [q.id]: true }));
     setLastBreakdown(pointBreakdown);
     setSessionStats(nextStats);
@@ -4587,37 +4468,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       mode,
       confidence: inferredConfidence,
       timeTakenMs,
-      pointsAwarded: pointBreakdown.total,
+      pointsAwarded,
       pointBreakdown,
       sessionId: sessionIdRef.current,
       streakPosition: nextStreak,
     }));
-
-    if (mode === "sprint" && autoAdvanceSprint) advanceSprint(nextStats);
-  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, autoAdvanceSprint, advanceSprint, finalSprintSession]);
-
-  useEffect(() => {
-    if (mode !== "sprint" || isLocked || !q || finalSprintSession) return;
-
-    const intervalId = setInterval(() => {
-      setTimeLeftMs(Math.max(0, deadlineRef.current - Date.now()));
-    }, 100);
-
-    return () => clearInterval(intervalId);
-  }, [mode, isLocked, q?.id, finalSprintSession]);
-
-  useEffect(() => {
-    if (
-      mode === "sprint" &&
-      timeLeftMs <= 0 &&
-      Date.now() >= deadlineRef.current &&
-      !isLocked &&
-      q &&
-      !finalSprintSession
-    ) {
-      submitAnswer(null, true);
-    }
-  }, [timeLeftMs, mode, isLocked, q?.id, submitAnswer, finalSprintSession]);
+  }, [selected, isLocked, q, sessionStats, mode, onProgressChange]);
 
   const selectOption = (idx) => {
     if (isLocked || writtenResult || !q) return;
@@ -4716,8 +4572,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     sessionIdRef.current = nextSessionId;
     writtenViewedQuestionIdsRef.current = new Set();
     writtenRecordedAnswerIdsRef.current = new Set();
-    sessionFinishedRef.current = false;
-    advancingRef.current = false;
     startedAtRef.current = Date.now();
     setQuestions(nextQuestions);
     setOptionOrders(nextOptionOrders);
@@ -4749,32 +4603,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
   const restartWrittenExam = () => {
     startNewWrittenExam();
-  };
-
-  const restartSprint = () => {
-    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-    sessionIdRef.current = `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    sessionFinishedRef.current = false;
-    advancingRef.current = false;
-    startedAtRef.current = Date.now();
-    deadlineRef.current = Date.now() + SPRINT_TIME_LIMIT_MS;
-    const nextQuestions = getSessionQuestions(mode, progress);
-    setQuestions(nextQuestions);
-    setOptionOrders(createOptionOrders(nextQuestions));
-    setCurrentIdx(0);
-    setAnswers({});
-    setLocked({});
-    setLastBreakdown(null);
-    setFinalSprintSession(null);
-    setTimeLeftMs(SPRINT_TIME_LIMIT_MS);
-    setSessionStats({
-      correct: 0,
-      incorrect: 0,
-      total: 0,
-      currentStreak: 0,
-      maxStreak: 0,
-      points: 0,
-    });
   };
 
   if (mode === "written" && writtenDraftChoice === "choice") {
@@ -5045,30 +4873,21 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       ) : (
         <div className="game-hud">
           <div className="hud-stat">
-            <span className="hud-value">{mode === "sprint" ? Math.ceil(timeLeftMs / 1000) : sessionStats.currentStreak}</span>
-            <span className="hud-label">{mode === "sprint" ? "Seconds" : "Streak"}</span>
+            <span className="hud-value">{mode === "sprint" ? currentIdx + 1 : sessionStats.currentStreak}</span>
+            <span className="hud-label">{mode === "sprint" ? "Current" : "Streak"}</span>
           </div>
           <div className="hud-stat">
-            <span className="hud-value">{mode === "sprint" ? sessionStats.points : sessionStats.correct}</span>
-            <span className="hud-label">{mode === "sprint" ? "Points" : "Correct"}</span>
+            <span className="hud-value">{sessionStats.correct}</span>
+            <span className="hud-label">Correct</span>
           </div>
           <div className="hud-stat">
-            <span className="hud-value">{mode === "sprint" ? sessionStats.currentStreak : sessionStats.incorrect}</span>
-            <span className="hud-label">{mode === "sprint" ? "Streak" : "Incorrect"}</span>
+            <span className="hud-value">{sessionStats.incorrect}</span>
+            <span className="hud-label">Incorrect</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{sessionStats.total}</span>
             <span className="hud-label">Answered</span>
           </div>
-        </div>
-      )}
-
-      {mode === "sprint" && (
-        <div className="sprint-timer-track" aria-label="Sprint countdown">
-          <div
-            className={`sprint-timer-fill ${sprintTimerClass}`}
-            style={{ width: `${sprintRatio * 100}%` }}
-          />
         </div>
       )}
 
@@ -5172,16 +4991,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
       <div style={{ height: 80 }} />
 
-      {mode === "sprint" && (
-        <button
-          className={`sprint-auto-toggle ${autoAdvanceSprint ? "active" : ""}`}
-          onClick={() => setAutoAdvanceSprint(value => !value)}
-          title="Toggle automatic movement after each Sprint answer"
-        >
-          Auto-advance {autoAdvanceSprint ? "On" : "Off"}
-        </button>
-      )}
-
       {mode === "written" ? (
         <div className="nav-bar">
           <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0}>
@@ -5196,7 +5005,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </div>
       ) : (
         <div className="nav-bar">
-          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={mode === "sprint" || prevIdx < 0}>
+          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0}>
             <Icons.ChevronLeft />
           </button>
           {!isLocked && (
@@ -5207,11 +5016,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <button
             className="nav-btn"
             onClick={goToNextQuestion}
-            disabled={mode === "sprint" ? !isLocked : nextIdx < 0 || nextIdx >= totalQ}
+            disabled={nextIdx < 0 || nextIdx >= totalQ}
           >
-            {mode === "sprint" && isLocked
-              ? currentIdx >= totalQ - 1 ? "Finish" : "Next"
-              : <Icons.ChevronRight />}
+            <Icons.ChevronRight />
           </button>
         </div>
       )}
@@ -5238,59 +5045,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </div>
       )}
 
-      {finalSprintSession && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Sprint results">
-          <div className="modal sprint-results-modal">
-            <h3>Sprint complete</h3>
-            <div className="sprint-score">{finalSprintSession.points}</div>
-            <div className="sprint-result-grid">
-              <div className="sprint-result-stat">
-                <strong>{finalSprintSession.correct}/{finalSprintSession.totalQuestions}</strong>
-                <span>Correct</span>
-              </div>
-              <div className="sprint-result-stat">
-                <strong>{finalSprintSession.accuracy}%</strong>
-                <span>Accuracy</span>
-              </div>
-              <div className="sprint-result-stat">
-                <strong>{finalSprintSession.maxStreak}</strong>
-                <span>Best streak</span>
-              </div>
-            </div>
-            <p>
-              {finalSprintSession.points > sprintHighScore
-                ? "New high score for this profile."
-                : sprintHighScore > 0
-                  ? `Profile high score: ${sprintHighScore} points.`
-                  : "This is the first saved Sprint for this profile."}
-            </p>
-            <div className="sprint-history">
-              <div className="sprint-history-title">Previous scores</div>
-              {previousSprintSessions.length === 0 ? (
-                <div className="sprint-history-row">
-                  <span>No previous Sprint scores yet</span>
-                  <strong>-</strong>
-                </div>
-              ) : (
-                previousSprintSessions.slice(0, 5).map(session => (
-                  <div className="sprint-history-row" key={session.id}>
-                    <span>{new Date(session.completedAt).toLocaleDateString()}</span>
-                    <strong>{session.points} pts</strong>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="modal-actions">
-              <button className="results-btn primary" onClick={restartSprint}>
-                Go again
-              </button>
-              <button className="results-btn" onClick={onBack}>
-                MCQ menu
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -5923,7 +5677,7 @@ export default function App() {
   const [testMode, setTestMode] = useState(null);
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
-  const [showOpeningRequest, setShowOpeningRequest] = useState(true);
+  const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const remoteSaveTimerRef = useRef(null);
