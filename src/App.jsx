@@ -2004,7 +2004,7 @@ function getWrittenHistoryScoreClass(scorePercent) {
   return "low";
 }
 
-const SOS_NUMBER_PATTERN = /(≥|≤|>|<|~|≈)?\s*\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|ημέρες|ημέρα|εβδομάδες|εβδομάδα|μήνες|μήνας|έτη|ετών|ώρες|ωρών|λεπτά|bpm|kg\/m²)?/gi;
+const SOS_NUMBER_PATTERN = /(?:DSM|ICD)-?\s*\d+(?:[.,]\d+)?|(?:≥|≤|>|<|~|≈)?\s*\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|ημέρες|ημέρα|εβδομάδες|εβδομάδα|μήνες|μήνας|έτη|ετών|ώρες|ωρών|λεπτά|bpm|kg\/m²)?/gi;
 
 function renderSosNumberText(text) {
   const parts = [];
@@ -2015,11 +2015,15 @@ function renderSosNumberText(text) {
     const index = match.index ?? 0;
     if (!value.trim()) continue;
     if (index > lastIndex) parts.push(text.slice(lastIndex, index));
-    parts.push(
-      <span className="sos-number-mark" key={`${index}-${value}`}>
-        {value}
-      </span>
-    );
+    if (/^\s*(DSM|ICD)-?\s*\d/i.test(value)) {
+      parts.push(value);
+    } else {
+      parts.push(
+        <span className="sos-number-mark" key={`${index}-${value}`}>
+          {value}
+        </span>
+      );
+    }
     lastIndex = index + value.length;
   }
 
@@ -4182,28 +4186,17 @@ const STYLES = `
 
   .sos-number-entry:nth-child(3n + 1) .sos-number-mark {
     color: var(--gold);
-    background: rgba(245,158,11,0.12);
-    border-color: rgba(245,158,11,0.25);
   }
 
   .sos-number-entry:nth-child(3n + 2) .sos-number-mark {
     color: #60a5fa;
-    background: rgba(59,130,246,0.12);
-    border-color: rgba(59,130,246,0.25);
   }
 
   .sos-number-entry:nth-child(3n) .sos-number-mark {
     color: #34d399;
-    background: rgba(52,211,153,0.12);
-    border-color: rgba(52,211,153,0.25);
   }
 
   .sos-number-mark {
-    display: inline-block;
-    margin: 0 1px;
-    padding: 1px 5px;
-    border: 1px solid;
-    border-radius: 6px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
