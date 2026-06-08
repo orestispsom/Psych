@@ -624,6 +624,9 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
 }
 
 async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
+  const feedbackComment = typeof optionalMetadata.feedbackComment === "string"
+    ? optionalMetadata.feedbackComment.trim()
+    : "";
   const basePayload = {
     question_id: String(questionId),
     feedback_type: feedbackType,
@@ -633,6 +636,7 @@ async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) 
     question_text_snapshot: optionalMetadata.questionTextSnapshot || null,
     topic: optionalMetadata.topic || null,
     subtopic: optionalMetadata.subtopic || null,
+    feedback_comment: feedbackComment || null,
   };
   const insertFeedback = payload => supabaseTableRequest(
     "mcq_feedback",
@@ -650,6 +654,7 @@ async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) 
     const message = String(error?.message || "");
     const isOptionalColumnProblem = /column|schema cache|PGRST204|record .* has no field/i.test(message);
     if (!isOptionalColumnProblem) throw error;
+    if (feedbackComment) throw error;
     return insertFeedback(basePayload);
   }
 }
@@ -659,6 +664,10 @@ function getMcqFeedbackErrorMessage(error) {
 
   if (/Online profiles are not configured/i.test(detail)) {
     return "Could not save feedback. Supabase is not configured.";
+  }
+
+  if (/feedback_comment|schema cache|PGRST204|record .* has no field/i.test(detail)) {
+    return "Could not save feedback. Add the feedback_comment column to mcq_feedback.";
   }
 
   if (/relation .*mcq_feedback.* does not exist|Could not find the table|PGRST205|mcq_feedback/i.test(detail)) {
@@ -1537,7 +1546,8 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   const topicCount = Math.max(1, new Set(eligible.map(getQuestionTopic)).size);
   const perTopicSoftCap = Math.max(4, Math.ceil((targetCount / topicCount) * 1.8));
   const weakTarget = Math.round(targetCount * 0.30);
-  const unseenTarget = Math.round(targetCount * 0.25);
+  const unseenAvailableCount = eligible.filter(question => !hasSeenQuestion(records[question.id])).length;
+  const unseenTarget = Math.min(unseenAvailableCount, Math.floor(targetCount * 0.70) + 1);
   const dueTarget = Math.round(targetCount * 0.20);
   const masteredTarget = Math.min(Math.round(targetCount * 0.12), eligible.filter(question => isQuestionMastered(records[question.id])).length);
   const selected = [];
@@ -1593,8 +1603,8 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   }));
   const broadCandidates = rank(eligible);
 
+  pickFrom(unseenCandidates, unseenTarget, { allowOverTopicCap: true });
   pickFrom(weakCandidates, weakTarget);
-  pickFrom(unseenCandidates, unseenTarget);
   pickFrom(dueCandidates, dueTarget);
   pickFrom(masteredCandidates, masteredTarget);
   pickFrom(learningCandidates, targetCount - selected.length);
@@ -3118,6 +3128,60 @@ const STYLES = `
     background: var(--bg-card-hover);
   }
 
+  .mcq-feedback-comment {
+    border-top: 1px solid var(--border);
+    padding: 10px;
+  }
+
+  .mcq-feedback-comment textarea {
+    width: 100%;
+    min-height: 76px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+    outline: none;
+  }
+
+  .mcq-feedback-comment textarea:focus {
+    border-color: rgba(59,130,246,0.55);
+  }
+
+  .mcq-feedback-comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .mcq-feedback-comment-actions button {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card-hover);
+    color: var(--text-dim);
+    padding: 6px 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .mcq-feedback-comment-actions button.primary {
+    background: var(--blue-bg);
+    border-color: rgba(59,130,246,0.45);
+    color: var(--blue);
+  }
+
+  .mcq-feedback-comment-actions button:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
   .mcq-feedback-message {
     display: inline-flex;
     margin: -4px 0 12px;
@@ -4493,6 +4557,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
+  const [feedbackCommentOpen, setFeedbackCommentOpen] = useState(false);
+  const [feedbackCommentText, setFeedbackCommentText] = useState("");
   const [sessionStats, setSessionStats] = useState({
     correct: 0,
     incorrect: 0,
@@ -4604,6 +4670,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setLastBreakdown(null);
     setFeedbackMenuOpen(false);
     setFeedbackStatus(null);
+    setFeedbackCommentOpen(false);
+    setFeedbackCommentText("");
     if (mode === "written") {
       writtenViewedQuestionIdsRef.current.add(String(q.id));
       const draft = buildCurrentWrittenDraft({
@@ -4672,8 +4740,12 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     }
   };
 
-  const submitMcqFeedback = async (feedbackType) => {
+  const submitMcqFeedback = async (feedbackType, feedbackComment = "") => {
     if (!q || feedbackSavingType) return;
+    const normalizedComment = typeof feedbackComment === "string"
+      ? feedbackComment.trim().slice(0, 500)
+      : "";
+    if (feedbackType === "comment" && !normalizedComment) return;
 
     setFeedbackSavingType(feedbackType);
     setFeedbackStatus(null);
@@ -4682,8 +4754,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         questionTextSnapshot: q.stem,
         topic: getQuestionTopic(q),
         subtopic: getPrimaryWeakArea(q),
+        feedbackComment: normalizedComment,
       });
       setFeedbackMenuOpen(false);
+      setFeedbackCommentOpen(false);
+      setFeedbackCommentText("");
       setFeedbackStatus({ type: "success", message: "Feedback saved." });
     } catch (error) {
       console.error("MCQ feedback save failed", error);
@@ -5101,6 +5176,10 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
               type="button"
               className="mcq-feedback-btn"
               onClick={() => {
+                if (feedbackMenuOpen) {
+                  setFeedbackCommentOpen(false);
+                  setFeedbackCommentText("");
+                }
                 setFeedbackMenuOpen(open => !open);
                 setFeedbackStatus(null);
               }}
@@ -5121,6 +5200,48 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                     {feedbackSavingType === option.value ? "Saving..." : option.label}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="mcq-feedback-option"
+                  onClick={() => {
+                    setFeedbackCommentOpen(open => !open);
+                    setFeedbackStatus(null);
+                  }}
+                  disabled={Boolean(feedbackSavingType)}
+                >
+                  Σχόλιο
+                </button>
+                {feedbackCommentOpen && (
+                  <div className="mcq-feedback-comment">
+                    <textarea
+                      value={feedbackCommentText}
+                      onChange={event => setFeedbackCommentText(event.target.value.slice(0, 500))}
+                      placeholder="Σύντομο σχόλιο..."
+                      maxLength={500}
+                      disabled={Boolean(feedbackSavingType)}
+                    />
+                    <div className="mcq-feedback-comment-actions">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFeedbackCommentOpen(false);
+                          setFeedbackCommentText("");
+                        }}
+                        disabled={Boolean(feedbackSavingType)}
+                      >
+                        Άκυρο
+                      </button>
+                      <button
+                        type="button"
+                        className="primary"
+                        onClick={() => submitMcqFeedback("comment", feedbackCommentText)}
+                        disabled={Boolean(feedbackSavingType) || !feedbackCommentText.trim()}
+                      >
+                        {feedbackSavingType === "comment" ? "Saving..." : "Αποθήκευση"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
