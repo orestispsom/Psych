@@ -1,437 +1,437 @@
 export const highYieldPsychiatryTables = [
   {
-    "id": "hy_001",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "A female with normal development until 5 months, with gradual loss of skills/functioning after 6 months",
-    "answer": "Rett syndrome"
+    id: "hy_001",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Κορίτσι με φυσιολογική ανάπτυξη έως τους 5 μήνες και σταδιακή απώλεια δεξιοτήτων μετά τους 6 μήνες.",
+    answer: "Σύνδρομο Rett"
   },
   {
-    "id": "hy_002",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "A child with an intellectual disability, a long face, prominent ears and jaw, and macroorchidism (if male)",
-    "answer": "Fragile X"
+    id: "hy_002",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Παιδί με νοητική αναπηρία, μακρόστενο πρόσωπο, μεγάλα αυτιά, προέχουσα γνάθο και μακροορχιδισμό αν είναι αγόρι.",
+    answer: "Σύνδρομο εύθραυστου Χ"
   },
   {
-    "id": "hy_003",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "A child with an intellectual disability, congenital cardiac defects, a high-pitched voice, a cleft palate",
-    "answer": "22q11.2 deletion syndrome (DiGeorge/velocardiofacial syndrome)"
+    id: "hy_003",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Παιδί με νοητική αναπηρία, συγγενείς καρδιοπάθειες, ένρινη ή υψηλή φωνή και σχιστία υπερώας.",
+    answer: "Σύνδρομο διαγραφής 22q11.2 (DiGeorge / βελοκαρδιοπροσωπικό σύνδρομο)"
   },
   {
-    "id": "hy_004",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "A child with a narrow face, almond-shaped eyes, excessive weight gain and hunger, hypogonadism",
-    "answer": "Prader-Willi syndrome"
+    id: "hy_004",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Παιδί με στενό πρόσωπο, αμυγδαλοειδείς οφθαλμούς, υπερφαγία, σημαντική αύξηση βάρους και υπογοναδισμό.",
+    answer: "Σύνδρομο Prader-Willi"
   },
   {
-    "id": "hy_005",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "Lifelong difficulties in social interactions and rigid/inflexible patterns of behaviour",
-    "answer": "Autism spectrum disorder"
+    id: "hy_005",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Διά βίου δυσκολίες στην κοινωνική αλληλεπίδραση και άκαμπτα ή περιορισμένα πρότυπα συμπεριφοράς.",
+    answer: "Διαταραχή αυτιστικού φάσματος"
   },
   {
-    "id": "hy_006",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "Lifelong difficulties with inattentiveness and hyperactivity",
-    "answer": "Attention deficit hyperactivity disorder"
+    id: "hy_006",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Διά βίου δυσκολίες απροσεξίας, υπερκινητικότητας και παρορμητικότητας.",
+    answer: "Διαταραχή ελλειμματικής προσοχής / υπερκινητικότητας (ΔΕΠΥ)"
   },
   {
-    "id": "hy_007",
-    "type": "diagnosis",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "A patient with an intellectual disability, microcephaly, growth restriction, executive functioning problems",
-    "answer": "Foetal alcohol syndrome"
+    id: "hy_007",
+    type: "diagnosis",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "Άτομο με νοητική αναπηρία, μικροκεφαλία, υπολειπόμενη ανάπτυξη και δυσκολίες εκτελεστικών λειτουργιών.",
+    answer: "Εμβρυϊκό αλκοολικό σύνδρομο"
   },
   {
-    "id": "hy_008",
-    "type": "diagnosis",
-    "topic": "Mood disorders",
-    "prompt": "Irritability, disinhibition, pressured speech, grandiosity, increased energy",
-    "answer": "Mania"
+    id: "hy_008",
+    type: "diagnosis",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Ευερεθιστότητα, άρση αναστολών, πίεση λόγου, ιδέες μεγαλείου και αυξημένη ενέργεια.",
+    answer: "Μανιακό επεισόδιο"
   },
   {
-    "id": "hy_009",
-    "type": "diagnosis",
-    "topic": "Mood disorders",
-    "prompt": "Low mood, early morning wakening, impaired concentration and anhedonia",
-    "answer": "Depression"
+    id: "hy_009",
+    type: "diagnosis",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Καταθλιπτική διάθεση, πρωινή αφύπνιση, μειωμένη συγκέντρωση και ανηδονία.",
+    answer: "Καταθλιπτικό επεισόδιο"
   },
   {
-    "id": "hy_010",
-    "type": "diagnosis",
-    "topic": "Psychotic disorders",
-    "prompt": "Persistent delusions, auditory hallucinations, thought disorder, experiences of external control, disorganized behaviour WITHOUT mood symptoms",
-    "answer": "Schizophrenia"
+    id: "hy_010",
+    type: "diagnosis",
+    topic: "Ψυχωτικές διαταραχές",
+    prompt: "Επίμονες παραληρητικές ιδέες, ακουστικές ψευδαισθήσεις, διαταραχή σκέψης, βιώματα εξωτερικού ελέγχου και αποδιοργανωμένη συμπεριφορά χωρίς συμπτώματα διάθεσης.",
+    answer: "Σχιζοφρένεια"
   },
   {
-    "id": "hy_011",
-    "type": "diagnosis",
-    "topic": "Psychotic disorders",
-    "prompt": "Persistent delusions, auditory hallucinations, thought disorder, experiences of external control, disorganized behaviour WITH mood symptoms",
-    "answer": "Schizoaffective disorder"
+    id: "hy_011",
+    type: "diagnosis",
+    topic: "Ψυχωτικές διαταραχές",
+    prompt: "Επίμονες παραληρητικές ιδέες, ακουστικές ψευδαισθήσεις, διαταραχή σκέψης, βιώματα εξωτερικού ελέγχου και αποδιοργανωμένη συμπεριφορά μαζί με συμπτώματα διάθεσης.",
+    answer: "Σχιζοσυναισθηματική διαταραχή"
   },
   {
-    "id": "hy_012",
-    "type": "diagnosis",
-    "topic": "Anxiety disorders",
-    "prompt": "Anxiety symptoms when in a situation from which escape might be difficult, e.g., crowded shop",
-    "answer": "Agoraphobia"
+    id: "hy_012",
+    type: "diagnosis",
+    topic: "Αγχώδεις διαταραχές",
+    prompt: "Άγχος σε καταστάσεις όπου η διαφυγή μπορεί να είναι δύσκολη, όπως μέσα σε πολυσύχναστο κατάστημα.",
+    answer: "Αγοραφοβία"
   },
   {
-    "id": "hy_013",
-    "type": "diagnosis",
-    "topic": "Anxiety disorders",
-    "prompt": "Anxiety symptoms in social situations or when expected to perform in front of others (e.g., giving a speech)",
-    "answer": "Social anxiety disorder"
+    id: "hy_013",
+    type: "diagnosis",
+    topic: "Αγχώδεις διαταραχές",
+    prompt: "Άγχος σε κοινωνικές καταστάσεις ή όταν το άτομο πρέπει να εκτεθεί μπροστά σε άλλους, όπως σε δημόσια ομιλία.",
+    answer: "Κοινωνική αγχώδης διαταραχή"
   },
   {
-    "id": "hy_014",
-    "type": "diagnosis",
-    "topic": "Anxiety disorders",
-    "prompt": "Anxiety symptoms when exposed to one specific stimulus (e.g., spiders, heights)",
-    "answer": "Specific phobia"
+    id: "hy_014",
+    type: "diagnosis",
+    topic: "Αγχώδεις διαταραχές",
+    prompt: "Άγχος μετά από έκθεση σε συγκεκριμένο ερέθισμα, όπως αράχνες ή ύψη.",
+    answer: "Ειδική φοβία"
   },
   {
-    "id": "hy_015",
-    "type": "diagnosis",
-    "topic": "Anxiety disorders",
-    "prompt": "Panic symptoms unrelated to a particular situation",
-    "answer": "Panic disorder"
+    id: "hy_015",
+    type: "diagnosis",
+    topic: "Αγχώδεις διαταραχές",
+    prompt: "Επαναλαμβανόμενα επεισόδια πανικού που δεν περιορίζονται σε μία συγκεκριμένη κατάσταση.",
+    answer: "Διαταραχή πανικού"
   },
   {
-    "id": "hy_016",
-    "type": "diagnosis",
-    "topic": "Anxiety disorders",
-    "prompt": "Free-floating anxiety",
-    "answer": "Generalised anxiety disorder"
+    id: "hy_016",
+    type: "diagnosis",
+    topic: "Αγχώδεις διαταραχές",
+    prompt: "Διάχυτο, επίμονο άγχος που δεν συνδέεται με ένα συγκεκριμένο ερέθισμα.",
+    answer: "Γενικευμένη αγχώδης διαταραχή"
   },
   {
-    "id": "hy_017",
-    "type": "diagnosis",
-    "topic": "Obsessions/compulsions",
-    "prompt": "Ego-dystonic intrusive thoughts, compulsive rituals/behaviours",
-    "answer": "Obsessive-compulsive disorder"
+    id: "hy_017",
+    type: "diagnosis",
+    topic: "Ιδεοληψίες και καταναγκασμοί",
+    prompt: "Εγωδυστονικές παρεισφρητικές σκέψεις και επαναλαμβανόμενες καταναγκαστικές πράξεις ή τελετουργίες.",
+    answer: "Ιδεοψυχαναγκαστική διαταραχή"
   },
   {
-    "id": "hy_018",
-    "type": "diagnosis",
-    "topic": "Obsessions/compulsions",
-    "prompt": "Preoccupation with a perceived defect in personal appearance",
-    "answer": "Body dysmorphic disorder"
+    id: "hy_018",
+    type: "diagnosis",
+    topic: "Ιδεοληψίες και καταναγκασμοί",
+    prompt: "Επίμονη ενασχόληση με αντιλαμβανόμενο ελάττωμα στην εξωτερική εμφάνιση.",
+    answer: "Σωματοδυσμορφική διαταραχή"
   },
   {
-    "id": "hy_019",
-    "type": "diagnosis",
-    "topic": "Reaction to stress",
-    "prompt": "Reexperiencing a previous traumatic event in the present, avoidant behaviour and persistent perceptions of heightened threat",
-    "answer": "Post traumatic stress disorder"
+    id: "hy_019",
+    type: "diagnosis",
+    topic: "Αντίδραση σε στρες",
+    prompt: "Αναβίωση τραυματικού γεγονότος στο παρόν, αποφευκτική συμπεριφορά και επίμονη αίσθηση αυξημένης απειλής.",
+    answer: "Διαταραχή μετατραυματικού στρες"
   },
   {
-    "id": "hy_020",
-    "type": "diagnosis",
-    "topic": "Reaction to stress",
-    "prompt": "Reexperiencing a previous traumatic event in the present, avoidant behaviour and persistent perceptions of heightened threat AND with affect regulation difficulties, low self-worth and difficulties in interpersonal relationships",
-    "answer": "Complex post traumatic stress disorder"
+    id: "hy_020",
+    type: "diagnosis",
+    topic: "Αντίδραση σε στρες",
+    prompt: "Συμπτώματα μετατραυματικού στρες μαζί με δυσκολίες ρύθμισης συναισθήματος, χαμηλή αυτοαξία και δυσκολίες στις διαπροσωπικές σχέσεις.",
+    answer: "Σύνθετη διαταραχή μετατραυματικού στρες"
   },
   {
-    "id": "hy_021",
-    "type": "diagnosis",
-    "topic": "Reaction to stress",
-    "prompt": "Pervasive grief, intense emotional pain, longing for deceased individual, symptoms lasting longer than cultural norms",
-    "answer": "Prolonged grief disorder"
+    id: "hy_021",
+    type: "diagnosis",
+    topic: "Αντίδραση σε στρες",
+    prompt: "Παρατεταμένο πένθος, έντονος ψυχικός πόνος, λαχτάρα για τον αποθανόντα και διάρκεια πέρα από τις πολιτισμικά αναμενόμενες νόρμες.",
+    answer: "Παρατεταμένη διαταραχή πένθους"
   },
   {
-    "id": "hy_022",
-    "type": "diagnosis",
-    "topic": "Abnormal response to physical symptoms",
-    "prompt": "Significant distress related to physical symptoms that have no identified physical cause",
-    "answer": "Bodily distress disorder"
+    id: "hy_022",
+    type: "diagnosis",
+    topic: "Σωματικά συμπτώματα",
+    prompt: "Σημαντική δυσφορία που σχετίζεται με σωματικά συμπτώματα χωρίς επαρκώς τεκμηριωμένη οργανική αιτία.",
+    answer: "Διαταραχή σωματικής δυσφορίας"
   },
   {
-    "id": "hy_023",
-    "type": "diagnosis",
-    "topic": "Abnormal response to physical symptoms",
-    "prompt": "Concern about having a serious illness with associated excessive health-related behaviours",
-    "answer": "Hypochondriasis"
+    id: "hy_023",
+    type: "diagnosis",
+    topic: "Σωματικά συμπτώματα",
+    prompt: "Έντονη ανησυχία ότι το άτομο πάσχει από σοβαρή νόσο, με υπερβολικές συμπεριφορές ελέγχου της υγείας.",
+    answer: "Υποχονδρίαση"
   },
   {
-    "id": "hy_024",
-    "type": "diagnosis",
-    "topic": "Eating or weight problems",
-    "prompt": "Low body weight, amenorrhea, lanugo hair",
-    "answer": "Anorexia nervosa"
+    id: "hy_024",
+    type: "diagnosis",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Χαμηλό σωματικό βάρος, αμηνόρροια και λεπτό χνούδι τύπου lanugo.",
+    answer: "Νευρογενής ανορεξία"
   },
   {
-    "id": "hy_025",
-    "type": "diagnosis",
-    "topic": "Eating or weight problems",
-    "prompt": "Normal or increased body weight, binge-purging",
-    "answer": "Bulimia"
+    id: "hy_025",
+    type: "diagnosis",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Φυσιολογικό ή αυξημένο βάρος, επεισόδια υπερφαγίας και αντιρροπιστικές συμπεριφορές κάθαρσης.",
+    answer: "Νευρογενής βουλιμία"
   },
   {
-    "id": "hy_026",
-    "type": "diagnosis",
-    "topic": "Eating or weight problems",
-    "prompt": "Normal or increased body weight, binging without purging",
-    "answer": "Binge eating disorder"
+    id: "hy_026",
+    type: "diagnosis",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Φυσιολογικό ή αυξημένο βάρος και επεισόδια υπερφαγίας χωρίς αντιρροπιστικές συμπεριφορές κάθαρσης.",
+    answer: "Διαταραχή επεισοδιακής υπερφαγίας"
   },
   {
-    "id": "hy_027",
-    "type": "diagnosis",
-    "topic": "Alcohol/substance use",
-    "prompt": "Tremors, nausea, vomiting, tachycardia, increased anxiety, seizures/hallucinations",
-    "answer": "Alcohol withdrawal"
+    id: "hy_027",
+    type: "diagnosis",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Τρόμος, ναυτία, έμετοι, ταχυκαρδία, αυξημένο άγχος, σπασμοί ή ψευδαισθήσεις μετά από διακοπή χρήσης.",
+    answer: "Στερητικό σύνδρομο αλκοόλ"
   },
   {
-    "id": "hy_028",
-    "type": "diagnosis",
-    "topic": "Alcohol/substance use",
-    "prompt": "Altered conscious level, confusion and hallucinations approximately 48 hours after admission",
-    "answer": "Delirium tremens"
+    id: "hy_028",
+    type: "diagnosis",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Διαταραχή επιπέδου συνείδησης, σύγχυση και ψευδαισθήσεις περίπου 48 ώρες μετά την εισαγωγή.",
+    answer: "Τρομώδες παραλήρημα"
   },
   {
-    "id": "hy_029",
-    "type": "diagnosis",
-    "topic": "Alcohol/substance use",
-    "prompt": "Ataxia, ophthalmoplegia and acute cognitive impairment",
-    "answer": "Wernicke encephalopathy"
+    id: "hy_029",
+    type: "diagnosis",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Αταξία, οφθαλμοπληγία και οξεία γνωστική διαταραχή.",
+    answer: "Εγκεφαλοπάθεια Wernicke"
   },
   {
-    "id": "hy_030",
-    "type": "diagnosis",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Acute and fluctuating confusion with impaired cognition and sleep/wake cycle",
-    "answer": "Delirium"
+    id: "hy_030",
+    type: "diagnosis",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Οξεία και κυμαινόμενη σύγχυση με γνωστική έκπτωση και διαταραχή του κύκλου ύπνου-εγρήγορσης.",
+    answer: "Delirium"
   },
   {
-    "id": "hy_031",
-    "type": "diagnosis",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Gradual onset, executive functioning and progressive memory problems, word finding difficulties and functional impairment",
-    "answer": "Alzheimer dementia"
+    id: "hy_031",
+    type: "diagnosis",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Σταδιακή έναρξη με εκτελεστική δυσλειτουργία, προοδευτικά προβλήματα μνήμης, δυσκολία εύρεσης λέξεων και λειτουργική έκπτωση.",
+    answer: "Άνοια τύπου Alzheimer"
   },
   {
-    "id": "hy_032",
-    "type": "diagnosis",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Stepwise deterioration in memory and functioning",
-    "answer": "Vascular dementia"
+    id: "hy_032",
+    type: "diagnosis",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Κλιμακωτή επιδείνωση της μνήμης και της λειτουργικότητας.",
+    answer: "Αγγειακή άνοια"
   },
   {
-    "id": "hy_033",
-    "type": "diagnosis",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Parkinsonism, visual hallucinations, fluctuating cognition",
-    "answer": "Lewy body dementia"
+    id: "hy_033",
+    type: "diagnosis",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Παρκινσονισμός, οπτικές ψευδαισθήσεις και κυμαινόμενη γνωστική λειτουργία.",
+    answer: "Άνοια με σωμάτια Lewy"
   },
   {
-    "id": "hy_034",
-    "type": "diagnosis",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Significant personality and behaviour change, language problems, apathy, emotional blunting",
-    "answer": "Frontotemporal dementia"
+    id: "hy_034",
+    type: "diagnosis",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Σημαντική αλλαγή προσωπικότητας και συμπεριφοράς, γλωσσικές δυσκολίες, απάθεια και συναισθηματική άμβλυνση.",
+    answer: "Μετωποκροταφική άνοια"
   },
   {
-    "id": "hy_035",
-    "type": "management",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "Attention deficit hyperactivity disorder (ADHD) in <18s",
-    "answer": "Parent training programme (1st line); methylphenidate (2nd line)"
+    id: "hy_035",
+    type: "management",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "ΔΕΠΥ σε άτομο κάτω των 18 ετών.",
+    answer: "Εκπαίδευση / πρόγραμμα γονέων ως πρώτη γραμμή. Μεθυλφαινιδάτη ως επόμενη φαρμακευτική επιλογή όταν ενδείκνυται."
   },
   {
-    "id": "hy_036",
-    "type": "management",
-    "topic": "Neurodevelopmental disorders",
-    "prompt": "Attention deficit hyperactivity disorder (ADHD) in >18s",
-    "answer": "Methylphenidate or lisdexamfetamine"
+    id: "hy_036",
+    type: "management",
+    topic: "Νευροαναπτυξιακές διαταραχές",
+    prompt: "ΔΕΠΥ σε ενήλικα.",
+    answer: "Μεθυλφαινιδάτη ή λισδεξαμφεταμίνη."
   },
   {
-    "id": "hy_037",
-    "type": "management",
-    "topic": "Mood disorders",
-    "prompt": "Acute mania in >18s",
-    "answer": "Haloperidol, olanzapine, risperidone or quetiapine"
+    id: "hy_037",
+    type: "management",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Οξεία μανία σε ενήλικα.",
+    answer: "Αντιψυχωσικό όπως αλοπεριδόλη, ολανζαπίνη, ρισπεριδόνη ή κουετιαπίνη."
   },
   {
-    "id": "hy_038",
-    "type": "management",
-    "topic": "Mood disorders",
-    "prompt": "Bipolar affective disorder – long-term management",
-    "answer": "Lithium (1st line); valproate (2nd line if patient >55/not of childbearing potential)"
+    id: "hy_038",
+    type: "management",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Μακροχρόνια αντιμετώπιση διπολικής διαταραχής.",
+    answer: "Λίθιο ως θεραπεία πρώτης γραμμής. Βαλπροϊκό ως εναλλακτική σε επιλεγμένους ασθενείς, αποφεύγοντας ιδιαίτερα γυναίκες αναπαραγωγικής ηλικίας."
   },
   {
-    "id": "hy_039",
-    "type": "management",
-    "topic": "Mood disorders",
-    "prompt": "Choosing an antidepressant in <18s",
-    "answer": "Fluoxetine"
+    id: "hy_039",
+    type: "management",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Επιλογή αντικαταθλιπτικού σε άτομο κάτω των 18 ετών.",
+    answer: "Φλουοξετίνη."
   },
   {
-    "id": "hy_040",
-    "type": "management",
-    "topic": "Mood disorders",
-    "prompt": "Treatment of less severe depression in >18s",
-    "answer": "Psychological therapy"
+    id: "hy_040",
+    type: "management",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Αντιμετώπιση ηπιότερης κατάθλιψης σε ενήλικα.",
+    answer: "Ψυχολογική θεραπεία."
   },
   {
-    "id": "hy_041",
-    "type": "management",
-    "topic": "Mood disorders",
-    "prompt": "Treatment of more severe depression in >18s",
-    "answer": "Psychological therapy + SSRI"
+    id: "hy_041",
+    type: "management",
+    topic: "Διαταραχές διάθεσης",
+    prompt: "Αντιμετώπιση πιο σοβαρής κατάθλιψης σε ενήλικα.",
+    answer: "Ψυχολογική θεραπεία σε συνδυασμό με SSRI."
   },
   {
-    "id": "hy_042",
-    "type": "management",
-    "topic": "Psychotic disorders",
-    "prompt": "Schizophrenia",
-    "answer": "Atypical antipsychotic"
+    id: "hy_042",
+    type: "management",
+    topic: "Ψυχωτικές διαταραχές",
+    prompt: "Σχιζοφρένεια.",
+    answer: "Αντιψυχωσικό δεύτερης γενιάς, με επιλογή βάσει αποτελεσματικότητας, ανεπιθύμητων ενεργειών, προηγούμενης ανταπόκρισης και προτίμησης του ασθενούς."
   },
   {
-    "id": "hy_043",
-    "type": "management",
-    "topic": "Psychotic disorders",
-    "prompt": "Schizoaffective disorder",
-    "answer": "Atypical antipsychotic"
+    id: "hy_043",
+    type: "management",
+    topic: "Ψυχωτικές διαταραχές",
+    prompt: "Σχιζοσυναισθηματική διαταραχή.",
+    answer: "Αντιψυχωσικό δεύτερης γενιάς. Προσθήκη θεραπείας διάθεσης ανάλογα με την επικρατούσα καταθλιπτική ή μανιακή συμπτωματολογία."
   },
   {
-    "id": "hy_044",
-    "type": "management",
-    "topic": "Obsessions/compulsions",
-    "prompt": "Obsessive-compulsive disorder with mild functional impairment",
-    "answer": "CBT with ERP"
+    id: "hy_044",
+    type: "management",
+    topic: "Ιδεοληψίες και καταναγκασμοί",
+    prompt: "Ιδεοψυχαναγκαστική διαταραχή με ήπια λειτουργική έκπτωση.",
+    answer: "Γνωσιακή-συμπεριφορική θεραπεία με έκθεση και παρεμπόδιση απάντησης."
   },
   {
-    "id": "hy_045",
-    "type": "management",
-    "topic": "Obsessions/compulsions",
-    "prompt": "Obsessive-compulsive disorder with moderate/severe functional impairment",
-    "answer": "CBT with ERP + SSRI"
+    id: "hy_045",
+    type: "management",
+    topic: "Ιδεοληψίες και καταναγκασμοί",
+    prompt: "Ιδεοψυχαναγκαστική διαταραχή με μέτρια ή σοβαρή λειτουργική έκπτωση.",
+    answer: "Γνωσιακή-συμπεριφορική θεραπεία με έκθεση και παρεμπόδιση απάντησης σε συνδυασμό με SSRI."
   },
   {
-    "id": "hy_046",
-    "type": "management",
-    "topic": "Reaction to stress",
-    "prompt": "Post traumatic stress disorder",
-    "answer": "Trauma-focused CBT"
+    id: "hy_046",
+    type: "management",
+    topic: "Αντίδραση σε στρες",
+    prompt: "Διαταραχή μετατραυματικού στρες.",
+    answer: "Τραυματοεστιασμένη γνωσιακή-συμπεριφορική θεραπεία."
   },
   {
-    "id": "hy_047",
-    "type": "management",
-    "topic": "Eating or weight problems",
-    "prompt": "Anorexia nervosa in <18s",
-    "answer": "Family-based treatment (FBT; 1st line), individual eating-disorder-focused cognitive behavioural therapy (CBT-ED; 2nd line)"
+    id: "hy_047",
+    type: "management",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Νευρογενής ανορεξία σε άτομο κάτω των 18 ετών.",
+    answer: "Οικογενειακή θεραπεία για διατροφικές διαταραχές ως πρώτη επιλογή. Εναλλακτικά ατομική γνωσιακή-συμπεριφορική θεραπεία εστιασμένη στη διατροφική διαταραχή."
   },
   {
-    "id": "hy_048",
-    "type": "management",
-    "topic": "Eating or weight problems",
-    "prompt": "Anorexia nervosa in >18s",
-    "answer": "Individual eating-disorder-focused cognitive behavioural therapy (CBT-ED), Maudsley anorexia nervosa treatment for adults (MANTRA) or specialist supportive clinical management (SSCM)"
+    id: "hy_048",
+    type: "management",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Νευρογενής ανορεξία σε ενήλικα.",
+    answer: "Ατομική γνωσιακή-συμπεριφορική θεραπεία εστιασμένη στη διατροφική διαταραχή, MANTRA ή εξειδικευμένη υποστηρικτική κλινική διαχείριση."
   },
   {
-    "id": "hy_049",
-    "type": "management",
-    "topic": "Eating or weight problems",
-    "prompt": "Bulimia nervosa in <18s",
-    "answer": "FBT"
+    id: "hy_049",
+    type: "management",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Νευρογενής βουλιμία σε άτομο κάτω των 18 ετών.",
+    answer: "Οικογενειακή θεραπεία για διατροφικές διαταραχές."
   },
   {
-    "id": "hy_050",
-    "type": "management",
-    "topic": "Eating or weight problems",
-    "prompt": "Bulimia nervosa in >18s",
-    "answer": "CBT-ED"
+    id: "hy_050",
+    type: "management",
+    topic: "Διατροφικές διαταραχές",
+    prompt: "Νευρογενής βουλιμία σε ενήλικα.",
+    answer: "Γνωσιακή-συμπεριφορική θεραπεία εστιασμένη στη διατροφική διαταραχή."
   },
   {
-    "id": "hy_051",
-    "type": "management",
-    "topic": "Alcohol/substance use",
-    "prompt": "Alcohol withdrawal",
-    "answer": "Supportive management, benzodiazepines, Pabrinex"
+    id: "hy_051",
+    type: "management",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Στερητικό σύνδρομο αλκοόλ.",
+    answer: "Υποστηρικτική αντιμετώπιση, βενζοδιαζεπίνες και παρεντερική θειαμίνη."
   },
   {
-    "id": "hy_052",
-    "type": "management",
-    "topic": "Alcohol/substance use",
-    "prompt": "Wernicke encephalopathy",
-    "answer": "Pabrinex"
+    id: "hy_052",
+    type: "management",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Εγκεφαλοπάθεια Wernicke.",
+    answer: "Άμεση παρεντερική θειαμίνη."
   },
   {
-    "id": "hy_053",
-    "type": "management",
-    "topic": "Alcohol/substance use",
-    "prompt": "Opioid dependence",
-    "answer": "Harm reduction, methadone or buprenorphine"
+    id: "hy_053",
+    type: "management",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Εξάρτηση από οπιοειδή.",
+    answer: "Μείωση βλάβης και θεραπεία υποκατάστασης με μεθαδόνη ή βουπρενορφίνη."
   },
   {
-    "id": "hy_054",
-    "type": "management",
-    "topic": "Alcohol/substance use",
-    "prompt": "Opioid overdose",
-    "answer": "Naloxone"
+    id: "hy_054",
+    type: "management",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Υπερδοσολογία οπιοειδών.",
+    answer: "Ναλοξόνη."
   },
   {
-    "id": "hy_055",
-    "type": "management",
-    "topic": "Alcohol/substance use",
-    "prompt": "Alcohol dependence",
-    "answer": "Psychological intervention, acamprosate, naltrexone – 1st line, disulfiram – 2nd line"
+    id: "hy_055",
+    type: "management",
+    topic: "Ουσίες και αλκοόλ",
+    prompt: "Εξάρτηση από αλκοόλ.",
+    answer: "Ψυχολογική παρέμβαση. Ακαμπροσάτη ή ναλτρεξόνη ως βασικές φαρμακευτικές επιλογές πρόληψης υποτροπής. Δισουλφιράμη σε επιλεγμένες περιπτώσεις."
   },
   {
-    "id": "hy_056",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Delirium",
-    "answer": "Identify and treat underlying cause"
+    id: "hy_056",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Delirium.",
+    answer: "Αναγνώριση και αντιμετώπιση της υποκείμενης αιτίας."
   },
   {
-    "id": "hy_057",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Distress in delirium",
-    "answer": "Identify and treat underlying cause, verbal and nonverbal de-escalation if distressed – 1st line, short-term low dose haloperidol – 2nd line"
+    id: "hy_057",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Έντονη δυσφορία ή διέγερση σε delirium.",
+    answer: "Αναζήτηση και θεραπεία της υποκείμενης αιτίας. Λεκτική και μη λεκτική αποκλιμάκωση ως πρώτη γραμμή. Βραχυχρόνια χαμηλή δόση αλοπεριδόλης μόνο όταν είναι απαραίτητο."
   },
   {
-    "id": "hy_058",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Alzheimer dementia",
-    "answer": "Acetylcholinesterase inhibitors, e.g., donepezil/rivastigmine/galantamine – 1st line, memantine – 2nd line"
+    id: "hy_058",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Άνοια τύπου Alzheimer.",
+    answer: "Αναστολέας ακετυλοχολινεστεράσης όπως δονεπεζίλη, ριβαστιγμίνη ή γαλανταμίνη. Μεμαντίνη σε μέτρια-σοβαρή νόσο ή όταν οι αναστολείς δεν είναι κατάλληλοι."
   },
   {
-    "id": "hy_059",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Vascular dementia",
-    "answer": "No specific pharmacological treatment"
+    id: "hy_059",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Αγγειακή άνοια.",
+    answer: "Δεν υπάρχει ειδική φαρμακευτική θεραπεία για την άνοια. Έμφαση στον έλεγχο αγγειακών παραγόντων κινδύνου και στη λειτουργική υποστήριξη."
   },
   {
-    "id": "hy_060",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Dementia with Lewy bodies",
-    "answer": "Rivastigmine or donepezil"
+    id: "hy_060",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Άνοια με σωμάτια Lewy.",
+    answer: "Ριβαστιγμίνη ή δονεπεζίλη. Προσοχή στην ευαισθησία στα αντιψυχωσικά."
   },
   {
-    "id": "hy_061",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Frontotemporal dementia",
-    "answer": "No specific pharmacological treatment"
+    id: "hy_061",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Μετωποκροταφική άνοια.",
+    answer: "Δεν υπάρχει ειδική φαρμακευτική θεραπεία. Έμφαση στην εκπαίδευση φροντιστών, στη διαχείριση συμπεριφοράς και στην υποστήριξη."
   },
   {
-    "id": "hy_062",
-    "type": "management",
-    "topic": "Impairment in cognition/consciousness",
-    "prompt": "Symptoms of stress and distress in dementia",
-    "answer": "Exclude physical or environmental cause, verbal and nonverbal de-escalation – 1st line, risperidone – 2nd line (except in Lewy body dementia or Parkinson dementia)"
+    id: "hy_062",
+    type: "management",
+    topic: "Γνωστικές διαταραχές",
+    prompt: "Συμπτώματα στρες, δυσφορίας ή συμπεριφορικής απορρύθμισης σε άνοια.",
+    answer: "Αποκλεισμός σωματικής ή περιβαλλοντικής αιτίας. Λεκτική και μη λεκτική αποκλιμάκωση ως πρώτη γραμμή. Ρισπεριδόνη μόνο βραχυχρόνια και όταν είναι απαραίτητο, όχι σε άνοια με σωμάτια Lewy ή άνοια Parkinson."
   }
 ];
 
