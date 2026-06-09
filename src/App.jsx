@@ -3651,6 +3651,40 @@ const STYLES = `
     margin-bottom: 10px;
   }
 
+  .wrong-full-btn {
+    margin-left: auto;
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent-light);
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .wrong-full-btn:hover {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.16);
+  }
+
+  .written-full-question {
+    background: transparent;
+  }
+
+  .written-full-question-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .written-full-question .question-num {
+    margin-bottom: 0;
+  }
+
   .wrong-question-stem {
     color: var(--text);
     font-size: 16px;
@@ -4607,6 +4641,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
+  const [writtenWrongFullItem, setWrittenWrongFullItem] = useState(null);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
@@ -4796,8 +4831,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     }
   };
 
-  const submitMcqFeedback = async (feedbackType, feedbackComment = "") => {
-    if (!q || feedbackSavingType) return;
+  const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
+    if (!feedbackQuestion || feedbackSavingType) return;
     const normalizedComment = typeof feedbackComment === "string"
       ? feedbackComment.trim().slice(0, 500)
       : "";
@@ -4806,10 +4841,10 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setFeedbackSavingType(feedbackType);
     setFeedbackStatus(null);
     try {
-      await saveMcqFeedback(q.id, feedbackType, {
-        questionTextSnapshot: getMcqStem(q),
-        topic: getQuestionTopic(q),
-        subtopic: getPrimaryWeakArea(q),
+      await saveMcqFeedback(feedbackQuestion.id, feedbackType, {
+        questionTextSnapshot: getMcqStem(feedbackQuestion),
+        topic: getQuestionTopic(feedbackQuestion),
+        subtopic: getPrimaryWeakArea(feedbackQuestion),
         feedbackComment: normalizedComment,
       });
       setFeedbackMenuOpen(false);
@@ -4822,6 +4857,151 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     } finally {
       setFeedbackSavingType(null);
     }
+  };
+
+  const renderMcqFeedbackControls = (feedbackQuestion = q) => (
+    <div className="mcq-feedback-controls">
+      <div className="mcq-feedback">
+        <button
+          type="button"
+          className="mcq-feedback-btn"
+          onClick={() => {
+            if (feedbackMenuOpen) {
+              setFeedbackCommentOpen(false);
+              setFeedbackCommentText("");
+            }
+            setFeedbackMenuOpen(open => !open);
+            setFeedbackStatus(null);
+          }}
+          disabled={Boolean(feedbackSavingType)}
+        >
+          Feedback
+        </button>
+        {feedbackMenuOpen && (
+          <div className="mcq-feedback-menu">
+            {MCQ_FEEDBACK_OPTIONS.map(option => (
+              <button
+                key={option.value}
+                type="button"
+                className="mcq-feedback-option"
+                onClick={() => submitMcqFeedback(option.value, "", feedbackQuestion)}
+                disabled={Boolean(feedbackSavingType)}
+              >
+                {feedbackSavingType === option.value ? "Saving..." : option.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="mcq-feedback-option"
+              onClick={() => {
+                setFeedbackCommentOpen(open => !open);
+                setFeedbackStatus(null);
+              }}
+              disabled={Boolean(feedbackSavingType)}
+            >
+              Σχόλιο
+            </button>
+            {feedbackCommentOpen && (
+              <div className="mcq-feedback-comment">
+                <textarea
+                  value={feedbackCommentText}
+                  onChange={event => setFeedbackCommentText(event.target.value.slice(0, 500))}
+                  placeholder="Σύντομο σχόλιο..."
+                  maxLength={500}
+                  disabled={Boolean(feedbackSavingType)}
+                />
+                <div className="mcq-feedback-comment-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFeedbackCommentOpen(false);
+                      setFeedbackCommentText("");
+                    }}
+                    disabled={Boolean(feedbackSavingType)}
+                  >
+                    Άκυρο
+                  </button>
+                  <button
+                    type="button"
+                    className="primary"
+                    onClick={() => submitMcqFeedback("comment", feedbackCommentText, feedbackQuestion)}
+                    disabled={Boolean(feedbackSavingType) || !feedbackCommentText.trim()}
+                  >
+                    {feedbackSavingType === "comment" ? "Saving..." : "Αποθήκευση"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        className="mcq-quality-btn up"
+        title="Καλή ερώτηση"
+        aria-label="Καλή ερώτηση"
+        onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.up, "", feedbackQuestion)}
+        disabled={Boolean(feedbackSavingType)}
+      >
+        <Icons.ThumbsUp />
+      </button>
+      <button
+        type="button"
+        className="mcq-quality-btn down"
+        title="Προβληματική ερώτηση"
+        aria-label="Προβληματική ερώτηση"
+        onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.down, "", feedbackQuestion)}
+        disabled={Boolean(feedbackSavingType)}
+      >
+        <Icons.ThumbsDown />
+      </button>
+    </div>
+  );
+
+  const renderLockedWrittenQuestion = (item) => {
+    const question = item.question;
+    const orderedOptions = getStoredOptionOrder(question, optionOrders).map(originalIndex => ({
+      originalIndex,
+      text: question.options[originalIndex],
+    }));
+
+    return (
+      <div className="written-full-question">
+        <div className="written-full-question-head">
+          <div>
+            <div className="question-num">Question {question.id}</div>
+          </div>
+          {renderMcqFeedbackControls(question)}
+        </div>
+        {feedbackStatus && (
+          <div className={`mcq-feedback-message ${feedbackStatus.type}`}>
+            {feedbackStatus.message}
+          </div>
+        )}
+        <div className="question-stem">{getMcqStem(question)}</div>
+        <div className="options-list">
+          {orderedOptions.map((option, i) => {
+            const originalIndex = option.originalIndex;
+            const letter = String.fromCharCode(913 + i);
+            let cls = "option-btn locked";
+            if (originalIndex === question.correct) cls += " correct";
+            else if (originalIndex === item.selected && originalIndex !== question.correct) cls += " incorrect";
+            return (
+              <button key={originalIndex} className={cls} type="button" aria-disabled="true">
+                <span className="option-letter">
+                  {originalIndex === question.correct ? <Icons.Check /> :
+                   originalIndex === item.selected && originalIndex !== question.correct ? <Icons.X /> : letter}
+                </span>
+                <span>{option.text}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="explanation-box">
+          <strong>Explanation</strong>{question.explanation}
+        </div>
+      </div>
+    );
   };
 
   const submitWrittenExam = useCallback((forceSubmit = false) => {
@@ -4892,6 +5072,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setLocked({});
     setWrittenResult(null);
     setReviewWrittenWrong(false);
+    setWrittenWrongFullItem(null);
     setShowWrittenSubmitWarning(false);
     setWrittenSubmitError(null);
     setWrittenDraftChoice("active");
@@ -4974,6 +5155,32 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
   }
 
   if (mode === "written" && writtenResult && reviewWrittenWrong) {
+    if (writtenWrongFullItem) {
+      return (
+        <div className="test-container written-review fade-in">
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+            <button
+              className="back-link"
+              style={{ marginBottom: 0 }}
+              onClick={() => {
+                setWrittenWrongFullItem(null);
+                setFeedbackMenuOpen(false);
+                setFeedbackStatus(null);
+                setFeedbackCommentOpen(false);
+                setFeedbackCommentText("");
+              }}
+            >
+              <Icons.ChevronLeft /> Wrong answer review
+            </button>
+            <button className="home-btn" onClick={onHome}>
+              <Icons.Home /> Home
+            </button>
+          </div>
+          {renderLockedWrittenQuestion(writtenWrongFullItem)}
+        </div>
+      );
+    }
+
     return (
       <div className="test-container written-review fade-in">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
@@ -5001,6 +5208,19 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                   <div className="wrong-answer-topline">
                     <span>Question {index + 1}</span>
                     <span>Bank ID {question.id}</span>
+                    <button
+                      type="button"
+                      className="wrong-full-btn"
+                      onClick={() => {
+                        setWrittenWrongFullItem(item);
+                        setFeedbackMenuOpen(false);
+                        setFeedbackStatus(null);
+                        setFeedbackCommentOpen(false);
+                        setFeedbackCommentText("");
+                      }}
+                    >
+                      Full question
+                    </button>
                   </div>
                   <div className="wrong-question-stem">{getMcqStem(question)}</div>
                   <div className="written-answer-row incorrect">
@@ -5070,52 +5290,6 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
             <strong>{writtenResult.unanswered}</strong>
             <span>Unanswered</span>
           </div>
-        </div>
-
-        <div className="written-breakdown-grid">
-          <div className="written-breakdown">
-            <h3>Topic Breakdown</h3>
-            {writtenResult.topicBreakdown.map(row => (
-              <div className="breakdown-row" key={row.label}>
-                <span>{row.label}</span>
-                <strong>{row.correct}/{row.total} ({row.percent}%)</strong>
-              </div>
-            ))}
-          </div>
-          <div className="written-breakdown">
-            <h3>Weak-Area Breakdown</h3>
-            {writtenResult.weakAreaBreakdown.map(row => (
-              <div className="breakdown-row" key={row.label}>
-                <span>{row.label}</span>
-                <strong>{row.correct}/{row.total} ({row.percent}%)</strong>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="written-breakdown">
-          <h3>Wrong Answers</h3>
-          {writtenResult.wrongItems.length === 0 ? (
-            <div className="breakdown-row">
-              <span>No wrong answers</span>
-              <strong>-</strong>
-            </div>
-          ) : (
-            writtenResult.wrongItems.slice(0, 12).map(item => (
-              <div className="breakdown-row" key={item.question.id}>
-                <span>Question {item.question.id}: {getQuestionTopic(item.question)}</span>
-                <strong>
-                  {getDisplayedOptionLetter(item.question, item.selected, optionOrders)} to {getDisplayedOptionLetter(item.question, item.question.correct, optionOrders)}
-                </strong>
-              </div>
-            ))
-          )}
-          {writtenResult.wrongItems.length > 12 && (
-            <div className="breakdown-row">
-              <span>Additional wrong answers</span>
-              <strong>{writtenResult.wrongItems.length - 12}</strong>
-            </div>
-          )}
         </div>
 
         <div className="results-actions">
