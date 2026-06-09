@@ -96,6 +96,9 @@ const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "";
 const ONLINE_PROFILES_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SUPABASE_PROFILE_TABLE = "study_profiles";
+const SUPABASE_APP_SETTINGS_TABLE = "app_settings";
+const UPDATE_MESSAGE_SETTING_KEY = "home_update_message";
+const DEFAULT_UPDATE_MESSAGE = "\u039c\u03bf\u03b9\u03c1\u03b1\u03c3\u03c4\u03b5\u03af\u03c4\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c6\u03b1\u03c1\u03bc\u03bf\u03b3\u03ae \u03c5\u03c0\u03b5\u03cd\u03b8\u03b7\u03bd\u03b1.";
 const MASTERY_STREAK_TARGET = 3;
 const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
@@ -647,6 +650,36 @@ async function supabaseTableRequest(tableName, searchParams = {}, options = {}) 
   const body = await response.text();
   if (!body) return null;
   return JSON.parse(body);
+}
+
+async function loadRemoteUpdateMessage() {
+  const rows = await supabaseTableRequest(SUPABASE_APP_SETTINGS_TABLE, {
+    select: "key,value,updated_at",
+    key: `eq.${UPDATE_MESSAGE_SETTING_KEY}`,
+    limit: "1",
+  });
+  const value = rows?.[0]?.value;
+  return typeof value === "string" && value.trim()
+    ? value.trim()
+    : DEFAULT_UPDATE_MESSAGE;
+}
+
+async function saveRemoteUpdateMessage(message) {
+  const value = String(message || "").trim() || DEFAULT_UPDATE_MESSAGE;
+  await supabaseTableRequest(
+    SUPABASE_APP_SETTINGS_TABLE,
+    { on_conflict: "key" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        key: UPDATE_MESSAGE_SETTING_KEY,
+        value,
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+  return value;
 }
 
 async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
@@ -2327,11 +2360,48 @@ const STYLES = `
     color: #bfdbfe;
     font-size: 13px;
     line-height: 1.4;
+    font-family: inherit;
+    cursor: pointer;
   }
 
   .home-update-note strong {
     color: #dbeafe;
     font-weight: 700;
+  }
+
+  .home-update-editor {
+    width: min(520px, calc(100vw - 48px));
+    margin: 0 auto 14px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+  }
+
+  .home-update-editor textarea {
+    width: 100%;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .home-update-editor-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .home-update-status {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin: -6px auto 12px;
   }
 
   .profile-bar {
@@ -4791,22 +4861,81 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
   );
 }
 
-function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
+function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage }) {
+  const [updateClickCount, setUpdateClickCount] = useState(0);
+  const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
+  const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
+  const [isSavingUpdate, setIsSavingUpdate] = useState(false);
+  const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
   const sections = [
     { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
     { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
     { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, πίνακες, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
   ];
 
+  useEffect(() => {
+    setUpdateDraft(updateMessage || DEFAULT_UPDATE_MESSAGE);
+  }, [updateMessage]);
+
+  const handleUpdateNoteClick = () => {
+    setUpdateClickCount(count => {
+      const next = count + 1;
+      if (next >= 5) {
+        setIsUpdateEditorOpen(true);
+        setUpdateEditorStatus(null);
+        return 0;
+      }
+      return next;
+    });
+  };
+
+  const handleSaveUpdateMessage = async (event) => {
+    event.preventDefault();
+    setIsSavingUpdate(true);
+    setUpdateEditorStatus(null);
+    try {
+      await onSaveUpdateMessage(updateDraft);
+      setUpdateEditorStatus('Saved.');
+      setIsUpdateEditorOpen(false);
+    } catch {
+      setUpdateEditorStatus('Could not save update message.');
+    } finally {
+      setIsSavingUpdate(false);
+    }
+  };
+
   return (
     <div className="home fade-in">
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
         <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
-        <div className="home-update-note">
+        <button className="home-update-note" type="button" onClick={handleUpdateNoteClick}>
           <strong>Update:</strong>
-          <span>Μοιραστείτε την εφαρμογή υπεύθηνα.</span>
-        </div>
+          <span>{updateMessage || DEFAULT_UPDATE_MESSAGE}</span>
+        </button>
+        {updateMessageStatus === 'offline' && (
+          <div className="home-update-status">Local update message shown.</div>
+        )}
+        {isUpdateEditorOpen && (
+          <form className="home-update-editor" onSubmit={handleSaveUpdateMessage}>
+            <textarea
+              value={updateDraft}
+              onChange={event => setUpdateDraft(event.target.value)}
+              maxLength={180}
+              rows={3}
+              autoFocus
+            />
+            <div className="home-update-editor-actions">
+              <button className="nav-btn primary" type="submit" disabled={isSavingUpdate}>
+                {isSavingUpdate ? 'Saving...' : 'Save update'}
+              </button>
+              <button className="nav-btn" type="button" onClick={() => setIsUpdateEditorOpen(false)}>
+                Cancel
+              </button>
+            </div>
+            {updateEditorStatus && <div className="home-update-status">{updateEditorStatus}</div>}
+          </form>
+        )}
         <div className="profile-bar">
           <span>{profileName}</span>
           <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
@@ -7118,6 +7247,8 @@ export default function App() {
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
+  const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const remoteSaveTimerRef = useRef(null);
@@ -7142,6 +7273,41 @@ export default function App() {
   useEffect(() => {
     saveProfileStore(profileStore);
   }, [profileStore]);
+
+  useEffect(() => {
+    if (!ONLINE_PROFILES_ENABLED) {
+      setUpdateMessage(DEFAULT_UPDATE_MESSAGE);
+      setUpdateMessageStatus("local");
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadUpdateMessage(silent = false) {
+      if (!silent) setUpdateMessageStatus("loading");
+      try {
+        const message = await loadRemoteUpdateMessage();
+        if (cancelled) return;
+        setUpdateMessage(message);
+        setUpdateMessageStatus("online");
+      } catch {
+        if (cancelled) return;
+        setUpdateMessage(DEFAULT_UPDATE_MESSAGE);
+        setUpdateMessageStatus("offline");
+      }
+    }
+
+    loadUpdateMessage();
+    const refreshUpdateMessage = () => loadUpdateMessage(true);
+    const refreshTimer = window.setInterval(refreshUpdateMessage, 120000);
+    window.addEventListener("focus", refreshUpdateMessage);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(refreshTimer);
+      window.removeEventListener("focus", refreshUpdateMessage);
+    };
+  }, []);
 
   useEffect(() => {
     if (!ONLINE_PROFILES_ENABLED) return;
@@ -7286,6 +7452,26 @@ export default function App() {
     }
   }, [profileStore.profiles]);
 
+  const handleSaveUpdateMessage = useCallback(async (message) => {
+    const nextMessage = String(message || "").trim() || DEFAULT_UPDATE_MESSAGE;
+    if (!ONLINE_PROFILES_ENABLED) {
+      setUpdateMessage(nextMessage);
+      setUpdateMessageStatus("local");
+      return nextMessage;
+    }
+
+    setUpdateMessageStatus("saving");
+    try {
+      const savedMessage = await saveRemoteUpdateMessage(nextMessage);
+      setUpdateMessage(savedMessage);
+      setUpdateMessageStatus("online");
+      return savedMessage;
+    } catch (error) {
+      setUpdateMessageStatus("offline");
+      throw error;
+    }
+  }, []);
+
   const updateMcqProgress = useCallback((nextOrUpdater) => {
     const profileId = profileStore.activeProfileId;
     const profile = profileId ? profileStore.profiles[profileId] : null;
@@ -7428,6 +7614,9 @@ export default function App() {
             onNavigate={(id) => setScreen(id)}
             profileName={activeProfile.name}
             onSwitchProfile={switchProfile}
+            updateMessage={updateMessage}
+            updateMessageStatus={updateMessageStatus}
+            onSaveUpdateMessage={handleSaveUpdateMessage}
           />
         )}
         {activeProfile && screen === 'mcq' && !testMode && (
