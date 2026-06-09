@@ -110,6 +110,11 @@ const MCQ_QUALITY_FEEDBACK = {
   up: "quality_up",
   down: "quality_down",
 };
+const MCQ_TEXT_OVERRIDES = {
+  875: {
+    stem: "Ποιο κύκλωμα συνδέεται περισσότερο με παθολογική ανησυχία;",
+  },
+};
 const WRITTEN_WEAK_AREA_LABELS = [
   "diagnostic exclusion",
   "risk assessment",
@@ -122,6 +127,17 @@ const WRITTEN_WEAK_AREA_LABELS = [
   "adverse effects and monitoring",
   "over-nuance traps",
 ];
+
+function hasBrokenQuestionText(text) {
+  return typeof text === "string" && (text.includes("???") || text.includes("\uFFFD"));
+}
+
+function getMcqStem(question) {
+  if (!question) return "";
+  const override = MCQ_TEXT_OVERRIDES[question.id] || MCQ_TEXT_OVERRIDES[String(question.id)];
+  if (override?.stem) return override.stem;
+  return hasBrokenQuestionText(question.stem) ? "" : question.stem;
+}
 
 function createEmptyOralProgress() {
   return {
@@ -3206,6 +3222,7 @@ const STYLES = `
   }
 
   .question-stem {
+    font-family: 'DM Sans', Arial, sans-serif;
     font-size: 17px;
     line-height: 1.65;
     margin-bottom: 28px;
@@ -4790,7 +4807,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setFeedbackStatus(null);
     try {
       await saveMcqFeedback(q.id, feedbackType, {
-        questionTextSnapshot: q.stem,
+        questionTextSnapshot: getMcqStem(q),
         topic: getQuestionTopic(q),
         subtopic: getPrimaryWeakArea(q),
         feedbackComment: normalizedComment,
@@ -4985,7 +5002,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                     <span>Question {index + 1}</span>
                     <span>Bank ID {question.id}</span>
                   </div>
-                  <div className="wrong-question-stem">{question.stem}</div>
+                  <div className="wrong-question-stem">{getMcqStem(question)}</div>
                   <div className="written-answer-row incorrect">
                     <strong>Your answer</strong>
                     <span>{getDisplayedOptionLetter(question, item.selected, optionOrders)}. {question.options[item.selected]}</span>
@@ -5316,7 +5333,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           {writtenSubmitError}
         </div>
       )}
-      <div className="question-stem">{q.stem}</div>
+      <div className="question-stem">{getMcqStem(q)}</div>
 
       <div className="options-list">
         {displayedOptions.map((option, i) => {
