@@ -42,3 +42,34 @@ on public.study_profiles
 for update
 using (true)
 with check (true);
+
+create table if not exists public.app_settings (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.app_settings (key, value)
+values ('home_update_message', 'Μοιραστείτε την εφαρμογή υπεύθυνα.')
+on conflict (key) do nothing;
+
+alter table public.app_settings enable row level security;
+
+drop policy if exists "Public app settings can be read" on public.app_settings;
+create policy "Public app settings can be read"
+on public.app_settings
+for select
+using (true);
+
+drop policy if exists "Public update message can be created" on public.app_settings;
+create policy "Public update message can be created"
+on public.app_settings
+for insert
+with check (key = 'home_update_message');
+
+drop policy if exists "Public update message can be updated" on public.app_settings;
+create policy "Public update message can be updated"
+on public.app_settings
+for update
+using (key = 'home_update_message')
+with check (key = 'home_update_message');
