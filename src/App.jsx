@@ -4210,7 +4210,7 @@ const STYLES = `
 
   .sos-list {
     display: grid;
-    gap: 8px;
+    gap: 14px;
   }
 
   .sos-list-entry {
@@ -4235,17 +4235,18 @@ const STYLES = `
 
   .sos-number-list {
     display: grid;
-    gap: 7px;
+    gap: 13px;
   }
 
   .sos-number-entry {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: linear-gradient(135deg, rgba(17,24,39,0.94), rgba(21,29,46,0.86));
-    padding: 11px 13px;
+    padding: 13px 15px;
     color: var(--text);
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
     text-align: left;
   }
 
@@ -4309,17 +4310,17 @@ const STYLES = `
 
   .sos-flip-list {
     display: grid;
-    gap: 14px;
+    gap: 18px;
   }
 
   .sos-flip-card {
     width: 100%;
-    min-height: 150px;
+    min-height: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
     color: var(--text);
-    padding: 20px;
+    padding: 15px 17px;
     font-family: inherit;
     text-align: left;
     cursor: pointer;
@@ -4339,9 +4340,9 @@ const STYLES = `
 
   .sos-flip-text {
     color: var(--text);
-    font-size: 16px;
-    line-height: 1.6;
-    font-weight: 650;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 620;
   }
 
   @media (max-width: 560px) {
