@@ -3359,7 +3359,7 @@ const STYLES = `
 
   .vignette-text {
     white-space: pre-line;
-    color: var(--text-dim);
+    color: var(--text);
     font-size: 15px;
     line-height: 1.75;
   }
@@ -3529,7 +3529,10 @@ const STYLES = `
   }
 
   .vignette-modal {
-    max-width: 760px;
+    width: min(980px, calc(100vw - 48px));
+    max-width: 980px;
+    max-height: 88vh;
+    overflow-y: auto;
     text-align: left;
   }
 
@@ -4852,17 +4855,28 @@ function toggleSelection(selected, value, allowMultiple) {
     : [...selected, value];
 }
 
+
 function McqVignetteMode({ onBack, onHome }) {
   const vignette = mcqVignettes[0];
+  const optionOrders = useMemo(() => createOptionOrders(vignette.questions), [vignette.id]);
   const [started, setStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
+  const [chosen, setChosen] = useState({});
+  const [result, setResult] = useState(null);
+  const [reviewIdx, setReviewIdx] = useState(null);
   const [showVignette, setShowVignette] = useState(false);
   const question = vignette.questions[currentIdx];
   const selected = answers[question.id] || [];
   const isLocked = Boolean(locked[question.id]);
+  const isChosen = Boolean(chosen[question.id]);
   const allowMultiple = question.correct.length > 1;
+  const displayedOptions = getStoredOptionOrder(question, optionOrders).map(originalIndex => ({
+    originalIndex,
+    text: question.options[originalIndex],
+  }));
+  const hasDeferredAnswers = vignette.questions.some(item => chosen[item.id] && !locked[item.id]);
 
   const chooseOption = (optionIndex) => {
     if (isLocked) return;
@@ -4871,6 +4885,173 @@ function McqVignetteMode({ onBack, onHome }) {
       [question.id]: toggleSelection(prev[question.id] || [], optionIndex, allowMultiple),
     }));
   };
+
+  const lockCurrentQuestion = () => {
+    if (!selected.length) return;
+    setLocked(prev => ({ ...prev, [question.id]: true }));
+    setChosen(prev => {
+      const next = { ...prev };
+      delete next[question.id];
+      return next;
+    });
+  };
+
+  const chooseCurrentQuestion = () => {
+    if (!selected.length || isLocked) return;
+    setChosen(prev => ({ ...prev, [question.id]: true }));
+  };
+
+  const buildVignetteResult = () => {
+    const rows = vignette.questions.map(item => {
+      const selectedForQuestion = answers[item.id] || [];
+      const answered = selectedForQuestion.length > 0 && (locked[item.id] || chosen[item.id]);
+      const correct = answered && sameSelection(selectedForQuestion, item.correct);
+      return { question: item, selected: selectedForQuestion, answered, correct };
+    });
+    const answered = rows.filter(row => row.answered).length;
+    const correct = rows.filter(row => row.correct).length;
+    const wrong = rows.filter(row => row.answered && !row.correct).length;
+    const unanswered = rows.length - answered;
+    setResult({ rows, answered, correct, wrong, unanswered, total: rows.length });
+  };
+
+  const resetVignette = () => {
+    setStarted(false);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setChosen({});
+    setResult(null);
+    setReviewIdx(null);
+    setShowVignette(false);
+  };
+
+  const renderVignetteModal = () => showVignette && (
+    <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowVignette(false)}>
+      <div className="modal vignette-modal" onClick={event => event.stopPropagation()}>
+        <div className="vignette-modal-close">
+          <button className="nav-btn" type="button" onClick={() => setShowVignette(false)}>
+            <Icons.X /> Close
+          </button>
+        </div>
+        <div className="structured-card">
+          <div className="structured-top">
+            <strong>{vignette.title}</strong>
+            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
+          </div>
+          <div className="vignette-text">{vignette.vignette}</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReviewedQuestion = (row, index) => {
+    const reviewedQuestion = row.question;
+    const reviewedOrder = getStoredOptionOrder(reviewedQuestion, optionOrders).map(originalIndex => ({
+      originalIndex,
+      text: reviewedQuestion.options[originalIndex],
+    }));
+    return (
+      <div className="structured-card">
+        <div className="structured-top">
+          <span className="structured-progress">Ερώτηση {index + 1}/{vignette.questions.length}</span>
+          <span className="structured-progress">{row.answered ? (row.correct ? "Correct" : "Review") : "Unanswered"}</span>
+        </div>
+        <div className="structured-question">{reviewedQuestion.stem}</div>
+        <div className="structured-options">
+          {reviewedOrder.map((option, displayIndex) => {
+            const isSelected = row.selected.includes(option.originalIndex);
+            const isCorrect = reviewedQuestion.correct.includes(option.originalIndex);
+            let cls = "structured-option";
+            if (isCorrect) cls += " correct";
+            if (isSelected && !isCorrect) cls += " incorrect";
+            return (
+              <button key={option.originalIndex} type="button" className={cls}>
+                <span className="structured-option-letter">{String.fromCharCode(913 + displayIndex)}</span>
+                <span>{option.text}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="explanation-box">
+          <strong>Explanation</strong>
+          {reviewedQuestion.explanation}
+        </div>
+      </div>
+    );
+  };
+
+  if (result && reviewIdx !== null) {
+    const row = result.rows[reviewIdx];
+    return (
+      <div className="structured-mcq fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={() => setReviewIdx(null)}>
+            <Icons.ChevronLeft /> Results
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        {renderReviewedQuestion(row, reviewIdx)}
+        <div className="structured-actions">
+          <button className="nav-btn" onClick={() => setReviewIdx(index => Math.max(0, index - 1))} disabled={reviewIdx === 0}>
+            <Icons.ChevronLeft />
+          </button>
+          <button className="nav-btn" onClick={() => setReviewIdx(index => Math.min(result.rows.length - 1, index + 1))} disabled={reviewIdx >= result.rows.length - 1}>
+            <Icons.ChevronRight />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (result) {
+    const percent = result.total ? Math.round((result.correct / result.total) * 100) : 0;
+    return (
+      <div className="results written-results fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <div className="results-score good">{percent}%</div>
+        <div className="results-label">Vignette results</div>
+        <div className="results-detail">
+          {result.correct}/{result.total} correct, {result.wrong} wrong
+          {result.unanswered > 0 ? ", " + result.unanswered + " unanswered" : ""}
+        </div>
+        <div className="written-result-grid">
+          <div className="written-result-stat">
+            <strong>{result.correct}</strong>
+            <span>Correct</span>
+          </div>
+          <div className="written-result-stat">
+            <strong>{result.wrong}</strong>
+            <span>Wrong</span>
+          </div>
+          <div className="written-result-stat">
+            <strong>{result.unanswered}</strong>
+            <span>Unanswered</span>
+          </div>
+        </div>
+        <div className="results-actions">
+          <button className="results-btn primary" onClick={() => setReviewIdx(0)}>
+            Review questions
+          </button>
+          <button className="results-btn" onClick={resetVignette}>
+            Restart vignette
+          </button>
+          <button className="results-btn" onClick={onBack}>
+            MCQ section
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!started) {
     return (
@@ -4917,22 +5098,21 @@ function McqVignetteMode({ onBack, onHome }) {
       <div className="structured-card">
         <div className="structured-top">
           <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
-          <span className="structured-progress">{allowMultiple ? "Πολλαπλές σωστές" : "Μία σωστή"}</span>
+          {isChosen && !isLocked && <span className="structured-progress">Chosen</span>}
         </div>
         <div className="structured-question">{question.stem}</div>
-        {allowMultiple && <div className="structured-instruction">Επιλέξτε όλες τις σωστές απαντήσεις.</div>}
         <div className="structured-options">
-          {question.options.map((option, index) => {
-            const isSelected = selected.includes(index);
-            const isCorrect = question.correct.includes(index);
+          {displayedOptions.map((option, displayIndex) => {
+            const isSelected = selected.includes(option.originalIndex);
+            const isCorrect = question.correct.includes(option.originalIndex);
             let cls = "structured-option";
             if (!isLocked && isSelected) cls += " selected";
             if (isLocked && isCorrect) cls += " correct";
             if (isLocked && isSelected && !isCorrect) cls += " incorrect";
             return (
-              <button key={option} type="button" className={cls} onClick={() => chooseOption(index)}>
-                <span className="structured-option-letter">{String.fromCharCode(913 + index)}</span>
-                <span>{option}</span>
+              <button key={option.originalIndex} type="button" className={cls} onClick={() => chooseOption(option.originalIndex)}>
+                <span className="structured-option-letter">{String.fromCharCode(913 + displayIndex)}</span>
+                <span>{option.text}</span>
               </button>
             );
           })}
@@ -4949,8 +5129,18 @@ function McqVignetteMode({ onBack, onHome }) {
           </button>
           <div className="structured-actions-group">
             {!isLocked && (
-              <button className="nav-btn primary" onClick={() => setLocked(prev => ({ ...prev, [question.id]: true }))} disabled={selected.length === 0}>
+              <button className="nav-btn" onClick={chooseCurrentQuestion} disabled={selected.length === 0}>
+                Choose
+              </button>
+            )}
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={lockCurrentQuestion} disabled={selected.length === 0}>
                 <Icons.Lock /> Lock
+              </button>
+            )}
+            {currentIdx === vignette.questions.length - 1 && hasDeferredAnswers && (
+              <button className="nav-btn primary" onClick={buildVignetteResult}>
+                Submit
               </button>
             )}
             <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(vignette.questions.length - 1, index + 1))} disabled={currentIdx >= vignette.questions.length - 1}>
@@ -4960,24 +5150,14 @@ function McqVignetteMode({ onBack, onHome }) {
         </div>
       </div>
 
-      {showVignette && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowVignette(false)}>
-          <div className="modal vignette-modal" onClick={event => event.stopPropagation()}>
-            <div className="vignette-modal-close">
-              <button className="nav-btn" type="button" onClick={() => setShowVignette(false)}>
-                <Icons.X /> Close
-              </button>
-            </div>
-            <div className="vignette-text">{vignette.vignette}</div>
-          </div>
-        </div>
-      )}
+      {renderVignetteModal()}
     </div>
   );
 }
 
 function McqMatchingMode({ onBack, onHome }) {
   const matchingSet = mcqMatchingSets[0];
+  const displayChoices = useMemo(() => shuffleItems(matchingSet.choices), [matchingSet.id]);
   const [started, setStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -4997,10 +5177,10 @@ function McqMatchingMode({ onBack, onHome }) {
 
   const renderChoices = (selectable = false) => (
     <div className="choice-grid">
-      {matchingSet.choices.map(choice => {
+      {displayChoices.map((choice, index) => {
         const isSelected = selected.includes(choice.id);
         const isCorrect = item?.correct.includes(choice.id);
-        let cls = `choice-card${selectable ? " selectable" : ""}`;
+        let cls = "choice-card" + (selectable ? " selectable" : "");
         if (selectable && !isLocked && isSelected) cls += " selected";
         if (selectable && isLocked && isCorrect) cls += " correct";
         if (selectable && isLocked && isSelected && !isCorrect) cls += " incorrect";
@@ -5011,7 +5191,7 @@ function McqMatchingMode({ onBack, onHome }) {
             className={cls}
             onClick={() => selectable && chooseChoice(choice.id)}
           >
-            <span className="choice-id">{choice.id}</span>
+            <span className="choice-id">{String.fromCharCode(945 + index)}</span>
             <span>{choice.label}</span>
           </button>
         );
@@ -5063,7 +5243,6 @@ function McqMatchingMode({ onBack, onHome }) {
       <div className="structured-card">
         <div className="structured-top">
           <span className="structured-progress">Ερώτηση {currentIdx + 1}/{matchingSet.items.length}</span>
-          <span className="structured-progress">{allowMultiple ? "Πολλαπλές επιλογές" : "Μία επιλογή"}</span>
         </div>
         <div className="structured-question">{item.prompt}</div>
         {isLocked && (
