@@ -4936,6 +4936,15 @@ function getVignetteLabel(vignette) {
   return match ? `Vignette ${Number(match[1])}` : "Vignette";
 }
 
+function pickRandomMatchingSet(excludeId = null) {
+  const sets = mcqMatchingSets.filter(set => set?.items?.length && set?.choices?.length);
+  if (!sets.length) return null;
+  const pool = sets.length > 1
+    ? sets.filter(set => set.id !== excludeId)
+    : sets;
+  return pool[Math.floor(Math.random() * pool.length)] || sets[0];
+}
+
 function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
   const [selectedVignetteId, setSelectedVignetteId] = useState(null);
   const availableVignettes = useMemo(() => mcqVignettes.filter(Boolean), []);
@@ -5316,24 +5325,51 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
 }
 
 function McqMatchingMode({ onBack, onHome }) {
-  const matchingSet = mcqMatchingSets[0];
-  const displayChoices = useMemo(() => shuffleItems(matchingSet.choices), [matchingSet.id]);
+  const [matchingSet, setMatchingSet] = useState(() => pickRandomMatchingSet());
+  const displayChoices = useMemo(() => shuffleItems(matchingSet?.choices || []), [matchingSet?.id]);
   const [started, setStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
-  const item = matchingSet.items[currentIdx];
-  const selected = answers[item.id] || [];
-  const isLocked = Boolean(locked[item.id]);
-  const allowMultiple = item.correct.length > 1;
+  const item = matchingSet?.items?.[currentIdx];
+  const selected = item ? (answers[item.id] || []) : [];
+  const isLocked = item ? Boolean(locked[item.id]) : false;
+  const allowMultiple = (item?.correct || []).length > 1;
+
+  const goToRandomMatchingSet = () => {
+    setMatchingSet(current => pickRandomMatchingSet(current?.id));
+    setStarted(false);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+  };
 
   const chooseChoice = (choiceId) => {
-    if (isLocked) return;
+    if (!item || isLocked) return;
     setAnswers(prev => ({
       ...prev,
       [item.id]: toggleSelection(prev[item.id] || [], choiceId, allowMultiple),
     }));
   };
+
+  if (!matchingSet || !item) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Αντιστοίχηση</h2>
+        <div className="structured-card">
+          <p className="structured-instruction">Δεν υπάρχουν διαθέσιμα τεστ αντιστοίχησης.</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderChoices = (selectable = false) => (
     <div className="choice-grid">
@@ -5369,6 +5405,9 @@ function McqMatchingMode({ onBack, onHome }) {
           <button className="home-btn" onClick={onHome}>
             <Icons.Home /> Home
           </button>
+          <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
+            Άλλο τεστ
+          </button>
         </div>
         <h2>Αντιστοίχηση</h2>
         <div className="structured-card">
@@ -5395,6 +5434,9 @@ function McqMatchingMode({ onBack, onHome }) {
         </button>
         <button className="home-btn" onClick={onHome}>
           <Icons.Home /> Home
+        </button>
+        <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
+          Άλλο τεστ
         </button>
       </div>
       <div className="sticky-choices">
