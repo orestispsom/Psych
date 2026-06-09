@@ -4880,7 +4880,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
   const handleUpdateNoteClick = () => {
     setUpdateClickCount(count => {
       const next = count + 1;
-      if (next >= 5) {
+      if (next >= 25) {
         setIsUpdateEditorOpen(true);
         setUpdateEditorStatus(null);
         return 0;
