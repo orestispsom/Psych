@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
@@ -8,9 +8,9 @@ import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 import mcqVignettes from "./data/mcqVignettes.js";
 import mcqMatchingSets from "./data/mcqMatching.js";
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 function selectRandomQuestions(count) {
   const arr = [...QUESTIONS];
@@ -104,9 +104,9 @@ const WRITTEN_EXAM_SIZE = 100;
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Duplicate" },
-  { value: "too_easy_wording", label: "Î¥Ï€ÎµÏÎ²Î¿Î»Î¹ÎºÎ¬ ÎµÏÎºÎ¿Î»Î· Î´Î¹Î±Ï„ÏÏ€Ï‰ÏƒÎ·" },
-  { value: "wrong_terminology", label: "Î›Î¬Î¸Î¿Ï‚ Î¿ÏÎ¿Î»Î¿Î³Î¯Î±" },
-  { value: "wrong_or_uncertain_answer", label: "Î›Î¬Î¸Î¿Ï‚/Î‘Î¼Ï†Î¯Î²Î¿Î»Î· Î‘Ï€Î¬Î½Ï„Î·ÏƒÎ·" },
+  { value: "too_easy_wording", label: "Υπερβολικά εύκολη διατύπωση" },
+  { value: "wrong_terminology", label: "Λάθος ορολογία" },
+  { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη Απάντηση" },
 ];
 const MCQ_QUALITY_FEEDBACK = {
   up: "quality_up",
@@ -114,7 +114,7 @@ const MCQ_QUALITY_FEEDBACK = {
 };
 const MCQ_TEXT_OVERRIDES = {
   875: {
-    stem: "Î Î¿Î¹Î¿ ÎºÏÎºÎ»Ï‰Î¼Î± ÏƒÏ…Î½Î´Î­ÎµÏ„Î±Î¹ Ï€ÎµÏÎ¹ÏƒÏƒÏŒÏ„ÎµÏÎ¿ Î¼Îµ Ï€Î±Î¸Î¿Î»Î¿Î³Î¹ÎºÎ® Î±Î½Î·ÏƒÏ…Ï‡Î¯Î±;",
+    stem: "Ποιο κύκλωμα συνδέεται περισσότερο με παθολογική ανησυχία;",
   },
 };
 const WRITTEN_WEAK_AREA_LABELS = [
@@ -298,11 +298,11 @@ function getRelatedOralFollowUps(anchor, allQuestions, maxCount = 2) {
 }
 
 const MAJOR_ORAL_EXAM_TOPICS = new Set([
-  "Î¨Ï…Ï‡Ï‰Ï„Î¹ÎºÎ­Ï‚ Î´Î¹Î±Ï„Î±ÏÎ±Ï‡Î­Ï‚",
-  "Î”Î¹Î±Ï„Î±ÏÎ±Ï‡Î­Ï‚ Î´Î¹Î¬Î¸ÎµÏƒÎ·Ï‚",
-  "Î‘Î³Ï‡ÏŽÎ´ÎµÎ¹Ï‚ Î´Î¹Î±Ï„Î±ÏÎ±Ï‡Î­Ï‚",
-  "Î™Î´ÎµÎ¿ÏˆÏ…Ï‡Î±Î½Î±Î³ÎºÎ±ÏƒÏ„Î¹ÎºÎ® Î´Î¹Î±Ï„Î±ÏÎ±Ï‡Î®",
-  "Î¤ÏÎ±ÏÎ¼Î± ÎºÎ±Î¹ ÏƒÏ„ÏÎµÏ‚",
+  "Ψυχωτικές διαταραχές",
+  "Διαταραχές διάθεσης",
+  "Αγχώδεις διαταραχές",
+  "Ιδεοψυχαναγκαστική διαταραχή",
+  "Τραύμα και στρες",
 ]);
 
 function isOralCoreAnchor(question) {
@@ -321,7 +321,7 @@ function getOralExamQuestionText(question) {
 }
 
 function getOralExamQuestionAnswer(question) {
-  return question?.answer || "Î”ÎµÎ½ Î­Ï‡ÎµÎ¹ Ï€ÏÎ¿ÏƒÏ„ÎµÎ¸ÎµÎ¯ Î±ÎºÏŒÎ¼Î· ÎµÎ½Î´ÎµÎ¹ÎºÏ„Î¹ÎºÎ® Î±Ï€Î¬Î½Ï„Î·ÏƒÎ· Î³Î¹Î± Î±Ï…Ï„Î® Ï„Î·Î½ ÎµÏÏŽÏ„Î·ÏƒÎ·.";
+  return question?.answer || "Δεν έχει προστεθεί ακόμη ενδεικτική απάντηση για αυτή την ερώτηση.";
 }
 
 function getOralExamQuestionContext(question) {
@@ -2040,7 +2040,7 @@ function getWrittenHistoryScoreClass(scorePercent) {
   return "low";
 }
 
-const SOS_NUMBER_PATTERN = /(?:DSM|ICD)-?\s*\d+(?:[.,]\d+)?|(?:â‰¥|â‰¤|>|<|~|â‰ˆ)?\s*\d+(?:[.,]\d+)?(?:\s*[â€“-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|Î·Î¼Î­ÏÎµÏ‚|Î·Î¼Î­ÏÎ±|ÎµÎ²Î´Î¿Î¼Î¬Î´ÎµÏ‚|ÎµÎ²Î´Î¿Î¼Î¬Î´Î±|Î¼Î®Î½ÎµÏ‚|Î¼Î®Î½Î±Ï‚|Î­Ï„Î·|ÎµÏ„ÏŽÎ½|ÏŽÏÎµÏ‚|Ï‰ÏÏŽÎ½|Î»ÎµÏ€Ï„Î¬|bpm|kg\/mÂ²)?/gi;
+const SOS_NUMBER_PATTERN = /(?:DSM|ICD)-?\s*\d+(?:[.,]\d+)?|(?:≥|≤|>|<|~|≈)?\s*\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|ημέρες|ημέρα|εβδομάδες|εβδομάδα|μήνες|μήνας|έτη|ετών|ώρες|ωρών|λεπτά|bpm|kg\/m²)?/gi;
 
 function renderSosNumberText(text) {
   const parts = [];
@@ -2124,9 +2124,9 @@ function getWrittenExamResult(questions, answers) {
     wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
   };
 }
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // ICONS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 const Icons = {
   Brain: () => (
@@ -2225,9 +2225,9 @@ const Icons = {
   ),
 };
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // STYLES
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
@@ -2274,7 +2274,7 @@ const STYLES = `
     overflow-x: hidden;
   }
 
-  /* â”€â”€â”€ HOME SCREEN â”€â”€â”€ */
+  /* ─── HOME SCREEN ─── */
   .home {
     max-width: 720px;
     margin: 0 auto;
@@ -2604,7 +2604,7 @@ const STYLES = `
     color: #fbbf24;
   }
 
-  /* â”€â”€â”€ MCQ SELECTION â”€â”€â”€ */
+  /* ─── MCQ SELECTION ─── */
   .mcq-select {
     max-width: 560px;
     margin: 0 auto;
@@ -2969,7 +2969,7 @@ const STYLES = `
   }
   .home-btn:hover { color: var(--text); background: var(--bg-card-hover); }
 
-  /* â”€â”€â”€ MCQ TEST â”€â”€â”€ */
+  /* ─── MCQ TEST ─── */
   .test-container {
     max-width: 720px;
     margin: 0 auto;
@@ -3338,7 +3338,7 @@ const STYLES = `
     letter-spacing: 0.05em;
   }
 
-  /* â”€â”€â”€ NAVIGATION BAR â”€â”€â”€ */
+  /* ─── NAVIGATION BAR ─── */
   .structured-mcq {
     max-width: 980px;
     margin: 0 auto;
@@ -3662,7 +3662,7 @@ const STYLES = `
     color: #fca5a5;
   }
 
-  /* â”€â”€â”€ RESULTS â”€â”€â”€ */
+  /* ─── RESULTS ─── */
   .results {
     max-width: 600px;
     margin: 0 auto;
@@ -3719,7 +3719,7 @@ const STYLES = `
   .results-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
   .results-btn.primary:hover { background: #2563eb; }
 
-  /* â”€â”€â”€ MODAL â”€â”€â”€ */
+  /* ─── MODAL ─── */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -3834,7 +3834,7 @@ const STYLES = `
     color: var(--text);
   }
 
-  /* â”€â”€â”€ PLACEHOLDER â”€â”€â”€ */
+  /* ─── PLACEHOLDER ─── */
   .written-results {
     max-width: 960px;
     text-align: left;
@@ -4058,7 +4058,7 @@ const STYLES = `
 
   .fade-in { animation: fadeIn 0.35s ease; }
 
-  /* â”€â”€â”€ REVIEW MODE â”€â”€â”€ */
+  /* ─── REVIEW MODE ─── */
   .review-header {
     display: flex;
     align-items: center;
@@ -4092,7 +4092,7 @@ const STYLES = `
   .review-dot.incorrect { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
   .review-dot.current { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* â”€â”€ Oral Accordion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Accordion ─────────────────────────────── */
 
   .oral-container {
     max-width: 720px;
@@ -4365,7 +4365,7 @@ const STYLES = `
     white-space: nowrap;
   }
 
-  /* â”€â”€ Oral Question Viewer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Question Viewer ─────────────────────────── */
 
   .oral-viewer {
     max-width: 720px;
@@ -4461,7 +4461,7 @@ const STYLES = `
     font-style: italic;
   }
 
-  /* â”€â”€ Oral Reference Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Oral Reference Table ─────────────────────────── */
 
   .ref-table {
     max-width: 720px;
@@ -4700,9 +4700,9 @@ const STYLES = `
   }
 `;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // COMPONENTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile, onCreateProfile }) {
   const [username, setUsername] = useState("");
@@ -4793,19 +4793,19 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 
 function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Î Î¿Î»Î»Î±Ï€Î»Î®Ï‚ Î•Ï€Î¹Î»Î¿Î³Î®Ï‚', desc: 'Î•Î¾Î¬ÏƒÎºÎ·ÏƒÎ· Î¼Îµ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ Ï€Î¿Î»Î»Î±Ï€Î»Î®Ï‚ ÎµÏ€Î¹Î»Î¿Î³Î®Ï‚ ÎºÎ±Î¹ Î±Ï€Î¿Î¸Î·ÎºÎµÏ…Î¼Î­Î½Î· Ï€ÏÏŒÎ¿Î´Î¿', active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬', desc: 'Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î± Î¸Î­Î¼Î±Ï„Î± ÎºÎ±Î¹ Ï€ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ®Ï‚ ÎµÎ¾Î­Ï„Î±ÏƒÎ·Ï‚', active: true },
-    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ®Ï‚', desc: 'Î‘ÏÎ¹Î¸Î¼Î¿Î¯, Ï€Î¯Î½Î±ÎºÎµÏ‚, ÎºÏÎ¯ÏƒÎ¹Î¼Î± Î¸Î­Î¼Î±Ï„Î± ÎºÎ±Î¹ Î´Î¹Î±Ï†Î¿ÏÎ¿Î´Î¹Î¬Î³Î½Ï‰ÏƒÎ·', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
+    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, πίνακες, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
   ];
 
   return (
     <div className="home fade-in">
       <div className="home-header">
         <div className="home-logo"><Icons.Brain /></div>
-        <h1 className="home-title">Î•Î¾ÎµÏ„Î¬ÏƒÎµÎ¹Ï‚ Î•Î¹Î´Î¹ÎºÏŒÏ„Î·Ï„Î±Ï‚</h1>
+        <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
         <div className="home-update-note">
           <strong>Update:</strong>
-          <span>ÎœÎ¿Î¹ÏÎ±ÏƒÏ„ÎµÎ¯Ï„Îµ Ï„Î·Î½ ÎµÏ†Î±ÏÎ¼Î¿Î³Î® Ï…Ï€ÎµÏÎ¸Î·Î½Î±.</span>
+          <span>Μοιραστείτε την εφαρμογή υπεύθηνα.</span>
         </div>
         <div className="profile-bar">
           <span>{profileName}</span>
@@ -4843,7 +4843,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           <Icons.Home /> Home
         </button>
       </div>
-      <h2>Î Î¿Î»Î»Î±Ï€Î»Î®Ï‚ Î•Ï€Î¹Î»Î¿Î³Î®Ï‚</h2>
+      <h2>Πολλαπλής Επιλογής</h2>
 
       <div className="mcq-memory" aria-label="MCQ progress">
         <div className="mcq-memory-stat">
@@ -4862,32 +4862,32 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 
       <button className="mode-btn featured" onClick={() => onStart('sprint')}>
         Mini-test
-        <small>10 ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</small>
+        <small>10 ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
-        Î¤Ï…Ï‡Î±Î¯Î± Î˜Î­Î¼Î±Ï„Î±
-        <small>Î²Î±ÏÏÏ„Î·Ï„Î± ÏƒÎµ unseen ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</small>
+        Τυχαία Θέματα
+        <small>βαρύτητα σε unseen ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('daily')}>
-        Î‘Î´ÏÎ½Î±Î¼Î± Î˜Î­Î¼Î±Ï„Î±
-        <small>ÎµÏ€Î±Î½Î¬Î»Î·ÏˆÎ· ÏƒÎµ Î»Î¬Î¸Î¿Ï‚ Î±Ï€Î±Î½Ï„Î®ÏƒÎµÎ¹Ï‚</small>
+        Αδύναμα Θέματα
+        <small>επανάληψη σε λάθος απαντήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
-        Î ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· 100 Ï€Î¿Î»Î»Î±Ï€Î»Î®Ï‚
-        <small>Î´Î¯Î½ÎµÎ¹ Î±Ï€Î±Î½Ï„Î®ÏƒÎµÎ¹Ï‚ Î¼ÏŒÎ½Î¿ ÏƒÏ„Î¿ Ï„Î­Î»Î¿Ï‚</small>
+        Προσομοίωση 100 πολλαπλής
+        <small>δίνει απαντήσεις μόνο στο τέλος</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('vignettes')}>
         Vignettes
-        <small>ÎºÎ»Î¹Î½Î¹ÎºÏŒ ÏƒÎµÎ½Î¬ÏÎ¹Î¿ Î¼Îµ Ï€Î¿Î»Î»Î±Ï€Î»Î­Ï‚ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</small>
+        <small>κλινικό σενάριο με πολλαπλές ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('matching')}>
-        Î‘Î½Ï„Î¹ÏƒÏ„Î¿Î¯Ï‡Î·ÏƒÎ·
-        <small>ÎµÏ€Î¹Î»Î¿Î³Î­Ï‚ Ï€Î¿Ï… Ï‡ÏÎ·ÏƒÎ¹Î¼Î¿Ï€Î¿Î¹Î¿ÏÎ½Ï„Î±Î¹ ÏƒÎµ Ï€Î¿Î»Î»Î­Ï‚ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</small>
+        Αντιστοίχηση
+        <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
       </button>
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
-          <h3>Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½ÎµÏ‚ Î ÏÎ¿ÏƒÎ¿Î¼Î¿Î¹ÏŽÏƒÎµÎ¹Ï‚</h3>
+          <h3>Προηγούμενες Προσομοιώσεις</h3>
           {recentWrittenExamSessions.map(session => (
             <div className="written-history-row" key={session.id}>
               <div className="written-history-main">
@@ -4895,12 +4895,12 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
                   {new Date(session.completedAt).toLocaleDateString("el-GR")}
                 </span>
                 <span className="written-history-detail">
-                  {session.correct}/{session.total} ÏƒÏ‰ÏƒÏ„Î­Ï‚
+                  {session.correct}/{session.total} σωστές
                 </span>
                 {session.unanswered > 0 && (
                   <>
                     <span className="written-history-dot" aria-hidden="true" />
-                    <span className="written-history-detail">{session.unanswered} Î±Î½Î±Ï€Î¬Î½Ï„Î·Ï„ÎµÏ‚</span>
+                    <span className="written-history-detail">{session.unanswered} αναπάντητες</span>
                   </>
                 )}
                 <span className="written-history-dot" aria-hidden="true" />
@@ -5097,7 +5097,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
         <div className="structured-card">
           <div className="structured-top">
             <strong>{vignetteLabel}</strong>
-            <span className="structured-progress">{vignette.questions.length} ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</span>
+            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
           </div>
           <div className="vignette-text">{vignette.vignette}</div>
         </div>
@@ -5114,7 +5114,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
     return (
       <div className="structured-card">
         <div className="structured-top">
-          <span className="structured-progress">Î•ÏÏŽÏ„Î·ÏƒÎ· {index + 1}/{vignette.questions.length}</span>
+          <span className="structured-progress">Ερώτηση {index + 1}/{vignette.questions.length}</span>
           <span className="structured-progress">{row.answered ? (row.correct ? "Correct" : "Review") : "Unanswered"}</span>
         </div>
         <div className="structured-question">{reviewedQuestion.stem}</div>
@@ -5228,13 +5228,13 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
         <div className="structured-card">
           <div className="structured-top">
             <strong>{vignetteLabel}</strong>
-            <span className="structured-progress">{vignette.questions.length} ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</span>
+            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
           </div>
           <div className="vignette-text">{vignette.vignette}</div>
         </div>
         <button className="mode-btn featured" onClick={() => setStarted(true)}>
-          ÎˆÎ½Î±ÏÎ¾Î· ÎµÏÏ‰Ï„Î®ÏƒÎµÏ‰Î½
-          <small>Ï„Î¿ vignette Î¸Î± ÎµÎ¯Î½Î±Î¹ Î´Î¹Î±Î¸Î­ÏƒÎ¹Î¼Î¿ Î±Ï€ÏŒ ÎºÎ¿Ï…Î¼Ï€Î¯ ÏƒÎµ ÎºÎ¬Î¸Îµ ÎµÏÏŽÏ„Î·ÏƒÎ·</small>
+          Έναρξη ερωτήσεων
+          <small>το vignette θα είναι διαθέσιμο από κουμπί σε κάθε ερώτηση</small>
         </button>
       </div>
     );
@@ -5252,12 +5252,12 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
       </div>
 
       <button className="vignette-open-btn" type="button" onClick={() => setShowVignette(true)}>
-        Î ÏÎ¿Î²Î¿Î»Î® vignette
+        Προβολή vignette
       </button>
 
       <div className="structured-card vignette-question-card">
         <div className="structured-top">
-          <span className="structured-progress">Î•ÏÏŽÏ„Î·ÏƒÎ· {currentIdx + 1}/{vignette.questions.length}</span>
+          <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
           {isChosen && !isLocked && <span className="structured-progress">Chosen</span>}
         </div>
         <div className="structured-question">{question.stem}</div>
@@ -5370,18 +5370,18 @@ function McqMatchingMode({ onBack, onHome }) {
             <Icons.Home /> Home
           </button>
         </div>
-        <h2>Î‘Î½Ï„Î¹ÏƒÏ„Î¿Î¯Ï‡Î·ÏƒÎ·</h2>
+        <h2>Αντιστοίχηση</h2>
         <div className="structured-card">
           <div className="structured-top">
             <strong>{matchingSet.title}</strong>
-            <span className="structured-progress">{matchingSet.items.length} ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</span>
+            <span className="structured-progress">{matchingSet.items.length} ερωτήσεις</span>
           </div>
           <p className="structured-instruction">{matchingSet.instructions}</p>
           {renderChoices(false)}
         </div>
         <button className="mode-btn featured" onClick={() => setStarted(true)}>
-          ÎˆÎ½Î±ÏÎ¾Î·
-          <small>Î¿Î¹ ÎµÏ€Î¹Î»Î¿Î³Î­Ï‚ Î¸Î± Ï€Î±ÏÎ±Î¼Î­Î½Î¿Ï…Î½ ÏƒÏ„Î·Î½ ÎºÎ¿ÏÏ…Ï†Î®</small>
+          Έναρξη
+          <small>οι επιλογές θα παραμένουν στην κορυφή</small>
         </button>
       </div>
     );
@@ -5402,7 +5402,7 @@ function McqMatchingMode({ onBack, onHome }) {
       </div>
       <div className="structured-card">
         <div className="structured-top">
-          <span className="structured-progress">Î•ÏÏŽÏ„Î·ÏƒÎ· {currentIdx + 1}/{matchingSet.items.length}</span>
+          <span className="structured-progress">Ερώτηση {currentIdx + 1}/{matchingSet.items.length}</span>
         </div>
         <div className="structured-question">{item.prompt}</div>
         {isLocked && (
@@ -5501,11 +5501,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     : 0;
   const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
   const modeTitle = {
-    daily: "Î‘Î´ÏÎ½Î±Î¼Î± Î˜Î­Î¼Î±Ï„Î±",
-    random: "Î¤Ï…Ï‡Î±Î¯Î± Î˜Î­Î¼Î±Ï„Î±",
+    daily: "Αδύναμα Θέματα",
+    random: "Τυχαία Θέματα",
     sprint: "Mini-test",
-    weakness: "Î‘Î´Ï…Î½Î±Î¼Î¯ÎµÏ‚",
-    written: "Î ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· Î¼Îµ 100 Î Î¿Î»Î»Î±Ï€Î»Î®Ï‚",
+    weakness: "Αδυναμίες",
+    written: "Προσομοίωση με 100 Πολλαπλής",
   }[mode] || "MCQ";
 
   const buildCurrentWrittenDraft = useCallback((overrides = {}) => {
@@ -5709,14 +5709,14 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
               }}
               disabled={Boolean(feedbackSavingType)}
             >
-              Î£Ï‡ÏŒÎ»Î¹Î¿
+              Σχόλιο
             </button>
             {feedbackCommentOpen && (
               <div className="mcq-feedback-comment">
                 <textarea
                   value={feedbackCommentText}
                   onChange={event => setFeedbackCommentText(event.target.value.slice(0, 500))}
-                  placeholder="Î£ÏÎ½Ï„Î¿Î¼Î¿ ÏƒÏ‡ÏŒÎ»Î¹Î¿..."
+                  placeholder="Σύντομο σχόλιο..."
                   maxLength={500}
                   disabled={Boolean(feedbackSavingType)}
                 />
@@ -5729,7 +5729,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                     }}
                     disabled={Boolean(feedbackSavingType)}
                   >
-                    Î†ÎºÏ…ÏÎ¿
+                    Άκυρο
                   </button>
                   <button
                     type="button"
@@ -5737,7 +5737,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                     onClick={() => submitMcqFeedback("comment", feedbackCommentText, feedbackQuestion)}
                     disabled={Boolean(feedbackSavingType) || !feedbackCommentText.trim()}
                   >
-                    {feedbackSavingType === "comment" ? "Saving..." : "Î‘Ï€Î¿Î¸Î®ÎºÎµÏ…ÏƒÎ·"}
+                    {feedbackSavingType === "comment" ? "Saving..." : "Αποθήκευση"}
                   </button>
                 </div>
               </div>
@@ -5748,8 +5748,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       <button
         type="button"
         className="mcq-quality-btn up"
-        title="ÎšÎ±Î»Î® ÎµÏÏŽÏ„Î·ÏƒÎ·"
-        aria-label="ÎšÎ±Î»Î® ÎµÏÏŽÏ„Î·ÏƒÎ·"
+        title="Καλή ερώτηση"
+        aria-label="Καλή ερώτηση"
         onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.up, "", feedbackQuestion)}
         disabled={Boolean(feedbackSavingType)}
       >
@@ -5758,8 +5758,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       <button
         type="button"
         className="mcq-quality-btn down"
-        title="Î ÏÎ¿Î²Î»Î·Î¼Î±Ï„Î¹ÎºÎ® ÎµÏÏŽÏ„Î·ÏƒÎ·"
-        aria-label="Î ÏÎ¿Î²Î»Î·Î¼Î±Ï„Î¹ÎºÎ® ÎµÏÏŽÏ„Î·ÏƒÎ·"
+        title="Προβληματική ερώτηση"
+        aria-label="Προβληματική ερώτηση"
         onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.down, "", feedbackQuestion)}
         disabled={Boolean(feedbackSavingType)}
       >
@@ -5853,7 +5853,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       }
     } catch (error) {
       console.error("Written exam submission failed", error);
-      setWrittenSubmitError("Î”ÎµÎ½ Î¼Ï€ÏŒÏÎµÏƒÎµ Î½Î± Î¿Î»Î¿ÎºÎ»Î·ÏÏ‰Î¸ÎµÎ¯ Î· Ï…Ï€Î¿Î²Î¿Î»Î®. Î”Î¿ÎºÎ¹Î¼Î¬ÏƒÏ„Îµ Î¾Î±Î½Î¬.");
+      setWrittenSubmitError("Δεν μπόρεσε να ολοκληρωθεί η υποβολή. Δοκιμάστε ξανά.");
       setShowWrittenSubmitWarning(false);
     }
   }, [answers, mode, onProgressChange, questions, writtenResult]);
@@ -5925,7 +5925,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
         </div>
 
         <div className="oral-choice">
-          <h2>Î ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· Î¼Îµ 100 Î Î¿Î»Î»Î±Ï€Î»Î®Ï‚</h2>
+          <h2>Προσομοίωση με 100 Πολλαπλής</h2>
           <p>There is an unfinished written exam saved for this profile.</p>
           <div className="game-hud">
             <div className="hud-stat">
@@ -6249,14 +6249,14 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                   }}
                   disabled={Boolean(feedbackSavingType)}
                 >
-                  Î£Ï‡ÏŒÎ»Î¹Î¿
+                  Σχόλιο
                 </button>
                 {feedbackCommentOpen && (
                   <div className="mcq-feedback-comment">
                     <textarea
                       value={feedbackCommentText}
                       onChange={event => setFeedbackCommentText(event.target.value.slice(0, 500))}
-                      placeholder="Î£ÏÎ½Ï„Î¿Î¼Î¿ ÏƒÏ‡ÏŒÎ»Î¹Î¿..."
+                      placeholder="Σύντομο σχόλιο..."
                       maxLength={500}
                       disabled={Boolean(feedbackSavingType)}
                     />
@@ -6269,7 +6269,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                         }}
                         disabled={Boolean(feedbackSavingType)}
                       >
-                        Î†ÎºÏ…ÏÎ¿
+                        Άκυρο
                       </button>
                       <button
                         type="button"
@@ -6277,7 +6277,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
                         onClick={() => submitMcqFeedback("comment", feedbackCommentText)}
                         disabled={Boolean(feedbackSavingType) || !feedbackCommentText.trim()}
                       >
-                        {feedbackSavingType === "comment" ? "Saving..." : "Î‘Ï€Î¿Î¸Î®ÎºÎµÏ…ÏƒÎ·"}
+                        {feedbackSavingType === "comment" ? "Saving..." : "Αποθήκευση"}
                       </button>
                     </div>
                   </div>
@@ -6288,8 +6288,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <button
             type="button"
             className="mcq-quality-btn up"
-            title="ÎšÎ±Î»Î® ÎµÏÏŽÏ„Î·ÏƒÎ·"
-            aria-label="ÎšÎ±Î»Î® ÎµÏÏŽÏ„Î·ÏƒÎ·"
+            title="Καλή ερώτηση"
+            aria-label="Καλή ερώτηση"
             onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.up)}
             disabled={Boolean(feedbackSavingType)}
           >
@@ -6298,8 +6298,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
           <button
             type="button"
             className="mcq-quality-btn down"
-            title="Î ÏÎ¿Î²Î»Î·Î¼Î±Ï„Î¹ÎºÎ® ÎµÏÏŽÏ„Î·ÏƒÎ·"
-            aria-label="Î ÏÎ¿Î²Î»Î·Î¼Î±Ï„Î¹ÎºÎ® ÎµÏÏŽÏ„Î·ÏƒÎ·"
+            title="Προβληματική ερώτηση"
+            aria-label="Προβληματική ερώτηση"
             onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.down)}
             disabled={Boolean(feedbackSavingType)}
           >
@@ -6416,29 +6416,29 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 }
 
 // ORAL EXAMINATION COMPONENTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenSimulator }) {
   return (
     <div className="oral-choice fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2>Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬</h2>
-      <p>Î•Ï€Î¹Î»Î­Î¾Ï„Îµ Ï„ÏÏŒÏ€Î¿ ÎµÎ¾Î¬ÏƒÎºÎ·ÏƒÎ·Ï‚ Î³Î¹Î± Ï„Î¿ Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÏŒ Î¼Î­ÏÎ¿Ï‚ Ï„Î·Ï‚ ÎµÎ¾Î­Ï„Î±ÏƒÎ·Ï‚.</p>
+      <h2>Προφορικά</h2>
+      <p>Επιλέξτε τρόπο εξάσκησης για το προφορικό μέρος της εξέτασης.</p>
 
       <button className="mode-btn" onClick={onOpenPastTopics}>
-        Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î± Î˜Î­Î¼Î±Ï„Î±
-        <small>Î•Î¾Î¬ÏƒÎºÎ·ÏƒÎ· Î¼Îµ Ï„Î± Ï…Ï€Î¬ÏÏ‡Î¿Î½Ï„Î± Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬ Î¸Î­Î¼Î±Ï„Î± ÎºÎ±Î¹ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ Ï„Î·Ï‚ Ï„ÏÎ¬Ï€ÎµÎ¶Î±Ï‚.</small>
+        Προηγούμενα Θέματα
+        <small>Εξάσκηση με τα υπάρχοντα προφορικά θέματα και ερωτήσεις της τράπεζας.</small>
       </button>
       <button className="mode-btn featured" onClick={onOpenSimulator}>
-        Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ® Î•Î¾Î­Ï„Î±ÏƒÎ·
-        <small>Î ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ®Ï‚ ÎµÎ¾Î­Ï„Î±ÏƒÎ·Ï‚ Î¼Îµ Î²Î±ÏƒÎ¹ÎºÎ­Ï‚ ÎºÎ±Î¹ follow-up ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚.</small>
+        Προφορική Εξέταση
+        <small>Προσομοίωση προφορικής εξέτασης με βασικές και follow-up ερωτήσεις.</small>
       </button>
     </div>
   );
@@ -6478,17 +6478,17 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
     <div className="oral-container fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î± Î˜Î­Î¼Î±Ï„Î±</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Î•ÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Ï„Î¬ Î²Î±ÏÏÏ„Î·Ï„Î± Î¸Î­Î¼Î±Ï„Î¿Ï‚</p>
+      <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Προηγούμενα Θέματα</h2>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Ερωτήσεις κατά βαρύτητα θέματος</p>
       <div className="oral-overview">
         <strong>{overallSummary.mastered}/{overallSummary.total}</strong>
-        <span>ÎºÎ±Ï„Î±ÎºÏ„Î·Î¼Î­Î½ÎµÏ‚ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</span>
+        <span>κατακτημένες ερωτήσεις</span>
       </div>
 
       {oralData.map(gravity => (
@@ -6603,16 +6603,16 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
     <div className="oral-viewer fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
 
       <p style={{fontSize:13, color:'var(--text-dim)', marginBottom:4}}>{title}</p>
       <div className="oral-viewer-meta">
-        <div className="oral-q-counter">Î•ÏÏŽÏ„Î·ÏƒÎ· {currentIdx + 1} / {total}</div>
+        <div className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</div>
         <span className={`oral-progress-pill ${sectionSummary.total > 0 && sectionSummary.mastered === sectionSummary.total ? "complete" : ""}`}>
           {sectionSummary.mastered}/{sectionSummary.total} mastered
         </span>
@@ -6636,7 +6636,7 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
         {!showAnswer ? (
           <div className="answer-placeholder">
             <Icons.Eye />
-            <div style={{marginTop:8}}>Î Î±Ï„Î®ÏƒÏ„Îµ Î³Î¹Î± Î½Î± Î´ÎµÎ¯Ï„Îµ Ï„Î·Î½ Î±Ï€Î¬Î½Ï„Î·ÏƒÎ·</div>
+            <div style={{marginTop:8}}>Πατήστε για να δείτε την απάντηση</div>
           </div>
         ) : (
           <div className="answer-content">{q.answer}</div>
@@ -6647,10 +6647,10 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
 
       <div className="nav-bar">
         <button className="nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
-          <Icons.ChevronLeft /> Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î·
+          <Icons.ChevronLeft /> Προηγούμενη
         </button>
         <button className="nav-btn" onClick={goNext} disabled={currentIdx === total - 1}>
-          Î•Ï€ÏŒÎ¼ÎµÎ½Î· <Icons.ChevronRight />
+          Επόμενη <Icons.ChevronRight />
         </button>
       </div>
     </div>
@@ -6719,13 +6719,13 @@ function OralExamSimulator({ onBack, onHome }) {
       <div className="oral-simulator fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬
+            <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+            <Icons.Home /> Αρχική
           </button>
         </div>
-        <h2>ÎŸÎ»Î¿ÎºÎ»Î®ÏÏ‰ÏƒÎ· Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ®Ï‚ Î•Î¾Î­Ï„Î±ÏƒÎ·Ï‚</h2>
+        <h2>Ολοκλήρωση Προφορικής Εξέτασης</h2>
         <div className="oral-exam-summary">
           {askedQuestions.map((question, index) => (
             <div className="oral-exam-summary-row" key={`${question.id}-${index}`}>
@@ -6735,10 +6735,10 @@ function OralExamSimulator({ onBack, onHome }) {
         </div>
         <div className="results-actions">
           <button className="results-btn primary" onClick={startExam}>
-            ÎÎ­Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ® Î•Î¾Î­Ï„Î±ÏƒÎ·
+            Νέα Προφορική Εξέταση
           </button>
           <button className="results-btn" onClick={onBack}>
-            Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬
+            Επιστροφή στα Προφορικά
           </button>
         </div>
       </div>
@@ -6750,19 +6750,19 @@ function OralExamSimulator({ onBack, onHome }) {
       <div className="oral-simulator fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬
+            <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+            <Icons.Home /> Αρχική
           </button>
         </div>
-        <h2>Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ® Î•Î¾Î­Ï„Î±ÏƒÎ·</h2>
+        <h2>Προφορική Εξέταση</h2>
         <p>
-          Î— ÎµÎ¾Î­Ï„Î±ÏƒÎ· Î¾ÎµÎºÎ¹Î½Î¬ Î¼Îµ Î²Î±ÏƒÎ¹ÎºÎ­Ï‚ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚ ÎºÎ±Î¹ Î¼Ï€Î¿ÏÎµÎ¯ Î½Î± ÏƒÏ…Î½ÎµÏ‡Î¯ÏƒÎµÎ¹ Î¼Îµ follow-up ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚,
-          ÏŒÏ€Ï‰Ï‚ ÏƒÎµ Ï€ÏÎ±Î³Î¼Î±Ï„Î¹ÎºÎ® Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ® ÎµÎ¾Î­Ï„Î±ÏƒÎ·.
+          Η εξέταση ξεκινά με βασικές ερωτήσεις και μπορεί να συνεχίσει με follow-up ερωτήσεις,
+          όπως σε πραγματική προφορική εξέταση.
         </p>
         <button className="results-btn primary" onClick={startExam}>
-          ÎˆÎ½Î±ÏÎ¾Î· Î•Î¾Î­Ï„Î±ÏƒÎ·Ï‚
+          Έναρξη Εξέτασης
         </button>
       </div>
     );
@@ -6772,36 +6772,36 @@ function OralExamSimulator({ onBack, onHome }) {
     return (
       <div className="oral-simulator fade-in">
         <div className="explanation-box">
-          <strong>Î”ÎµÎ½ Ï…Ï€Î¬ÏÏ‡Î¿Ï…Î½ Î´Î¹Î±Î¸Î­ÏƒÎ¹Î¼ÎµÏ‚ ÎµÏÏ‰Ï„Î®ÏƒÎµÎ¹Ï‚</strong>
-          Î— Ï€ÏÎ¿ÏƒÎ¿Î¼Î¿Î¯Ï‰ÏƒÎ· Ï‡ÏÎ·ÏƒÎ¹Î¼Î¿Ï€Î¿Î¹ÎµÎ¯ Ï„Î·Î½ Ï…Ï€Î¬ÏÏ‡Î¿Ï…ÏƒÎ± Ï„ÏÎ¬Ï€ÎµÎ¶Î± Ï€ÏÎ¿Ï†Î¿ÏÎ¹ÎºÏŽÎ½ ÎµÏÏ‰Ï„Î®ÏƒÎµÏ‰Î½.
+          <strong>Δεν υπάρχουν διαθέσιμες ερωτήσεις</strong>
+          Η προσομοίωση χρησιμοποιεί την υπάρχουσα τράπεζα προφορικών ερωτήσεων.
         </div>
         <button className="results-btn" onClick={onBack}>
-          Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬
+          Επιστροφή στα Προφορικά
         </button>
       </div>
     );
   }
 
   const nextButtonLabel = !isLastQuestionForExaminer
-    ? "Î•Ï€ÏŒÎ¼ÎµÎ½Î· Î•ÏÏŽÏ„Î·ÏƒÎ·"
+    ? "Επόμενη Ερώτηση"
     : !isLastExaminer
-      ? "Î•Ï€ÏŒÎ¼ÎµÎ½Î¿Ï‚ Î•Î¾ÎµÏ„Î±ÏƒÏ„Î®Ï‚"
-      : "Î¤Î­Î»Î¿Ï‚ Î•Î¾Î­Ï„Î±ÏƒÎ·Ï‚";
+      ? "Επόμενος Εξεταστής"
+      : "Τέλος Εξέτασης";
 
   return (
     <div className="oral-simulator fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î± Î ÏÎ¿Ï†Î¿ÏÎ¹ÎºÎ¬
+          <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
 
       <div className="oral-exam-meta">
-        <span>Î•Î¾ÎµÏ„Î±ÏƒÏ„Î®Ï‚ {examinerIndex + 1} / {session.length}</span>
-        <span>{isAnchorQuestion ? "Î’Î±ÏƒÎ¹ÎºÎ® ÎµÏÏŽÏ„Î·ÏƒÎ·" : "Follow-up ÎµÏÏŽÏ„Î·ÏƒÎ·"}</span>
+        <span>Εξεταστής {examinerIndex + 1} / {session.length}</span>
+        <span>{isAnchorQuestion ? "Βασική ερώτηση" : "Follow-up ερώτηση"}</span>
       </div>
       <div className="oral-exam-context">
         {getOralExamQuestionContext(currentQuestion)}
@@ -6816,7 +6816,7 @@ function OralExamSimulator({ onBack, onHome }) {
         {!showAnswer ? (
           <div className="answer-placeholder">
             <Icons.Eye />
-            <div style={{marginTop:8}}>Î Î±Ï„Î®ÏƒÏ„Îµ Î³Î¹Î± Î½Î± Î´ÎµÎ¯Ï„Îµ Ï„Î·Î½ ÎµÎ½Î´ÎµÎ¹ÎºÏ„Î¹ÎºÎ® Î±Ï€Î¬Î½Ï„Î·ÏƒÎ·</div>
+            <div style={{marginTop:8}}>Πατήστε για να δείτε την ενδεικτική απάντηση</div>
           </div>
         ) : (
           <div className="answer-content">{getOralExamQuestionAnswer(currentQuestion)}</div>
@@ -6827,7 +6827,7 @@ function OralExamSimulator({ onBack, onHome }) {
 
       <div className="nav-bar">
         <button className="nav-btn" onClick={goPreviousQuestion} disabled={!canGoPrevious}>
-          <Icons.ChevronLeft /> Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î· Î•ÏÏŽÏ„Î·ÏƒÎ·
+          <Icons.ChevronLeft /> Προηγούμενη Ερώτηση
         </button>
         <button className="nav-btn primary" onClick={advanceQuestion}>
           {nextButtonLabel} <Icons.ChevronRight />
@@ -6842,14 +6842,14 @@ function OralTable({ rows, onBack, onHome }) {
     <div className="ref-table fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Î“ÏÎ®Î³Î¿ÏÎµÏ‚ Î‘Ï€Î±Î½Ï„Î®ÏƒÎµÎ¹Ï‚</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Î‘ÏÎ¹Î¸Î¼Î¿Î¯ Ï€Î¿Ï… Ï€ÏÎ­Ï€ÎµÎ¹ Î½Î± Î¾Î­ÏÎµÎ¹Ï‚</p>
+      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Γρήγορες Απαντήσεις</h2>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Αριθμοί που πρέπει να ξέρεις</p>
 
       {rows.map((row, i) => (
         <div key={i} className="ref-row">
@@ -6863,23 +6863,23 @@ function OralTable({ rows, onBack, onHome }) {
 
 function SosHome({ onBack, onHome, onOpenSection }) {
   const sections = [
-    { id: "highyield", title: "Î“ÏÎ®Î³Î¿ÏÎ± SOS" },
-    { id: "numbers", title: "Î‘ÏÎ¹Î¸Î¼Î¿Î¯ Ï€Î¿Ï… Ï€ÏÎ­Ï€ÎµÎ¹ Î½Î± Î¸Ï…Î¼Î¬Î¼Î±Î¹" },
-    { id: "critical", title: "ÎšÏÎ¯ÏƒÎ¹Î¼Î± Î˜Î­Î¼Î±Ï„Î±" },
-    { id: "differential", title: "Î”Î¹Î±Ï†Î¿ÏÎ¿Î´Î¹Î¬Î³Î½Ï‰ÏƒÎ·" },
+    { id: "highyield", title: "Γρήγορα SOS" },
+    { id: "numbers", title: "Αριθμοί που πρέπει να θυμάμαι" },
+    { id: "critical", title: "Κρίσιμα Θέματα" },
+    { id: "differential", title: "Διαφοροδιάγνωση" },
   ];
 
   return (
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2>SOS Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ®Ï‚</h2>
+      <h2>SOS Ψυχιατρικής</h2>
       <div className="sos-option-grid">
         {sections.map(section => (
           <button
@@ -6912,13 +6912,13 @@ function SosHighYieldTables({ onBack, onHome }) {
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ®Ï‚
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2>Î“ÏÎ®Î³Î¿ÏÎ± SOS</h2>
+      <h2>Γρήγορα SOS</h2>
       <div className="sos-flip-list">
         {highYieldPsychiatryTables.map(entry => {
           const isFlipped = flippedIds.has(entry.id);
@@ -6945,13 +6945,13 @@ function SosNumbersList({ onBack, onHome }) {
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ®Ï‚
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2>Î‘ÏÎ¹Î¸Î¼Î¿Î¯ Ï€Î¿Ï… Ï€ÏÎ­Ï€ÎµÎ¹ Î½Î± Î¸Ï…Î¼Î¬Î¼Î±Î¹</h2>
+      <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
       <div className="sos-number-list">
         {sosNumbers.map(entry => (
           <div key={entry.id} className="sos-number-entry">
@@ -6982,13 +6982,13 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             <Icons.ChevronLeft /> {title}
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <div className="oral-viewer-meta">
           <div className="oral-q-counter">{selectedIndex + 1} / {entries.length}</div>
           <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
-            {summary.mastered}/{summary.total} ÎºÎ±Ï„Î±ÎºÏ„Î·Î¼Î­Î½Î±
+            {summary.mastered}/{summary.total} κατακτημένα
           </span>
         </div>
         <h2>{selectedEntry.title}</h2>
@@ -7003,10 +7003,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         <div style={{ height: 80 }} />
         <div className="nav-bar">
           <button className="nav-btn" onClick={goPrev} disabled={selectedIndex === 0}>
-            <Icons.ChevronLeft /> Î ÏÎ¿Î·Î³Î¿ÏÎ¼ÎµÎ½Î¿
+            <Icons.ChevronLeft /> Προηγούμενο
           </button>
           <button className="nav-btn" onClick={goNext} disabled={selectedIndex === entries.length - 1}>
-            Î•Ï€ÏŒÎ¼ÎµÎ½Î¿ <Icons.ChevronRight />
+            Επόμενο <Icons.ChevronRight />
           </button>
         </div>
       </div>
@@ -7017,16 +7017,16 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Î¨Ï…Ï‡Î¹Î±Ï„ÏÎ¹ÎºÎ®Ï‚
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="oral-viewer-meta">
         <h2>{title}</h2>
         <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
-          {summary.mastered}/{summary.total} ÎºÎ±Ï„Î±ÎºÏ„Î·Î¼Î­Î½Î±
+          {summary.mastered}/{summary.total} κατακτημένα
         </span>
       </div>
       <div className="sos-list">
@@ -7050,25 +7050,25 @@ function PlaceholderPage({ title, description, icon, onBack, onHome }) {
     <div className="placeholder-page fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Î Î¯ÏƒÏ‰
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Î‘ÏÏ‡Î¹ÎºÎ®
+          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="placeholder-icon">{icon}</div>
       <h2>{title}</h2>
       <p>{description}</p>
       <button className="results-btn" onClick={onBack}>
-        Î•Ï€Î¹ÏƒÏ„ÏÎ¿Ï†Î® ÏƒÏ„Î·Î½ Î‘ÏÏ‡Î¹ÎºÎ®
+        Επιστροφή στην Αρχική
       </button>
     </div>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // MAIN APP
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
 export default function App() {
   const [screen, setScreen] = useState('home');
@@ -7491,7 +7491,7 @@ export default function App() {
         )}
         {activeProfile && screen === 'sos-critical' && (
           <SosEntrySection
-            title="ÎšÏÎ¯ÏƒÎ¹Î¼Î± Î˜Î­Î¼Î±Ï„Î±"
+            title="Κρίσιμα Θέματα"
             section="critical_topics"
             entries={sosCriticalTopics}
             sosProgress={sosProgress}
@@ -7502,7 +7502,7 @@ export default function App() {
         )}
         {activeProfile && screen === 'sos-differential' && (
           <SosEntrySection
-            title="Î”Î¹Î±Ï†Î¿ÏÎ¿Î´Î¹Î¬Î³Î½Ï‰ÏƒÎ·"
+            title="Διαφοροδιάγνωση"
             section="differential_diagnosis"
             entries={sosDifferentialDiagnosis}
             sosProgress={sosProgress}
@@ -7512,16 +7512,16 @@ export default function App() {
           />
         )}
         {activeProfile && screen === 'home' && showOpeningRequest && (
-          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="ÎœÎ¹ÎºÏÏŒ request">
+          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Μικρό request">
             <div className="modal">
-              <h3>ÎˆÎ½Î± Î¼Î¹ÎºÏÏŒ request ðŸ™‚</h3>
+              <h3>Ένα μικρό request 🙂</h3>
               <p>
-                Î‘Î½ ÏƒÎ±Ï‚ Î²Î¿Î·Î¸Î¬ Î· ÎµÏ†Î±ÏÎ¼Î¿Î³Î®, Î¼Î¿Î¹ÏÎ±ÏƒÏ„ÎµÎ¯Ï„Îµ Ï„Î· Î¼Îµ ÏƒÏ…Î½Î±Î´Î­Î»Ï†Î¿Ï…Ï‚, Î±Î»Î»Î¬ Î±Ï‚ Î¼Î·Î½ Ï„Î· Ï†Ï„Î¬ÏƒÎµÎ¹ ÏƒÏ„Î± Î¼Î¬Ï„Î¹Î± Ï„Ï‰Î½ ÎµÎ¾ÎµÏ„Î±ÏƒÏ„ÏŽÎ½.
-                Î˜Î± Î®Ï„Î±Î½ ÎºÏÎ¯Î¼Î± Î­Î½Î± ÎµÏÎ³Î±Î»ÎµÎ¯Î¿ Ï€Î¿Ï… Ï†Ï„Î¹Î¬Ï‡Ï„Î·ÎºÎµ Î³Î¹Î± Î½Î± Î²Î¿Î·Î¸Î®ÏƒÎµÎ¹ ÏƒÏ„Î·Î½ Ï€ÏÎ¿ÎµÏ„Î¿Î¹Î¼Î±ÏƒÎ¯Î± Î½Î± Î¿Î´Î·Î³Î®ÏƒÎµÎ¹ Ï„ÎµÎ»Î¹ÎºÎ¬ ÏƒÎµ Î±Î»Î»Î±Î³Î­Ï‚ ÏƒÏ„Î· Î´Î¹Î±Î´Î¹ÎºÎ±ÏƒÎ¯Î± Ï„Ï‰Î½ ÎµÎ¾ÎµÏ„Î¬ÏƒÎµÏ‰Î½.
+                Αν σας βοηθά η εφαρμογή, μοιραστείτε τη με συναδέλφους, αλλά ας μην τη φτάσει στα μάτια των εξεταστών.
+                Θα ήταν κρίμα ένα εργαλείο που φτιάχτηκε για να βοηθήσει στην προετοιμασία να οδηγήσει τελικά σε αλλαγές στη διαδικασία των εξετάσεων.
               </p>
               <div className="modal-actions">
                 <button className="results-btn primary" onClick={() => setShowOpeningRequest(false)}>
-                  Î¤Î¿ ÎºÎ±Ï„Î¬Î»Î±Î²Î±
+                  Το κατάλαβα
                 </button>
               </div>
             </div>
