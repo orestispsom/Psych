@@ -4857,7 +4857,12 @@ function toggleSelection(selected, value, allowMultiple) {
 
 
 function McqVignetteMode({ onBack, onHome }) {
-  const vignette = mcqVignettes[0];
+  const [selectedVignetteId, setSelectedVignetteId] = useState(null);
+  const availableVignettes = useMemo(() => mcqVignettes.filter(Boolean), []);
+  const vignette = useMemo(
+    () => availableVignettes.find(item => item.id === selectedVignetteId) || availableVignettes[0],
+    [availableVignettes, selectedVignetteId]
+  );
   const optionOrders = useMemo(() => createOptionOrders(vignette.questions), [vignette.id]);
   const [started, setStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -4877,6 +4882,18 @@ function McqVignetteMode({ onBack, onHome }) {
     text: question.options[originalIndex],
   }));
   const hasDeferredAnswers = vignette.questions.some(item => chosen[item.id] && !locked[item.id]);
+
+  const selectVignette = (vignetteId) => {
+    setSelectedVignetteId(vignetteId);
+    setStarted(false);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setChosen({});
+    setResult(null);
+    setReviewIdx(null);
+    setShowVignette(false);
+  };
 
   const chooseOption = (optionIndex) => {
     if (isLocked) return;
@@ -4925,6 +4942,35 @@ function McqVignetteMode({ onBack, onHome }) {
     setReviewIdx(null);
     setShowVignette(false);
   };
+
+  if (!selectedVignetteId) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Vignettes</h2>
+        <div className="choice-grid">
+          {availableVignettes.map(item => (
+            <button
+              key={item.id}
+              type="button"
+              className="choice-card selectable"
+              onClick={() => selectVignette(item.id)}
+            >
+              <span className="choice-id">{item.id.replace("spiegel_vignette_", "")}</span>
+              <span>{item.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const renderVignetteModal = () => showVignette && (
     <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowVignette(false)}>
