@@ -4337,36 +4337,6 @@ const STYLES = `
     border-color: rgba(34,197,94,0.32);
   }
 
-  .sos-flip-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-
-  .sos-flip-pill {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 4px 9px;
-    color: var(--text-dim);
-    font-size: 11px;
-    font-weight: 800;
-  }
-
-  .sos-flip-pill.answer {
-    border-color: rgba(34,197,94,0.34);
-    color: var(--green);
-  }
-
-  .sos-flip-label {
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-
   .sos-flip-text {
     color: var(--text);
     font-size: 16px;
@@ -5936,12 +5906,6 @@ function SosHighYieldTables({ onBack, onHome }) {
     });
   };
 
-  const getTypeLabel = (type) => {
-    if (type === "management") return "Αντιμετώπιση";
-    if (type === "diagnosis") return "Διάγνωση";
-    return "SOS";
-  };
-
   return (
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
@@ -5963,15 +5927,6 @@ function SosHighYieldTables({ onBack, onHome }) {
               className={`sos-flip-card ${isFlipped ? "flipped" : ""}`}
               onClick={() => toggleCard(entry.id)}
             >
-              <div className="sos-flip-meta">
-                <span className="sos-flip-pill">{entry.topic}</span>
-                <span className={`sos-flip-pill ${isFlipped ? "answer" : ""}`}>
-                  {getTypeLabel(entry.type)}
-                </span>
-              </div>
-              <div className="sos-flip-label">
-                {isFlipped ? "Απάντηση" : "Στοιχείο"}
-              </div>
               <div className="sos-flip-text">
                 {isFlipped ? entry.answer : entry.prompt}
               </div>
