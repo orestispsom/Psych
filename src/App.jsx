@@ -4,6 +4,7 @@ import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
 import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
+import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -4306,6 +4307,73 @@ const STYLES = `
     white-space: pre-wrap;
   }
 
+  .sos-flip-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .sos-flip-card {
+    width: 100%;
+    min-height: 150px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    padding: 20px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  }
+
+  .sos-flip-card:hover {
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .sos-flip-card.flipped {
+    background: linear-gradient(135deg, rgba(20,83,45,0.18), rgba(30,41,59,0.92));
+    border-color: rgba(34,197,94,0.32);
+  }
+
+  .sos-flip-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .sos-flip-pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 9px;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .sos-flip-pill.answer {
+    border-color: rgba(34,197,94,0.34);
+    color: var(--green);
+  }
+
+  .sos-flip-label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .sos-flip-text {
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 650;
+  }
+
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
     .home-title { font-size: 32px; }
@@ -4417,7 +4485,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile }) {
   const sections = [
     { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
     { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
-    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
+    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, πίνακες, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
   ];
 
   return (
@@ -5826,6 +5894,7 @@ function SosHome({ onBack, onHome, onOpenSection }) {
     { id: "numbers", title: "Αριθμοί που πρέπει να θυμάμαι" },
     { id: "critical", title: "Κρίσιμα Θέματα" },
     { id: "differential", title: "Διαφοροδιάγνωση" },
+    { id: "highyield", title: "Πίνακες SOS" },
   ];
 
   return (
@@ -5850,6 +5919,65 @@ function SosHome({ onBack, onHome, onOpenSection }) {
             <Icons.ChevronRight />
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SosHighYieldTables({ onBack, onHome }) {
+  const [flippedIds, setFlippedIds] = useState(() => new Set());
+
+  const toggleCard = (entryId) => {
+    setFlippedIds(current => {
+      const next = new Set(current);
+      if (next.has(entryId)) next.delete(entryId);
+      else next.add(entryId);
+      return next;
+    });
+  };
+
+  const getTypeLabel = (type) => {
+    if (type === "management") return "Αντιμετώπιση";
+    if (type === "diagnosis") return "Διάγνωση";
+    return "SOS";
+  };
+
+  return (
+    <div className="sos-screen fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> SOS Ψυχιατρικής
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <h2>Πίνακες SOS</h2>
+      <div className="sos-flip-list">
+        {highYieldPsychiatryTables.map(entry => {
+          const isFlipped = flippedIds.has(entry.id);
+          return (
+            <button
+              key={entry.id}
+              type="button"
+              className={`sos-flip-card ${isFlipped ? "flipped" : ""}`}
+              onClick={() => toggleCard(entry.id)}
+            >
+              <div className="sos-flip-meta">
+                <span className="sos-flip-pill">{entry.topic}</span>
+                <span className={`sos-flip-pill ${isFlipped ? "answer" : ""}`}>
+                  {getTypeLabel(entry.type)}
+                </span>
+              </div>
+              <div className="sos-flip-label">
+                {isFlipped ? "Απάντηση" : "Στοιχείο"}
+              </div>
+              <div className="sos-flip-text">
+                {isFlipped ? entry.answer : entry.prompt}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -6380,6 +6508,12 @@ export default function App() {
         )}
         {activeProfile && screen === 'sos-numbers' && (
           <SosNumbersList
+            onBack={() => setScreen('sos')}
+            onHome={() => setScreen('home')}
+          />
+        )}
+        {activeProfile && screen === 'sos-highyield' && (
+          <SosHighYieldTables
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
