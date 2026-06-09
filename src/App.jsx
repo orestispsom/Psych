@@ -5,6 +5,8 @@ import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
 import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
 import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
+import mcqVignettes from "./data/mcqVignettes.js";
+import mcqMatchingSets from "./data/mcqMatching.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -3330,6 +3332,213 @@ const STYLES = `
   }
 
   /* ─── NAVIGATION BAR ─── */
+  .structured-mcq {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 24px 120px;
+  }
+
+  .structured-mcq h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 34px;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+
+  .structured-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+
+  .structured-card.compact {
+    padding: 16px;
+  }
+
+  .vignette-text {
+    white-space: pre-line;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .vignette-open-btn {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 18px;
+  }
+
+  .structured-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .structured-progress {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .structured-question {
+    color: var(--text);
+    font-size: 20px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .structured-instruction {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .structured-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .structured-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .structured-option.selected {
+    border-color: var(--border-active);
+    background: var(--accent-soft);
+  }
+
+  .structured-option.correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .structured-option.incorrect {
+    border-color: var(--red);
+    background: var(--red-bg);
+  }
+
+  .structured-option-letter,
+  .choice-id {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .structured-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .structured-actions-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .choice-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .choice-card.selectable {
+    cursor: pointer;
+  }
+
+  .choice-card.selected {
+    border-color: var(--border-active);
+    background: var(--accent-soft);
+  }
+
+  .choice-card.correct {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .choice-card.incorrect {
+    border-color: var(--red);
+    background: var(--red-bg);
+  }
+
+  .sticky-choices {
+    position: sticky;
+    top: 8px;
+    z-index: 5;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+
+  .sticky-choices .choice-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .vignette-modal {
+    max-width: 760px;
+    text-align: left;
+  }
+
+  .vignette-modal-close {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
   .nav-bar {
     position: fixed;
     bottom: 0;
@@ -4588,6 +4797,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         Προσομοίωση 100 πολλαπλής
         <small>δίνει απαντήσεις μόνο στο τέλος</small>
       </button>
+      <button className="mode-btn" onClick={() => onStart('vignettes')}>
+        Vignettes
+        <small>κλινικό σενάριο με πολλαπλές ερωτήσεις</small>
+      </button>
+      <button className="mode-btn" onClick={() => onStart('matching')}>
+        Αντιστοίχηση
+        <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
+      </button>
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
@@ -4617,6 +4834,260 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function sameSelection(selected, correct) {
+  if (!Array.isArray(selected) || !Array.isArray(correct)) return false;
+  if (selected.length !== correct.length) return false;
+  const selectedSet = new Set(selected);
+  return correct.every(value => selectedSet.has(value));
+}
+
+function toggleSelection(selected, value, allowMultiple) {
+  if (!allowMultiple) return [value];
+  return selected.includes(value)
+    ? selected.filter(item => item !== value)
+    : [...selected, value];
+}
+
+function McqVignetteMode({ onBack, onHome }) {
+  const vignette = mcqVignettes[0];
+  const [started, setStarted] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [locked, setLocked] = useState({});
+  const [showVignette, setShowVignette] = useState(false);
+  const question = vignette.questions[currentIdx];
+  const selected = answers[question.id] || [];
+  const isLocked = Boolean(locked[question.id]);
+  const allowMultiple = question.correct.length > 1;
+
+  const chooseOption = (optionIndex) => {
+    if (isLocked) return;
+    setAnswers(prev => ({
+      ...prev,
+      [question.id]: toggleSelection(prev[question.id] || [], optionIndex, allowMultiple),
+    }));
+  };
+
+  if (!started) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Vignettes</h2>
+        <div className="structured-card">
+          <div className="structured-top">
+            <strong>{vignette.title}</strong>
+            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
+          </div>
+          <div className="vignette-text">{vignette.vignette}</div>
+        </div>
+        <button className="mode-btn featured" onClick={() => setStarted(true)}>
+          Έναρξη ερωτήσεων
+          <small>το vignette θα είναι διαθέσιμο από κουμπί σε κάθε ερώτηση</small>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="structured-mcq fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> MCQ Menu
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Home
+        </button>
+      </div>
+
+      <button className="vignette-open-btn" type="button" onClick={() => setShowVignette(true)}>
+        Προβολή vignette
+      </button>
+
+      <div className="structured-card">
+        <div className="structured-top">
+          <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
+          <span className="structured-progress">{allowMultiple ? "Πολλαπλές σωστές" : "Μία σωστή"}</span>
+        </div>
+        <div className="structured-question">{question.stem}</div>
+        {allowMultiple && <div className="structured-instruction">Επιλέξτε όλες τις σωστές απαντήσεις.</div>}
+        <div className="structured-options">
+          {question.options.map((option, index) => {
+            const isSelected = selected.includes(index);
+            const isCorrect = question.correct.includes(index);
+            let cls = "structured-option";
+            if (!isLocked && isSelected) cls += " selected";
+            if (isLocked && isCorrect) cls += " correct";
+            if (isLocked && isSelected && !isCorrect) cls += " incorrect";
+            return (
+              <button key={option} type="button" className={cls} onClick={() => chooseOption(index)}>
+                <span className="structured-option-letter">{String.fromCharCode(913 + index)}</span>
+                <span>{option}</span>
+              </button>
+            );
+          })}
+        </div>
+        {isLocked && (
+          <div className="explanation-box">
+            <strong>{sameSelection(selected, question.correct) ? "Correct" : "Review"}</strong>
+            {question.explanation}
+          </div>
+        )}
+        <div className="structured-actions">
+          <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.max(0, index - 1))} disabled={currentIdx === 0}>
+            <Icons.ChevronLeft />
+          </button>
+          <div className="structured-actions-group">
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={() => setLocked(prev => ({ ...prev, [question.id]: true }))} disabled={selected.length === 0}>
+                <Icons.Lock /> Lock
+              </button>
+            )}
+            <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(vignette.questions.length - 1, index + 1))} disabled={currentIdx >= vignette.questions.length - 1}>
+              <Icons.ChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showVignette && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowVignette(false)}>
+          <div className="modal vignette-modal" onClick={event => event.stopPropagation()}>
+            <div className="vignette-modal-close">
+              <button className="nav-btn" type="button" onClick={() => setShowVignette(false)}>
+                <Icons.X /> Close
+              </button>
+            </div>
+            <div className="vignette-text">{vignette.vignette}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function McqMatchingMode({ onBack, onHome }) {
+  const matchingSet = mcqMatchingSets[0];
+  const [started, setStarted] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [locked, setLocked] = useState({});
+  const item = matchingSet.items[currentIdx];
+  const selected = answers[item.id] || [];
+  const isLocked = Boolean(locked[item.id]);
+  const allowMultiple = item.correct.length > 1;
+
+  const chooseChoice = (choiceId) => {
+    if (isLocked) return;
+    setAnswers(prev => ({
+      ...prev,
+      [item.id]: toggleSelection(prev[item.id] || [], choiceId, allowMultiple),
+    }));
+  };
+
+  const renderChoices = (selectable = false) => (
+    <div className="choice-grid">
+      {matchingSet.choices.map(choice => {
+        const isSelected = selected.includes(choice.id);
+        const isCorrect = item?.correct.includes(choice.id);
+        let cls = `choice-card${selectable ? " selectable" : ""}`;
+        if (selectable && !isLocked && isSelected) cls += " selected";
+        if (selectable && isLocked && isCorrect) cls += " correct";
+        if (selectable && isLocked && isSelected && !isCorrect) cls += " incorrect";
+        return (
+          <button
+            key={choice.id}
+            type="button"
+            className={cls}
+            onClick={() => selectable && chooseChoice(choice.id)}
+          >
+            <span className="choice-id">{choice.id}</span>
+            <span>{choice.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  if (!started) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Αντιστοίχηση</h2>
+        <div className="structured-card">
+          <div className="structured-top">
+            <strong>{matchingSet.title}</strong>
+            <span className="structured-progress">{matchingSet.items.length} ερωτήσεις</span>
+          </div>
+          <p className="structured-instruction">{matchingSet.instructions}</p>
+          {renderChoices(false)}
+        </div>
+        <button className="mode-btn featured" onClick={() => setStarted(true)}>
+          Έναρξη
+          <small>οι επιλογές θα παραμένουν στην κορυφή</small>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="structured-mcq fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> MCQ Menu
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Home
+        </button>
+      </div>
+      <div className="sticky-choices">
+        {renderChoices(true)}
+      </div>
+      <div className="structured-card">
+        <div className="structured-top">
+          <span className="structured-progress">Ερώτηση {currentIdx + 1}/{matchingSet.items.length}</span>
+          <span className="structured-progress">{allowMultiple ? "Πολλαπλές επιλογές" : "Μία επιλογή"}</span>
+        </div>
+        <div className="structured-question">{item.prompt}</div>
+        {isLocked && (
+          <div className="explanation-box">
+            <strong>{sameSelection(selected, item.correct) ? "Correct" : "Review"}</strong>
+            {item.explanation}
+          </div>
+        )}
+        <div className="structured-actions">
+          <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.max(0, index - 1))} disabled={currentIdx === 0}>
+            <Icons.ChevronLeft />
+          </button>
+          <div className="structured-actions-group">
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={() => setLocked(prev => ({ ...prev, [item.id]: true }))} disabled={selected.length === 0}>
+                <Icons.Lock /> Lock
+              </button>
+            )}
+            <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(matchingSet.items.length - 1, index + 1))} disabled={currentIdx >= matchingSet.items.length - 1}>
+              <Icons.ChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -6587,7 +7058,19 @@ export default function App() {
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && (
+        {activeProfile && screen === 'mcq' && testMode === 'vignettes' && (
+          <McqVignetteMode
+            onBack={() => setTestMode(null)}
+            onHome={() => { setTestMode(null); setScreen('home'); }}
+          />
+        )}
+        {activeProfile && screen === 'mcq' && testMode === 'matching' && (
+          <McqMatchingMode
+            onBack={() => setTestMode(null)}
+            onHome={() => { setTestMode(null); setScreen('home'); }}
+          />
+        )}
+        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching'].includes(testMode) && (
           <McqTest
             mode={testMode}
             progress={mcqProgress}
