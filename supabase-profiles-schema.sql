@@ -1,10 +1,26 @@
 create table if not exists public.study_profiles (
   id text primary key,
   name text not null,
-  mcq_progress jsonb not null default '{"version":1,"questions":{},"updatedAt":null}'::jsonb,
+  mcq_progress jsonb not null default '{"version":2,"questions":{},"attempts":[],"dailyChallenges":{},"sprintSessions":[],"writtenExamSessions":[],"writtenExamDraft":null,"vignettes":{"completed":{},"updatedAt":null},"updatedAt":null}'::jsonb,
+  oral_progress jsonb not null default '{"version":1,"mastered":{},"updatedAt":null}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.study_profiles
+  add column if not exists oral_progress jsonb not null default '{"version":1,"mastered":{},"updatedAt":null}'::jsonb;
+
+alter table public.study_profiles
+  alter column mcq_progress set default '{"version":2,"questions":{},"attempts":[],"dailyChallenges":{},"sprintSessions":[],"writtenExamSessions":[],"writtenExamDraft":null,"vignettes":{"completed":{},"updatedAt":null},"updatedAt":null}'::jsonb;
+
+update public.study_profiles
+set mcq_progress = jsonb_set(
+  coalesce(mcq_progress, '{}'::jsonb),
+  '{vignettes}',
+  coalesce(mcq_progress->'vignettes', '{"completed":{},"updatedAt":null}'::jsonb),
+  true
+)
+where not (coalesce(mcq_progress, '{}'::jsonb) ? 'vignettes');
 
 alter table public.study_profiles enable row level security;
 
