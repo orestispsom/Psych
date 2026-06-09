@@ -5861,10 +5861,10 @@ function OralTable({ rows, onBack, onHome }) {
 
 function SosHome({ onBack, onHome, onOpenSection }) {
   const sections = [
+    { id: "highyield", title: "Γρήγορα SOS" },
     { id: "numbers", title: "Αριθμοί που πρέπει να θυμάμαι" },
     { id: "critical", title: "Κρίσιμα Θέματα" },
     { id: "differential", title: "Διαφοροδιάγνωση" },
-    { id: "highyield", title: "Πίνακες SOS" },
   ];
 
   return (
@@ -5916,7 +5916,7 @@ function SosHighYieldTables({ onBack, onHome }) {
           <Icons.Home /> Αρχική
         </button>
       </div>
-      <h2>Πίνακες SOS</h2>
+      <h2>Γρήγορα SOS</h2>
       <div className="sos-flip-list">
         {highYieldPsychiatryTables.map(entry => {
           const isFlipped = flippedIds.has(entry.id);
