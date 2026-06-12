@@ -1,7 +1,64 @@
 export const dsm5trSelfExamChapters = [
-  { id: "dsm5tr_ch01", chapter: 1, title: "Neurodevelopmental Disorders", questions: [] },
-  { id: "dsm5tr_ch02", chapter: 2, title: "Schizophrenia Spectrum and Other Psychotic Disorders", questions: [] },
-  { id: "dsm5tr_ch03", chapter: 3, title: "Bipolar and Related Disorders", questions: [] },
+  {
+    id: "dsm5tr_ch01",
+    chapter: 1,
+    title: "Neurodevelopmental Disorders",
+    questions: [
+      {
+        id: "dsm5tr_pilot_001",
+        source: "Extra UI pilot",
+        stem: "Which feature is most characteristic of autism spectrum disorder?",
+        options: [
+          "Restricted, repetitive patterns of behavior",
+          "Sudden episodes of derealization",
+          "Recurrent intrusive traumatic memories",
+          "Persistent fear of weight gain",
+        ],
+        correct: 0,
+        explanation: "Autism spectrum disorder is defined by persistent deficits in social communication and social interaction, together with restricted, repetitive patterns of behavior, interests, or activities. This pilot item is included only so the Extra interface can be tested before the full DSM-5-TR Self-Exam bank is imported.",
+      },
+    ],
+  },
+  {
+    id: "dsm5tr_ch02",
+    chapter: 2,
+    title: "Schizophrenia Spectrum and Other Psychotic Disorders",
+    questions: [
+      {
+        id: "dsm5tr_pilot_002",
+        source: "Extra UI pilot",
+        stem: "Which symptom is a negative symptom of schizophrenia?",
+        options: [
+          "Alogia",
+          "Thought insertion",
+          "Auditory hallucinations",
+          "Persecutory delusions",
+        ],
+        correct: 0,
+        explanation: "Negative symptoms include diminished emotional expression, avolition, alogia, anhedonia, and asociality. Hallucinations and delusions are positive symptoms. This is a pilot item for UI testing.",
+      },
+    ],
+  },
+  {
+    id: "dsm5tr_ch03",
+    chapter: 3,
+    title: "Bipolar and Related Disorders",
+    questions: [
+      {
+        id: "dsm5tr_pilot_003",
+        source: "Extra UI pilot",
+        stem: "What minimum duration is required for a hypomanic episode?",
+        options: [
+          "4 consecutive days",
+          "2 consecutive days",
+          "1 full week",
+          "2 full weeks",
+        ],
+        correct: 0,
+        explanation: "A hypomanic episode requires a distinct period of abnormally and persistently elevated, expansive, or irritable mood and increased activity or energy lasting at least 4 consecutive days. This is a pilot item for UI testing.",
+      },
+    ],
+  },
   { id: "dsm5tr_ch04", chapter: 4, title: "Depressive Disorders", questions: [] },
   { id: "dsm5tr_ch05", chapter: 5, title: "Anxiety Disorders", questions: [] },
   { id: "dsm5tr_ch06", chapter: 6, title: "Obsessive-Compulsive and Related Disorders", questions: [] },
