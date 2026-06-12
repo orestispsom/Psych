@@ -107,6 +107,29 @@ const WEAKNESS_SESSION_SIZE = 15;
 const WRITTEN_EXAM_SIZE = 100;
 const EXTRA_MCQ_PASSWORD = "Lasithi";
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
+const MCQ_TOPIC_CATEGORIES = [
+  "\u03a8\u03c5\u03c7\u03bf\u03c0\u03b1\u03b8\u03bf\u03bb\u03bf\u03b3\u03af\u03b1",
+  "\u03a8\u03c5\u03c7\u03c9\u03c4\u03b9\u03ba\u03ad\u03c2 \u03b4\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2",
+  "\u0394\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2 \u03b4\u03b9\u03ac\u03b8\u03b5\u03c3\u03b7\u03c2",
+  "\u0391\u03b3\u03c7\u03ce\u03b4\u03b5\u03b9\u03c2, \u0399\u03a8\u0394 \u03ba\u03b1\u03b9 \u03c4\u03c1\u03b1\u03cd\u03bc\u03b1",
+  "\u039d\u03b5\u03c5\u03c1\u03bf\u03b1\u03bd\u03b1\u03c0\u03c4\u03c5\u03be\u03b9\u03b1\u03ba\u03ad\u03c2 \u03ba\u03b1\u03b9 \u03c0\u03b1\u03b9\u03b4\u03bf\u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae",
+  "\u039d\u03b5\u03c5\u03c1\u03bf\u03bb\u03bf\u03b3\u03b9\u03ba\u03ad\u03c2 \u03ba\u03b1\u03b9 \u039f\u03c1\u03b3\u03b1\u03bd\u03b9\u03ba\u03ad\u03c2 \u0394\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2",
+  "\u0394\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2 \u03c7\u03c1\u03ae\u03c3\u03b7\u03c2 \u03bf\u03c5\u03c3\u03b9\u03ce\u03bd",
+  "\u03a8\u03c5\u03c7\u03bf\u03c6\u03b1\u03c1\u03bc\u03b1\u03ba\u03bf\u03bb\u03bf\u03b3\u03af\u03b1",
+  "\u0392\u03b9\u03bf\u03bb\u03bf\u03b3\u03b9\u03ba\u03ad\u03c2 \u03b8\u03b5\u03c1\u03b1\u03c0\u03b5\u03af\u03b5\u03c2",
+  "\u0395\u03c0\u03b5\u03af\u03b3\u03bf\u03c5\u03c3\u03b1 \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae",
+  "\u039a\u03b1\u03c4\u03b1\u03c4\u03bf\u03bd\u03af\u03b1 \u03ba\u03b1\u03b9 \u03ba\u03b9\u03bd\u03b7\u03c4\u03b9\u03ba\u03ad\u03c2 \u03b4\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2",
+  "\u0394\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2 \u03c0\u03c1\u03bf\u03c3\u03c9\u03c0\u03b9\u03ba\u03cc\u03c4\u03b7\u03c4\u03b1\u03c2",
+  "\u0394\u03b9\u03b1\u03c4\u03c1\u03bf\u03c6\u03b9\u03ba\u03ad\u03c2 \u03b4\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2",
+  "\u0394\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2 \u03cd\u03c0\u03bd\u03bf\u03c5",
+  "\u03a3\u03c9\u03bc\u03b1\u03c4\u03b9\u03ba\u03ac, \u03b1\u03c0\u03bf\u03c3\u03c5\u03bd\u03b4\u03b5\u03c4\u03b9\u03ba\u03ac \u03ba\u03b1\u03b9 \u03bb\u03b5\u03b9\u03c4\u03bf\u03c5\u03c1\u03b3\u03b9\u03ba\u03ac \u03c3\u03c5\u03bc\u03c0\u03c4\u03ce\u03bc\u03b1\u03c4\u03b1",
+  "\u03a3\u03b5\u03be\u03bf\u03c5\u03b1\u03bb\u03b9\u03ba\u03cc\u03c4\u03b7\u03c4\u03b1, \u03c6\u03cd\u03bb\u03bf \u03ba\u03b1\u03b9 \u03c0\u03b5\u03c1\u03b9\u03b3\u03b5\u03bd\u03bd\u03b7\u03c4\u03b9\u03ba\u03ae \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae",
+  "\u03a8\u03c5\u03c7\u03bf\u03b8\u03b5\u03c1\u03b1\u03c0\u03b5\u03af\u03b1",
+  "\u039d\u03bf\u03bc\u03b9\u03ba\u03ac, \u03b4\u03b5\u03bf\u03bd\u03c4\u03bf\u03bb\u03bf\u03b3\u03af\u03b1 \u03ba\u03b1\u03b9 forensic",
+  "\u0399\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03ba\u03b1\u03b9 liaison",
+  "\u03a8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03b7\u03bb\u03b9\u03ba\u03b9\u03c9\u03bc\u03ad\u03bd\u03c9\u03bd",
+  "\u0399\u03c3\u03c4\u03bf\u03c1\u03af\u03b1, \u03ad\u03c1\u03b5\u03c5\u03bd\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7"
+];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Duplicate" },
   { value: "too_easy_wording", label: "Υπερβολικά εύκολη διατύπωση" },
@@ -1525,6 +1548,20 @@ function getQuestionTopic(question) {
   ];
 
   return topicRules.find(([, pattern]) => pattern.test(text))?.[0] || "General Psychiatry";
+}
+
+function getMcqTopicCounts() {
+  const counts = new Map(MCQ_TOPIC_CATEGORIES.map(topic => [topic, 0]));
+  QUESTIONS.forEach(question => {
+    const topic = getQuestionTopic(question);
+    counts.set(topic, (counts.get(topic) || 0) + 1);
+  });
+  return counts;
+}
+
+function getQuestionsForMcqTopic(topic) {
+  if (!topic) return [];
+  return QUESTIONS.filter(question => getQuestionTopic(question) === topic);
 }
 
 function getQuestionWeakAreaTags(question) {
@@ -5197,9 +5234,13 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         Αδύναμα Θέματα
         <small>επανάληψη σε λάθος απαντήσεις</small>
       </button>
+      <button className="mode-btn" onClick={() => onStart('category')}>
+        {"\u0395\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03b1\u03bd\u03ac \u039a\u03b1\u03c4\u03b7\u03b3\u03bf\u03c1\u03af\u03b1"}
+        <small>{"\u03b5\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03bf\u03c1\u03b3\u03b1\u03bd\u03c9\u03bc\u03ad\u03bd\u03b5\u03c2 \u03bc\u03b5 \u03b2\u03ac\u03c3\u03b7 \u03c4\u03bf \u03b8\u03ad\u03bc\u03b1"}</small>
+      </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
-        Προσομοίωση 100 πολλαπλής
-        <small>δίνει απαντήσεις μόνο στο τέλος</small>
+        {"\u03a0\u03c1\u03bf\u03c3\u03bf\u03bc\u03bf\u03af\u03c9\u03c3\u03b7 100 \u03a0\u03bf\u03bb\u03bb\u03b1\u03c0\u03bb\u03ae\u03c2"}
+        <small>{"\u03b4\u03af\u03bd\u03b5\u03b9 \u03b1\u03c0\u03b1\u03bd\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03bc\u03cc\u03bd\u03bf \u03c3\u03c4\u03bf \u03c4\u03ad\u03bb\u03bf\u03c2"}</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('vignettes')}>
         Vignettes
@@ -5270,6 +5311,41 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   );
 }
 
+function McqTopicSelect({ onBack, onHome, onSelectTopic }) {
+  const topicCounts = useMemo(() => getMcqTopicCounts(), []);
+
+  return (
+    <div className="mcq-select fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> MCQ Menu
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Home
+        </button>
+      </div>
+      <h2>Ερωτήσεις ανά Κατηγορία</h2>
+
+      <div className="extra-chapter-list">
+        {MCQ_TOPIC_CATEGORIES.map(topic => {
+          const count = topicCounts.get(topic) || 0;
+          return (
+            <button
+              key={topic}
+              className="extra-chapter-row"
+              disabled={!count}
+              onClick={() => onSelectTopic(topic)}
+            >
+              <span className="extra-chapter-title">{topic}</span>
+              <span>{count} ερωτήσεις</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function sameSelection(selected, correct) {
   if (!Array.isArray(selected) || !Array.isArray(correct)) return false;
   if (selected.length !== correct.length) return false;
@@ -5329,7 +5405,8 @@ function buildExtraSession(sourceType, chapter = null) {
     ? dsm5trSelfExamQuestions
     : getExtraChapterQuestions(chapter);
 
-  return shuffleItems(sourceQuestions.filter(question => question?.options?.length));
+  const eligibleQuestions = sourceQuestions.filter(question => question?.options?.length);
+  return sourceType === "random" ? shuffleItems(eligibleQuestions) : eligibleQuestions;
 }
 
 function ExtraMcqMode({ onBack, onHome }) {
@@ -6091,10 +6168,14 @@ function McqMatchingMode({ onBack, onHome }) {
   );
 }
 
-function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
+function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null }) {
   const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
-  const initialSessionQuestionsRef = useRef(initialWrittenQuestionsRef.current?.length ? initialWrittenQuestionsRef.current : getSessionQuestions(mode, progress));
+  const initialSessionQuestionsRef = useRef(
+    initialWrittenQuestionsRef.current?.length
+      ? initialWrittenQuestionsRef.current
+      : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress))
+  );
   const sessionIdRef = useRef(initialWrittenDraftRef.current?.sessionId || `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
   const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
@@ -6166,6 +6247,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     sprint: "Mini-test",
     weakness: "Αδυναμίες",
     written: "Προσομοίωση με 100 Πολλαπλής",
+    category: sessionTitle || "\u0395\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03b1\u03bd\u03ac \u039a\u03b1\u03c4\u03b7\u03b3\u03bf\u03c1\u03af\u03b1",
   }[mode] || "MCQ";
 
   const buildCurrentWrittenDraft = useCallback((overrides = {}) => {
@@ -7731,6 +7813,7 @@ function PlaceholderPage({ title, description, icon, onBack, onHome }) {
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [testMode, setTestMode] = useState(null);
+  const [selectedMcqTopic, setSelectedMcqTopic] = useState(null);
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
@@ -7750,6 +7833,10 @@ export default function App() {
   const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
   const mcqProgressSummary = useMemo(() => summarizeMcqProgress(mcqProgress), [mcqProgress]);
   const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
+  const selectedMcqTopicQuestions = useMemo(
+    () => selectedMcqTopic ? shuffleItems(getQuestionsForMcqTopic(selectedMcqTopic)) : [],
+    [selectedMcqTopic]
+  );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Local profiles only. Add Supabase environment variables for online sync.";
     if (syncStatus === "loading") return "Loading online profiles...";
@@ -7887,6 +7974,7 @@ export default function App() {
     const profile = profileStore.profiles[profileId];
     setScreen('home');
     setTestMode(null);
+    setSelectedMcqTopic(null);
     setProfileStore(prev => ({
       ...prev,
       activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
@@ -7917,6 +8005,7 @@ export default function App() {
 
     setScreen('home');
     setTestMode(null);
+    setSelectedMcqTopic(null);
     setProfileStore(prev => ({
       ...prev,
       activeProfileId: profileId,
@@ -8100,7 +8189,13 @@ export default function App() {
   const switchProfile = useCallback(() => {
     setScreen('home');
     setTestMode(null);
+    setSelectedMcqTopic(null);
     setProfileStore(prev => ({ ...prev, activeProfileId: null }));
+  }, []);
+
+  const startMcqMode = useCallback((mode) => {
+    if (mode !== "category") setSelectedMcqTopic(null);
+    setTestMode(mode);
   }, []);
 
   return (
@@ -8129,10 +8224,24 @@ export default function App() {
         {activeProfile && screen === 'mcq' && !testMode && (
           <McqSelect
             onBack={() => setScreen('home')}
-            onStart={(mode) => setTestMode(mode)}
+            onStart={startMcqMode}
             onHome={() => setScreen('home')}
             progressSummary={mcqProgressSummary}
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
+          />
+        )}
+        {activeProfile && screen === 'mcq' && testMode === 'category' && !selectedMcqTopic && (
+          <McqTopicSelect
+            onBack={() => {
+              setSelectedMcqTopic(null);
+              setTestMode(null);
+            }}
+            onHome={() => {
+              setSelectedMcqTopic(null);
+              setTestMode(null);
+              setScreen('home');
+            }}
+            onSelectTopic={(topic) => setSelectedMcqTopic(topic)}
           />
         )}
         {activeProfile && screen === 'mcq' && testMode === 'vignettes' && (
@@ -8155,13 +8264,25 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'extra'].includes(testMode) && (
+        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'extra'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
           <McqTest
             mode={testMode}
             progress={mcqProgress}
             onProgressChange={updateMcqProgress}
-            onBack={() => setTestMode(null)}
-            onHome={() => { setTestMode(null); setScreen('home'); }}
+            sessionQuestions={testMode === 'category' ? selectedMcqTopicQuestions : null}
+            sessionTitle={testMode === 'category' ? selectedMcqTopic : null}
+            onBack={() => {
+              if (testMode === 'category') {
+                setSelectedMcqTopic(null);
+              } else {
+                setTestMode(null);
+              }
+            }}
+            onHome={() => {
+              setSelectedMcqTopic(null);
+              setTestMode(null);
+              setScreen('home');
+            }}
           />
         )}
         {activeProfile && screen === 'oral' && (
