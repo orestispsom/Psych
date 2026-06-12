@@ -5207,7 +5207,6 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       </button>
       <button className="mode-btn" onClick={() => setShowExtraPassword(true)}>
         Extra
-        <small>DSM-5-TR Self-Exam</small>
       </button>
 
       {showExtraPassword && (
