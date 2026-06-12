@@ -3704,6 +3704,10 @@ const STYLES = `
     max-width: 520px;
   }
 
+  .extra-nav-row {
+    justify-content: center;
+  }
+
   .choice-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -5527,18 +5531,16 @@ function ExtraMcqMode({ onBack, onHome }) {
         <span>{Math.max(0, answeredCount - correctCount)} incorrect</span>
       </div>
       {renderQuestion()}
-      <div className="structured-actions">
+      <div className="structured-actions extra-nav-row">
         <button className="nav-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
           <Icons.ChevronLeft />
         </button>
-        <div className="structured-actions-group">
-          <button className="nav-btn primary" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
-            <Icons.Lock /> Lock
-          </button>
-          <button className="nav-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
-            <Icons.ChevronRight />
-          </button>
-        </div>
+        <button className="nav-btn primary" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
+          <Icons.Lock /> Lock
+        </button>
+        <button className="nav-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
+          <Icons.ChevronRight />
+        </button>
       </div>
 
       {result && (
