@@ -7,6 +7,7 @@ import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/
 import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 import mcqVignettes from "./data/mcqVignettes.js";
 import mcqMatchingSets from "./data/mcqMatching.js";
+import dsm5trSelfExamChapters, { dsm5trSelfExamQuestions } from "./data/dsm5trSelfExamQuestions.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -104,6 +105,7 @@ const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const WRITTEN_EXAM_SIZE = 100;
+const EXTRA_MCQ_PASSWORD = "Lasithi";
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Duplicate" },
@@ -1023,6 +1025,46 @@ async function saveRemoteAnswerBehavior(profileId, progress, lastSyncedAttemptId
       }
     );
   }
+}
+
+async function saveRemoteQuestionStates(profileId, progress, questionIds) {
+  const rows = [...new Set(questionIds.map(String))]
+    .map(questionId => {
+      const questionState = progress.questions?.[questionId] || progress.questions?.[Number(questionId)];
+      if (!questionState) return null;
+
+      return {
+        profile_id: profileId,
+        question_id: questionId,
+        seen_count: questionState.seenCount || questionState.attempts || (questionState.seenAt ? 1 : 0),
+        correct_count: questionState.correctCount || 0,
+        wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
+        consecutive_correct: questionState.consecutiveCorrect || 0,
+        consecutive_wrong: questionState.consecutiveWrong || 0,
+        mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
+        last_seen_at: questionState.seenAt || null,
+        next_review_at: questionState.nextReviewAt || null,
+        last_answer_correct: questionState.lastCorrect ?? null,
+        last_confidence: questionState.lastConfidence || null,
+        confident_wrong_count: questionState.confidentWrongCount || 0,
+        average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
+        total_points: questionState.totalPoints || 0,
+        updated_at: new Date().toISOString(),
+      };
+    })
+    .filter(Boolean);
+
+  if (!rows.length) return;
+
+  await supabaseTableRequest(
+    "user_question_state",
+    { on_conflict: "profile_id,question_id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(rows),
+    }
+  );
 }
 
 async function deleteRemoteQuestionBehavior(profileId) {
@@ -2031,16 +2073,10 @@ function getWrittenExamSessions(progress) {
   });
 }
 
-function recordWrittenExamSubmission(progress, questions, answers, sessionId, alreadyRecordedQuestionIds = []) {
-  const alreadyRecorded = new Set(alreadyRecordedQuestionIds.map(String));
-
+function recordWrittenExamSubmission(progress, questions, answers, sessionId) {
   return questions.reduce((nextProgress, question) => {
     const selected = answers[question.id];
     if (selected === undefined || selected === null) {
-      return markQuestionSeen(nextProgress, question.id);
-    }
-
-    if (alreadyRecorded.has(String(question.id))) {
       return markQuestionSeen(nextProgress, question.id);
     }
 
@@ -3568,6 +3604,106 @@ const STYLES = `
     flex-wrap: wrap;
   }
 
+  .extra-chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .extra-chapter-row {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .extra-chapter-row.featured {
+    border-color: var(--border-active);
+    background: var(--accent-soft);
+  }
+
+  .extra-chapter-row:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .extra-chapter-title {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .extra-session-header,
+  .extra-session-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .extra-session-header span,
+  .extra-session-stats span {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-surface);
+    color: var(--text-dim);
+    padding: 7px 11px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .extra-question-card {
+    padding: 26px;
+  }
+
+  .extra-question-stem {
+    font-size: 19px;
+    line-height: 1.65;
+  }
+
+  .extra-option {
+    min-height: 72px;
+    align-items: flex-start;
+  }
+
+  .extra-option-text {
+    white-space: pre-line;
+  }
+
+  .extra-explanation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    white-space: pre-line;
+    line-height: 1.65;
+    text-align: left;
+  }
+
+  .extra-empty-note {
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+
+  .extra-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .extra-result-modal {
+    max-width: 520px;
+  }
+
   .choice-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -3811,6 +3947,43 @@ const STYLES = `
     width: 90%;
     text-align: center;
     box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-dim);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .modal-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .extra-password-modal {
+    position: relative;
+  }
+
+  .extra-password-modal input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 12px 14px;
+    margin: 10px 0 14px;
+    font-family: inherit;
+    font-size: 16px;
   }
 
   .modal h3 {
@@ -4961,6 +5134,25 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
 
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions.slice(0, 6);
+  const [showExtraPassword, setShowExtraPassword] = useState(false);
+  const [extraPassword, setExtraPassword] = useState("");
+  const [extraPasswordError, setExtraPasswordError] = useState("");
+
+  const closeExtraPassword = () => {
+    setShowExtraPassword(false);
+    setExtraPassword("");
+    setExtraPasswordError("");
+  };
+
+  const submitExtraPassword = (event) => {
+    event.preventDefault();
+    if (extraPassword.trim() === EXTRA_MCQ_PASSWORD) {
+      closeExtraPassword();
+      onStart("extra");
+      return;
+    }
+    setExtraPasswordError("Wrong password.");
+  };
 
   return (
     <div className="mcq-select fade-in">
@@ -5013,6 +5205,35 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         Αντιστοίχηση
         <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
       </button>
+      <button className="mode-btn" onClick={() => setShowExtraPassword(true)}>
+        Extra
+        <small>DSM-5-TR Self-Exam</small>
+      </button>
+
+      {showExtraPassword && (
+        <div className="modal-overlay" onClick={closeExtraPassword}>
+          <form className="modal extra-password-modal" onSubmit={submitExtraPassword} onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="modal-close" onClick={closeExtraPassword} aria-label="Close">
+              <Icons.X />
+            </button>
+            <h3>Password?</h3>
+            <input
+              type="password"
+              value={extraPassword}
+              onChange={(event) => {
+                setExtraPassword(event.target.value);
+                setExtraPasswordError("");
+              }}
+              autoFocus
+            />
+            {extraPasswordError && <p className="error-text">{extraPasswordError}</p>}
+            <div className="modal-actions">
+              <button type="button" className="secondary-btn" onClick={closeExtraPassword}>Cancel</button>
+              <button type="submit" className="primary-btn">Open Extra</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
@@ -5072,6 +5293,268 @@ function pickRandomMatchingSet(excludeId = null) {
     ? sets.filter(set => set.id !== excludeId)
     : sets;
   return pool[Math.floor(Math.random() * pool.length)] || sets[0];
+}
+
+function getExtraChapterQuestions(chapter) {
+  if (!chapter) return [];
+  return (chapter.questions || []).map(question => ({
+    ...question,
+    chapter: question.chapter ?? chapter.chapter,
+    chapterTitle: question.chapterTitle || chapter.title,
+  }));
+}
+
+function normalizeExtraCorrectIndex(question) {
+  const correct = Array.isArray(question?.correct)
+    ? question.correct[0]
+    : question?.correct ?? question?.correctIndex ?? question?.answerIndex;
+
+  if (Number.isInteger(correct)) return correct;
+  if (typeof correct === "string") {
+    const trimmed = correct.trim();
+    const letterIndex = OPTION_LETTERS.findIndex(letter => letter.toLowerCase() === trimmed.toLowerCase());
+    if (letterIndex >= 0) return letterIndex;
+    const exactIndex = (question.options || []).findIndex(option => option.trim() === trimmed);
+    if (exactIndex >= 0) return exactIndex;
+  }
+
+  return -1;
+}
+
+function buildExtraSession(sourceType, chapter = null) {
+  const sourceQuestions = sourceType === "random"
+    ? dsm5trSelfExamQuestions
+    : getExtraChapterQuestions(chapter);
+
+  return shuffleItems(sourceQuestions.filter(question => question?.options?.length));
+}
+
+function ExtraMcqMode({ onBack, onHome }) {
+  const totalExtraQuestions = dsm5trSelfExamQuestions.length;
+  const [sessionLabel, setSessionLabel] = useState("");
+  const [questions, setQuestions] = useState([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [locked, setLocked] = useState({});
+  const [result, setResult] = useState(null);
+  const [reviewWrong, setReviewWrong] = useState(false);
+  const optionOrders = useMemo(() => createOptionOrders(questions), [questions]);
+
+  const question = questions[currentIdx];
+  const selected = question ? answers[question.id] : undefined;
+  const isLocked = question ? Boolean(locked[question.id]) : false;
+  const answeredRows = questions.map(item => {
+    const chosen = answers[item.id];
+    const answered = Boolean(locked[item.id]);
+    const correct = answered && chosen === normalizeExtraCorrectIndex(item);
+    return { question: item, selected: chosen, answered, correct };
+  });
+  const answeredCount = answeredRows.filter(row => row.answered).length;
+  const correctCount = answeredRows.filter(row => row.correct).length;
+  const wrongRows = answeredRows.filter(row => row.answered && !row.correct);
+
+  const startSession = (sourceType, chapter = null) => {
+    const nextQuestions = buildExtraSession(sourceType, chapter);
+    setSessionLabel(sourceType === "random" ? "Random" : `Chapter ${chapter.chapter}: ${chapter.title}`);
+    setQuestions(nextQuestions);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setResult(null);
+    setReviewWrong(false);
+  };
+
+  const backToExtraHome = () => {
+    setSessionLabel("");
+    setQuestions([]);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setResult(null);
+    setReviewWrong(false);
+  };
+
+  const lockAnswer = () => {
+    if (!question || selected === undefined) return;
+    const nextLocked = { ...locked, [question.id]: true };
+    setLocked(nextLocked);
+
+    if (questions.every(item => nextLocked[item.id])) {
+      const rows = questions.map(item => {
+        const chosen = answers[item.id];
+        const correct = chosen === normalizeExtraCorrectIndex(item);
+        return { question: item, selected: chosen, answered: true, correct };
+      });
+      const correct = rows.filter(row => row.correct).length;
+      setResult({ rows, total: rows.length, correct, wrong: rows.length - correct });
+    }
+  };
+
+  const renderQuestion = (rowQuestion = question, rowSelected = selected, lockedView = isLocked) => {
+    if (!rowQuestion) return null;
+    const correctIndex = normalizeExtraCorrectIndex(rowQuestion);
+    const displayedOptions = getStoredOptionOrder(rowQuestion, optionOrders).map(originalIndex => ({
+      originalIndex,
+      text: rowQuestion.options[originalIndex],
+    }));
+
+    return (
+      <div className="structured-card extra-question-card">
+        <div className="structured-top">
+          <span className="structured-progress">{rowQuestion.chapterTitle || "DSM-5-TR Self-Exam"}</span>
+          {questions.length > 0 && <span className="structured-progress">{currentIdx + 1}/{questions.length}</span>}
+        </div>
+        <div className="structured-question extra-question-stem">{rowQuestion.stem}</div>
+        <div className="structured-options extra-options">
+          {displayedOptions.map((option, displayIndex) => {
+            let cls = "structured-option extra-option";
+            if (!lockedView && option.originalIndex === rowSelected) cls += " selected";
+            if (lockedView && option.originalIndex === correctIndex) cls += " correct";
+            if (lockedView && option.originalIndex === rowSelected && option.originalIndex !== correctIndex) cls += " incorrect";
+            return (
+              <button
+                key={option.originalIndex}
+                type="button"
+                className={cls}
+                disabled={lockedView}
+                onClick={() => setAnswers(prev => ({ ...prev, [rowQuestion.id]: option.originalIndex }))}
+              >
+                <span className="structured-option-letter">{OPTION_LETTERS[displayIndex] || displayIndex + 1}</span>
+                <span className="extra-option-text">{option.text}</span>
+              </button>
+            );
+          })}
+        </div>
+        {lockedView && (
+          <div className="explanation-box extra-explanation">
+            <strong>{rowSelected === correctIndex ? "Correct" : "Explanation"}</strong>
+            <span>{rowQuestion.explanation || rowQuestion.answer || "No explanation has been added for this question yet."}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (reviewWrong) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div className="structured-top">
+          <button className="back-link" onClick={() => setReviewWrong(false)}>
+            <Icons.ChevronLeft /> Results
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Wrong Answer Review</h2>
+        {wrongRows.length === 0 ? (
+          <div className="structured-card extra-empty-note">No wrong answers in this session.</div>
+        ) : (
+          <div className="extra-review-list">
+            {wrongRows.map(row => (
+              <div className="extra-review-item" key={row.question.id}>
+                {renderQuestion(row.question, row.selected, true)}
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="structured-actions">
+          <button className="secondary-btn" onClick={() => setReviewWrong(false)}>Back to results</button>
+          <button className="primary-btn" onClick={backToExtraHome}>Extra menu</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questions.length) {
+    return (
+      <div className="structured-mcq fade-in">
+        <div className="structured-top">
+          <button className="back-link" onClick={onBack}>
+            <Icons.ChevronLeft /> MCQ Menu
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Extra</h2>
+        <div className="structured-card compact extra-empty-note">
+          DSM-5-TR Self-Exam bank: {totalExtraQuestions} questions loaded.
+        </div>
+        <div className="extra-chapter-list">
+          <button className="extra-chapter-row featured" disabled={!totalExtraQuestions} onClick={() => startSession("random")}>
+            <span className="extra-chapter-title">Random</span>
+            <span>{totalExtraQuestions} questions</span>
+          </button>
+          {dsm5trSelfExamChapters.map(chapter => {
+            const count = getExtraChapterQuestions(chapter).length;
+            return (
+              <button
+                key={chapter.id}
+                className="extra-chapter-row"
+                disabled={!count}
+                onClick={() => startSession("chapter", chapter)}
+              >
+                <span className="extra-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
+                <span>{count} questions</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="structured-mcq fade-in">
+      <div className="structured-top">
+        <button className="back-link" onClick={backToExtraHome}>
+          <Icons.ChevronLeft /> Extra Menu
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Home
+        </button>
+      </div>
+      <h2>{sessionLabel}</h2>
+      <div className="extra-session-header">
+        <span>{questions.length} total</span>
+        <span>{answeredCount} answered</span>
+        <span>{correctCount} correct</span>
+        <span>{Math.max(0, answeredCount - correctCount)} incorrect</span>
+      </div>
+      {renderQuestion()}
+      <div className="structured-actions">
+        <button className="icon-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
+          <Icons.ChevronLeft />
+        </button>
+        <div className="structured-actions-group">
+          <button className="secondary-btn" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
+            <Icons.Lock /> Lock
+          </button>
+          <button className="icon-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
+            <Icons.ChevronRight />
+          </button>
+        </div>
+      </div>
+
+      {result && (
+        <div className="modal-overlay">
+          <div className="modal extra-result-modal">
+            <h3>Session complete</h3>
+            <div className="extra-session-stats">
+              <span>{result.correct}/{result.total}</span>
+              <span>{Math.round((result.correct / Math.max(1, result.total)) * 100)}%</span>
+              <span>{result.wrong} wrong</span>
+            </div>
+            <div className="modal-actions">
+              <button className="secondary-btn" onClick={() => setReviewWrong(true)}>Review wrong answers</button>
+              <button className="primary-btn" onClick={backToExtraHome}>Extra menu</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
@@ -5802,13 +6285,11 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
     setAnswers(nextAnswers);
 
     if (mode === "written") {
-      const questionKey = String(q.id);
-      const wasRecorded = writtenRecordedAnswerIdsRef.current.has(questionKey);
       const draft = buildCurrentWrittenDraft({ answers: nextAnswers });
       if (!draft) return;
 
-      onProgressChange(prev => recordWrittenDraftAnswer(prev, draft, q, idx));
-      if (!wasRecorded) writtenRecordedAnswerIdsRef.current.add(questionKey);
+      onProgressChange(prev => saveWrittenExamDraft(prev, draft));
+      return;
     }
   };
 
@@ -5996,9 +6477,9 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
 
     try {
       const result = getWrittenExamResult(questions, answers);
-      const alreadyRecordedQuestionIds = [...writtenRecordedAnswerIdsRef.current];
       const sessionSummary = {
         id: sessionIdRef.current,
+        questionIds: questions.map(question => question.id),
         completedAt: new Date().toISOString(),
         total: result.total,
         correct: result.correct,
@@ -6015,7 +6496,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome }) {
       try {
         onProgressChange(prev => clearWrittenExamDraft(
           recordWrittenExamSession(
-            recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current, alreadyRecordedQuestionIds),
+            recordWrittenExamSubmission(prev, questions, answers, sessionIdRef.current),
             sessionSummary
           )
         ));
@@ -7254,6 +7735,7 @@ export default function App() {
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
+  const pendingMcqRemoteSaveRef = useRef(null);
   const activeProfile = profileStore.activeProfileId
     ? profileStore.profiles[profileStore.activeProfileId]
     : null;
@@ -7357,18 +7839,24 @@ export default function App() {
     remoteSaveTimerRef.current = setTimeout(async () => {
       try {
         await saveRemoteMcqProgress(profileId, progress);
-        const latestAttemptId = progress.attempts?.[0]?.id;
+        const latestAttempt = progress.attempts?.[0];
+        const latestAttemptId = latestAttempt?.id;
         if (latestAttemptId && latestAttemptId !== lastRemoteAttemptIdRef.current) {
-          try {
-            await saveRemoteAnswerBehavior(profileId, progress, lastRemoteAttemptIdRef.current);
-          } catch {
-            // The normalized gamification tables are optional; the profile JSON remains the source of truth.
-          } finally {
-            lastRemoteAttemptIdRef.current = latestAttemptId;
+          await saveRemoteAnswerBehavior(profileId, progress, lastRemoteAttemptIdRef.current);
+
+          if (latestAttempt.mode === "written" && latestAttempt.sessionId) {
+            const writtenSession = (progress.writtenExamSessions || [])
+              .find(session => session.id === latestAttempt.sessionId);
+            if (writtenSession?.questionIds?.length) {
+              await saveRemoteQuestionStates(profileId, progress, writtenSession.questionIds);
+            }
           }
+
+          lastRemoteAttemptIdRef.current = latestAttemptId;
         }
         setSyncStatus("online");
-      } catch {
+      } catch (error) {
+        console.error("Remote MCQ progress save failed", error);
         setSyncStatus("offline");
       }
     }, 500);
@@ -7474,26 +7962,39 @@ export default function App() {
 
   const updateMcqProgress = useCallback((nextOrUpdater) => {
     const profileId = profileStore.activeProfileId;
-    const profile = profileId ? profileStore.profiles[profileId] : null;
-    if (!profile) return;
+    if (!profileId) return;
 
-    const currentProgress = profile.mcqProgress || createEmptyMcqProgress();
-    const nextProgress = typeof nextOrUpdater === "function"
-      ? nextOrUpdater(currentProgress)
-      : nextOrUpdater;
+    setProfileStore(prev => {
+      const profile = prev.profiles[profileId];
+      if (!profile) return prev;
 
-    setProfileStore(prev => ({
-      ...prev,
-      profiles: {
-        ...prev.profiles,
-        [profileId]: {
-          ...prev.profiles[profileId],
-          mcqProgress: nextProgress,
+      const currentProgress = profile.mcqProgress || createEmptyMcqProgress();
+      const nextProgress = typeof nextOrUpdater === "function"
+        ? nextOrUpdater(currentProgress)
+        : nextOrUpdater;
+
+      pendingMcqRemoteSaveRef.current = { profileId, progress: nextProgress };
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: {
+            ...profile,
+            mcqProgress: nextProgress,
+          },
         },
-      },
-    }));
-    queueRemoteProgressSave(profileId, nextProgress);
-  }, [profileStore.activeProfileId, profileStore.profiles, queueRemoteProgressSave]);
+      };
+    });
+  }, [profileStore.activeProfileId]);
+
+  useEffect(() => {
+    const pending = pendingMcqRemoteSaveRef.current;
+    if (!pending) return;
+
+    pendingMcqRemoteSaveRef.current = null;
+    queueRemoteProgressSave(pending.profileId, pending.progress);
+  }, [profileStore, queueRemoteProgressSave]);
 
   const updateOralProgress = useCallback((nextOrUpdater) => {
     const profileId = profileStore.activeProfileId;
@@ -7642,7 +8143,13 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching'].includes(testMode) && (
+        {activeProfile && screen === 'mcq' && testMode === 'extra' && (
+          <ExtraMcqMode
+            onBack={() => setTestMode(null)}
+            onHome={() => { setTestMode(null); setScreen('home'); }}
+          />
+        )}
+        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'extra'].includes(testMode) && (
           <McqTest
             mode={testMode}
             progress={mcqProgress}
@@ -7762,5 +8269,3 @@ export default function App() {
     </>
   );
 }
-
-
