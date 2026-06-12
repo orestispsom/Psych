@@ -5227,8 +5227,8 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             />
             {extraPasswordError && <p className="error-text">{extraPasswordError}</p>}
             <div className="modal-actions">
-              <button type="button" className="secondary-btn" onClick={closeExtraPassword}>Cancel</button>
-              <button type="submit" className="primary-btn">Open Extra</button>
+              <button type="button" className="results-btn" onClick={closeExtraPassword}>Cancel</button>
+              <button type="submit" className="results-btn primary">Open Extra</button>
             </div>
           </form>
         </div>
@@ -5389,7 +5389,12 @@ function ExtraMcqMode({ onBack, onHome }) {
     }
   };
 
-  const renderQuestion = (rowQuestion = question, rowSelected = selected, lockedView = isLocked) => {
+  const renderQuestion = (
+    rowQuestion = question,
+    rowSelected = selected,
+    lockedView = isLocked,
+    progressLabel = questions.length > 0 ? `${currentIdx + 1}/${questions.length}` : null
+  ) => {
     if (!rowQuestion) return null;
     const correctIndex = normalizeExtraCorrectIndex(rowQuestion);
     const displayedOptions = getStoredOptionOrder(rowQuestion, optionOrders).map(originalIndex => ({
@@ -5401,7 +5406,7 @@ function ExtraMcqMode({ onBack, onHome }) {
       <div className="structured-card extra-question-card">
         <div className="structured-top">
           <span className="structured-progress">{rowQuestion.chapterTitle || "DSM-5-TR Self-Exam"}</span>
-          {questions.length > 0 && <span className="structured-progress">{currentIdx + 1}/{questions.length}</span>}
+          {progressLabel && <span className="structured-progress">{progressLabel}</span>}
         </div>
         <div className="structured-question extra-question-stem">{rowQuestion.stem}</div>
         <div className="structured-options extra-options">
@@ -5450,16 +5455,16 @@ function ExtraMcqMode({ onBack, onHome }) {
           <div className="structured-card extra-empty-note">No wrong answers in this session.</div>
         ) : (
           <div className="extra-review-list">
-            {wrongRows.map(row => (
+            {wrongRows.map((row, index) => (
               <div className="extra-review-item" key={row.question.id}>
-                {renderQuestion(row.question, row.selected, true)}
+                {renderQuestion(row.question, row.selected, true, `Review ${index + 1}/${wrongRows.length}`)}
               </div>
             ))}
           </div>
         )}
         <div className="structured-actions">
-          <button className="secondary-btn" onClick={() => setReviewWrong(false)}>Back to results</button>
-          <button className="primary-btn" onClick={backToExtraHome}>Extra menu</button>
+          <button className="nav-btn" onClick={() => setReviewWrong(false)}>Back to results</button>
+          <button className="nav-btn primary" onClick={backToExtraHome}>Extra menu</button>
         </div>
       </div>
     );
@@ -5523,14 +5528,14 @@ function ExtraMcqMode({ onBack, onHome }) {
       </div>
       {renderQuestion()}
       <div className="structured-actions">
-        <button className="icon-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
+        <button className="nav-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
           <Icons.ChevronLeft />
         </button>
         <div className="structured-actions-group">
-          <button className="secondary-btn" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
+          <button className="nav-btn primary" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
             <Icons.Lock /> Lock
           </button>
-          <button className="icon-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
+          <button className="nav-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
             <Icons.ChevronRight />
           </button>
         </div>
@@ -5546,8 +5551,8 @@ function ExtraMcqMode({ onBack, onHome }) {
               <span>{result.wrong} wrong</span>
             </div>
             <div className="modal-actions">
-              <button className="secondary-btn" onClick={() => setReviewWrong(true)}>Review wrong answers</button>
-              <button className="primary-btn" onClick={backToExtraHome}>Extra menu</button>
+              <button className="results-btn" onClick={() => setReviewWrong(true)}>Review wrong answers</button>
+              <button className="results-btn primary" onClick={backToExtraHome}>Extra menu</button>
             </div>
           </div>
         </div>
