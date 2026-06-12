@@ -3704,7 +3704,7 @@ const STYLES = `
   }
 
   .extra-question-stem {
-    font-size: 19px;
+    font-size: 17px;
     line-height: 1.65;
   }
 
@@ -5378,6 +5378,8 @@ function getExtraChapterQuestions(chapter) {
   if (!chapter) return [];
   return (chapter.questions || []).map(question => ({
     ...question,
+    sourceId: question.sourceId ?? question.id,
+    id: `${chapter.id}_q${question.id}`,
     chapter: question.chapter ?? chapter.chapter,
     chapterTitle: question.chapterTitle || chapter.title,
   }));
