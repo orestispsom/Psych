@@ -1611,10 +1611,16 @@ function getQuestionExamLesson(question) {
 }
 
 function getQuestionSignature(question) {
+  const stopWords = new Set([
+    "which", "what", "with", "from", "that", "this", "most", "best", "following", "patient", "correct",
+    "ποιο", "ποια", "ποιος", "ποιας", "ποιον", "ποια", "ειναι", "στην", "στον", "στις", "στους",
+    "απο", "για", "και", "την", "τον", "της", "του", "των", "μια", "ενα", "ενας", "ασθενης",
+    "καταλληλοτερη", "σωστη", "απαντηση", "περισσοτερο", "λιγοτερο",
+  ]);
   const tokens = normalizeQuestionText(question?.stem)
-    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/[^\p{L}\p{N} ]+/gu, " ")
     .split(/\s+/)
-    .filter(token => token.length > 3 && !["which", "what", "with", "from", "that", "this", "most", "best", "following", "patient", "correct"].includes(token));
+    .filter(token => token.length > 3 && !stopWords.has(token));
 
   return tokens.slice(0, 18).join(" ") || `question-${question?.id}`;
 }
@@ -1670,6 +1676,46 @@ function scoreQuestionForWrittenExam(question, progress, now = new Date()) {
   return score;
 }
 
+function buildWrittenTopicQuotas(eligible, targetCount) {
+  const topicMap = new Map();
+  eligible.forEach(question => {
+    const topic = getQuestionTopic(question);
+    if (!topicMap.has(topic)) topicMap.set(topic, []);
+    topicMap.get(topic).push(question);
+  });
+
+  const topics = [...topicMap.keys()];
+  const maxPerTopic = Math.max(4, Math.ceil(targetCount * 0.12));
+  const quotaRows = topics.map(topic => {
+    const available = topicMap.get(topic).length;
+    const raw = (available / eligible.length) * targetCount;
+    const quota = Math.min(available, maxPerTopic, Math.max(1, Math.floor(raw)));
+    return { topic, available, raw, quota, remainder: raw - Math.floor(raw) };
+  });
+
+  let total = quotaRows.reduce((sum, row) => sum + row.quota, 0);
+
+  while (total > targetCount) {
+    const row = quotaRows
+      .filter(item => item.quota > 1)
+      .sort((a, b) => a.remainder - b.remainder || b.quota - a.quota)[0];
+    if (!row) break;
+    row.quota -= 1;
+    total -= 1;
+  }
+
+  while (total < targetCount) {
+    const row = quotaRows
+      .filter(item => item.quota < item.available && item.quota < maxPerTopic)
+      .sort((a, b) => b.remainder - a.remainder || b.available - a.available)[0];
+    if (!row) break;
+    row.quota += 1;
+    total += 1;
+  }
+
+  return new Map(quotaRows.filter(row => row.quota > 0).map(row => [row.topic, row.quota]));
+}
+
 function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   const eligible = QUESTIONS.filter(question =>
     Array.isArray(question.options) &&
@@ -1681,27 +1727,17 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   const targetCount = Math.min(count, eligible.length);
   const now = new Date();
   const records = progress.questions || {};
-  const topicCount = Math.max(1, new Set(eligible.map(getQuestionTopic)).size);
-  const perTopicSoftCap = Math.max(4, Math.ceil((targetCount / topicCount) * 1.8));
-  const weakTarget = Math.round(targetCount * 0.30);
-  const unseenAvailableCount = eligible.filter(question => !hasSeenQuestion(records[question.id])).length;
-  const unseenTarget = Math.min(unseenAvailableCount, Math.floor(targetCount * 0.70) + 1);
-  const dueTarget = Math.round(targetCount * 0.20);
-  const masteredTarget = Math.min(Math.round(targetCount * 0.12), eligible.filter(question => isQuestionMastered(records[question.id])).length);
+  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount);
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
-  const topicCounts = new Map();
 
-  const pushQuestion = (question, { respectTopicCap = true } = {}) => {
+  const pushQuestion = (question) => {
     if (!question || usedIds.has(question.id)) return false;
     const signature = getQuestionSignature(question);
     if (usedSignatures.has(signature)) return false;
-    const topic = getQuestionTopic(question);
-    if (respectTopicCap && (topicCounts.get(topic) || 0) >= perTopicSoftCap) return false;
     usedIds.add(question.id);
     usedSignatures.add(signature);
-    topicCounts.set(topic, (topicCounts.get(topic) || 0) + 1);
     selected.push(question);
     return true;
   };
@@ -1710,43 +1746,78 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
     .map(question => ({ question, score: scoreQuestionForWrittenExam(question, progress, now) }))
     .sort((a, b) => b.score - a.score);
 
-  const pickFrom = (candidates, target, { allowOverTopicCap = false } = {}) => {
-    const startCount = selected.length;
-    const take = Math.max(0, Math.min(target, targetCount - selected.length));
+  const pickFrom = (candidates, target, limitCount = targetCount) => {
+    const take = Math.max(0, Math.min(target, limitCount - selected.length, targetCount - selected.length));
     if (!take) return;
 
+    let picked = 0;
     for (const item of candidates) {
-      if (selected.length - startCount >= take || selected.length >= targetCount) break;
-      pushQuestion(item.question || item, { respectTopicCap: true });
-    }
-
-    if (allowOverTopicCap || selected.length - startCount < take) {
-      for (const item of candidates) {
-        if (selected.length - startCount >= take || selected.length >= targetCount) break;
-        pushQuestion(item.question || item, { respectTopicCap: false });
-      }
+      if (picked >= take || selected.length >= targetCount || selected.length >= limitCount) break;
+      if (pushQuestion(item.question || item)) picked += 1;
     }
   };
 
-  const weakCandidates = rank(eligible.filter(question => isWeaknessCandidate(question, progress)));
-  const unseenCandidates = rank(eligible.filter(question => !hasSeenQuestion(records[question.id])));
-  const dueCandidates = rank(eligible.filter(question => {
-    const record = records[question.id];
-    return hasSeenQuestion(record) && !isQuestionMastered(record) && isDue(record, now);
-  }));
-  const masteredCandidates = rank(eligible.filter(question => isQuestionMastered(records[question.id])));
-  const learningCandidates = rank(eligible.filter(question => {
-    const record = records[question.id];
-    return hasSeenQuestion(record) && !isQuestionMastered(record);
-  }));
-  const broadCandidates = rank(eligible);
+  for (const [topic, quota] of topicQuotas) {
+    const topicLimit = selected.length + quota;
+    const topicQuestions = eligible.filter(question => getQuestionTopic(question) === topic);
+    const topicUnseen = rank(topicQuestions.filter(question => !hasSeenQuestion(records[question.id])));
+    const topicWeak = rank(topicQuestions.filter(question => isWeaknessCandidate(question, progress)));
+    const topicDue = rank(topicQuestions.filter(question => {
+      const record = records[question.id];
+      return hasSeenQuestion(record) && !isQuestionMastered(record) && isDue(record, now);
+    }));
+    const topicMastered = rank(topicQuestions.filter(question => {
+      const record = records[question.id];
+      const daysSinceAnswer = getDaysSince(record?.lastAnsweredAt || record?.seenAt, now);
+      return isQuestionMastered(record) && (isDue(record, now) || daysSinceAnswer === null || daysSinceAnswer >= 30);
+    }));
+    const topicLearning = rank(topicQuestions.filter(question => {
+      const record = records[question.id];
+      return hasSeenQuestion(record) && !isQuestionMastered(record);
+    }));
+    const topicBroad = rank(topicQuestions);
 
-  pickFrom(unseenCandidates, unseenTarget, { allowOverTopicCap: true });
-  pickFrom(weakCandidates, weakTarget);
-  pickFrom(dueCandidates, dueTarget);
-  pickFrom(masteredCandidates, masteredTarget);
-  pickFrom(learningCandidates, targetCount - selected.length);
-  pickFrom(broadCandidates, targetCount - selected.length, { allowOverTopicCap: true });
+    pickFrom(topicUnseen, Math.ceil(quota * 0.75), topicLimit);
+    pickFrom(topicWeak, Math.max(quota >= 6 ? 1 : 0, Math.round(quota * 0.15)), topicLimit);
+    pickFrom(topicDue, Math.max(quota >= 10 ? 1 : 0, Math.round(quota * 0.08)), topicLimit);
+    pickFrom(topicMastered, quota >= 10 ? 1 : 0, topicLimit);
+    pickFrom(topicLearning, topicLimit - selected.length, topicLimit);
+    pickFrom(topicBroad, topicLimit - selected.length, topicLimit);
+  }
+
+  let unseenSelected = selected.filter(question => !hasSeenQuestion(records[question.id])).length;
+  const unseenMinimum = Math.min(
+    eligible.filter(question => !hasSeenQuestion(records[question.id])).length,
+    Math.floor(targetCount * 0.70) + 1
+  );
+  if (unseenSelected < unseenMinimum) {
+    const unseenTopUp = rank(eligible.filter(question => !hasSeenQuestion(records[question.id])));
+    for (const item of unseenTopUp) {
+      if (unseenSelected >= unseenMinimum) break;
+      const candidate = item.question;
+      const candidateSignature = getQuestionSignature(candidate);
+      if (usedIds.has(candidate.id) || usedSignatures.has(candidateSignature)) continue;
+
+      const replaceIndex = selected.findLastIndex(question => {
+        const record = records[question.id];
+        return hasSeenQuestion(record) &&
+          !isWeaknessCandidate(question, progress) &&
+          !isDue(record, now);
+      });
+      if (replaceIndex < 0) break;
+
+      const removed = selected[replaceIndex];
+      usedIds.delete(removed.id);
+      usedSignatures.delete(getQuestionSignature(removed));
+      selected[replaceIndex] = candidate;
+      usedIds.add(candidate.id);
+      usedSignatures.add(candidateSignature);
+      unseenSelected += 1;
+    }
+  }
+
+  const broadCandidates = rank(eligible);
+  pickFrom(broadCandidates, targetCount - selected.length);
 
   return shuffleItems(selected);
 }
