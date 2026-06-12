@@ -1625,6 +1625,58 @@ function getQuestionSignature(question) {
   return tokens.slice(0, 18).join(" ") || `question-${question?.id}`;
 }
 
+function getQuestionSignatureTokens(question) {
+  const signature = getQuestionSignature(question);
+  return new Set(signature.split(/\s+/).filter(Boolean));
+}
+
+function isNearDuplicateQuestion(candidate, selectedQuestions) {
+  const candidateTokens = getQuestionSignatureTokens(candidate);
+  if (candidateTokens.size < 5) return false;
+
+  return selectedQuestions.some(existing => {
+    if (getQuestionTopic(existing) !== getQuestionTopic(candidate)) return false;
+    const existingTokens = getQuestionSignatureTokens(existing);
+    if (existingTokens.size < 5) return false;
+    let overlap = 0;
+    candidateTokens.forEach(token => {
+      if (existingTokens.has(token)) overlap += 1;
+    });
+    const smaller = Math.min(candidateTokens.size, existingTokens.size);
+    return smaller > 0 && overlap / smaller >= 0.72;
+  });
+}
+
+function getQuestionConceptTags(question) {
+  const text = getQuestionSearchText(question);
+  const tags = [];
+  const addIf = (tag, pattern) => {
+    if (pattern.test(text)) tags.push(tag);
+  };
+
+  addIf("delirium", /\bdelirium\b|παραληρη|ντελιρ|οξεια συγχυ|διακυμανση προσοχ|διακυμανση συνειδησ/);
+  addIf("catatonia", /\bcatatoni|κατατον/);
+  addIf("nms", /\bnms\b|νευροληπτικο κακοηθ|κακοηθες νευροληπτικ/);
+  addIf("serotonin_syndrome", /serotonin syndrome|σεροτονιν/);
+  addIf("suicide", /suicid|αυτοκτον/);
+  addIf("lithium", /lithium|λιθι/);
+  addIf("clozapine", /clozapine|κλοζαπ/);
+  addIf("alcohol_withdrawal", /alcohol withdrawal|στερηση αλκοολ|τρομωδες παραληρημα|delirium tremens/);
+
+  return [...new Set(tags)];
+}
+
+const WRITTEN_CONCEPT_CAPS = {
+  delirium: 4,
+  catatonia: 3,
+  nms: 2,
+  serotonin_syndrome: 2,
+  suicide: 4,
+  lithium: 4,
+  clozapine: 3,
+  alcohol_withdrawal: 3,
+};
+
 function getLatestQuestionAttempt(progress, questionId, mode = null) {
   return (progress.attempts || []).find(attempt =>
     String(attempt.questionId) === String(questionId) &&
@@ -1685,11 +1737,14 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
   });
 
   const topics = [...topicMap.keys()];
-  const maxPerTopic = Math.max(4, Math.ceil(targetCount * 0.12));
+  const majorThreshold = Math.max(80, Math.floor(eligible.length * 0.04));
+  const maxMajorTopic = Math.max(10, Math.ceil(targetCount * 0.16));
+  const maxMinorTopic = Math.max(2, Math.ceil(targetCount * 0.05));
   const quotaRows = topics.map(topic => {
     const available = topicMap.get(topic).length;
     const raw = (available / eligible.length) * targetCount;
-    const quota = Math.min(available, maxPerTopic, Math.max(1, Math.floor(raw)));
+    const maxForTopic = available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
+    const quota = Math.min(available, maxForTopic, Math.max(1, Math.floor(raw)));
     return { topic, available, raw, quota, remainder: raw - Math.floor(raw) };
   });
 
@@ -1706,7 +1761,10 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
 
   while (total < targetCount) {
     const row = quotaRows
-      .filter(item => item.quota < item.available && item.quota < maxPerTopic)
+      .filter(item => {
+        const maxForTopic = item.available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
+        return item.quota < item.available && item.quota < maxForTopic;
+      })
       .sort((a, b) => b.remainder - a.remainder || b.available - a.available)[0];
     if (!row) break;
     row.quota += 1;
@@ -1731,13 +1789,31 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
+  const conceptCounts = new Map();
 
-  const pushQuestion = (question) => {
+  const canUseQuestion = (question, { respectConceptCaps = true } = {}) => {
     if (!question || usedIds.has(question.id)) return false;
     const signature = getQuestionSignature(question);
     if (usedSignatures.has(signature)) return false;
+    if (isNearDuplicateQuestion(question, selected)) return false;
+    if (respectConceptCaps) {
+      const conceptTags = getQuestionConceptTags(question);
+      for (const tag of conceptTags) {
+        const cap = WRITTEN_CONCEPT_CAPS[tag];
+        if (Number.isInteger(cap) && (conceptCounts.get(tag) || 0) >= cap) return false;
+      }
+    }
+    return true;
+  };
+
+  const pushQuestion = (question, options = {}) => {
+    if (!canUseQuestion(question, options)) return false;
+    const signature = getQuestionSignature(question);
     usedIds.add(question.id);
     usedSignatures.add(signature);
+    getQuestionConceptTags(question).forEach(tag => {
+      conceptCounts.set(tag, (conceptCounts.get(tag) || 0) + 1);
+    });
     selected.push(question);
     return true;
   };
@@ -1796,7 +1872,7 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
       if (unseenSelected >= unseenMinimum) break;
       const candidate = item.question;
       const candidateSignature = getQuestionSignature(candidate);
-      if (usedIds.has(candidate.id) || usedSignatures.has(candidateSignature)) continue;
+      if (!canUseQuestion(candidate)) continue;
 
       const replaceIndex = selected.findLastIndex(question => {
         const record = records[question.id];
@@ -1809,15 +1885,27 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
       const removed = selected[replaceIndex];
       usedIds.delete(removed.id);
       usedSignatures.delete(getQuestionSignature(removed));
+      getQuestionConceptTags(removed).forEach(tag => {
+        conceptCounts.set(tag, Math.max(0, (conceptCounts.get(tag) || 0) - 1));
+      });
       selected[replaceIndex] = candidate;
       usedIds.add(candidate.id);
       usedSignatures.add(candidateSignature);
+      getQuestionConceptTags(candidate).forEach(tag => {
+        conceptCounts.set(tag, (conceptCounts.get(tag) || 0) + 1);
+      });
       unseenSelected += 1;
     }
   }
 
   const broadCandidates = rank(eligible);
   pickFrom(broadCandidates, targetCount - selected.length);
+  if (selected.length < targetCount) {
+    for (const item of broadCandidates) {
+      if (selected.length >= targetCount) break;
+      pushQuestion(item.question, { respectConceptCaps: false });
+    }
+  }
 
   return shuffleItems(selected);
 }
@@ -2166,7 +2254,7 @@ function getSprintHighScore(progress) {
 
 function recordWrittenExamSession(progress, session) {
   const currentSessions = Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [];
-  const sessions = [session, ...currentSessions.filter(item => item.id !== session.id)].slice(0, 30);
+  const sessions = [session, ...currentSessions.filter(item => item.id !== session.id)];
 
   return {
     ...progress,
@@ -5245,7 +5333,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
 }
 
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
-  const recentWrittenExamSessions = writtenExamSessions.slice(0, 6);
+  const recentWrittenExamSessions = writtenExamSessions;
   const [showExtraPassword, setShowExtraPassword] = useState(false);
   const [extraPassword, setExtraPassword] = useState("");
   const [extraPasswordError, setExtraPasswordError] = useState("");
