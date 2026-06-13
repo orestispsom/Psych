@@ -8093,6 +8093,13 @@ export default function App() {
     remoteSaveTimerRef.current = setTimeout(async () => {
       try {
         await saveRemoteMcqProgress(profileId, progress);
+        const writtenDraftViewedQuestionIds = Array.isArray(progress.writtenExamDraft?.viewedQuestionIds)
+          ? progress.writtenExamDraft.viewedQuestionIds
+          : [];
+        if (writtenDraftViewedQuestionIds.length) {
+          await saveRemoteQuestionStates(profileId, progress, writtenDraftViewedQuestionIds);
+        }
+
         const latestAttempt = progress.attempts?.[0];
         const latestAttemptId = latestAttempt?.id;
         if (latestAttemptId && latestAttemptId !== lastRemoteAttemptIdRef.current) {
