@@ -5618,13 +5618,24 @@ function getVignetteLabel(vignette) {
   return match ? `Vignette ${Number(match[1])}` : "Vignette";
 }
 
+function getAvailableMatchingSets() {
+  return mcqMatchingSets.filter(set => set?.items?.length && set?.choices?.length);
+}
+
 function pickRandomMatchingSet(excludeId = null) {
-  const sets = mcqMatchingSets.filter(set => set?.items?.length && set?.choices?.length);
+  const sets = getAvailableMatchingSets();
   if (!sets.length) return null;
   const pool = sets.length > 1
     ? sets.filter(set => set.id !== excludeId)
     : sets;
   return pool[Math.floor(Math.random() * pool.length)] || sets[0];
+}
+
+function getMatchingSetMenuTitle(set) {
+  const title = String(set?.title || "").trim();
+  if (!title) return "Αντιστοίχηση";
+  const [topicTitle] = title.split(" - ");
+  return topicTitle?.trim() || title;
 }
 
 function getExtraChapterQuestions(chapter) {
@@ -6275,9 +6286,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
 }
 
 function McqMatchingMode({ onBack, onHome }) {
-  const [matchingSet, setMatchingSet] = useState(() => pickRandomMatchingSet());
+  const availableSets = useMemo(() => getAvailableMatchingSets(), []);
+  const [matchingSet, setMatchingSet] = useState(null);
   const displayChoices = useMemo(() => shuffleItems(matchingSet?.choices || []), [matchingSet?.id]);
-  const [started, setStarted] = useState(false);
+  const [showSetMenu, setShowSetMenu] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
@@ -6286,12 +6298,26 @@ function McqMatchingMode({ onBack, onHome }) {
   const isLocked = item ? Boolean(locked[item.id]) : false;
   const allowMultiple = (item?.correct || []).length > 1;
 
-  const goToRandomMatchingSet = () => {
-    setMatchingSet(current => pickRandomMatchingSet(current?.id));
-    setStarted(false);
+  const resetMatchingProgress = () => {
     setCurrentIdx(0);
     setAnswers({});
     setLocked({});
+  };
+
+  const startMatchingSet = (nextSet) => {
+    if (!nextSet) return;
+    setMatchingSet(nextSet);
+    setShowSetMenu(false);
+    resetMatchingProgress();
+  };
+
+  const goToRandomMatchingSet = () => {
+    startMatchingSet(pickRandomMatchingSet(matchingSet?.id));
+  };
+
+  const openSetMenu = () => {
+    setShowSetMenu(true);
+    resetMatchingProgress();
   };
 
   const chooseChoice = (choiceId) => {
@@ -6302,7 +6328,7 @@ function McqMatchingMode({ onBack, onHome }) {
     }));
   };
 
-  if (!matchingSet || !item) {
+  if (!availableSets.length) {
     return (
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
@@ -6345,7 +6371,7 @@ function McqMatchingMode({ onBack, onHome }) {
     </div>
   );
 
-  if (!started) {
+  if (showSetMenu) {
     return (
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
@@ -6355,25 +6381,35 @@ function McqMatchingMode({ onBack, onHome }) {
           <button className="home-btn" onClick={onHome}>
             <Icons.Home /> Home
           </button>
-          <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
-            Άλλο τεστ
+          <button className="nav-btn" type="button" onClick={() => startMatchingSet(pickRandomMatchingSet())}>
+            Νέο σετ
           </button>
         </div>
         <h2>Αντιστοίχηση</h2>
         <div className="structured-card">
           <div className="structured-top">
-            <strong>{matchingSet.title}</strong>
-            <span className="structured-progress">{matchingSet.items.length} ερωτήσεις</span>
+            <strong>Επιλογή σετ</strong>
+            <span className="structured-progress">{availableSets.length} θέματα</span>
           </div>
-          <p className="structured-instruction">{matchingSet.instructions}</p>
-          {renderChoices(false)}
+          <div className="structured-options">
+            {availableSets.map(set => (
+              <button
+                key={set.id}
+                type="button"
+                className="structured-option"
+                onClick={() => startMatchingSet(set)}
+              >
+                <span>{getMatchingSetMenuTitle(set)}</span>
+              </button>
+            ))}
+          </div>
         </div>
-        <button className="mode-btn featured" onClick={() => setStarted(true)}>
-          Έναρξη
-          <small>οι επιλογές θα παραμένουν στην κορυφή</small>
-        </button>
       </div>
     );
+  }
+
+  if (!matchingSet || !item) {
+    return null;
   }
 
   return (
@@ -6386,8 +6422,18 @@ function McqMatchingMode({ onBack, onHome }) {
           <Icons.Home /> Home
         </button>
         <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
-          Άλλο τεστ
+          Νέο σετ
         </button>
+        <button className="nav-btn" type="button" onClick={openSetMenu}>
+          Επιλογή σετ
+        </button>
+      </div>
+      <div className="structured-card compact" style={{ marginBottom: 16 }}>
+        <div className="structured-top">
+          <strong>{matchingSet.title}</strong>
+          <span className="structured-progress">{matchingSet.items.length} ερωτήσεις</span>
+        </div>
+        <p className="structured-instruction">{matchingSet.instructions}</p>
       </div>
       <div className="sticky-choices">
         {renderChoices(true)}
