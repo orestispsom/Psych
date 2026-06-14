@@ -530,30 +530,9 @@ const genericChallenges = [
   { id: "oral_challenge_010", role: "challenge", followUpType: "exam_trap", difficulty: "intermediate", trigger: "if_good_answer", question: "Ποιο είναι το συχνότερο λάθος που θα μπορούσε να κάνει ένας ειδικευόμενος σε αυτό το περιστατικό;" },
 ];
 
-const weakAreaTagsByType = {
-  assessment: ["assessment"],
-  definition: ["definition"],
-  diagnostic_criteria: ["diagnostic criteria"],
-  differential: ["differential diagnosis"],
-  exclusion: ["diagnostic exclusion", "organic and substance-induced disorders"],
-  risk: ["risk assessment"],
-  management: ["management decisiveness"],
-  psychopharmacology: ["psychopharmacology sequencing"],
-  monitoring: ["adverse effects and monitoring"],
-  legal_capacity: ["capacity / legal issues"],
-  special_population: ["special populations"],
-  prognosis: ["prognosis"],
-  exam_trap: ["over-nuance traps"],
-};
-
 function normalizeFollowUpType(type) {
   if (!type) return null;
   return type.startsWith("follow_up_") ? type : `follow_up_${type}`;
-}
-
-function weakAreaTagsFor(question) {
-  const key = String(question.followUpType || question.role || "").replace(/^follow_up_/, "");
-  return weakAreaTagsByType[key] || [];
 }
 
 const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
@@ -566,7 +545,6 @@ const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
     subtopic: anchor.subtopic,
     linkedAnchorIds: [anchor.id],
     relatedQuestionIds: [anchor.id],
-    weakAreaTags: weakAreaTagsFor(followUp),
   }));
 
   return [
@@ -577,7 +555,6 @@ const oralCoreQuestions = oralCoreAnchors.flatMap(anchor => {
       followUpQuestionIds: followUps.map(followUp => followUp.id),
       relatedQuestionIds: [],
       linkedAnchorIds: [],
-      weakAreaTags: [],
     },
     ...followUps,
   ];
@@ -591,7 +568,6 @@ const oralCoreGenericChallenges = genericChallenges.map(question => ({
   subtopic: "Reusable follow-ups",
   linkedAnchorIds: [],
   relatedQuestionIds: [],
-  weakAreaTags: weakAreaTagsFor(question),
 }));
 
 export { oralCoreAnchors, oralCoreGenericChallenges };
