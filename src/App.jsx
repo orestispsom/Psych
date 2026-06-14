@@ -5634,8 +5634,8 @@ function pickRandomMatchingSet(excludeId = null) {
 function getMatchingSetMenuTitle(set) {
   const title = String(set?.title || "").trim();
   if (!title) return "Αντιστοίχηση";
-  const [topicTitle] = title.split(" - ");
-  return topicTitle?.trim() || title;
+  const prefix = "Αντιστοίχηση - ";
+  return title.startsWith(prefix) ? title.slice(prefix.length).trim() : title;
 }
 
 function getExtraChapterQuestions(chapter) {
