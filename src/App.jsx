@@ -132,7 +132,7 @@ const MCQ_TOPIC_CATEGORIES = [
 ];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Duplicate" },
-  { value: "too_easy_wording", label: "Υπερβολικά εύκολη διατύπωση" },
+  { value: "too_easy_wording", label: "Υπερβολικά Εύκολη" },
   { value: "wrong_terminology", label: "Λάθος ορολογία" },
   { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη Απάντηση" },
 ];
@@ -145,19 +145,6 @@ const MCQ_TEXT_OVERRIDES = {
     stem: "Ποιο κύκλωμα συνδέεται περισσότερο με παθολογική ανησυχία;",
   },
 };
-const WRITTEN_WEAK_AREA_LABELS = [
-  "diagnostic exclusion",
-  "risk assessment",
-  "emergency psychiatry",
-  "psychopharmacology sequencing",
-  "capacity / legal issues",
-  "differential diagnosis",
-  "organic and substance-induced disorders",
-  "management decisiveness",
-  "adverse effects and monitoring",
-  "over-nuance traps",
-];
-
 function hasBrokenQuestionText(text) {
   return typeof text === "string" && (text.includes("???") || text.includes("\uFFFD"));
 }
@@ -1346,7 +1333,6 @@ function scoreQuestionForDailyWrongPriority(question, progress, now = new Date()
 
   const lastWrongAt = latestIncorrectAttempt?.attemptedAt || (record.lastCorrect === false ? record.lastAnsweredAt : null);
   const daysSinceWrong = getDaysSince(lastWrongAt, now);
-  const weakAreaCount = getQuestionWeakAreaTags(question).length;
   const recentDailyRepeats = getRecentDailyQuestionRepeatCount(progress, question.id);
   let score = 0;
 
@@ -1354,7 +1340,6 @@ function scoreQuestionForDailyWrongPriority(question, progress, now = new Date()
   if ((record.consecutiveWrong || 0) >= 2) score += 80;
   else if ((record.consecutiveWrong || 0) === 1) score += 45;
   if ((record.confidentWrongCount || 0) > 0) score += Math.min(record.confidentWrongCount, 4) * 25;
-  if (weakAreaCount > 0) score += Math.min(weakAreaCount, 3) * 10;
   if (daysSinceWrong === null) score += 10;
   else if (daysSinceWrong <= 1) score += 70;
   else if (daysSinceWrong <= 3) score += 55;
@@ -1514,8 +1499,6 @@ function getQuestionSearchText(question) {
     question?.topic,
     question?.topicTag,
     question?.category,
-    question?.weakArea,
-    question?.weaknessTag,
     ...(Array.isArray(question?.tags) ? question.tags : []),
   ].filter(Boolean).join(" "));
 }
@@ -1562,48 +1545,6 @@ function getMcqTopicCounts() {
 function getQuestionsForMcqTopic(topic) {
   if (!topic) return [];
   return QUESTIONS.filter(question => getQuestionTopic(question) === topic);
-}
-
-function getQuestionWeakAreaTags(question) {
-  const explicitSingle = firstQuestionField(question, ["weakArea", "weak_area", "weakTag", "weak_tag", "weaknessTag", "weakness_tag"]);
-  const explicitArray = Array.isArray(question?.weakAreas)
-    ? question.weakAreas
-    : Array.isArray(question?.weak_areas)
-      ? question.weak_areas
-      : Array.isArray(question?.weakTags)
-        ? question.weakTags
-        : Array.isArray(question?.tags)
-          ? question.tags.filter(tag => WRITTEN_WEAK_AREA_LABELS.includes(normalizeQuestionText(tag)))
-          : [];
-  const explicitTags = [
-    ...(explicitSingle ? [explicitSingle] : []),
-    ...explicitArray,
-  ].map(tag => String(tag).trim()).filter(Boolean);
-
-  if (explicitTags.length) return [...new Set(explicitTags)];
-
-  const text = getQuestionSearchText(question);
-  const tags = [];
-  const addIf = (label, pattern) => {
-    if (pattern.test(text)) tags.push(label);
-  };
-
-  addIf("diagnostic exclusion", /\b(exclude|rule out|not diagnose|before diagnosing|medical cause|substance-induced|duration|criterion|criteria)\b/);
-  addIf("risk assessment", /\b(suicide|homicide|self-harm|violence|risk|protective factor|danger)\b/);
-  addIf("emergency psychiatry", /\b(emergency|acute agitation|rapid tranquil|restraint|seclusion|overdose|nms|serotonin syndrome|catatonia|delirium tremens)\b/);
-  addIf("psychopharmacology sequencing", /\b(first-line|next step|after failure|treatment-resistant|augment|switch|sequence|clozapine|lithium|ect)\b/);
-  addIf("capacity / legal issues", /\b(capacity|consent|confidential|involuntary|forensic|legal|competence|court|duty)\b/);
-  addIf("differential diagnosis", /\b(differential|distinguish|distinguished|versus|mimic|most likely diagnosis|diagnosis)\b/);
-  addIf("organic and substance-induced disorders", /\b(organic|substance-induced|delirium|dementia|intoxication|withdrawal|medical cause|neurological|endocrine)\b/);
-  addIf("management decisiveness", /\b(management|next step|best treatment|admit|hospital|urgent|immediate|start|refer)\b/);
-  addIf("adverse effects and monitoring", /\b(adverse|side effect|monitor|monitoring|toxicity|levels|agranulocytosis|metabolic|qtc|prolactin|hyponatremia|tardive)\b/);
-  addIf("over-nuance traps", /\b(except|least likely|most appropriate|best answer|always|never|subtle|trap)\b/);
-
-  return [...new Set(tags)];
-}
-
-function getPrimaryWeakArea(question) {
-  return getQuestionWeakAreaTags(question)[0] || "No weak-area tag";
 }
 
 function getQuestionExamLesson(question) {
@@ -1695,7 +1636,6 @@ function scoreQuestionForWrittenExam(question, progress, now = new Date()) {
   const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
   const latestWrittenAttempt = getLatestQuestionAttempt(progress, question.id, "written");
   const daysSinceWritten = getDaysSince(latestWrittenAttempt?.attemptedAt, now);
-  const weakAreaCount = getQuestionWeakAreaTags(question).length;
   let score = Math.random() * 8;
 
   if (!seen) score += 70;
@@ -1707,7 +1647,6 @@ function scoreQuestionForWrittenExam(question, progress, now = new Date()) {
   if (isDue(record, now)) score += mastered ? 26 : 42;
   if (mastery > 0 && mastery < 3) score += 32;
   else if (mastery >= 3 && mastery < 5) score += 18;
-  if (weakAreaCount > 0) score += Math.min(weakAreaCount, 3) * 8;
   if (daysSinceAnswer === null) score += 12;
   else if (daysSinceAnswer >= 60) score += 24;
   else if (daysSinceAnswer >= 30) score += 16;
@@ -2341,10 +2280,10 @@ function buildBreakdown(items, getLabel) {
 
   items.forEach(item => {
     const labels = getLabel(item.question);
-    const normalizedLabels = Array.isArray(labels) && labels.length ? labels : [labels || "No weak-area tag"];
+    const normalizedLabels = Array.isArray(labels) && labels.length ? labels : [labels || "Uncategorized"];
 
     normalizedLabels.forEach(label => {
-      const normalizedLabel = String(label || "No weak-area tag");
+      const normalizedLabel = String(label || "Uncategorized");
       const current = map.get(normalizedLabel) || { label: normalizedLabel, total: 0, correct: 0, wrong: 0, unanswered: 0 };
       current.total += 1;
       if (item.selected === undefined || item.selected === null) current.unanswered += 1;
@@ -2362,7 +2301,47 @@ function buildBreakdown(items, getLabel) {
     .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
 }
 
-function getWrittenExamResult(questions, answers) {
+function buildLifetimeTopicStats(progress) {
+  const map = new Map();
+  QUESTIONS.forEach(question => {
+    const topic = getQuestionTopic(question);
+    const record = getQuestionProgress(progress || {}, question.id);
+    const correct = record.correctCount || 0;
+    const wrong = getWrongCount(record);
+    const answered = correct + wrong;
+    if (!answered) return;
+
+    const current = map.get(topic) || { label: topic, correct: 0, wrong: 0, answered: 0 };
+    current.correct += correct;
+    current.wrong += wrong;
+    current.answered += answered;
+    map.set(topic, current);
+  });
+
+  return map;
+}
+
+function buildTopicPerformance(items, progress) {
+  const lifetimeStats = buildLifetimeTopicStats(progress);
+  return buildBreakdown(items, question => getQuestionTopic(question)).map(row => {
+    const lifetime = lifetimeStats.get(row.label);
+    const lifetimePercent = lifetime?.answered
+      ? Math.round((lifetime.correct / lifetime.answered) * 100)
+      : null;
+
+    return {
+      ...row,
+      lifetimeCorrect: lifetime?.correct || 0,
+      lifetimeWrong: lifetime?.wrong || 0,
+      lifetimeAnswered: lifetime?.answered || 0,
+      lifetimePercent,
+      currentScoreClass: getWrittenHistoryScoreClass(row.percent),
+      lifetimeScoreClass: lifetimePercent === null ? "empty" : getWrittenHistoryScoreClass(lifetimePercent),
+    };
+  });
+}
+
+function getWrittenExamResult(questions, answers, progress = null) {
   const items = questions.map(question => {
     const selected = answers[question.id];
     return {
@@ -2385,7 +2364,7 @@ function getWrittenExamResult(questions, answers) {
     scorePercent,
     performance: getWrittenPerformanceCategory(scorePercent),
     topicBreakdown: buildBreakdown(items, question => getQuestionTopic(question)),
-    weakAreaBreakdown: buildBreakdown(items, question => getQuestionWeakAreaTags(question)),
+    topicPerformance: buildTopicPerformance(items, progress),
     wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
   };
 }
@@ -4351,6 +4330,119 @@ const STYLES = `
     font-variant-numeric: tabular-nums;
   }
 
+  .written-topic-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin: 18px 0;
+  }
+
+  .written-topic-panel h3 {
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .topic-performance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .topic-performance-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.25fr);
+    gap: 16px;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .topic-performance-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .topic-performance-main strong {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .topic-performance-main span {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .topic-performance-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .topic-percent-card {
+    background: rgba(15, 23, 42, 0.42);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+  }
+
+  .topic-percent-card span,
+  .topic-percent-card small {
+    display: block;
+    color: var(--text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .topic-percent-card small {
+    margin-top: 5px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .topic-percent-value {
+    display: block;
+    font-size: 22px;
+    line-height: 1;
+    margin: 7px 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .topic-percent-value.elite { color: #a855f7; }
+  .topic-percent-value.excellent { color: var(--gold); }
+  .topic-percent-value.good { color: var(--accent); }
+  .topic-percent-value.pink { color: #f472b6; }
+  .topic-percent-value.pass { color: var(--green); }
+  .topic-percent-value.fail { color: var(--red); }
+  .topic-percent-value.low,
+  .topic-percent-value.empty { color: var(--text-muted); }
+
+  .topic-percent-bar {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.16);
+  }
+
+  .topic-percent-fill {
+    height: 100%;
+    min-width: 2px;
+    border-radius: inherit;
+  }
+
+  .topic-percent-fill.elite { background: #a855f7; }
+  .topic-percent-fill.excellent { background: var(--gold); }
+  .topic-percent-fill.good { background: var(--accent); }
+  .topic-percent-fill.pink { background: #f472b6; }
+  .topic-percent-fill.pass { background: var(--green); }
+  .topic-percent-fill.fail { background: var(--red); }
+  .topic-percent-fill.low,
+  .topic-percent-fill.empty { background: var(--text-muted); }
+
   .written-review {
     max-width: 900px;
   }
@@ -5131,6 +5223,8 @@ const STYLES = `
     .game-hud { grid-template-columns: repeat(2, 1fr); }
     .written-result-grid,
     .written-breakdown-grid { grid-template-columns: 1fr; }
+    .topic-performance-row { grid-template-columns: 1fr; }
+    .topic-performance-stats { grid-template-columns: 1fr; }
     .breakdown-row { flex-direction: column; gap: 4px; }
     .breakdown-row strong { white-space: normal; }
     .nav-bar { gap: 6px; padding: 12px 16px; }
@@ -6555,7 +6649,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
       await saveMcqFeedback(feedbackQuestion.id, feedbackType, {
         questionTextSnapshot: getMcqStem(feedbackQuestion),
         topic: getQuestionTopic(feedbackQuestion),
-        subtopic: getPrimaryWeakArea(feedbackQuestion),
+        subtopic: firstQuestionField(feedbackQuestion, ["subtopic", "subTopic", "sub_topic"]),
         feedbackComment: normalizedComment,
       });
       setFeedbackMenuOpen(false);
@@ -6725,7 +6819,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
     if (writtenResult) return;
 
     try {
-      const result = getWrittenExamResult(questions, answers);
+      const submittedProgressForResult = recordWrittenExamSubmission(progress, questions, answers, sessionIdRef.current);
+      const result = getWrittenExamResult(questions, answers, submittedProgressForResult);
       const sessionSummary = {
         id: sessionIdRef.current,
         questionIds: questions.map(question => question.id),
@@ -6757,7 +6852,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
       setWrittenSubmitError("Δεν μπόρεσε να ολοκληρωθεί η υποβολή. Δοκιμάστε ξανά.");
       setShowWrittenSubmitWarning(false);
     }
-  }, [answers, mode, onProgressChange, questions, writtenResult]);
+  }, [answers, mode, onProgressChange, progress, questions, writtenResult]);
 
   const startNewWrittenExam = useCallback(() => {
     const nextQuestions = getSessionQuestions("written", progress);
@@ -6913,7 +7008,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
             {writtenResult.wrongItems.map((item, index) => {
               const question = item.question;
               const examLesson = getQuestionExamLesson(question);
-              const weakTags = getQuestionWeakAreaTags(question);
+              const subtopic = firstQuestionField(question, ["subtopic", "subTopic", "sub_topic"]);
               return (
                 <div className="wrong-answer-card" key={question.id}>
                   <div className="wrong-answer-topline">
@@ -6944,9 +7039,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
                   </div>
                   <div className="written-meta-row">
                     <span className="meta-pill">{getQuestionTopic(question)}</span>
-                    {(weakTags.length ? weakTags : ["No weak-area tag"]).map(tag => (
-                      <span className="meta-pill" key={tag}>{tag}</span>
-                    ))}
+                    {subtopic && <span className="meta-pill">{subtopic}</span>}
                   </div>
                   <div className="explanation-box">
                     <strong>Explanation</strong>
@@ -7002,6 +7095,47 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
             <span>Unanswered</span>
           </div>
         </div>
+
+        {writtenResult.topicPerformance?.length > 0 && (
+          <div className="written-topic-panel">
+            <h3>Απόδοση ανά κατηγορία</h3>
+            <div className="topic-performance-list">
+              {writtenResult.topicPerformance.map(row => (
+                <div className="topic-performance-row" key={row.label}>
+                  <div className="topic-performance-main">
+                    <strong>{row.label}</strong>
+                    <span>
+                      {row.correct} σωστές / {row.wrong} λάθος
+                      {row.unanswered > 0 ? ` / ${row.unanswered} κενές` : ""}
+                    </span>
+                  </div>
+                  <div className="topic-performance-stats">
+                    <div className="topic-percent-card">
+                      <span>Τρέχον</span>
+                      <strong className={`topic-percent-value ${row.currentScoreClass}`}>{row.percent}%</strong>
+                      <div className="topic-percent-bar">
+                        <div className={`topic-percent-fill ${row.currentScoreClass}`} style={{ width: `${row.percent}%` }} />
+                      </div>
+                    </div>
+                    <div className="topic-percent-card">
+                      <span>Μέσος όρος</span>
+                      <strong className={`topic-percent-value ${row.lifetimeScoreClass}`}>
+                        {row.lifetimePercent === null ? "—" : `${row.lifetimePercent}%`}
+                      </strong>
+                      <div className="topic-percent-bar">
+                        <div
+                          className={`topic-percent-fill ${row.lifetimeScoreClass}`}
+                          style={{ width: `${row.lifetimePercent ?? 0}%` }}
+                        />
+                      </div>
+                      <small>{row.lifetimeAnswered} απαντήσεις</small>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="results-actions">
           <button className="results-btn primary" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
