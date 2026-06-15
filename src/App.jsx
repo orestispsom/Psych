@@ -1677,13 +1677,17 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
 
   const topics = [...topicMap.keys()];
   const majorThreshold = Math.max(80, Math.floor(eligible.length * 0.04));
-  const maxMajorTopic = Math.max(10, Math.ceil(targetCount * 0.16));
-  const maxMinorTopic = Math.max(2, Math.ceil(targetCount * 0.05));
+  const minTopicQuota = targetCount >= 60 ? 2 : 1;
+  const maxMajorTopic = Math.max(14, Math.ceil(targetCount * 0.20));
+  const maxMinorTopic = Math.max(4, Math.ceil(targetCount * 0.08));
   const quotaRows = topics.map(topic => {
     const available = topicMap.get(topic).length;
     const raw = (available / eligible.length) * targetCount;
     const maxForTopic = available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-    const quota = Math.min(available, maxForTopic, Math.max(1, Math.floor(raw)));
+    const includeTopic = available >= minTopicQuota && raw >= 0.45;
+    const quota = includeTopic
+      ? Math.min(available, maxForTopic, Math.max(minTopicQuota, Math.floor(raw)))
+      : 0;
     return { topic, available, raw, quota, remainder: raw - Math.floor(raw) };
   });
 
@@ -1691,7 +1695,7 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
 
   while (total > targetCount) {
     const row = quotaRows
-      .filter(item => item.quota > 1)
+      .filter(item => item.quota > minTopicQuota)
       .sort((a, b) => a.remainder - b.remainder || b.quota - a.quota)[0];
     if (!row) break;
     row.quota -= 1;
@@ -1702,7 +1706,7 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
     const row = quotaRows
       .filter(item => {
         const maxForTopic = item.available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-        return item.quota < item.available && item.quota < maxForTopic;
+        return item.quota > 0 && item.quota < item.available && item.quota < maxForTopic;
       })
       .sort((a, b) => b.remainder - a.remainder || b.available - a.available)[0];
     if (!row) break;
@@ -2363,6 +2367,7 @@ function getWrittenExamResult(questions, answers, progress = null) {
     unanswered,
     scorePercent,
     performance: getWrittenPerformanceCategory(scorePercent),
+    items,
     topicBreakdown: buildBreakdown(items, question => getQuestionTopic(question)),
     topicPerformance: buildTopicPerformance(items, progress),
     wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
@@ -4334,8 +4339,8 @@ const STYLES = `
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 16px;
-    margin: 18px 0;
+    padding: 14px;
+    margin: 16px 0;
   }
 
   .written-topic-panel h3 {
@@ -4347,16 +4352,16 @@ const STYLES = `
   .topic-performance-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .topic-performance-row {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.25fr);
-    gap: 16px;
+    gap: 14px;
     align-items: center;
     border-top: 1px solid var(--border);
-    padding-top: 10px;
+    padding-top: 8px;
   }
 
   .topic-performance-row:first-child {
@@ -4386,7 +4391,7 @@ const STYLES = `
     background: rgba(15, 23, 42, 0.42);
     border: 1px solid rgba(148, 163, 184, 0.16);
     border-radius: var(--radius-sm);
-    padding: 10px;
+    padding: 8px 10px;
   }
 
   .topic-percent-card span,
@@ -4399,16 +4404,16 @@ const STYLES = `
   }
 
   .topic-percent-card small {
-    margin-top: 5px;
+    margin-top: 3px;
     text-transform: none;
     letter-spacing: 0;
   }
 
   .topic-percent-value {
     display: block;
-    font-size: 22px;
+    font-size: 19px;
     line-height: 1;
-    margin: 7px 0;
+    margin: 5px 0;
     font-variant-numeric: tabular-nums;
   }
 
@@ -4422,7 +4427,7 @@ const STYLES = `
   .topic-percent-value.empty { color: var(--text-muted); }
 
   .topic-percent-bar {
-    height: 5px;
+    height: 4px;
     overflow: hidden;
     border-radius: 999px;
     background: rgba(148, 163, 184, 0.16);
@@ -6493,6 +6498,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
+  const [reviewWrittenAll, setReviewWrittenAll] = useState(false);
+  const [writtenReviewIndex, setWrittenReviewIndex] = useState(0);
   const [writtenWrongFullItem, setWrittenWrongFullItem] = useState(null);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
@@ -6882,6 +6889,10 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
       setShowWrittenSubmitWarning(false);
       setWrittenSubmitError(null);
       setWrittenResult(result);
+      setReviewWrittenWrong(false);
+      setReviewWrittenAll(false);
+      setWrittenReviewIndex(0);
+      setWrittenWrongFullItem(null);
 
       try {
         onProgressChange(prev => clearWrittenExamDraft(
@@ -6924,6 +6935,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
     setLocked({});
     setWrittenResult(null);
     setReviewWrittenWrong(false);
+    setReviewWrittenAll(false);
+    setWrittenReviewIndex(0);
     setWrittenWrongFullItem(null);
     setShowWrittenSubmitWarning(false);
     setWrittenSubmitError(null);
@@ -7002,6 +7015,63 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
             <small>Discard the saved written simulation for this profile and draw a new exam.</small>
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (mode === "written" && writtenResult && reviewWrittenAll) {
+    const reviewItems = writtenResult.items || [];
+    const reviewItem = reviewItems[writtenReviewIndex] || reviewItems[0];
+
+    return (
+      <div className="test-container written-review fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+          <button
+            className="back-link"
+            style={{ marginBottom: 0 }}
+            onClick={() => {
+              setReviewWrittenAll(false);
+              setFeedbackMenuOpen(false);
+              setFeedbackStatus(null);
+              setFeedbackCommentOpen(false);
+              setFeedbackCommentText("");
+            }}
+          >
+            <Icons.ChevronLeft /> Αποτελέσματα
+          </button>
+          <button className="home-btn" onClick={onHome}>
+            <Icons.Home /> Home
+          </button>
+        </div>
+        <h2>Όλες οι απαντήσεις</h2>
+        {reviewItem ? (
+          <>
+            {renderLockedWrittenQuestion(reviewItem)}
+            <div className="structured-actions">
+              <button
+                className="nav-btn"
+                onClick={() => setWrittenReviewIndex(index => Math.max(0, index - 1))}
+                disabled={writtenReviewIndex === 0}
+              >
+                <Icons.ChevronLeft />
+              </button>
+              <span className="structured-progress">
+                {writtenReviewIndex + 1}/{reviewItems.length}
+              </span>
+              <button
+                className="nav-btn"
+                onClick={() => setWrittenReviewIndex(index => Math.min(reviewItems.length - 1, index + 1))}
+                disabled={writtenReviewIndex >= reviewItems.length - 1}
+              >
+                <Icons.ChevronRight />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="explanation-box">
+            <strong>Δεν υπάρχουν απαντήσεις</strong>
+          </div>
+        )}
       </div>
     );
   }
@@ -7151,13 +7221,13 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
                   <div className="topic-performance-main">
                     <strong>{row.label}</strong>
                     <span>
-                      {row.correct} σωστές / {row.wrong} λάθος
-                      {row.unanswered > 0 ? ` / ${row.unanswered} κενές` : ""}
+                      Σωστές {row.correct}/{row.total}
+                      {row.unanswered > 0 ? ` · Αναπάντητες ${row.unanswered}` : ""}
                     </span>
                   </div>
                   <div className="topic-performance-stats">
                     <div className="topic-percent-card">
-                      <span>Τρέχον</span>
+                      <span>Τελευταίο τεστ</span>
                       <strong className={`topic-percent-value ${row.currentScoreClass}`}>{row.percent}%</strong>
                       <div className="topic-percent-bar">
                         <div className={`topic-percent-fill ${row.currentScoreClass}`} style={{ width: `${row.percent}%` }} />
@@ -7184,14 +7254,23 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
         )}
 
         <div className="results-actions">
+          <button
+            className="results-btn primary"
+            onClick={() => {
+              setWrittenReviewIndex(0);
+              setReviewWrittenAll(true);
+            }}
+          >
+            Προβολή όλων των απαντήσεων
+          </button>
           <button className="results-btn primary" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
             Review all wrong answers
           </button>
           <button className="results-btn" onClick={restartWrittenExam}>
             Restart simulation
           </button>
-          <button className="results-btn" onClick={onBack}>
-            MCQ section
+          <button className="results-btn" onClick={onHome}>
+            <Icons.Home /> Home
           </button>
         </div>
       </div>
