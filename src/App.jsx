@@ -2238,14 +2238,13 @@ function getWrittenPerformanceCategory(scorePercent) {
   return { label: "Not yet passing level", className: "fail" };
 }
 
-function getWrittenHistoryScoreClass(scorePercent) {
-  if (scorePercent >= 99) return "elite";
-  if (scorePercent > 90) return "excellent";
-  if (scorePercent >= 70) return "good";
-  if (scorePercent === 69) return "pink";
-  if (scorePercent >= 50) return "pass";
-  if (scorePercent >= 30) return "fail";
-  return "low";
+function getPercentageColorClass(scorePercent) {
+  if (scorePercent >= 99) return "pink";
+  if (scorePercent >= 91) return "orange";
+  if (scorePercent >= 80) return "purple";
+  if (scorePercent >= 70) return "blue";
+  if (scorePercent >= 50) return "green";
+  return "gray";
 }
 
 const SOS_NUMBER_PATTERN = /(?:DSM|ICD)-?\s*\d+(?:[.,]\d+)?|(?:≥|≤|>|<|~|≈)?\s*\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?\s*(?:%|mmol\/L|mEq\/L|mg\/dL|mg|g|kg|mL|L|ημέρες|ημέρα|εβδομάδες|εβδομάδα|μήνες|μήνας|έτη|ετών|ώρες|ωρών|λεπτά|bpm|kg\/m²)?/gi;
@@ -2339,8 +2338,8 @@ function buildTopicPerformance(items, progress) {
       lifetimeWrong: lifetime?.wrong || 0,
       lifetimeAnswered: lifetime?.answered || 0,
       lifetimePercent,
-      currentScoreClass: getWrittenHistoryScoreClass(row.percent),
-      lifetimeScoreClass: lifetimePercent === null ? "empty" : getWrittenHistoryScoreClass(lifetimePercent),
+      currentScoreClass: getPercentageColorClass(row.percent),
+      lifetimeScoreClass: lifetimePercent === null ? "empty" : getPercentageColorClass(lifetimePercent),
     };
   });
 }
@@ -3043,13 +3042,12 @@ const STYLES = `
     letter-spacing: 0;
   }
 
-  .written-history-score.elite { color: #a855f7; }
-  .written-history-score.excellent { color: var(--gold); }
-  .written-history-score.good { color: var(--accent); }
   .written-history-score.pink { color: #f472b6; }
-  .written-history-score.pass { color: var(--green); }
-  .written-history-score.fail { color: var(--red); }
-  .written-history-score.low { color: var(--text-muted); }
+  .written-history-score.orange { color: var(--gold); }
+  .written-history-score.purple { color: #a855f7; }
+  .written-history-score.blue { color: var(--accent); }
+  .written-history-score.green { color: var(--green); }
+  .written-history-score.gray { color: var(--text-muted); }
 
   @media (max-width: 520px) {
     .written-history-row {
@@ -4068,10 +4066,12 @@ const STYLES = `
     margin-bottom: 8px;
   }
 
-  .results-score.excellent { color: var(--green); }
-  .results-score.good { color: var(--accent); }
-  .results-score.pass { color: var(--gold); }
-  .results-score.fail { color: var(--red); }
+  .results-score.pink { color: #f472b6; }
+  .results-score.orange { color: var(--gold); }
+  .results-score.purple { color: #a855f7; }
+  .results-score.blue { color: var(--accent); }
+  .results-score.green { color: var(--green); }
+  .results-score.gray { color: var(--text-muted); }
 
   .results-label {
     font-size: 20px;
@@ -4417,13 +4417,12 @@ const STYLES = `
     font-variant-numeric: tabular-nums;
   }
 
-  .topic-percent-value.elite { color: #a855f7; }
-  .topic-percent-value.excellent { color: var(--gold); }
-  .topic-percent-value.good { color: var(--accent); }
   .topic-percent-value.pink { color: #f472b6; }
-  .topic-percent-value.pass { color: var(--green); }
-  .topic-percent-value.fail { color: var(--red); }
-  .topic-percent-value.low,
+  .topic-percent-value.orange { color: var(--gold); }
+  .topic-percent-value.purple { color: #a855f7; }
+  .topic-percent-value.blue { color: var(--accent); }
+  .topic-percent-value.green { color: var(--green); }
+  .topic-percent-value.gray,
   .topic-percent-value.empty { color: var(--text-muted); }
 
   .topic-percent-bar {
@@ -4439,13 +4438,12 @@ const STYLES = `
     border-radius: inherit;
   }
 
-  .topic-percent-fill.elite { background: #a855f7; }
-  .topic-percent-fill.excellent { background: var(--gold); }
-  .topic-percent-fill.good { background: var(--accent); }
   .topic-percent-fill.pink { background: #f472b6; }
-  .topic-percent-fill.pass { background: var(--green); }
-  .topic-percent-fill.fail { background: var(--red); }
-  .topic-percent-fill.low,
+  .topic-percent-fill.orange { background: var(--gold); }
+  .topic-percent-fill.purple { background: #a855f7; }
+  .topic-percent-fill.blue { background: var(--accent); }
+  .topic-percent-fill.green { background: var(--green); }
+  .topic-percent-fill.gray,
   .topic-percent-fill.empty { background: var(--text-muted); }
 
   .written-review {
@@ -5558,7 +5556,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
                 <span className="written-history-dot" aria-hidden="true" />
                 <span className="written-history-detail">{session.performanceLabel}</span>
               </div>
-              <strong className={`written-history-score ${getWrittenHistoryScoreClass(session.scorePercent)}`}>
+              <strong className={`written-history-score ${getPercentageColorClass(session.scorePercent)}`}>
                 {session.scorePercent}%
               </strong>
             </div>
@@ -6153,7 +6151,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
             <Icons.Home /> Home
           </button>
         </div>
-        <div className="results-score good">{percent}%</div>
+        <div className={`results-score ${getPercentageColorClass(percent)}`}>{percent}%</div>
         <div className="results-label">Vignette results</div>
         <div className="results-detail">
           {result.correct}/{result.total} correct, {result.wrong} wrong
@@ -7188,7 +7186,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
           </button>
         </div>
 
-        <div className={`results-score ${writtenResult.performance.className}`}>
+        <div className={`results-score ${getPercentageColorClass(writtenResult.scorePercent)}`}>
           {writtenResult.scorePercent}%
         </div>
         <div className="results-label">{writtenResult.performance.label}</div>
