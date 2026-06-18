@@ -105,7 +105,6 @@ const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const WRITTEN_EXAM_SIZE = 100;
-const EXTRA_MCQ_PASSWORD = "Lasithi";
 const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
 const MCQ_TOPIC_CATEGORIES = [
   "\u03a8\u03c5\u03c7\u03bf\u03c0\u03b1\u03b8\u03bf\u03bb\u03bf\u03b3\u03af\u03b1",
@@ -5431,25 +5430,6 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
 
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
-  const [showExtraPassword, setShowExtraPassword] = useState(false);
-  const [extraPassword, setExtraPassword] = useState("");
-  const [extraPasswordError, setExtraPasswordError] = useState("");
-
-  const closeExtraPassword = () => {
-    setShowExtraPassword(false);
-    setExtraPassword("");
-    setExtraPasswordError("");
-  };
-
-  const submitExtraPassword = (event) => {
-    event.preventDefault();
-    if (extraPassword.trim() === EXTRA_MCQ_PASSWORD) {
-      closeExtraPassword();
-      onStart("extra");
-      return;
-    }
-    setExtraPasswordError("Wrong password.");
-  };
 
   return (
     <div className="mcq-select fade-in">
@@ -5506,34 +5486,9 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         Αντιστοίχηση
         <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
       </button>
-      <button className="mode-btn" onClick={() => setShowExtraPassword(true)}>
+      <button className="mode-btn" onClick={() => onStart('extra')}>
         Extra
       </button>
-
-      {showExtraPassword && (
-        <div className="modal-overlay" onClick={closeExtraPassword}>
-          <form className="modal extra-password-modal" onSubmit={submitExtraPassword} onClick={(event) => event.stopPropagation()}>
-            <button type="button" className="modal-close" onClick={closeExtraPassword} aria-label="Close">
-              <Icons.X />
-            </button>
-            <h3>Password?</h3>
-            <input
-              type="password"
-              value={extraPassword}
-              onChange={(event) => {
-                setExtraPassword(event.target.value);
-                setExtraPasswordError("");
-              }}
-              autoFocus
-            />
-            {extraPasswordError && <p className="error-text">{extraPasswordError}</p>}
-            <div className="modal-actions">
-              <button type="button" className="results-btn" onClick={closeExtraPassword}>Cancel</button>
-              <button type="submit" className="results-btn primary">Open Extra</button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
