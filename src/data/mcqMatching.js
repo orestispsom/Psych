@@ -1,3211 +1,4783 @@
 const mcqMatchingSets = [
   {
-    "id": "psychopharm_profiles_001",
-    "title": "Ψυχοφαρμακολογία - προφίλ φαρμάκων",
-    "source": "Pilot matching set",
-    "instructions": "Επιλέξτε το καταλληλότερο φάρμακο ή φάρμακα για κάθε περιγραφή. Κάθε επιλογή μπορεί να χρησιμοποιηθεί πάνω από μία φορά.",
+    "id": "crash_course_emq_01",
+    "title": "Crash Course EMQ 1 - Management of antipsychotic-induced extrapyramidal side-effects",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE best management option from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Κλοζαπίνη"
+        "id": "A",
+        "label": "Intramuscular procyclidine"
       },
       {
-        "id": "β",
-        "label": "Λαμοτριγίνη"
+        "id": "B",
+        "label": "Oral procyclidine"
       },
       {
-        "id": "γ",
-        "label": "Μιρταζαπίνη"
+        "id": "C",
+        "label": "Propranolol"
       },
       {
-        "id": "δ",
-        "label": "Βουπροπιόνη"
+        "id": "D",
+        "label": "Stop anticholinergics"
       },
       {
-        "id": "ε",
-        "label": "Βουσπιρόνη"
+        "id": "E",
+        "label": "Oral olanzapine"
       },
       {
-        "id": "στ",
-        "label": "Ακαμπροσάτη"
+        "id": "F",
+        "label": "Intramuscular haloperidol"
       },
       {
-        "id": "ζ",
-        "label": "Ναλτρεξόνη"
+        "id": "G",
+        "label": "Resuscitation"
       },
       {
-        "id": "η",
-        "label": "Μεμαντίνη"
+        "id": "H",
+        "label": "Baclofen"
       },
       {
-        "id": "θ",
-        "label": "Ριβαστιγμίνη"
+        "id": "I",
+        "label": "Dantrolene"
       },
       {
-        "id": "ι",
-        "label": "Λουρασιδόνη"
+        "id": "J",
+        "label": "Quinine"
       }
     ],
     "items": [
       {
-        "id": "psychopharm_match_001",
-        "prompt": "Ανθεκτική σχιζοφρένεια μετά από επαρκείς δοκιμές δύο αντιψυχωσικών.",
+        "id": "crash_course_match_01_01",
+        "prompt": "A 22-year-old woman recently commenced on an antipsychotic who is pacing her bedroom and says she feels very restless.",
         "correct": [
-          "α"
+          "C"
         ],
-        "explanation": "Η κλοζαπίνη είναι η βασική επιλογή στην ανθεκτική σχιζοφρένεια."
+        "explanation": "Propranolol. This woman is probably experiencing akathisia. This is hard to treat, but propranolol or benzodiazepines can help. See Table 2.7. Ideally, the dose of antipsychotic is reduced. Quinine can be used for restless leg syndrome when in bed. The differential includes agitation secondary to psychosis."
       },
       {
-        "id": "psychopharm_match_002",
-        "prompt": "Σταθεροποιητής διάθεσης με ιδιαίτερη χρησιμότητα στην πρόληψη διπολικής κατάθλιψης και κίνδυνο Stevens-Johnson.",
+        "id": "crash_course_match_01_02",
+        "prompt": "A 22-year-old woman recently commenced on an antipsychotic who is staring at the ceiling and clenching her jaw tightly.",
         "correct": [
-          "β"
+          "A"
         ],
-        "explanation": "Η λαμοτριγίνη συνδέεται με σοβαρό εξάνθημα/SJS, ιδίως με γρήγορη τιτλοποίηση ή αλληλεπίδραση με βαλπροϊκό."
+        "explanation": "Intramuscular procyclidine. This woman is experiencing a dystonia with an oculogyric crisis and trismus. Her clenched jaw means administering oral procyclidine is not possible. Baclofen and dantrolene should be used for chronic spasticity."
       },
       {
-        "id": "psychopharm_match_003",
-        "prompt": "Αντικαταθλιπτικό με ανταγωνισμό α2 και 5-HT2/5-HT3, συχνά με καταστολή και αύξηση βάρους.",
+        "id": "crash_course_match_01_03",
+        "prompt": "A 22-year-old woman recently commenced on an antipsychotic who is collapsed in her bedroom with afastpulse,lowbloodpressure,reduced consciousness level and stiff limbs.",
         "correct": [
-          "γ"
+          "G"
         ],
-        "explanation": "Η μιρταζαπίνη έχει νοραδρενεργική/ειδική σεροτονινεργική δράση και έντονη H1 αντιισταμινική δράση."
+        "explanation": "Resuscitation. This woman is acutely unwell. She needs ABC and probably a periarrest call/999 ambulance. She may have neuroleptic malignant syndrome or a range of other differentials (e.g., meningitis, substance intoxication). Dantrolene is not an emergency treatment and is not indicated until the diagnosis is clearer."
       },
       {
-        "id": "psychopharm_match_004",
-        "prompt": "Αντικαταθλιπτικό με αναστολή επαναπρόσληψης νοραδρεναλίνης/ντοπαμίνης και χρήση στη διακοπή καπνίσματος.",
+        "id": "crash_course_match_01_04",
+        "prompt": "A 26-year-old man who commenced antipsychotics a month ago. His face shows little expression, and he does not swing his arms when he walks. He does not have a tremor, and his gait is not shuffling.",
         "correct": [
-          "δ"
+          "B"
         ],
-        "explanation": "Η βουπροπιόνη είναι NDRI και χρησιμοποιείται επίσης στη διακοπή καπνίσματος."
+        "explanation": "Oral procyclidine. This man has drug-induced parkinsonism. In the early stages, the features are different to idiopathic parkinsonism. Anticholinergics can help, but ideally the dose of antipsychotic would be reduced or an alternative antipsychotic trialled."
       },
       {
-        "id": "psychopharm_match_005",
-        "prompt": "Μη βενζοδιαζεπινική επιλογή για γενικευμένη αγχώδη διαταραχή, με μερική αγωνιστική δράση 5-HT1A.",
+        "id": "crash_course_match_01_05",
+        "prompt": "A 34-year-old man who has been on antipsychotics and regular procyclidine for over a decade. He makes frequent darting movements with his tongue but seems unaware of this. Mechanism of action of antidepressants",
         "correct": [
-          "ε"
+          "D"
         ],
-        "explanation": "Η βουσπιρόνη είναι μερικός αγωνιστής 5-HT1A και δεν έχει την άμεση κατασταλτική δράση των βενζοδιαζεπινών."
-      },
-      {
-        "id": "psychopharm_match_006",
-        "prompt": "Φάρμακο για διαταραχή χρήσης αλκοόλ που βοηθά στη διατήρηση αποχής και σχετίζεται με γλουταμινεργική ρύθμιση.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η ακαμπροσάτη χρησιμοποιείται κυρίως για διατήρηση αποχής από αλκοόλ."
-      },
-      {
-        "id": "psychopharm_match_007",
-        "prompt": "Ανταγωνιστής οπιοειδών που μειώνει την ενισχυτική δράση του αλκοόλ και δεν πρέπει να χορηγείται σε ασθενή που λαμβάνει οπιοειδή.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η ναλτρεξόνη είναι ανταγωνιστής οπιοειδών και μπορεί να προκαλέσει στέρηση αν υπάρχουν οπιοειδή."
-      },
-      {
-        "id": "psychopharm_match_008",
-        "prompt": "Ανταγωνιστής NMDA για μέτρια έως σοβαρή νόσο Alzheimer.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η μεμαντίνη είναι ανταγωνιστής NMDA και χρησιμοποιείται κυρίως σε μέτρια/σοβαρή άνοια Alzheimer."
-      },
-      {
-        "id": "psychopharm_match_009",
-        "prompt": "Αναστολέας χολινεστεράσης διαθέσιμος και ως διαδερμικό έμπλαστρο, χρήσιμος και σε άνοια Parkinson/Lewy bodies.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η ριβαστιγμίνη χρησιμοποιείται σε Alzheimer και σε άνοια που σχετίζεται με Parkinson/Lewy bodies, συχνά και ως patch."
-      },
-      {
-        "id": "psychopharm_match_010",
-        "prompt": "Αντιψυχωσικό με ένδειξη στη διπολική κατάθλιψη και σχετικά ευνοϊκό μεταβολικό προφίλ.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η λουρασιδόνη έχει ένδειξη στη διπολική κατάθλιψη και συνήθως χαμηλότερο μεταβολικό φορτίο από ολανζαπίνη/κλοζαπίνη."
-      },
-      {
-        "id": "psychopharm_match_011",
-        "prompt": "Ποιες επιλογές έχουν κλινικά σημαντική πιθανότητα αύξησης βάρους; (2 σωστά)",
-        "correct": [
-          "α",
-          "γ"
-        ],
-        "explanation": "Κλοζαπίνη και μιρταζαπίνη συνδέονται συχνά με αύξηση βάρους, αν και ανήκουν σε διαφορετικές φαρμακολογικές κατηγορίες."
+        "explanation": "Stop anticholinergics. This man has tardive dyskinesia. This is hard to treat but stopping anticholinergics (in this case procyclidine) and reducing or withdrawing antipsychotics, if possible, can help. Mechanism of action of antidepressants"
       }
     ]
   },
   {
-    "id": "antipsychotic_profiles_002",
-    "title": "Αντιψυχωσικά - υποδοχείς, ενδείξεις και ανεπιθύμητες",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε το αντιψυχωσικό ή τα αντιψυχωσικά που ταιριάζουν καλύτερα σε κάθε περιγραφή. Μπορεί να υπάρχουν περισσότερες από μία σωστές επιλογές.",
+    "id": "crash_course_emq_02",
+    "title": "Crash Course EMQ 2 - He makes frequent darting movements with his tongue but seems unaware of this. Mechanism of action of antidepressants",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Select the antidepressant whose mechanism is best described by the descriptions below:",
     "choices": [
       {
-        "id": "α",
-        "label": "Κλοζαπίνη"
+        "id": "A",
+        "label": "Agomelatine"
       },
       {
-        "id": "β",
-        "label": "Ολανζαπίνη"
+        "id": "B",
+        "label": "Amitriptyline"
       },
       {
-        "id": "γ",
-        "label": "Ρισπεριδόνη"
+        "id": "C",
+        "label": "Bupropion"
       },
       {
-        "id": "δ",
-        "label": "Αριπιπραζόλη"
+        "id": "D",
+        "label": "Citalopram"
       },
       {
-        "id": "ε",
-        "label": "Κουετιαπίνη"
+        "id": "E",
+        "label": "Duloxetine"
       },
       {
-        "id": "στ",
-        "label": "Αμισουλπρίδη"
+        "id": "F",
+        "label": "Moclobemide"
       },
       {
-        "id": "ζ",
-        "label": "Αλοπεριδόλη"
+        "id": "G",
+        "label": "Phenelzine"
       },
       {
-        "id": "η",
-        "label": "Λουρασιδόνη"
+        "id": "H",
+        "label": "Pramipexole"
       },
       {
-        "id": "θ",
-        "label": "Καριπραζίνη"
-      },
-      {
-        "id": "ι",
-        "label": "Ζιπρασιδόνη"
+        "id": "I",
+        "label": "Reboxetine"
       }
     ],
     "items": [
       {
-        "id": "antipsychotic_match_001",
-        "prompt": "Ανθεκτική σχιζοφρένεια μετά από δύο επαρκείς αντιψυχωσικές δοκιμές.",
+        "id": "crash_course_match_02_01",
+        "prompt": "5-HT 2C receptor antagonist and melatonin receptor agonist.",
         "correct": [
-          "α"
+          "A"
         ],
-        "explanation": "Η κλοζαπίνη είναι το κλασικό φάρμακο αναφοράς για ανθεκτική σχιζοφρένεια."
+        "explanation": "Agomelatine."
       },
       {
-        "id": "antipsychotic_match_002",
-        "prompt": "Υψηλότερο μεταβολικό φορτίο και συχνή αύξηση βάρους. (2 σωστά)",
+        "id": "crash_course_match_02_02",
+        "prompt": "Inhibits serotonin and noradrenaline reuptake pumps; does not affect acetylcholine receptors.",
         "correct": [
-          "α",
-          "β"
+          "E"
         ],
-        "explanation": "Κλοζαπίνη και ολανζαπίνη έχουν από τα βαρύτερα μεταβολικά προφίλ ανάμεσα στα αντιψυχωσικά."
+        "explanation": "Duloxetine. Venlafaxine also works this way. Tricyclic antidepressants are SNRIs, which also influence muscarinic, histaminergic and α-adrenergic receptors."
       },
       {
-        "id": "antipsychotic_match_003",
-        "prompt": "Σημαντικός κίνδυνος υπερπρολακτιναιμίας. (2 σωστά)",
+        "id": "crash_course_match_02_03",
+        "prompt": "Inhibits serotonin and noradrenaline reuptake pumps; also blocks acetylcholine receptors.",
         "correct": [
-          "γ",
-          "στ"
+          "B"
         ],
-        "explanation": "Ρισπεριδόνη και αμισουλπρίδη είναι γνωστές για σχετικά υψηλό κίνδυνο αύξησης προλακτίνης."
+        "explanation": "Amitriptyline. Tricyclic antidepressants are SNRIs, which also influence muscarinic, histaminergic and α-adrenergic receptors."
       },
       {
-        "id": "antipsychotic_match_004",
-        "prompt": "Μερική αγωνιστική δράση στους D2/D3 υποδοχείς. (2 σωστά)",
+        "id": "crash_course_match_02_04",
+        "prompt": "Reversible inhibition of monoamine oxidase A.",
         "correct": [
-          "δ",
-          "θ"
+          "F"
         ],
-        "explanation": "Η αριπιπραζόλη και η καριπραζίνη λειτουργούν ως μερικοί αγωνιστές ντοπαμινικών υποδοχέων."
+        "explanation": "Moclobemide. Phenelzine is an irreversible inhibitor of monoamine oxidase A and B."
       },
       {
-        "id": "antipsychotic_match_005",
-        "prompt": "Κλασικό υψηλής ισχύος αντιψυχωσικό με αυξημένο κίνδυνο οξέων εξωπυραμιδικών ανεπιθύμητων.",
+        "id": "crash_course_match_02_05",
+        "prompt": "Inhibits dopamine and noradrenaline reuptake pumps.",
         "correct": [
-          "ζ"
+          "C"
         ],
-        "explanation": "Η αλοπεριδόλη είναι τυπικό υψηλής ισχύος αντιψυχωσικό και συνδέεται με οξεία δυστονία/παρκινσονισμό/ακαθησία."
-      },
-      {
-        "id": "antipsychotic_match_006",
-        "prompt": "Συχνή χρήση ή ένδειξη στη διπολική κατάθλιψη. (2 σωστά)",
-        "correct": [
-          "ε",
-          "η"
-        ],
-        "explanation": "Η κουετιαπίνη και η λουρασιδόνη είναι βασικές επιλογές για διπολική κατάθλιψη."
-      },
-      {
-        "id": "antipsychotic_match_007",
-        "prompt": "Ειδικό ενδιαφέρον για κυρίαρχα αρνητικά συμπτώματα σχιζοφρένειας.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η καριπραζίνη έχει ιδιαίτερη θέση σε ερωτήσεις για αρνητικά συμπτώματα, λόγω της D3 προτίμησης και σχετικών δεδομένων."
-      },
-      {
-        "id": "antipsychotic_match_008",
-        "prompt": "Άτυπα αντιψυχωσικά από τη λίστα με σχετικά χαμηλότερο μεταβολικό φορτίο από ολανζαπίνη/κλοζαπίνη, χωρίς το πιο κλασικό προλακτιναιμικό προφίλ ρισπεριδόνης/αμισουλπρίδης. (3 σωστά)",
-        "correct": [
-          "δ",
-          "η",
-          "ι"
-        ],
-        "explanation": "Αριπιπραζόλη, λουρασιδόνη και ζιπρασιδόνη θεωρούνται από τα πιο μεταβολικά «ελαφρά» άτυπα της συγκεκριμένης λίστας. Η αμισουλπρίδη έχει επίσης χαμηλότερο μεταβολικό φορτίο, αλλά το prompt την αποκλείει εδώ μέσω της προλακτιναιμικής της τάσης."
-      },
-      {
-        "id": "antipsychotic_match_009",
-        "prompt": "Αντιψυχωσικό όπου η αγρανουλοκυττάρωση και η μυοκαρδίτιδα είναι κρίσιμες ανεπιθύμητες προς παρακολούθηση.",
-        "correct": [
-          "α"
-        ],
-        "explanation": "Η κλοζαπίνη απαιτεί ειδική αιματολογική παρακολούθηση και εγρήγορση για μυοκαρδίτιδα, ιδίως στην αρχή."
-      },
-      {
-        "id": "antipsychotic_match_010",
-        "prompt": "Σχετικά κατασταλτικό αντιψυχωσικό, συχνά λόγω ισταμινεργικής δράσης. (3 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "ε"
-        ],
-        "explanation": "Κλοζαπίνη, ολανζαπίνη και κουετιαπίνη είναι συνήθως πιο κατασταλτικές από λουρασιδόνη, αριπιπραζόλη ή αλοπεριδόλη."
-      },
-      {
-        "id": "antipsychotic_match_011",
-        "prompt": "Αντιψυχωσικό όπου το QTc είναι ιδιαίτερα εξεταστικά χρήσιμο σημείο προσοχής.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η ζιπρασιδόνη εμφανίζεται συχνά ως αντιψυχωσικό με ανάγκη προσοχής στο QTc."
+        "explanation": "Bupropion. Pramipexole is a dopamine receptor agonist. General feedback: See Table 2.1. Chapter 3 Psychological therapy Modalities of individual psychotherapy"
       }
     ]
   },
   {
-    "id": "antidepressant_mechanisms_003",
-    "title": "Αντικαταθλιπτικά - μηχανισμός και κλινικό προφίλ",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε περιγραφή με το κατάλληλο αντικαταθλιπτικό ή τα κατάλληλα αντικαταθλιπτικά. Κάθε επιλογή μπορεί να χρησιμοποιηθεί περισσότερες από μία φορές.",
+    "id": "crash_course_emq_03",
+    "title": "Crash Course EMQ 3 - Modalities of individual psychotherapy",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Σερτραλίνη"
+        "id": "A",
+        "label": "Psychoanalysis"
       },
       {
-        "id": "β",
-        "label": "Φλουοξετίνη"
+        "id": "B",
+        "label": "Cognitive-behavioural therapy"
       },
       {
-        "id": "γ",
-        "label": "Βενλαφαξίνη"
+        "id": "C",
+        "label": "Mentalization-based therapy"
       },
       {
-        "id": "δ",
-        "label": "Ντουλοξετίνη"
+        "id": "D",
+        "label": "Psychodynamic psychotherapy"
       },
       {
-        "id": "ε",
-        "label": "Μιρταζαπίνη"
+        "id": "E",
+        "label": "Dialectical behaviour therapy"
       },
       {
-        "id": "στ",
-        "label": "Βουπροπιόνη"
+        "id": "F",
+        "label": "Exposure and response prevention"
       },
       {
-        "id": "ζ",
-        "label": "Τραζοδόνη"
+        "id": "G",
+        "label": "Eye movement desensitization and reprocessing"
       },
       {
-        "id": "η",
-        "label": "Αμιτριπτυλίνη"
+        "id": "H",
+        "label": "Cognitive analytic therapy"
       },
       {
-        "id": "θ",
-        "label": "Μοκλοβεμίδη"
+        "id": "I",
+        "label": "Systematic desensitization"
       },
       {
-        "id": "ι",
-        "label": "Βορτιοξετίνη"
+        "id": "J",
+        "label": "Mindfulness-based cognitive therapy"
       },
       {
-        "id": "κ",
-        "label": "Αγκομελατίνη"
+        "id": "K",
+        "label": "Interpersonal therapy"
       }
     ],
     "items": [
       {
-        "id": "antidepressant_match_001",
-        "prompt": "Κλασικό SSRI. (2 σωστά)",
+        "id": "crash_course_match_03_01",
+        "prompt": "A 28-year-old man has a diagnosis of emotionally unstable personality disorder. He reports that he often finds it dificult to know what others are thinking about him and tends to expect the worst and act accordingly. He sometimes has difficulty knowing what he is thinking and feeling.",
         "correct": [
-          "α",
-          "β"
+          "C"
         ],
-        "explanation": "Σερτραλίνη και φλουοξετίνη είναι SSRIs."
+        "explanation": "Mentalization is the process by which we implicitly and explicitly interpret our and others' actions as meaningful on the basis of intentional mental states. Mentalization-based therapy is a treatment intended to improve the capacity to mentalize, which is often a specific difficulty in those with borderline personality disorder. This is thought to improve emotional regulation and interpersonal relationships. He may also find useful dialectical behaviour therapy, which incorporates mentalization training."
       },
       {
-        "id": "antidepressant_match_002",
-        "prompt": "SNRI με δράση σε σεροτονίνη και νοραδρεναλίνη. (2 σωστά)",
+        "id": "crash_course_match_03_02",
+        "prompt": "A 57-year-old lady has a depressive disorder of moderate severity. She attributes her symptoms to the fact that her father has been taken into a nursing home, her daughter has left home to attend university and she was recently made redundant from her job in the bank.",
         "correct": [
-          "γ",
-          "δ"
+          "K"
         ],
-        "explanation": "Βενλαφαξίνη και ντουλοξετίνη είναι SNRIs, αν και η νοραδρενεργική συνιστώσα εξαρτάται και από τη δόση."
+        "explanation": "Interpersonal therapy is based on the assumptions that problems with interpersonal relationships and social functioning contribute significantly to mental illness. Main areas of focus include role disputes, role transitions, interpersonal deficits and grief. She may also find cognitive-behavioural therapy of benefit, for example, if interpersonal therapy is not available."
       },
       {
-        "id": "antidepressant_match_003",
-        "prompt": "NaSSA με ανταγωνισμό α2 και 5-HT2/5-HT3, συχνά με καταστολή και αύξηση όρεξης.",
+        "id": "crash_course_match_03_03",
+        "prompt": "A 35-year-old woman has a diagnosis of agoraphobia. She wants to start a practical sort of therapy in which she does not need to talk about her difficult past.",
         "correct": [
-          "ε"
+          "I"
         ],
-        "explanation": "Η μιρταζαπίνη είναι NaSSA και η H1 δράση της εξηγεί μεγάλο μέρος της καταστολής/αύξησης βάρους."
+        "explanation": "Systematic desensitization is a type of behavioural therapy that can be useful in the treatment of phobias. It involves compilation of a hierarchy of phobic stimuli (e.g., standing at the front door, going into the garden, going to the end of the street, going to the supermarket) and. with support from the therapist and the use of appropriate relaxation techniques. working through the hierarchy in order to face increasingly anxiety-provoking scenarios."
       },
       {
-        "id": "antidepressant_match_004",
-        "prompt": "NDRI, χρήσιμο και στη διακοπή καπνίσματος, με χαμηλότερο κίνδυνο σεξουαλικής δυσλειτουργίας από SSRIs.",
+        "id": "crash_course_match_03_04",
+        "prompt": "A 24-year-old ex-soldier has a diagnosis of posttraumatic stress disorder. He requests a talking therapy. In the past, he tried treatment with a therapist who 'made me look at moving lights while I talked about what happened,' and found this unhelpful.",
         "correct": [
-          "στ"
+          "B"
         ],
-        "explanation": "Η βουπροπιόνη αναστέλλει κυρίως επαναπρόσληψη νοραδρεναλίνης/ντοπαμίνης."
+        "explanation": "Trauma-focussed cognitive-behavioural therapy can be useful in the treatment of posttraumatic stress disorder, where the emphasis is on identifying and changing thoughts, feelings, sensations and behaviour related to the traumatic event. The ‘dual attention stimulus' type of therapy that the gentleman in the scenario describes is eye movement desensitization and reprocessing, which can also be helpful for some."
       },
       {
-        "id": "antidepressant_match_005",
-        "prompt": "SARI με ανταγωνισμό 5-HT2 και κατασταλτικό προφίλ, συχνά γνωστή εξεταστικά για χρήση στον ύπνο.",
+        "id": "crash_course_match_03_05",
+        "prompt": "A 42-year-old gentleman has a diagnosis of obsessive-compulsivedisorderand is mainlytroubled by having to check switches and locks in his home. He feels that a therapy that is 'more practical than talking' would be helpful. Psychodynamic psychotherapy",
         "correct": [
-          "ζ"
+          "F"
         ],
-        "explanation": "Η τραζοδόνη είναι SARI και χρησιμοποιείται συχνά λόγω κατασταλτικής δράσης."
-      },
-      {
-        "id": "antidepressant_match_006",
-        "prompt": "Τρικυκλικό αντικαταθλιπτικό με αντιχολινεργικές, καρδιοτοξικές και αντιισταμινικές ιδιότητες.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η αμιτριπτυλίνη είναι TCA και η τοξικότητα σε υπερδοσολογία είναι εξεταστικά κρίσιμη."
-      },
-      {
-        "id": "antidepressant_match_007",
-        "prompt": "Αναστρέψιμος αναστολέας ΜΑΟ-Α.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η μοκλοβεμίδη είναι RIMA, δηλαδή αναστρέψιμος αναστολέας ΜΑΟ-Α."
-      },
-      {
-        "id": "antidepressant_match_008",
-        "prompt": "Πολυτροπικό σεροτονινεργικό αντικαταθλιπτικό με δράση στον SERT και σε υποδοχείς 5-HT.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η βορτιοξετίνη περιγράφεται ως multimodal serotonergic antidepressant."
-      },
-      {
-        "id": "antidepressant_match_009",
-        "prompt": "Μελατονινεργικός αγωνιστής και 5-HT2C ανταγωνιστής, με ανάγκη προσοχής στις τρανσαμινάσες.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Η αγκομελατίνη δρα στους MT1/MT2 και ανταγωνίζεται 5-HT2C· απαιτείται παρακολούθηση ηπατικής λειτουργίας."
-      },
-      {
-        "id": "antidepressant_match_010",
-        "prompt": "Συχνή επιλογή όταν συνυπάρχει νευροπαθητικός πόνος. (2 σωστά)",
-        "correct": [
-          "δ",
-          "η"
-        ],
-        "explanation": "Ντουλοξετίνη και αμιτριπτυλίνη χρησιμοποιούνται συχνά σε νευροπαθητικό πόνο."
-      },
-      {
-        "id": "antidepressant_match_011",
-        "prompt": "Μακρός χρόνος ημίσειας ζωής και συνήθως μικρότερη ένταση συνδρόμου διακοπής σε σχέση με βραχύτερης ημίσειας ζωής SSRIs.",
-        "correct": [
-          "β"
-        ],
-        "explanation": "Η φλουοξετίνη έχει μακρύ χρόνο ημίσειας ζωής και ενεργό μεταβολίτη."
+        "explanation": "Exposure and response prevention is a type of behavioural therapy in which the patient is 311 encouraged not to respond to the obsessional thought with a compulsive act. Relaxation techniques are used instead to overcome the anxiety associated with not carrying out the compulsion. Psychodynamic psychotherapy"
       }
     ]
   },
   {
-    "id": "mood_stabilizers_monitoring_004",
-    "title": "Σταθεροποιητές διάθεσης - ενδείξεις, παρακολούθηση, κίνδυνοι",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε το φάρμακο ή τα φάρμακα που ταιριάζουν σε κάθε κλινική περιγραφή. Ορισμένες περιγραφές έχουν περισσότερες από μία σωστές απαντήσεις.",
+    "id": "crash_course_emq_04",
+    "title": "Crash Course EMQ 4 - He feels that a therapy that is 'more practical than talking' would be helpful. Psychodynamic psychotherapy",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following, select the ONE most appropriate descriptor from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Λίθιο"
+        "id": "A",
+        "label": "Acting out"
       },
       {
-        "id": "β",
-        "label": "Βαλπροϊκό"
+        "id": "B",
+        "label": "Projective identification"
       },
       {
-        "id": "γ",
-        "label": "Καρβαμαζεπίνη"
+        "id": "C",
+        "label": "Hypnosis"
       },
       {
-        "id": "δ",
-        "label": "Λαμοτριγίνη"
+        "id": "D",
+        "label": "Catharsis"
       },
       {
-        "id": "ε",
-        "label": "Κουετιαπίνη"
+        "id": "E",
+        "label": "Parapraxis"
       },
       {
-        "id": "στ",
-        "label": "Ολανζαπίνη"
+        "id": "F",
+        "label": "Transference"
       },
       {
-        "id": "ζ",
-        "label": "Αριπιπραζόλη"
+        "id": "G",
+        "label": "Rationalization"
       },
       {
-        "id": "η",
-        "label": "Ρισπεριδόνη"
+        "id": "H",
+        "label": "Counter-transference"
       },
       {
-        "id": "θ",
-        "label": "Κλοζαπίνη"
+        "id": "I",
+        "label": "Dream interpretation"
       },
       {
-        "id": "ι",
-        "label": "Λουρασιδόνη"
+        "id": "J",
+        "label": "Working through"
       }
     ],
     "items": [
       {
-        "id": "mood_match_001",
-        "prompt": "Φάρμακο με ειδική θέση στη μακροχρόνια πρόληψη υποτροπών της διπολικής διαταραχής και αντι-αυτοκτονικό σήμα.",
+        "id": "crash_course_match_04_01",
+        "prompt": "A 32-year-old woman, who has previously been very punctual, has arrived late and slightly inebriated for the past six sessions since the therapist was on leave.",
         "correct": [
-          "α"
+          "A"
         ],
-        "explanation": "Το λίθιο είναι κεντρικό φάρμακο συντήρησης στη διπολική διαταραχή και έχει ισχυρή εξεταστική σύνδεση με μείωση αυτοκτονικότητας."
+        "explanation": "This is an example of acting out: behaving in a certain way in order to express thoughts or feelings that the person feels otherwise incapable of expressing."
       },
       {
-        "id": "mood_match_002",
-        "prompt": "Απαιτεί συστηματική παρακολούθηση νεφρικής και θυρεοειδικής λειτουργίας.",
+        "id": "crash_course_match_04_02",
+        "prompt": "The therapist of a 59-year-old woman realizes that he has been talking to her as if she were a mother figure.",
         "correct": [
-          "α"
+          "H"
         ],
-        "explanation": "Στο λίθιο παρακολουθούνται επίπεδα, νεφρική λειτουργία, θυρεοειδής και άλλα κατά περίπτωση."
+        "explanation": "Counter-transference is the process whereby the therapist unconsciously interacts with the patient as if they were a significant figure from the patient's past."
       },
       {
-        "id": "mood_match_003",
-        "prompt": "Σταθεροποιητής με ιδιαίτερη χρησιμότητα στην πρόληψη διπολικής κατάθλιψης, όχι ως άμεση θεραπεία οξείας μανίας.",
+        "id": "crash_course_match_04_03",
+        "prompt": "A 43-year-old man feels better after his first psychotherapy session, because he has 'got it off his chest.\"",
         "correct": [
-          "δ"
+          "D"
         ],
-        "explanation": "Η λαμοτριγίνη είναι πιο χρήσιμη στην πρόληψη/καταθλιπτική πολικότητα παρά στην οξεία μανία."
+        "explanation": "Catharsis is a Greek word meaning ‘cleansing' or 'purging.' It is often used to describe a feeling of relief after an outpouring of emotive material."
       },
       {
-        "id": "mood_match_004",
-        "prompt": "Σοβαρό εξάνθημα/SJS ως κρίσιμος κίνδυνος, ιδίως με ταχεία τιτλοποίηση. (2 σωστά)",
+        "id": "crash_course_match_04_04",
+        "prompt": "A 21-year-old says I'm glad we're almost finished.' She intended to say \"I'm sad we're almost finished.'",
         "correct": [
-          "γ",
-          "δ"
+          "E"
         ],
-        "explanation": "Λαμοτριγίνη και καρβαμαζεπίνη μπορούν να συνδεθούν με σοβαρές δερματικές αντιδράσεις."
+        "explanation": "Parapraxis is a term used to describe an error of memory, speech, writing, reading or action that may be due to the interference of repressed thoughts and unconscious features of the individual's personality. It is commonly referred to as a ‘slip of the tongue' or a \"Freudian slip.\""
       },
       {
-        "id": "mood_match_005",
-        "prompt": "Έντονα τερατογόνο και γενικά αποφεύγεται σε γυναίκες αναπαραγωγικής ηλικίας όταν υπάρχουν ασφαλέστερες εναλλακτικές.",
+        "id": "crash_course_match_04_05",
+        "prompt": "A 29-year-old man has been avoiding his psychotherapist for the past few weeks, following what he considered to be a‘clash of personalities.\" He decided to return and is keen to uncover his unconscious reasons behind this.",
         "correct": [
-          "β"
+          "J"
         ],
-        "explanation": "Το βαλπροϊκό έχει σοβαρούς τερατογόνους και νευροαναπτυξιακούς κινδύνους."
-      },
-      {
-        "id": "mood_match_006",
-        "prompt": "Ισχυρός επαγωγέας ηπατικών ενζύμων, με πολλές φαρμακοκινητικές αλληλεπιδράσεις.",
-        "correct": [
-          "γ"
-        ],
-        "explanation": "Η καρβαμαζεπίνη είναι ενζυμικός επαγωγέας και επηρεάζει πολλά συγχορηγούμενα φάρμακα."
-      },
-      {
-        "id": "mood_match_007",
-        "prompt": "Χρήσιμη επιλογή για διπολική κατάθλιψη. (3 σωστά)",
-        "correct": [
-          "δ",
-          "ε",
-          "ι"
-        ],
-        "explanation": "Λαμοτριγίνη, κουετιαπίνη και λουρασιδόνη εμφανίζονται συχνά σε ερωτήσεις διπολικής κατάθλιψης, με διαφορετικό ρόλο και πλαίσιο χρήσης."
-      },
-      {
-        "id": "mood_match_008",
-        "prompt": "Σε οξεία μανία, ποιες επιλογές από τη λίστα έχουν τεκμηριωμένη αντιμανιακή χρήση και δεν περιορίζονται κυρίως σε πρόληψη υποτροπών ή διπολική κατάθλιψη; (6 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "ε",
-          "στ",
-          "ζ",
-          "η"
-        ],
-        "explanation": "Στην οξεία μανία χρησιμοποιούνται λίθιο/βαλπροϊκό και αρκετά άτυπα αντιψυχωσικά· η λαμοτριγίνη δεν είναι άμεση αντιμανιακή επιλογή."
-      },
-      {
-        "id": "mood_match_009",
-        "prompt": "Υψηλό μεταβολικό φορτίο ως βασικό μειονέκτημα. (2 σωστά)",
-        "correct": [
-          "στ",
-          "θ"
-        ],
-        "explanation": "Ολανζαπίνη και κλοζαπίνη έχουν ιδιαίτερα βαρύ μεταβολικό προφίλ."
-      },
-      {
-        "id": "mood_match_010",
-        "prompt": "Θρομβοπενία, αύξηση βάρους, ηπατική τοξικότητα και παγκρεατίτιδα ως σημεία προσοχής.",
-        "correct": [
-          "β"
-        ],
-        "explanation": "Αυτά είναι κλασικά εξεταστικά σημεία για το βαλπροϊκό."
-      },
-      {
-        "id": "mood_match_011",
-        "prompt": "Μερικός αγωνιστής D2, συχνά πιο ενεργοποιητικός και με κίνδυνο ακαθησίας.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η αριπιπραζόλη είναι μερικός αγωνιστής D2 και η ακαθησία είναι χρήσιμη ανεπιθύμητη για αναγνώριση."
+        "explanation": "Working through describes the concept of working over one's emotional difficulties from the past. In psychotherapy, it usually follows an “impasse', which can be thought of as a therapeutic stalemate. Chapter 4 Mental health and the law Legislation"
       }
     ]
   },
   {
-    "id": "lithium_interactions_005",
-    "title": "Λίθιο - αλληλεπιδράσεις και τοξικότητα",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε περιγραφή με τους παράγοντες που επηρεάζουν κλινικά τα επίπεδα ή την ασφάλεια του λιθίου. Επιλέξτε όλες τις σωστές επιλογές.",
+    "id": "crash_course_emq_05",
+    "title": "Crash Course EMQ 5 - Legislation",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Which type of legislation could help in the management of the following cases?",
     "choices": [
       {
-        "id": "α",
-        "label": "Αφυδάτωση/έμετοι/διάρροια"
+        "id": "A",
+        "label": "Mental health legislation"
       },
       {
-        "id": "β",
-        "label": "ΜΣΑΦ"
+        "id": "B",
+        "label": "Mental capacity legislation"
       },
       {
-        "id": "γ",
-        "label": "ACE inhibitors/ARBs"
+        "id": "C",
+        "label": "Forensic mental health legislation"
       },
       {
-        "id": "δ",
-        "label": "Θειαζιδικά διουρητικά"
+        "id": "D",
+        "label": "Criminal legislation"
       },
       {
-        "id": "ε",
-        "label": "Χαμηλή πρόσληψη νατρίου"
+        "id": "E",
+        "label": "No legislation required"
       },
       {
-        "id": "στ",
-        "label": "Αύξηση καφεΐνης"
-      },
-      {
-        "id": "ζ",
-        "label": "Διακοπή καφεΐνης"
-      },
-      {
-        "id": "η",
-        "label": "Υψηλή πρόσληψη νατρίου"
-      },
-      {
-        "id": "θ",
-        "label": "Κύηση με αυξημένο GFR"
-      },
-      {
-        "id": "ι",
-        "label": "Λοχεία/πτώση GFR"
-      },
-      {
-        "id": "κ",
-        "label": "Παρακεταμόλη"
+        "id": "F",
+        "label": "Common law"
       }
     ],
     "items": [
       {
-        "id": "lithium_match_001",
-        "prompt": "Κλασικές φαρμακευτικές αιτίες αύξησης επιπέδων λιθίου. (3 σωστά)",
+        "id": "crash_course_match_05_01",
+        "prompt": "A 26-year-old man with schizophrenia and comorbid depression. He is currently severely depressed with an active plan to commit suicide by hanging. He lives with his mother who does not feel he is safe to go home. He is refusing admission because he thinks the doctors want to torture him.",
         "correct": [
-          "β",
-          "γ",
-          "δ"
+          "A"
         ],
-        "explanation": "ΜΣΑΦ, ACE inhibitors/ARBs και θειαζιδικά είναι κλασικές αλληλεπιδράσεις που αυξάνουν τον κίνδυνο τοξικότητας."
+        "explanation": "Mental health legislation. This man has evidence of mental disorder (depressive episode with psychotic symptoms) significantly affecting his ability to make decisions about his treatment (delusional belief that he will be tortured) He is at high risk (active plan of suicide by violent means, mental disorder, young male) and hospital is the least restrictive option (risk cannot be managed safely at home).He therefore meets the criteria for detention under the mental health act."
       },
       {
-        "id": "lithium_match_002",
-        "prompt": "Καταστάσεις απώλειας όγκου ή νατρίου που ευνοούν αύξηση λιθίου. (2 σωστά)",
+        "id": "crash_course_match_05_02",
+        "prompt": "A 26-year-old man with schizophrenia. He has been charged with attempted murder after he attacked his mother, who he believed to be trying to torture him by whispering derogatory comments to him all night, even while he was staying at a friend's house.",
         "correct": [
-          "α",
-          "ε"
+          "C"
         ],
-        "explanation": "Αφυδάτωση και χαμηλό νάτριο αυξάνουν την επαναρρόφηση λιθίου και τον κίνδυνο τοξικότητας."
+        "explanation": "Forensic mental health legislation. This man has evidence of mental disorder (psychotic symptoms) and has been charged with a serious offence. The severity of his charge means he needs assessment and treatment under forensic, not civil, legislation."
       },
       {
-        "id": "lithium_match_003",
-        "prompt": "Παράγοντες που μπορούν να μειώσουν επίπεδα λιθίου ή να δώσουν χαμηλότερη μέτρηση. (3 σωστά)",
+        "id": "crash_course_match_05_03",
+        "prompt": "A 26-year-old man with schizophrenia. He has been charged with a breach of the peace after he repeatedly shouted in the street at 2 a.m. He told the police he was telling the voices to go away. Because it did not work, he is now considering suicide.",
         "correct": [
-          "στ",
-          "η",
-          "θ"
+          "A"
         ],
-        "explanation": "Αύξηση καφεΐνης, υψηλότερο νάτριο και η αυξημένη νεφρική κάθαρση της κύησης μπορούν να σχετίζονται με χαμηλότερα επίπεδα."
+        "explanation": "Mental health legislation. This man meets criteria for detention under mental health 312 legislation as in case 1. Although he has been charged by the police, his offence is not severe enough to require management under forensic legislation."
       },
       {
-        "id": "lithium_match_004",
-        "prompt": "Παράγοντας που μπορεί να αυξήσει επίπεδα λιθίου επειδή αφαιρείται μια προηγούμενη καφεϊνική διούρηση.",
+        "id": "crash_course_match_05_04",
+        "prompt": "A 26-year-old man with schizophrenia. He has been brought into the accident and emergency department by ambulance after an attempted hanging. He is unable to speak and has stridor and low oxygen saturations.",
         "correct": [
-          "ζ"
+          "F"
         ],
-        "explanation": "Η απότομη διακοπή καφεΐνης μπορεί να αυξήσει επίπεδα λιθίου σε ασθενή που είχε σταθεροποιηθεί με καθημερινή καφεΐνη."
+        "explanation": "Common law. It is in this man's best interests to receive aggressive airway management and oxygen. He currently lacks the capacity to consent as he is unable to communicate. Treatment under common law is indicated to sustain life and to prevent serious deterioration."
       },
       {
-        "id": "lithium_match_005",
-        "prompt": "Περίοδος με κίνδυνο απότομης αλλαγής αναγκών δόσης και αυξημένης τοξικότητας μετά τον τοκετό.",
+        "id": "crash_course_match_05_05",
+        "prompt": "A26-year-old man withschizophrenia.He suffered a hypoxic brain injury after attempting to hang himself and now has very poor short-term memory. He needs treatment with antibiotics for a urinary tract infection, but he does not realize he has one. The need for antibiotics has been explained to him on three different occasions, but he does not recall the information by the time he is due to receive treatment.",
         "correct": [
-          "ι"
+          "B"
         ],
-        "explanation": "Μετά τον τοκετό η νεφρική κάθαρση μπορεί να μεταβληθεί γρήγορα, άρα απαιτείται στενή παρακολούθηση."
-      },
-      {
-        "id": "lithium_match_006",
-        "prompt": "Δεν είναι κλασικός παράγοντας αύξησης λιθίου και χρησιμοποιείται συχνά ως ασφαλέστερο αναλγητικό από ΜΣΑΦ.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Η παρακεταμόλη δεν έχει την κλασική νεφρική αλληλεπίδραση των ΜΣΑΦ με το λίθιο."
-      },
-      {
-        "id": "lithium_match_007",
-        "prompt": "Ασθενής σε λίθιο με γαστρεντερίτιδα, τρόμο, αταξία και σύγχυση: ποιοι παράγοντες στο ιστορικό ενισχύουν άμεσα την υποψία τοξικότητας; (5 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "γ",
-          "δ",
-          "ε"
-        ],
-        "explanation": "Απώλεια υγρών/νατρίου και οι κλασικές φαρμακευτικές αλληλεπιδράσεις αυξάνουν τον κίνδυνο τοξικότητας."
-      },
-      {
-        "id": "lithium_match_008",
-        "prompt": "Παράγοντες όπου η κατεύθυνση της επίδρασης σχετίζεται με μεταβολή στην απέκκριση ή πρόσληψη νατρίου/νερού. (4 σωστά)",
-        "correct": [
-          "α",
-          "δ",
-          "ε",
-          "η"
-        ],
-        "explanation": "Το λίθιο ακολουθεί σε μεγάλο βαθμό τη νεφρική διαχείριση νατρίου και όγκου."
-      },
-      {
-        "id": "lithium_match_009",
-        "prompt": "Παράγοντες που δεν πρέπει να αντιμετωπίζονται ως απλή αντένδειξη, αλλά ως λόγος στενότερης παρακολούθησης και προσαρμογής δόσης. (2 σωστά)",
-        "correct": [
-          "θ",
-          "ι"
-        ],
-        "explanation": "Η κύηση/λοχεία απαιτούν εξατομικευμένη στάθμιση και συχνότερα επίπεδα, όχι αυτόματη μηχανιστική απάντηση."
-      },
-      {
-        "id": "lithium_match_010",
-        "prompt": "Αν ο ασθενής ξεκινήσει απότομα συχνή λήψη ιβουπροφαίνης για πόνο, ποια επιλογή εξηγεί τον κίνδυνο;",
-        "correct": [
-          "β"
-        ],
-        "explanation": "Τα ΜΣΑΦ μπορούν να αυξήσουν τα επίπεδα λιθίου μέσω νεφρικών μηχανισμών."
+        "explanation": "Mental capacity legislation. As this man needs treatment for a physical problem, mental health legislation is not appropriate. He lacks capacity as he is unable to retain information for long enough. It is not an emergency, so common law is not appropriate. Chapter 5 Mental health service provision Choice of service provision for mental disorder"
       }
     ]
   },
   {
-    "id": "psychiatric_emergencies_syndromes_006",
-    "title": "Ψυχιατρικές επείγουσες καταστάσεις - σύνδρομο προς κλινική εικόνα",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε το σύνδρομο ή τα σύνδρομα που ταιριάζουν καλύτερα στην περιγραφή. Οι περιγραφές ελέγχουν διαφορική διάγνωση, όχι απλή αναγνώριση λέξεων.",
+    "id": "crash_course_emq_06",
+    "title": "Crash Course EMQ 6 - Choice of service provision for mental disorder",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following situations, select the ONE most appropriate service provision from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Νευροληπτικό κακόηθες σύνδρομο"
+        "id": "A",
+        "label": "Acute general adult inpatient unit"
       },
       {
-        "id": "β",
-        "label": "Σεροτονινεργικό σύνδρομο"
+        "id": "B",
+        "label": "Assertive outreach team"
       },
       {
-        "id": "γ",
-        "label": "Αντιχολινεργική τοξικότητα"
+        "id": "C",
+        "label": "Community mental health team"
       },
       {
-        "id": "δ",
-        "label": "Τοξικότητα λιθίου"
+        "id": "D",
+        "label": "Day hospital"
       },
       {
-        "id": "ε",
-        "label": "Delirium tremens"
+        "id": "E",
+        "label": "Early intervention in psychosis team"
       },
       {
-        "id": "στ",
-        "label": "Στέρηση βενζοδιαζεπινών"
+        "id": "F",
+        "label": "Home treatment team"
       },
       {
-        "id": "ζ",
-        "label": "Κακοήθης κατατονία"
+        "id": "G",
+        "label": "Liaison psychiatry review"
       },
       {
-        "id": "η",
-        "label": "Μυοκαρδίτιδα από κλοζαπίνη"
+        "id": "H",
+        "label": "Outpatient clinic"
       },
       {
-        "id": "θ",
-        "label": "Οξεία δυστονία"
+        "id": "I",
+        "label": "Primary care"
       },
       {
-        "id": "ι",
-        "label": "Υπερδοσολογία οπιοειδών"
+        "id": "J",
+        "label": "Rehabilitation unit"
       }
     ],
     "items": [
       {
-        "id": "emergency_match_001",
-        "prompt": "Πυρετός, μυϊκή ακαμψία τύπου lead-pipe, αυξημένη CK και πρόσφατη αύξηση αντιψυχωσικού.",
+        "id": "crash_course_match_06_01",
+        "prompt": "A patient with moderate depression and low risk who can be managed by the general practitioner.",
         "correct": [
-          "α"
+          "I"
         ],
-        "explanation": "Ο συνδυασμός υπερθερμίας, γενικευμένης ακαμψίας, CK και έκθεσης σε αντιψυχωσικό δείχνει ΝΚΣ."
+        "explanation": "Primary Care. Most episodes of depression are managed in primary care. Referral to secondary care should be considered in cases that are resistant to treatment or high risk or that present diagnostic uncertainty."
       },
       {
-        "id": "emergency_match_002",
-        "prompt": "Κλόνος, υπεραντανακλαστικότητα, μυδρίαση, διάρροια και πρόσφατος συνδυασμός σεροτονινεργικών φαρμάκων.",
+        "id": "crash_course_match_06_02",
+        "prompt": "A medically admitted patient with possible psychiatric symptoms requiring review in the general hospital.",
         "correct": [
-          "β"
+          "G"
         ],
-        "explanation": "Κλόνος και υπεραντανακλαστικότητα είναι κεντρικά στοιχεία υπέρ σεροτονινεργικού συνδρόμου."
+        "explanation": "Liaison psychiatry review. Liaison psychiatrists provide psychiatric care to people admitted to general hospitals. This man may be experiencing a depressive episode, symptoms of physical llness, side effects from medication, or an adjustment reaction."
       },
       {
-        "id": "emergency_match_003",
-        "prompt": "Σύγχυση, ξηρό δέρμα, κατακράτηση ούρων, μυδρίαση και ταχυκαρδία μετά από φάρμακο με αντιμουσκαρινική δράση.",
+        "id": "crash_course_match_06_03",
+        "prompt": "A high-risk patient with schizophrenia who cannot safely be managed at home.",
         "correct": [
-          "γ"
+          "A"
         ],
-        "explanation": "Η αντιχολινεργική τοξικότητα δίνει ξηρότητα, υπερθερμία, κατακράτηση ούρων, μυδρίαση και delirium."
+        "explanation": "Acute general adult inpatient unit. This man is high risk and therefore requires hospital admission.He cannot safely be managed at home. As he has an established diagnosis of schizophrenia, the early intervention in psychosis team is unlikely to be needed. Rehabilitation unit. This man has treatment-"
       },
       {
-        "id": "emergency_match_004",
-        "prompt": "Τρόμος, αταξία, διάρροια, υπνηλία/σύγχυση σε ασθενή που λαμβάνει λίθιο και αφυδατώθηκε.",
+        "id": "crash_course_match_06_04",
+        "prompt": "A patient with resistant schizophrenia and ongoing functional impairment needing rehabilitation input.",
         "correct": [
-          "δ"
+          "J"
         ],
-        "explanation": "Αφυδάτωση σε ασθενή με λίθιο αυξάνει τον κίνδυνο νευρολογικής και γαστρεντερικής τοξικότητας."
+        "explanation": "resistant schizophrenia with ongoing symptoms despite appropriate treatment. He also has functional impairment. A rehabilitation unit will be able to optimize his ability to live well despite ongoing symptoms."
       },
       {
-        "id": "emergency_match_005",
-        "prompt": "Παραλήρημα, τρόμος, ψευδαισθήσεις, αυτόνομη υπερδραστηριότητα μετά από διακοπή βαριάς χρήσης αλκοόλ.",
+        "id": "crash_course_match_06_05",
+        "prompt": "A patient with schizophrenia, complex needs, homelessness, comorbid substance use, poor engagement and frequent crisis-service use.",
         "correct": [
-          "ε"
+          "B"
         ],
-        "explanation": "Το delirium tremens είναι σοβαρή μορφή στερητικού συνδρόμου από αλκοόλ."
-      },
-      {
-        "id": "emergency_match_006",
-        "prompt": "Έντονο rebound άγχος, αϋπνία, τρόμος, αισθητηριακή υπερευαισθησία και κίνδυνος σπασμών μετά από απότομη διακοπή χρόνιας λήψης αλπραζολάμης ή κλοναζεπάμης.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η στέρηση βενζοδιαζεπινών χαρακτηρίζεται από rebound άγχος, αϋπνία, τρόμο, υπερευαισθησία και σε βαριές περιπτώσεις σπασμούς. Το delirium tremens αφορά αλκοόλ, ενώ η GHB στέρηση τείνει να είναι ακόμη πιο σύντομα εξελισσόμενη και παραληρητική."
-      },
-      {
-        "id": "emergency_match_007",
-        "prompt": "Κατατονικά σημεία με πυρετό, αυτόνομη αστάθεια και επιδείνωση γενικής κατάστασης χωρίς σαφή φαρμακευτική αιτία.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η κακοήθης κατατονία μοιάζει με ΝΚΣ, αλλά το κατατονικό σύνδρομο προηγείται/κυριαρχεί χωρίς απαραίτητη νευροληπτική έκθεση."
-      },
-      {
-        "id": "emergency_match_008",
-        "prompt": "Νέα ταχυκαρδία, πυρετός, κακουχία και θωρακικά συμπτώματα τις πρώτες εβδομάδες κλοζαπίνης.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η μυοκαρδίτιδα από κλοζαπίνη είναι κρίσιμο να αναγνωρίζεται νωρίς, ιδίως στην έναρξη."
-      },
-      {
-        "id": "emergency_match_009",
-        "prompt": "Οξεία επώδυνη σύσπαση τραχήλου/οφθαλμογυρική κρίση μετά από αντιψυχωσικό ή αντιεμετικό ντοπαμινεργικό ανταγωνιστή.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η οξεία δυστονία είναι πρώιμη εξωπυραμιδική ανεπιθύμητη."
-      },
-      {
-        "id": "emergency_match_010",
-        "prompt": "Μείωση επιπέδου συνείδησης, αναπνευστική καταστολή και μύση.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η κλασική τριάδα υπερδοσολογίας οπιοειδών είναι κώμα/καταστολή, αναπνευστική καταστολή και μύση."
-      },
-      {
-        "id": "emergency_match_011",
-        "prompt": "Πυρετός και αυτόνομη αστάθεια μπορούν να εμφανιστούν και στα δύο. Επιλέξτε τα δύο συνδρόματα όπου η διάκριση βασίζεται έντονα σε κλόνο/υπεραντανακλαστικότητα έναντι ακαμψίας. (2 σωστά)",
-        "correct": [
-          "α",
-          "β"
-        ],
-        "explanation": "ΝΚΣ και σεροτονινεργικό σύνδρομο μπερδεύονται εξεταστικά· ο κλόνος δείχνει σεροτονινεργικό, η lead-pipe ακαμψία ΝΚΣ."
+        "explanation": "Assertive outreach team. This man has schizophrenia with complex needs (homelessness, comorbid substance use), poor engagement, frequent use of crisis services and a need for intensive support (ongoing symptoms). A community mental health team is unlikely to be able to support him as well as an assertive outreach team. Chapter 6 The patient with thoughts of suicide or self-harm Mental disorder and self-harm"
       }
     ]
   },
   {
-    "id": "substance_withdrawal_007",
-    "title": "Ουσίες - στερητικά σύνδρομα",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε την κλινική εικόνα με την ουσία ή τις ουσίες από τις οποίες η στέρηση μπορεί να δώσει το αντίστοιχο μοτίβο.",
+    "id": "crash_course_emq_07",
+    "title": "Crash Course EMQ 7 - Mental disorder and self-harm",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely mental disorder from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Αλκοόλ"
+        "id": "A",
+        "label": "Obsessive-compulsive disorder"
       },
       {
-        "id": "β",
-        "label": "Βενζοδιαζεπίνες"
+        "id": "B",
+        "label": "Anorexia nervosa"
       },
       {
-        "id": "γ",
-        "label": "Οπιοειδή"
+        "id": "C",
+        "label": "Alcohol-dependence syndrome"
       },
       {
-        "id": "δ",
-        "label": "Κοκαΐνη/διεγερτικά"
+        "id": "D",
+        "label": "Lesch-Nyhan syndrome"
       },
       {
-        "id": "ε",
-        "label": "Κάνναβη"
+        "id": "E",
+        "label": "Mania with psychotic symptoms"
       },
       {
-        "id": "στ",
-        "label": "Νικοτίνη"
+        "id": "F",
+        "label": "Emotionally unstable personality disorder"
       },
       {
-        "id": "ζ",
-        "label": "GHB"
+        "id": "G",
+        "label": "Depressive episode, moderate severity"
       },
       {
-        "id": "η",
-        "label": "Καφεΐνη"
+        "id": "H",
+        "label": "Schizophrenia"
       },
       {
-        "id": "θ",
-        "label": "SSRIs/SNRIs"
+        "id": "I",
+        "label": "Generalized anxiety disorder"
       },
       {
-        "id": "ι",
-        "label": "Αντιχολινεργικά"
+        "id": "J",
+        "label": "Depressive episode, severe with psychotic features"
+      },
+      {
+        "id": "K",
+        "label": "Dissocial personality disorder"
       }
     ],
     "items": [
       {
-        "id": "withdrawal_match_001",
-        "prompt": "Απότομη διακοπή ουσίας με GABAεργική/κατασταλτική δράση που μπορεί να οδηγήσει σε σπασμούς ή παραλήρημα απειλητικό για τη ζωή. (3 σωστά)",
+        "id": "crash_course_match_07_01",
+        "prompt": "A 19-year-old woman states that she is going to kill herself because ‘the voices in my head are telling me to'. These started troubling her this morning after an argument with her mother. Yesterday, she felt fine with no voices. She has no symptoms of depression. She insists that it will be all your fault when I commit suicide' and demands admission to a psychiatric ward. She has a history of self-harm by cutting and is well known to mental health services from previous emergency presentations.",
         "correct": [
-          "α",
-          "β",
-          "ζ"
+          "F"
         ],
-        "explanation": "Αλκοόλ, βενζοδιαζεπίνες και GHB είναι οι βασικές επιλογές της λίστας όπου η απότομη διακοπή μπορεί να γίνει απειλητική για τη ζωή με σπασμούς, σοβαρή αυτόνομη απορρύθμιση ή παραλήρημα."
+        "explanation": "Emotionally unstable personality disorder. She is a young woman with a long history of self-harm, difficulties with interpersonal relationships and auditory pseudohallucinations at times of stress. Of note, she has no symptoms suggestive of a depressive illness."
       },
       {
-        "id": "withdrawal_match_002",
-        "prompt": "Μυδρίαση, ρινόρροια, δακρύρροια, χασμουρητό, διάρροια, μυαλγίες και έντονη δυσφορία.",
+        "id": "crash_course_match_07_02",
+        "prompt": "A 50-year-old male bank manager who tried to gas himself in his car is found in a remote forest clearing at 4:30 a.m. by a dog walker. Typed letters to his wife and children (currently on holiday) were found on the passenger seat. He has no psychiatric history. He appeared intoxicated; however, he states he is not a big drinker He described recent weight loss and wakening early in the morning. He is convinced that a recent financial crisis is all his fault.",
         "correct": [
-          "γ"
+          "J"
         ],
-        "explanation": "Αυτή είναι κλασική εικόνα στέρησης οπιοειδών."
+        "explanation": "Depressive episode, severe with psychotic features. This man has made a serious suicide attempt. Note that he went to some effort to prevent discovery (remote location, unsocial hour) and made acts of closure (typed letters imply that some thought had gone into these). He has biological and psychotic symptoms of depression. He may have intoxicated himself to reduce his inhibitions prior to the act and is not necessarily alcohol dependent."
       },
       {
-        "id": "withdrawal_match_003",
-        "prompt": "Μετά από διακοπή πολυήμερης χρήσης κοκαΐνης ή αμφεταμινών εμφανίζει «crash» με υπερυπνία, ψυχοκινητική επιβράδυνση, αυξημένη όρεξη, δυσφορία και έντονο craving.",
+        "id": "crash_course_match_07_03",
+        "prompt": "A 22-year-old man presents with his mother. She is concerned that he has burned his chest with cigarettes multiple times and appears to have created the image of a crucifix. He insists that he is the second coming of Jesus Christ and has special powers of healing that command respect. You note that he is dishevelled, topless, talking very fast about loosely related ideas, and is very distractible. There is no history of substance misuse. He has never been to church.",
         "correct": [
-          "δ"
+          "E"
         ],
-        "explanation": "Η στέρηση διεγερτικών δίνει χαρακτηριστικό crash με υπερυπνία, κόπωση, δυσφορία, αυξημένη όρεξη και craving, σε αντίθεση με τη νικοτίνη ή την κάνναβη όπου η αϋπνία και η ευερεθιστότητα είναι πιο κεντρικές."
+        "explanation": "Mania with psychosis. This young man's self- inflicted injuries are in keeping with his grandiose beliefs (of a religious nature), of which he is entirely convinced. He is disinhibited and feels that he has special powers. He also exhibits flight of ideas on mental state examination. Important differential diagnoses in this case would be a drug-induced state or an organic illness."
       },
       {
-        "id": "withdrawal_match_004",
-        "prompt": "Μετά από διακοπή καθημερινής βαριάς χρήσης εμφανίζει ευερεθιστότητα, αϋπνία, μειωμένη όρεξη και συχνά ζωηρά ή δυσάρεστα όνειρα, χωρίς μυδρίαση ή μυαλγίες.",
+        "id": "crash_course_match_07_04",
+        "prompt": "A 62-year-old woman reports that she took a ‘handful of her antidepressant tablets then told her husband what she had done. She is unsure whether she wanted to die. She has been in intermittent contact with the community mental health team several times during her adult life with periods of poor motivation and alterations in her sleep pattern; however, she has also had long periods of being well and managing to work in the local supermarket. She reports strong feelings of guilt and recent social withdrawal. At interview, you feel that her affect is flat and she is tearful. She does not drink alcohol or use drugs.",
         "correct": [
-          "ε"
+          "G"
         ],
-        "explanation": "Η στέρηση κάνναβης χαρακτηρίζεται από ευερεθιστότητα, άγχος, αϋπνία, μειωμένη όρεξη και συχνά έντονα όνειρα. Δεν μοιάζει με την οπιοειδική στέρηση, όπου κυριαρχούν μυδρίαση, ρινόρροια και μυαλγίες."
+        "explanation": "Depressive episode of moderate severity would be the most fitting of the listed diagnoses. Note the pattern of previous periods of illness, punctuated by periods of relatively good functioning. There is no mention of psychotic symptoms, and drugs or alcohol are not implicated."
       },
       {
-        "id": "withdrawal_match_005",
-        "prompt": "Μέσα στο πρώτο 24ωρο μετά τη διακοπή τσιγάρων εμφανίζει ευερεθιστότητα, δυσκολία συγκέντρωσης, αυξημένη όρεξη και έντονη επιθυμία για κάπνισμα.",
+        "id": "crash_course_match_07_05",
+        "prompt": "A 15-year-old girl was found having tried to hang herself in the family bathroom. She left a suicide note and was discovered by chance by the family cleaner. You notice that she looks thin. Her parents report that she has been'picky'with food over the past few months, but they have not noticed anything else because of their busy jobs as lawyers. On examination, you note that she is wearing very baggy clothes and has fine hairs over visible skin areas. She has actively resisted physical examination. She just wants to get home to study for her forthcoming exams. Immediate psychiatric management of the patient who has inflicted harm upon themselves",
         "correct": [
-          "στ"
+          "B"
         ],
-        "explanation": "Η στέρηση νικοτίνης δίνει σχετικά γρήγορα ευερεθιστότητα, craving, δυσκολία συγκέντρωσης και αύξηση όρεξης, χωρίς το αυτόνομο ή γαστρεντερικό προφίλ άλλων στερήσεων."
-      },
-      {
-        "id": "withdrawal_match_006",
-        "prompt": "Κεφαλαλγία, κόπωση, υπνηλία και δυσκολία συγκέντρωσης μετά από απότομη διακοπή καθημερινής χρήσης.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η διακοπή καφεΐνης συχνά δίνει κεφαλαλγία και κόπωση."
-      },
-      {
-        "id": "withdrawal_match_007",
-        "prompt": "Ζάλη, ηλεκτρικά αισθήματα, αϋπνία, ναυτία και ευερεθιστότητα μετά από απότομη διακοπή αντικαταθλιπτικού.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Το σύνδρομο διακοπής SSRIs/SNRIs μπορεί να δώσει αισθητικά συμπτώματα τύπου brain zaps."
-      },
-      {
-        "id": "withdrawal_match_008",
-        "prompt": "Αυτόνομη υπερδραστηριότητα με τρόμο, εφίδρωση, ταχυκαρδία, αϋπνία και υπέρταση μετά από απότομη διακοπή ουσίας με ισχυρή κατασταλτική/GABAεργική δράση. (3 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "ζ"
-        ],
-        "explanation": "Αλκοόλ, βενζοδιαζεπίνες και GHB μπορούν όλα να δώσουν έντονη αυτόνομη υπερδραστηριότητα στη στέρηση. Το prompt εστιάζει στο κοινό αυτόνομο προφίλ και όχι στα πιο ειδικά στοιχεία κάθε ουσίας."
-      },
-      {
-        "id": "withdrawal_match_009",
-        "prompt": "Στερήσεις που είναι συχνά πολύ δυσάρεστες και χρειάζονται κυρίως συμπτωματική/υποστηρικτική αγωγή, αλλά όχι τυπικά πρωτόκολλο πρόληψης σπασμών ή delirium. (6 σωστά)",
-        "correct": [
-          "γ",
-          "δ",
-          "ε",
-          "στ",
-          "η",
-          "θ"
-        ],
-        "explanation": "Οι στερήσεις αυτές είναι συνήθως δυσάρεστες αλλά όχι με το ίδιο άμεσο θανατηφόρο δυναμικό όπως αλκοόλ/βενζοδιαζεπίνες/GHB."
-      },
-      {
-        "id": "withdrawal_match_010",
-        "prompt": "Μετά από απότομη διακοπή υψηλής δόσης αντιπαρκινσονικού αντιχολινεργικού εμφανίζει εφίδρωση, ναυτία, άγχος, αϋπνία και επιδείνωση παρκινσονισμού ή δυστονίας. Ποια επιλογή ταιριάζει καλύτερα;",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η απότομη διακοπή αντιχολινεργικών μπορεί να προκαλέσει σύνδρομο στέρησης με χολινεργικό rebound, άγχος, αϋπνία και επιδείνωση εξωπυραμιδικών συμπτωμάτων. Είναι λιγότερο «κλασικό» εξεταστικά από αλκοόλ ή οπιοειδή, αλλά παραμένει πραγματική κλινική οντότητα."
+        "explanation": "Anorexia nervosa. Although a full history and physical examination would be required to definitively establish this diagnosis, the patient's history and presentation is suggestive of a serious eating disorder. Note the baggy clothes and the lanugo hair. Immediate psychiatric management of the patient who has inflicted harm upon themselves"
       }
     ]
   },
   {
-    "id": "alcohol_use_pharmacotherapy_008",
-    "title": "Διαταραχή χρήσης αλκοόλ - φαρμακοθεραπεία και ασφάλεια",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε την κατάλληλη ουσία ή ουσίες για κάθε θεραπευτικό πλαίσιο. Προσοχή: άλλο η οξεία στέρηση, άλλο η πρόληψη υποτροπής.",
+    "id": "crash_course_emq_08",
+    "title": "Crash Course EMQ 8 - Immediate psychiatric management of the patient who has inflicted harm upon themselves",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following cases, select the ONE most appropriate management option from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Θειαμίνη"
+        "id": "A",
+        "label": "Admission to psychiatric intensive care unit (PICU/IPCU)"
       },
       {
-        "id": "β",
-        "label": "Διαζεπάμη/χλωροδιαζεποξείδη"
+        "id": "B",
+        "label": "Admission to inpatient psychiatric ward"
       },
       {
-        "id": "γ",
-        "label": "Ακαμπροσάτη"
+        "id": "C",
+        "label": "Admission to medical assessment/short stay ward"
       },
       {
-        "id": "δ",
-        "label": "Ναλτρεξόνη"
+        "id": "D",
+        "label": "Discharge with immediate outreach team involvement"
       },
       {
-        "id": "ε",
-        "label": "Δισουλφιράμη"
+        "id": "E",
+        "label": "Discharge with community mental health team later in the week Discharge with outpatient psychiatry clinic appointment next month"
       },
       {
-        "id": "στ",
-        "label": "Ναλμεφένη"
+        "id": "G",
+        "label": "Discharge with appointment with alcohol addictions services"
       },
       {
-        "id": "ζ",
-        "label": "Βακλοφαίνη"
+        "id": "H",
+        "label": "Discharge to police custody"
       },
       {
-        "id": "η",
-        "label": "Καρβαμαζεπίνη"
+        "id": "I",
+        "label": "Discharge with information on non-NHS support services"
       },
       {
-        "id": "θ",
-        "label": "Τοπιραμάτη"
+        "id": "J",
+        "label": "Discharge with prescription for antidepressant medication"
       },
       {
-        "id": "ι",
-        "label": "Γκαμπαπεντίνη"
+        "id": "K",
+        "label": "Discharge to the care of general practitioner"
       }
     ],
     "items": [
       {
-        "id": "alcohol_match_001",
-        "prompt": "Πρόληψη ή θεραπευτική κάλυψη Wernicke σε ασθενή με επικίνδυνη χρήση αλκοόλ, ιδίως πριν από γλυκόζη.",
+        "id": "crash_course_match_08_01",
+        "prompt": "A 57-year-old, unemployed, divorced man who lives alone took an overdose of a benzodiazepine. A scribbled suicide note was left, and he called emergency services before falling unconscious. He saw his keyworker from the alcohol addictions team earlier that day who provided him with benzodiazepines for a community detoxification. She felt that he was in 'good humour' when she saw him. He has presented numerous times in the past with minor overdoses. At interview, he appears very drowsy and smells strongly of alcohol. He is inconsolably tearful, stating that he is ‘ruined' and wants to die.",
         "correct": [
-          "α"
+          "C"
         ],
-        "explanation": "Η θειαμίνη είναι κρίσιμη για πρόληψη/αντιμετώπιση Wernicke-Korsakoff."
+        "explanation": "An admissionto a medical assessment/short stay ward is necessary, with a psychiatric evaluation when he sobers up. He is currently too intoxicated (with drugs and alcohol) to undertake an adequate mental state examination and risk assessment, and admission to a psychiatric ward would not be appropriate due to potential medical complications ofalcohol intoxication/ withdrawal. Discharging a patient in this state is unacceptable, as he is at risk of not only committing further acts of self-harm, but of medical complications. He is also possibly unable to look after himself and could be vulnerable from exploitation or accidents."
       },
       {
-        "id": "alcohol_match_002",
-        "prompt": "Πρώτη γραμμή για οξεία στέρηση αλκοόλ με κίνδυνο σπασμών ή delirium.",
+        "id": "crash_course_match_08_02",
+        "prompt": "A 20-year-old, unemployed, single woman took an overdose of dihydrocodeine. She was found collapsed in the street and required naloxone. Her urine drug test is positive for cannabis and cocaine. Upon wakening, she threatens to kill the nurse who has taken her cigarettes. She continues to be physically, verbally and racially aggressive to A&E staff. She has had one short admission to a psychiatric ward 2 years ago, and was discharged after assaulting a member of staff. On discharge, the consultant concluded 'no signs of mental illness. At interview, she screams at you to supply her with more dihydrocodeine, and threatens to kill herself if you do not comply.",
         "correct": [
-          "β"
+          "H"
         ],
-        "explanation": "Οι βενζοδιαζεπίνες είναι βασική θεραπεία οξείας στέρησης αλκοόλ."
+        "explanation": "This person should be discharged to police custody. Her overdose does not appear to have been with strong suicidal intent (she was found in the street), and she is exhibiting drug-seeking and manipulative behaviour. While many patients like this do not require police involvement, she has committed physical, verbal and racial assaults on healthcare workers,and needstoface consequencesfor these actions. Admission to a psychiatric ward is unlikely to be beneficial, and may even prove detrimental by reinforcing the suggestion that behaviour of this nature is driven by mental illness."
       },
       {
-        "id": "alcohol_match_003",
-        "prompt": "Φάρμακο για διατήρηση αποχής, με γλουταμινεργική/νευροπροσαρμοστική λογική και προσοχή σε νεφρική ανεπάρκεια.",
+        "id": "crash_course_match_08_03",
+        "prompt": "A 33-year-old, married taxi driver (male) was found by his wife in the loft, holding a nail gun to his head. He was slightly intoxicated and broke down in tears while agreeing to attend hospital. He has no history with psychiatric services, and-despite having taken a drink tonight-does not usually drink alcohol. He described feeling like he 'can't be bothered' since he had his pay severely cut about 2 months ago, and has since been burdened by creditors calling him. At interview, he described poor sleep, weight loss, lack of energy, and guilt about his loss of libido. While he described ongoing suicidal feelings, he described his daughter and wife as strong protective factors, is regretful that ‘things have come to this', and glad that his wife found him before he did 'something stupid'. He seems a bit more optimistic after assessment.",
         "correct": [
-          "γ"
+          "E"
         ],
-        "explanation": "Η ακαμπροσάτη χρησιμοποιείται για διατήρηση αποχής και αποβάλλεται κυρίως νεφρικά."
+        "explanation": "This gentleman should be referred for urgent (later in the week) input from the community mental health team. He is likely to be suffering from a depressive illness, probably precipitated by financial and employment difficulties. While he is clearly remorseful about his suicidal behaviour, he appears to be struggling with his current situation, has some biological symptoms of depression, and could well benefit from input by the community mental health team. He has a concerned and supportive wife and a stable domestic situation, which is why immediate outreach team involvement is not necessary at present."
       },
       {
-        "id": "alcohol_match_004",
-        "prompt": "Ανταγωνιστής οπιοειδών που μειώνει την ανταμοιβή από το αλκοόλ και δεν πρέπει να δοθεί σε ενεργή χρήση οπιοειδών.",
+        "id": "crash_course_match_08_04",
+        "prompt": "/ A 67-year-old, retired widow with no psychiatric history, took an overdose of four of her blood pressure tablets. She waited until after her daughter went on holiday, and was only discovered when her neighbour visited unexpectedly and saw a suicide note addressed to her daughter on the coffee table, stating that she could not go on without her recently deceased husband. She later told the psychiatrist that she was \"just a silly old lady' and denied any suicidal intent. She just wanted to go home to look at her wedding photographs.",
         "correct": [
-          "δ"
+          "B"
         ],
-        "explanation": "Η ναλτρεξόνη μπορεί να προκαλέσει στέρηση σε ασθενή με εξάρτηση από οπιοειδή."
+        "explanation": "This lady most likely requires admission to a psychiatric ward for further assessment and management of her mental state and risk. Should she refuse, use of mental health legislation may need to be considered. Despite the overdose being relatively small, this is likely due to lack of knowledge and there appears to have been very clear suicidal intent. First presentations of self-harm in older adults should be considered to be with suicidal intent unless there is clear evidence to the contrary. Intensive outreach support in this case would be inappropriate given the very high risk of imminent further acts, despite her pleas that she will be fine."
       },
       {
-        "id": "alcohol_match_005",
-        "prompt": "Αποτρεπτικό/aversive φάρμακο που προκαλεί δυσάρεστη αντίδραση με αλκοόλ και απαιτεί υψηλή συμμόρφωση/επιλογή ασθενή.",
+        "id": "crash_course_match_08_05",
+        "prompt": "A 26-year-old, single, mature student, who lives with flat-mates, presents at the accident and emergency department requesting sutures for a self-inflicted laceration on her inner thigh. She has previously been involved with mental health services due to self-harming, but disengaged with them 2 years previously because she did not agree with their diagnosis of emotionally unstable personality disorder. She is on no medication. She is reluctant to talk to and she tells you that she is not suicidal. She reports that her self-harm was previously improving, but has pressures. She is keen to go home, and refuses to have any involvement in the future with mental health services.",
         "correct": [
-          "ε"
+          "I"
         ],
-        "explanation": "Η δισουλφιράμη αναστέλλει την αλδεϋδική αφυδρογονάση και στηρίζεται σε αποτρεπτική λογική."
-      },
-      {
-        "id": "alcohol_match_006",
-        "prompt": "Φάρμακο που στοχεύει κυρίως μείωση βαριάς κατανάλωσης και όχι απαραίτητα πλήρη αποχή, με οπιοειδικό μηχανισμό.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η ναλμεφένη είναι ανταγωνιστής/τροποποιητής οπιοειδικών υποδοχέων και συνδέεται με μείωση κατανάλωσης."
-      },
-      {
-        "id": "alcohol_match_007",
-        "prompt": "Φάρμακα που μπορούν να θεωρηθούν επιλογές πρόληψης υποτροπής/μείωσης κατανάλωσης, όχι θεραπεία οξείας στέρησης. (4 σωστά)",
-        "correct": [
-          "γ",
-          "δ",
-          "ε",
-          "στ"
-        ],
-        "explanation": "Ακαμπροσάτη, ναλτρεξόνη, δισουλφιράμη και ναλμεφένη ανήκουν στο πλαίσιο μακροπρόθεσμης αντιμετώπισης."
-      },
-      {
-        "id": "alcohol_match_008",
-        "prompt": "Εναλλακτικές ή off-label επιλογές που αναφέρονται στη βιβλιογραφία για craving ή μείωση κατανάλωσης αλκοόλ, αλλά δεν αποτελούν τις πιο κλασικές πρώτες απαντήσεις τύπου ακαμπροσάτης/ναλτρεξόνης/δισουλφιράμης. (3 σωστά)",
-        "correct": [
-          "ζ",
-          "θ",
-          "ι"
-        ],
-        "explanation": "Βακλοφαίνη, τοπιραμάτη και γκαμπαπεντίνη μπορεί να συζητηθούν ως εναλλακτικές/off-label επιλογές ανά πλαίσιο."
-      },
-      {
-        "id": "alcohol_match_009",
-        "prompt": "Μπορεί να χρησιμοποιηθεί σε ορισμένα πρωτόκολλα για ήπια-μέτρια στέρηση, αλλά δεν αντικαθιστά τη λογική των βενζοδιαζεπινών σε σοβαρή στέρηση.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η καρβαμαζεπίνη έχει χρησιμοποιηθεί σε στέρηση αλκοόλ, αλλά οι βενζοδιαζεπίνες παραμένουν βασικές σε σοβαρές εικόνες."
-      },
-      {
-        "id": "alcohol_match_010",
-        "prompt": "Ασθενής λαμβάνει οπιοειδή αναλγητικά: ποιες επιλογές χρειάζονται ιδιαίτερη αποφυγή/προσοχή λόγω οπιοειδικού ανταγωνισμού; (2 σωστά)",
-        "correct": [
-          "δ",
-          "στ"
-        ],
-        "explanation": "Ναλτρεξόνη και ναλμεφένη μπορούν να μπλοκάρουν οπιοειδή και να προκαλέσουν στέρηση."
+        "explanation": "Discharge with information on non-NHS support services. Despite her history and diagnosis, this woman appears to be functioning at a relatively high level (studying, not self-harming until recent stressors). She has made it clear that she is not wishing mental health service input; however, 313 it could be that she would benefit from non- NHS resources. Information on local student supportagencies or voluntary support services for people who self-harm should be offered. Most of these agencies accept self-referrals and distribute leaflets to local mental health bases. Chapter 7 The patient with impairment of consciousness, memory or cognition Differential diagnosis of cognitive impairment"
       }
     ]
   },
   {
-    "id": "dementia_differential_009",
-    "title": "Άνοιες και συγχυτικές καταστάσεις - διαφορική διάγνωση",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τη διάγνωση ή τις διαγνώσεις που ταιριάζουν καλύτερα με κάθε κλινικό μοτίβο.",
+    "id": "crash_course_emq_09",
+    "title": "Crash Course EMQ 9 - Differential diagnosis of cognitive impairment Delirium",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the most likely diagnosis from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Νόσος Alzheimer"
+        "id": "B",
+        "label": "Dementia"
       },
       {
-        "id": "β",
-        "label": "Αγγειακή άνοια"
+        "id": "C",
+        "label": "Mild cognitive impairment"
       },
       {
-        "id": "γ",
-        "label": "Άνοια με σωμάτια Lewy"
+        "id": "D",
+        "label": "Subjective cognitive impairment"
       },
       {
-        "id": "δ",
-        "label": "Μετωποκροταφική άνοια"
+        "id": "E",
+        "label": "Depression ('pseudodementia\")"
       },
       {
-        "id": "ε",
-        "label": "Άνοια νόσου Parkinson"
+        "id": "F",
+        "label": "Psychotic disorders"
       },
       {
-        "id": "στ",
-        "label": "Φυσιολογικής πίεσης υδροκέφαλος"
+        "id": "G",
+        "label": "Mood disorders"
       },
       {
-        "id": "ζ",
-        "label": "Delirium"
+        "id": "H",
+        "label": "Intellectual disability"
       },
       {
-        "id": "η",
-        "label": "Καταθλιπτική ψευδοάνοια"
+        "id": "I",
+        "label": "Dissociative disorders Factitious disorder and malingering"
       },
       {
-        "id": "θ",
-        "label": "Νόσος Creutzfeldt-Jakob"
-      },
-      {
-        "id": "ι",
-        "label": "Νόσος Huntington"
+        "id": "K",
+        "label": "Amnesic syndrome"
       }
     ],
     "items": [
       {
-        "id": "dementia_match_001",
-        "prompt": "Ύπουλη έναρξη, προοδευτική επιδείνωση και πρώιμη προσβολή πρόσφατης επεισοδιακής μνήμης.",
+        "id": "crash_course_match_09_01",
+        "prompt": "A 62-year-old teacher presents to her general practitioner (GP) because she feels she is not remembering the names of the children in her class as well as she used to. She is worried she has dementia like her mother. She has no difficulties in activities of daily living and her mood is normal. She scores 100/100 on ACE-III.",
         "correct": [
-          "α"
+          "D"
         ],
-        "explanation": "Η νόσος Alzheimer τυπικά αρχίζει με επεισοδιακή μνήμη και προοδευτική πορεία."
+        "explanation": "Subjective cognitive impairment. This woman presents with concerns about her memory but has a normal score on standardized cognitive assessment. This may reflect her high educational level. It would be important to clarify how old her mother was when she was diagnosed with dementia, to guide frequency of follow-up (above 65 years of age suggests the teacher has a 3-fold increased risk, under 65 years suggests the possibility of a stronger genetic risk)."
       },
       {
-        "id": "dementia_match_002",
-        "prompt": "Σταδιακή ή stepwise επιδείνωση μετά από αγγειακά επεισόδια, με εστιακά νευρολογικά στοιχεία.",
+        "id": "crash_course_match_09_02",
+        "prompt": "A 62-year-old teacher presents to her GP because she feels she is not remembering the names of the children in her class as well as she used to. She is worried she has dementia like her mother. She has no difficulties in activities of daily living and her mood is normal. She scores 80/100 on ACE-Ill.",
         "correct": [
-          "β"
+          "C"
         ],
-        "explanation": "Η αγγειακή άνοια συνδέεται με αγγειακούς παράγοντες, εστιακά σημεία και συχνά κλιμακωτή πορεία."
+        "explanation": "Mild cognitive impairment. This woman has a below normal score on standardized cognitive assessment but no impairment in activities of daily living. This low score is quite concerning in view of her young age and high educational attainment and she should be referred to a young onset memory clinic for comprehensive investigation."
       },
       {
-        "id": "dementia_match_003",
-        "prompt": "Οπτικές ψευδαισθήσεις, διακύμανση γνωστικής κατάστασης, REM sleep behaviour disorder και ευαισθησία σε αντιψυχωσικά.",
+        "id": "crash_course_match_09_03",
+        "prompt": "A 62-year-old teacher presents to her GP because she feels she is not remembering the names of the children in her class as well as she used to. She is worried she has dementia like her mother. She has noticed herself getting lost in the school corridors sometimes and her getting disorientated in the supermarket. Her mood is normal. She scores 80/100 on ACE-Il.",
         "correct": [
-          "γ"
+          "B"
         ],
-        "explanation": "Αυτό είναι κλασικό προφίλ άνοιας με σωμάτια Lewy."
+        "explanation": "Dementia (early onset). This woman has a below normal score on standardized cognitive assessment and impairment in activities of daily living. She should be referred to a young onset memory clinic for comprehensive investigation. In view of her family history, genetic testing and counselling of any children may be considered."
       },
       {
-        "id": "dementia_match_004",
-        "prompt": "Πρώιμη άρση αναστολών, απάθεια, απώλεια ενσυναίσθησης ή γλωσσική παραλλαγή με σχετική αρχική διατήρηση μνήμης.",
+        "id": "crash_course_match_09_04",
+        "prompt": "A 62-year-old teacher presents to her GP because she feels she is not remembering the names of the children in her class as well as she used to. She is worried she has dementia like her mother. She has no difficulties in activities of daily living and scores 90/100 on ACE-Il, losing marks only in the domain of memory. She admits she has been low in mood recently, is not enjoying work any more, is fatigued, has lost weight and is not sleeping well.",
         "correct": [
-          "δ"
+          "E"
         ],
-        "explanation": "Η μετωποκροταφική άνοια συχνά αρχίζει με συμπεριφορική ή γλωσσική αλλαγή."
+        "explanation": "Depression. This woman has symptoms of a depressive episode of moderate severity. This is likely to account for her cognitive symptoms and loss of marks on cognitive testing."
       },
       {
-        "id": "dementia_match_005",
-        "prompt": "Άνοια που εμφανίζεται σε εγκατεστημένη νόσο Parkinson, συνήθως μετά την έναρξη των κινητικών συμπτωμάτων.",
+        "id": "crash_course_match_09_05",
+        "prompt": "A62-year-oldteacherpresentstoherGPbecause she feels she is not remembering the names of the children in her class as well as she used to. She is worried she has dementia like her mother. She has no difficulties in activities of daily living and scores 90/100 on ACE-Il, losing marks only in the domain of memory. She admits she has drunk alcohol to excess for several years, as did her mother. During a recent admission with pancreatitis she was noted to show signs of alcohol withdrawal. Potentially reversible causes of dementia",
         "correct": [
-          "ε"
+          "K"
         ],
-        "explanation": "Στην άνοια νόσου Parkinson η άνοια έπεται της κινητικής νόσου."
-      },
-      {
-        "id": "dementia_match_006",
-        "prompt": "Τριάδα: διαταραχή βάδισης, ακράτεια ούρων και γνωστική έκπτωση.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η κλασική τριάδα δείχνει φυσιολογικής πίεσης υδροκέφαλο."
-      },
-      {
-        "id": "dementia_match_007",
-        "prompt": "Οξεία έναρξη, διακυμάνσεις, διαταραχή προσοχής και συνείδησης.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η διαταραχή προσοχής και η οξεία διακύμανση είναι κεντρικά υπέρ delirium."
-      },
-      {
-        "id": "dementia_match_008",
-        "prompt": "Έντονα καταθλιπτικά συμπτώματα, παράπονα μνήμης και απαντήσεις τύπου «δεν ξέρω», με πιθανή βελτίωση μετά τη θεραπεία της διάθεσης.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η καταθλιπτική ψευδοάνοια μιμείται άνοια αλλά σχετίζεται με κατάθλιψη."
-      },
-      {
-        "id": "dementia_match_009",
-        "prompt": "Ταχέως εξελισσόμενη άνοια με μυόκλονο και νευρολογική επιδείνωση μέσα σε μήνες.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η CJD είναι κλασική αιτία ταχέως εξελισσόμενης άνοιας με μυόκλονο."
-      },
-      {
-        "id": "dementia_match_010",
-        "prompt": "Κινητική χορεία, ψυχιατρικά συμπτώματα και προοδευτική γνωστική έκπτωση, συνήθως με οικογενειακό ιστορικό.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η νόσος Huntington συνδυάζει χορεία, ψυχιατρικά συμπτώματα και υποφλοιώδη γνωστική έκπτωση."
-      },
-      {
-        "id": "dementia_match_011",
-        "prompt": "Οπτικές ψευδαισθήσεις μπορεί να εμφανιστούν και στις δύο, αλλά η διακύμανση και η προσοχή χωρίζουν οξεία από χρόνια εικόνα. Επιλέξτε και τις δύο. (2 σωστά)",
-        "correct": [
-          "γ",
-          "ζ"
-        ],
-        "explanation": "Lewy bodies και delirium μπορούν να έχουν οπτικές ψευδαισθήσεις, αλλά το delirium είναι οξύ και προσοχικό."
+        "explanation": "Amnesic syndrome. This woman has a specific memory impairment on standardized cognitive assessment. She recently experienced alcohol withdrawal which may have been complicated by unrecognized Wernicke encephalopathy, leaving her now with Korsakoff syndrome. She should be prescribed thiamine, undergo structural brain imaging and options for managing her alcohol use discussed with her. See Chapter 20. Potentially reversible causes of dementia"
       }
     ]
   },
   {
-    "id": "cognitive_domains_tests_010",
-    "title": "Γνωστικοί τομείς - παραδείγματα και bedside έλεγχος",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε κλινικό παράδειγμα με τον γνωστικό τομέα ή τους γνωστικούς τομείς που ελέγχονται κυρίως.",
+    "id": "crash_course_emq_10",
+    "title": "Crash Course EMQ 10 - During a recent admission with pancreatitis she was noted to show signs of alcohol withdrawal. Potentially reversible causes of dementia",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the most likely diagnosis from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Προσοχή"
+        "id": "A",
+        "label": "Subdural haematoma"
       },
       {
-        "id": "β",
-        "label": "Εργαζόμενη μνήμη"
+        "id": "B",
+        "label": "Brain tumour"
       },
       {
-        "id": "γ",
-        "label": "Πρόσφατη επεισοδιακή μνήμη"
+        "id": "C",
+        "label": "Normal pressure hydrocephalus"
       },
       {
-        "id": "δ",
-        "label": "Σημασιολογική μνήμη"
+        "id": "D",
+        "label": "Hyperthyroidism"
       },
       {
-        "id": "ε",
-        "label": "Εκτελεστική λειτουργία"
+        "id": "E",
+        "label": "Hypothyroidism"
       },
       {
-        "id": "στ",
-        "label": "Οπτικοχωρική ικανότητα"
+        "id": "F",
+        "label": "Hyperparathyroidism"
       },
       {
-        "id": "ζ",
-        "label": "Πραξία"
+        "id": "G",
+        "label": "Hypoparathyroidism"
       },
       {
-        "id": "η",
-        "label": "Γλώσσα"
+        "id": "H",
+        "label": "Cushing syndrome"
       },
       {
-        "id": "θ",
-        "label": "Κοινωνική νόηση"
+        "id": "I",
+        "label": "Addison disease"
       },
       {
-        "id": "ι",
-        "label": "Προσανατολισμός"
+        "id": "J",
+        "label": "Vitamin B12 deficiency"
+      },
+      {
+        "id": "K",
+        "label": "Folate deficiency"
       }
     ],
     "items": [
       {
-        "id": "cognitive_match_001",
-        "prompt": "Serial sevens ή μήνες ανάποδα: τι ελέγχεται κυρίως; (2 σωστά)",
+        "id": "crash_course_match_10_01",
+        "prompt": "A 74-year-old woman presents to her general practitioner (GP) with her husband who is concerned that over the last 8 weeks she has become increasingly forgetful and disorientated. She has burnt a couple of pans after leaving them unattended. Some days she takes afternoon naps, which is new for her. When pressed he recalls she was hit on the head by a football around 3 months ago while watching her grandson's team but seemed fine afterwards. Past medical history includes atrial fibrillation and asthma. ACE-Ill is 70/100 and neurological exam shows normal conscious level and a subtle right hemiparesis.",
         "correct": [
-          "α",
-          "β"
+          "A"
         ],
-        "explanation": "Απαιτείται διατήρηση προσοχής και χειρισμός πληροφοριών στην εργαζόμενη μνήμη."
+        "explanation": "Subdural haematoma. This woman has atrial fibrllation and so is likely to be on warfarin. 314 There should therefore be a low threshold for suspecting an intracranial bleed after minor or no injury. A chronic subdural haematoma as opposed to neurodegenerative cause of dementia is suggested by her relatively quick cognitive deterioration, possible fluctuating conscious level (uncharacteristic afternoon naps), neurological signs and history of head injury. It is not uncommon for there to be a latent period of days to weeks between injury and symptoms. The next step should be brain imaging."
       },
       {
-        "id": "cognitive_match_002",
-        "prompt": "Ανάκληση τριών λέξεων μετά από καθυστέρηση.",
+        "id": "crash_course_match_10_02",
+        "prompt": "A 76-year-old widower attends his GP because of urinary incontinence. As he walks into the room he has a broad based, stiff-legged gait. He is very slow to answer questions and seems not to be paying close attention to what is asked. He says he cannot remember when his incontinence started or how often it occurs. Past medical history is of a duodenal ulcer only. ACE-Il is 74/100 and neurological exam is normal apart from his gait.",
         "correct": [
-          "γ"
+          "C"
         ],
-        "explanation": "Η καθυστερημένη ανάκληση ελέγχει κυρίως πρόσφατη επεισοδιακή μνήμη."
+        "explanation": "Normal pressure hydrocephalus. This is suggested by this man's incontinence, ataxia and cognitive impairment, the classic triad of 'wet, wobbly, wacky'. Often this disorder is idiopathic. The next step should be brain imaging."
       },
       {
-        "id": "cognitive_match_003",
-        "prompt": "Ερώτηση για πρωτεύουσες, γνωστά αντικείμενα ή γενικές γνώσεις που είχαν αποκτηθεί παλαιότερα.",
+        "id": "crash_course_match_10_03",
+        "prompt": "A 52-year-old woman presents to her GP with memory and concentration problems. She reports feeling tired and sluggish for the last 6 months. She feels low in motivation and mood and has quit her running club because she can't be bothered to keep up any more. Past medical history is unremarkable.ACE-Ill is98/100.Physical examination is normal apart from dizziness when she gets off the examination couch.",
         "correct": [
-          "δ"
+          "I"
         ],
-        "explanation": "Οι γενικές γνώσεις ανήκουν κυρίως στη σημασιολογική μνήμη."
+        "explanation": "Addison disease. This often presents insidiously with fatigue, loss of stamina, weight loss, apathy and memory problems. Postural hypotension is common and is suggested by her dizziness on rising. Hyperpigmentation of the palmar creases and buccal mucosa is often present but easy to miss. Addison disease is rare, so this woman is most likely to be suffering from depression, but it would be important to check urea and electrolytes (hyponatraemia, hyperkalaemia) and glucose (hypoglycaemia) and consider a short synacthen test (diagnostic test)."
       },
       {
-        "id": "cognitive_match_004",
-        "prompt": "Clock drawing ή αντιγραφή σύνθετου σχήματος. (2 σωστά)",
+        "id": "crash_course_match_10_04",
+        "prompt": "A 43-year-old traffic warden presents to her GP with weight gain and amenorrhoea. She is surprised to be going through the menopause so soon as her mother's occurred in her late 50s. She is finding herself forgetful at work, checking cars on the same streets repeatedly. She has got into trouble for this and feels very low in mood. ACE-Ill is 80/100. Physical examination shows hypertension, a plethoric complexion and central obesity.",
         "correct": [
-          "στ",
-          "ε"
+          "H"
         ],
-        "explanation": "Το clock drawing έχει οπτικοχωρικό αλλά και εκτελεστικό φορτίο."
+        "explanation": "Cushing syndrome. This is suggested by the central obesity,amenorrhoea,hypertension, plethoric face and characteristic psychiatric symptoms of low mood and forgetfulness. Glucose is likelytobe elevated.The next step would be to refer for a dexamethasone suppression test to confirm the diagnosis."
       },
       {
-        "id": "cognitive_match_005",
-        "prompt": "Luria three-step, εναλλαγή κανόνων ή Trail Making B.",
+        "id": "crash_course_match_10_05",
+        "prompt": "A 76-year-old woman attends her GP with a 12-month history of gradually worsening memory problems and low mood. Past medical history includes renal calculi and abdominal pain for which no cause has been identified.ACE-Ill is 76/100.Physical examination is normal. Subtypes of dementia",
         "correct": [
-          "ε"
+          "F"
         ],
-        "explanation": "Αυτές οι δοκιμασίες απαιτούν γνωστική ευελιξία, αναστολή και sequencing."
-      },
-      {
-        "id": "cognitive_match_006",
-        "prompt": "Ο ασθενής δεν μπορεί να δείξει πώς βουρτσίζει τα δόντια του ή πώς χρησιμοποιεί ένα φανταστικό κλειδί, ενώ έχει δύναμη και κατανόηση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Αυτό δείχνει απραξία, δηλαδή διαταραχή εκτέλεσης μαθημένων κινητικών πράξεων."
-      },
-      {
-        "id": "cognitive_match_007",
-        "prompt": "Ονομασία αντικειμένων, επανάληψη πρότασης, κατανόηση εντολής.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Αυτά είναι στοιχεία γλωσσικής λειτουργίας."
-      },
-      {
-        "id": "cognitive_match_008",
-        "prompt": "Αδυναμία αναγνώρισης κοινωνικών σημάτων, σαρκασμού ή συναισθημάτων στο πρόσωπο.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η κοινωνική νόηση αφορά την επεξεργασία προθέσεων, συναισθημάτων και κοινωνικών συμφραζομένων."
-      },
-      {
-        "id": "cognitive_match_009",
-        "prompt": "Ερωτήσεις για ημερομηνία, τόπο και κατάσταση εξέτασης.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Αυτές οι ερωτήσεις ελέγχουν προσανατολισμό σε χρόνο, τόπο και κατάσταση."
-      },
-      {
-        "id": "cognitive_match_010",
-        "prompt": "Delirium: ποιος γνωστικός τομέας είναι κεντρικός και συχνά πιο χρήσιμος από την απλή μνήμη στη διάκριση από άνοια;",
-        "correct": [
-          "α"
-        ],
-        "explanation": "Στο delirium η διαταραχή προσοχής είναι κεντρική."
-      },
-      {
-        "id": "cognitive_match_011",
-        "prompt": "Δοκιμασία λεκτικής ευχέρειας με γράμμα ή κατηγορία: ποιοι τομείς από τη λίστα εμπλέκονται πιο άμεσα; (3 σωστά)",
-        "correct": [
-          "η",
-          "ε",
-          "δ"
-        ],
-        "explanation": "Η λεκτική ευχέρεια απαιτεί γλώσσα, σημασιολογικό λεξικό και εκτελεστική στρατηγική αναζήτησης."
+        "explanation": "Hyperparathyroidism. Hyperparathyroidism causes hypercalcaemia. Mild hypercalcaemia (<3.0 mmol/L) is common in older women and often asymptomatic. Symptoms when present include low mood, abdominal pain, bone pain and renal calculi. Mild memory problems often occur, progressing to a delirium if calcium levels are very high (>3.8 mmol/L). The next step should be to check serum calcium and phosphate. Subtypes of dementia"
       }
     ]
   },
   {
-    "id": "psychosis_symptoms_011",
-    "title": "Ψύχωση - τύποι συμπτωμάτων και φαινομενολογία",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τον τύπο συμπτώματος που αντιστοιχεί καλύτερα στο παράδειγμα. Σε ορισμένα παραδείγματα επιτρέπονται περισσότερες από μία απαντήσεις.",
+    "id": "crash_course_emq_11",
+    "title": "Crash Course EMQ 11 - ACE-Ill is 76/100.Physical examination is normal. Subtypes of dementia",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the most likely cause from the options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Ακουστική ψευδαίσθηση"
+        "id": "A",
+        "label": "Alzheimer dementia"
       },
       {
-        "id": "β",
-        "label": "Οπτική ψευδαίσθηση"
+        "id": "B",
+        "label": "Vascular dementia"
       },
       {
-        "id": "γ",
-        "label": "Διωκτική παραληρητική ιδέα"
+        "id": "C",
+        "label": "Mixed dementia"
       },
       {
-        "id": "δ",
-        "label": "Παραληρητική ιδέα αναφοράς"
+        "id": "D",
+        "label": "Frontotemporal dementia"
       },
       {
-        "id": "ε",
-        "label": "Παραλήρημα ελέγχου/παθητικότητας"
+        "id": "E",
+        "label": "Lewy body dementia"
       },
       {
-        "id": "στ",
-        "label": "Αποδιοργανωμένος λόγος"
+        "id": "F",
+        "label": "Parkinson disease with dementia"
       },
       {
-        "id": "ζ",
-        "label": "Αρνητικό σύμπτωμα"
+        "id": "G",
+        "label": "Progressive supranuclear palsy"
       },
       {
-        "id": "η",
-        "label": "Κατατονικό σύμπτωμα"
+        "id": "H",
+        "label": "Huntington disease"
       },
       {
-        "id": "θ",
-        "label": "Γνωστικό σύμπτωμα"
+        "id": "I",
+        "label": "Creutzfeldt-Jakob disease"
       },
       {
-        "id": "ι",
-        "label": "Έλλειψη εναισθησίας"
+        "id": "J",
+        "label": "Neurosyphilis"
+      },
+      {
+        "id": "K",
+        "label": "HIV-related dementia"
       }
     ],
     "items": [
       {
-        "id": "psychosis_match_001",
-        "prompt": "Ακούει δύο φωνές που σχολιάζουν μεταξύ τους τη συμπεριφορά του.",
+        "id": "crash_course_match_11_01",
+        "prompt": "A 77-year-old woman has a 9-month history of gradual onset, gradually worsening cognitive impairment. She forgets recent events and people's names. She can no longer manage her finances. Past medical history is of psoriasis and asthma. Head computed tomography (CT) showed generalized atrophy, particularly marked in the medial temporal lobes.",
         "correct": [
-          "α"
+          "A"
         ],
-        "explanation": "Οι σχολιαστικές φωνές είναι ακουστικές ψευδαισθήσεις και είναι εξεταστικά χαρακτηριστικές για ψύχωση."
+        "explanation": "Alzheimer dementia. Medial temporal atrophy is an early change in Alzheimer."
       },
       {
-        "id": "psychosis_match_002",
-        "prompt": "Βλέπει μικρά ζώα στο δωμάτιο τη νύχτα, ιδιαίτερα σε σύγχυση ή στέρηση.",
+        "id": "crash_course_match_11_02",
+        "prompt": "A 74-year-old man has a 10-month history of progressive cognitive impairment. His family notice he seems to worsen suddenly and then plateau before abruptly worsening again. He has marked word- finding difficulties and an abnormal gait. Past medical history is of ischaemic heart disease, hypertension and diabetes. He is a current smoker. CT of the head shows generalized atrophy, small vessel disease and an old lacunar infarct.",
         "correct": [
-          "β"
+          "B"
         ],
-        "explanation": "Το παράδειγμα περιγράφει οπτική ψευδαίσθηση, που θέλει πάντα σκέψη για οργανικότητα/delirium."
+        "explanation": "Vascular dementia. Note this man's multiple vascular risk factors and evidence of cerebrovascular disease on imaging."
       },
       {
-        "id": "psychosis_match_003",
-        "prompt": "Πιστεύει ότι οι γείτονες έχουν βάλει κάμερες για να τον παρακολουθούν.",
+        "id": "crash_course_match_11_03",
+        "prompt": "A 67-year-old retired chef has a 12-month history of gradual personality change. He was previously polite and considerate but has become very rude and tactless. He is having an affair with a waitress from his old restaurant. His wife of 40 years is thinking of leaving him but he says he does not care. Head CT shows generalized atrophy, particularly marked in the frontal lobes.",
         "correct": [
-          "γ"
+          "D"
         ],
-        "explanation": "Το περιεχόμενο είναι διωκτικό: άλλοι τον παρακολουθούν ή θέλουν να τον βλάψουν."
+        "explanation": "Frontotemporal dementia. This is particularly common in younger adults."
       },
       {
-        "id": "psychosis_match_004",
-        "prompt": "Πιστεύει ότι οι ειδήσεις στην τηλεόραση στέλνουν προσωπικά μηνύματα μόνο σε εκείνον.",
+        "id": "crash_course_match_11_04",
+        "prompt": "An 81-year-old man has an 18-month history of fluctuating cognitive impairment on a background of a gradual cognitive deterioration. He has been investigated for delirium but no cause found. Sometimes he is very drowsy during the day. He is increasingly stiff and finds it hard to roll over in bed. He also finds it hard to keep his balance and has had a lot of falls recently. Sometimes he experiences visual hallucinations of cats and mice. Head CT shows generalized cerebral atrophy.",
         "correct": [
-          "δ"
+          "E"
         ],
-        "explanation": "Η ουδέτερη πληροφορία αποδίδεται προσωπικά στον ασθενή: παραληρητική ιδέα αναφοράς."
+        "explanation": "Lewy body dementia."
       },
       {
-        "id": "psychosis_match_005",
-        "prompt": "Λέει ότι οι κινήσεις του σώματός του ελέγχονται από εξωτερική δύναμη.",
+        "id": "crash_course_match_11_05",
+        "prompt": "A 71-year-old man was diagnosed with Parkinson disease 5 years ago. He has a 1-year history of cognitive impairment causing him to forget people's names and where he has left his clothes. Sometimes he has hallucinations of former work colleagues walking around the room. CT of the head shows generalized cerebral atrophy. Clinical features in cognitive impairment",
         "correct": [
-          "ε"
+          "F"
         ],
-        "explanation": "Οι εμπειρίες παθητικότητας/ελέγχου είναι κλασικά first-rank φαινόμενα."
-      },
-      {
-        "id": "psychosis_match_006",
-        "prompt": "Ο λόγος περνά από θέμα σε θέμα χωρίς σαφή λογική σύνδεση, με δυσκολία παρακολούθησης.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η αποδιοργάνωση λόγου δείχνει διαταραχή της μορφής της σκέψης."
-      },
-      {
-        "id": "psychosis_match_007",
-        "prompt": "Αλογία, αβουλία, επιπέδωση συναισθήματος και κοινωνική απόσυρση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Αυτά είναι αρνητικά συμπτώματα, όχι απλώς καταθλιπτική διάθεση."
-      },
-      {
-        "id": "psychosis_match_008",
-        "prompt": "Waxy flexibility, στάση σώματος, mutism ή negativism.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Αυτά ανήκουν στο κατατονικό φάσμα."
-      },
-      {
-        "id": "psychosis_match_009",
-        "prompt": "Δυσκολία στη συγκέντρωση, στη μνήμη εργασίας και στην εκτελεστική λειτουργία σε ασθενή με σχιζοφρένεια.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Τα γνωστικά συμπτώματα είναι σημαντικό μέρος της λειτουργικής επιβάρυνσης στη σχιζοφρένεια."
-      },
-      {
-        "id": "psychosis_match_010",
-        "prompt": "Ο ασθενής επιμένει ότι δεν υπάρχει καμία ψυχική διαταραχή παρά σαφή ψυχωτικά συμπτώματα και σημαντική έκπτωση.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η έλλειψη εναισθησίας είναι συχνή στην ψύχωση και επηρεάζει τη συμμόρφωση."
-      },
-      {
-        "id": "psychosis_match_011",
-        "prompt": "Στην κλινική εικόνα της σχιζοφρένειας, ποιες επιλογές μπορούν να συμβάλλουν άμεσα σε λειτουργική έκπτωση χωρίς να είναι θετικά ψυχωτικά συμπτώματα; (3 σωστά)",
-        "correct": [
-          "ζ",
-          "θ",
-          "ι"
-        ],
-        "explanation": "Αρνητικά, γνωστικά συμπτώματα και έλλειψη εναισθησίας συχνά καθορίζουν τη λειτουργικότητα."
+        "explanation": "Parkinson disease with dementia. Parkinson disease is associated with an increased risk of dementia. General feedback: see Table 7.4. Clinical features in cognitive impairment"
       }
     ]
   },
   {
-    "id": "thought_speech_disorders_012",
-    "title": "Διαταραχές σκέψης και λόγου - ορισμοί και παραδείγματα",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε μικρό παράδειγμα με τη διαταραχή μορφής σκέψης ή λόγου που περιγράφει καλύτερα.",
+    "id": "crash_course_emq_12",
+    "title": "Crash Course EMQ 12 - CT of the head shows generalized cerebral atrophy. Clinical features in cognitive impairment",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the clinical feature described from the options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Εκτροχιασμός/χάλαση συνειρμών"
+        "id": "A",
+        "label": "Apraxia"
       },
       {
-        "id": "β",
-        "label": "Παραπλευρικότητα"
+        "id": "B",
+        "label": "Agnosia"
       },
       {
-        "id": "γ",
-        "label": "Περιστασιολογία"
+        "id": "C",
+        "label": "Aphasia"
       },
       {
-        "id": "δ",
-        "label": "Ανακοπή σκέψης"
+        "id": "D",
+        "label": "Amnesia"
       },
       {
-        "id": "ε",
-        "label": "Νεολογισμός"
+        "id": "E",
+        "label": "Perseveration"
       },
       {
-        "id": "στ",
-        "label": "Ηχολαλία"
+        "id": "F",
+        "label": "Disinhibition"
       },
       {
-        "id": "ζ",
-        "label": "Συνειρμοί ήχου/clang"
+        "id": "G",
+        "label": "Dyscalculia"
       },
       {
-        "id": "η",
-        "label": "Εμμονή/περσεβερασία"
+        "id": "H",
+        "label": "Dyslexia"
       },
       {
-        "id": "θ",
-        "label": "Πίεση λόγου"
-      },
-      {
-        "id": "ι",
-        "label": "Φυγή ιδεών"
-      },
-      {
-        "id": "κ",
-        "label": "Πτωχεία λόγου"
+        "id": "I",
+        "label": "Apathy"
       }
     ],
     "items": [
       {
-        "id": "thought_match_001",
-        "prompt": "Ο λόγος γλιστρά από θέμα σε θέμα με αδύναμες ή ανύπαρκτες λογικές συνδέσεις.",
+        "id": "crash_course_match_12_01",
+        "prompt": "When shown a pair of scissors a woman states they are scissors but cannot work out how to cut with them. She can mimic the correct action when shown.",
         "correct": [
-          "α"
+          "A"
         ],
-        "explanation": "Ο εκτροχιασμός/χάλαση συνειρμών αφορά χαλάρωση της λογικής αλληλουχίας."
+        "explanation": "Apraxia (intact motor ability shown by her ability to mimic)."
       },
       {
-        "id": "thought_match_002",
-        "prompt": "Απαντά σε ερώτηση ξεκινώντας σχετικό θέμα, αλλά τελικά δεν απαντά ποτέ στο ζητούμενο.",
+        "id": "crash_course_match_12_02",
+        "prompt": "When shown a pair of scissors a woman states they are ‘those things used for cutting paper' but cannot name them.",
         "correct": [
-          "β"
+          "C"
         ],
-        "explanation": "Η παραπλευρικότητα είναι απάντηση που παρεκκλίνει και δεν φτάνει στον στόχο."
+        "explanation": "Aphasia (expressive nominal aphasia)."
       },
       {
-        "id": "thought_match_003",
-        "prompt": "Δίνει υπερβολικά πολλές λεπτομέρειες, παρεκβάσεις και ιστορικά στοιχεία, αλλά τελικά απαντά.",
+        "id": "crash_course_match_12_03",
+        "prompt": "A woman uses scissors to cut a piece of paper into squares as asked. When asked to then cut triangles, she keeps cutting squares.",
         "correct": [
-          "γ"
+          "E"
         ],
-        "explanation": "Στην περιστασιολογία υπάρχει καθυστέρηση και υπερλεπτομέρεια, αλλά επιστρέφει στο θέμα."
+        "explanation": "Perseveration (receptive aphasia is less likely as she understood the initial instructions)."
       },
       {
-        "id": "thought_match_004",
-        "prompt": "Σταματά απότομα στη μέση της πρότασης και μετά λέει ότι «χάθηκε» η σκέψη.",
+        "id": "crash_course_match_12_04",
+        "prompt": "When shown a pair of scissors a woman is unable to name them or describe their function. When she is allowed to touch them she quickly identifies what they are. She has normal visual acuity.",
         "correct": [
-          "δ"
+          "B"
         ],
-        "explanation": "Η ανακοπή σκέψης είναι αιφνίδια διακοπή της ροής της σκέψης."
+        "explanation": "Agnosia (visual)."
       },
       {
-        "id": "thought_match_005",
-        "prompt": "Χρησιμοποιεί μια ιδιωτική, ανύπαρκτη λέξη όπως «φωτοσκόνη» για να περιγράψει μια υποτιθέμενη ενέργεια που τον επηρεάζει.",
+        "id": "crash_course_match_12_05",
+        "prompt": "When given a pair of scissors inside a covered box, a woman turns them around in her hands but is unable to name them. When she is allowed to look at them she quickly identifies them. She has normal sensation in her hands.",
         "correct": [
-          "ε"
+          "B"
         ],
-        "explanation": "Ο νεολογισμός είναι νέα λέξη ή ιδιοσυγκρασιακή χρήση χωρίς κοινό νόημα."
-      },
-      {
-        "id": "thought_match_006",
-        "prompt": "Επαναλαμβάνει μηχανικά την τελευταία φράση του εξεταστή.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η ηχολαλία είναι επανάληψη λόγου άλλου προσώπου."
-      },
-      {
-        "id": "thought_match_007",
-        "prompt": "Οι απαντήσεις οργανώνονται γύρω από ομοιοκαταληξίες ή ήχους: «πόνος, χρόνος, μόνος, φόνος».",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Οι clang associations βασίζονται στον ήχο των λέξεων αντί στο νόημα."
-      },
-      {
-        "id": "thought_match_008",
-        "prompt": "Επαναλαμβάνει την ίδια απάντηση σε διαφορετικές ερωτήσεις, ενώ το θέμα έχει αλλάξει.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η περσεβερασία είναι παθολογική επανάληψη της ίδιας απάντησης ή συμπεριφοράς."
-      },
-      {
-        "id": "thought_match_009",
-        "prompt": "Μιλά γρήγορα, πολύ και δύσκολα διακόπτεται.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η πίεση λόγου αφορά αυξημένη ποσότητα και ταχύτητα λόγου με δυσκολία διακοπής."
-      },
-      {
-        "id": "thought_match_010",
-        "prompt": "Σε μανιακό ασθενή, οι ιδέες αλλάζουν γρήγορα, αλλά οι συνδέσεις παραμένουν κάπως κατανοητές.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η φυγή ιδεών έχει ταχύτητα και μεταπήδηση, συχνά με κατανοητούς συνειρμούς."
-      },
-      {
-        "id": "thought_match_011",
-        "prompt": "Σύντομες, φτωχές απαντήσεις με εμφανώς μειωμένη παραγωγή λόγου.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Η πτωχεία λόγου/αλογία είναι αρνητικό σύμπτωμα και διαφέρει από την αποδιοργάνωση."
+        "explanation": "Agnosia (tactile, also called astereognosia)."
       }
     ]
   },
   {
-    "id": "defence_mechanisms_013",
-    "title": "Αμυντικοί μηχανισμοί - κλινικά παραδείγματα",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τον αμυντικό μηχανισμό ή τους μηχανισμούς που ταιριάζουν καλύτερα στο παράδειγμα. Μερικά παραδείγματα έχουν περισσότερες από μία σωστές απαντήσεις.",
+    "id": "crash_course_emq_13",
+    "title": "Crash Course EMQ 13 - substance use problems",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following statements, select the most appropriate answer from the options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Άρνηση"
+        "id": "A",
+        "label": "MDMA"
       },
       {
-        "id": "β",
-        "label": "Προβολή"
+        "id": "B",
+        "label": "Cannabis"
       },
       {
-        "id": "γ",
-        "label": "Σχάση"
+        "id": "C",
+        "label": "Heroin"
       },
       {
-        "id": "δ",
-        "label": "Αντιδραστικός σχηματισμός"
+        "id": "D",
+        "label": "Amphetamine"
       },
       {
-        "id": "ε",
-        "label": "Μετάθεση"
+        "id": "E",
+        "label": "Diazepam"
       },
       {
-        "id": "στ",
-        "label": "Εξιδανίκευση"
+        "id": "F",
+        "label": "Cocaine"
       },
       {
-        "id": "ζ",
-        "label": "Εκλογίκευση"
+        "id": "G",
+        "label": "Ketamine"
       },
       {
-        "id": "η",
-        "label": "Διανοητικοποίηση"
+        "id": "H",
+        "label": "Mephedrone"
       },
       {
-        "id": "θ",
-        "label": "Επανόρθωση/undoing"
-      },
-      {
-        "id": "ι",
-        "label": "Μετουσίωση"
-      },
-      {
-        "id": "κ",
-        "label": "Διάσχιση"
+        "id": "I",
+        "label": "Buprenorphine Lysergic acid diethylamide"
       }
     ],
     "items": [
       {
-        "id": "defence_match_001",
-        "prompt": "Ασθενής με σαφή διάγνωση κακοήθειας επιμένει ότι «οι γιατροί υπερβάλλουν, δεν έχω τίποτα σοβαρό».",
+        "id": "crash_course_match_13_01",
+        "prompt": "Deviated nasal septum",
         "correct": [
-          "α"
+          "F"
         ],
-        "explanation": "Η άρνηση απορρίπτει μια επώδυνη πραγματικότητα παρά τα δεδομένα."
+        "explanation": "Chronic insufflation ('snorting') of cocaine can cause damage to the nasal septum."
       },
       {
-        "id": "defence_match_002",
-        "prompt": "Νιώθει έντονη εχθρότητα προς συνάδελφο, αλλά είναι πεπεισμένος ότι ο συνάδελφος τον μισεί.",
+        "id": "crash_course_match_13_02",
+        "prompt": "Depersonalisation",
         "correct": [
-          "β"
+          "G"
         ],
-        "explanation": "Στην προβολή αποδίδονται σε άλλους δικά μας δυσάρεστα συναισθήματα/παρορμήσεις."
+        "explanation": "Ketamine is a potent glutamatergic (NMDA receptor) channel blocker, and is a potent short-acting dissociative anaesthetic. It is legitimately used in veterinary surgery as an anaesthetic agent. It can also be used as an anaesthetic analgesic agent in human medicine."
       },
       {
-        "id": "defence_match_003",
-        "prompt": "Η θεραπεύτρια είναι «η μόνη που αξίζει» τη μία εβδομάδα και «τελείως άχρηστη» μετά από μια ματαίωση ραντεβού. (2 σωστά)",
+        "id": "crash_course_match_13_03",
+        "prompt": "Bacterial endocarditis",
         "correct": [
-          "γ",
-          "στ"
+          "C"
         ],
-        "explanation": "Υπάρχει σχάση μεταξύ all-good/all-bad και φάση εξιδανίκευσης."
+        "explanation": "Heroin. Intravenous drug use is a major risk factorfor bacterial endocarditis, blood-borne virus infection, deep vein thrombosis and injection site cellulitis or abscesses. Other substances on the list can be injected, but heroin is the commonest injected recreational drug."
       },
       {
-        "id": "defence_match_004",
-        "prompt": "Ασθενής με έντονη ασυνείδητη επιθετικότητα προς τη μητέρα του συμπεριφέρεται υπερβολικά γλυκά και φροντιστικά.",
+        "id": "crash_course_match_13_04",
+        "prompt": "Memory impairment, particularly if taken long-term",
         "correct": [
-          "δ"
+          "E"
         ],
-        "explanation": "Ο αντιδραστικός σχηματισμός εκφράζει το αντίθετο από το απειλητικό συναίσθημα."
+        "explanation": "Diazepam. Like alcohol, benzodiazepine intoxication and long-term use is associated with memory impairment."
       },
       {
-        "id": "defence_match_005",
-        "prompt": "Μετά από ταπείνωση από τον προϊστάμενο, γυρίζει σπίτι και φωνάζει στον σύντροφό του για ασήμαντο λόγο.",
+        "id": "crash_course_match_13_05",
+        "prompt": "Precipitated opioid withdrawal",
         "correct": [
-          "ε"
+          "I"
         ],
-        "explanation": "Στη μετάθεση το συναίσθημα μεταφέρεται από επικίνδυνο στόχο σε ασφαλέστερο."
-      },
-      {
-        "id": "defence_match_006",
-        "prompt": "Μετά από relapse στο αλκοόλ λέει: «Δεν είναι πρόβλημα, όλοι πίνουν έτσι στις γιορτές».",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η εκλογίκευση προσφέρει φαινομενικά λογική εξήγηση για προβληματική συμπεριφορά."
-      },
-      {
-        "id": "defence_match_007",
-        "prompt": "Μιλά για την απώλεια του παιδιού του με στατιστικές, βιολογικούς όρους και αποστασιοποιημένη ανάλυση, χωρίς συναισθηματική επαφή.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η διανοητικοποίηση κρατά το συναίσθημα μακριά μέσω αφηρημένης ανάλυσης."
-      },
-      {
-        "id": "defence_match_008",
-        "prompt": "Μετά από εχθρική σκέψη προς τον σύντροφο, αγοράζει υπερβολικά ακριβό δώρο για να «σβήσει» την ενοχή.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Το undoing επιχειρεί συμβολική ακύρωση μιας σκέψης ή πράξης."
-      },
-      {
-        "id": "defence_match_009",
-        "prompt": "Μετατρέπει έντονη επιθετικότητα σε συστηματική αθλητική προπόνηση και κοινωνικά αποδεκτή ανταγωνιστικότητα.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η μετουσίωση διοχετεύει παρορμήσεις σε ώριμη, κοινωνικά αποδεκτή δραστηριότητα."
-      },
-      {
-        "id": "defence_match_010",
-        "prompt": "Σε αφόρητη συναισθηματική πίεση νιώθει αποκομμένος από το σώμα του και αργότερα έχει κενά μνήμης.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Η διάσχιση περιλαμβάνει αποσύνδεση συνείδησης, μνήμης, ταυτότητας ή σωματικής εμπειρίας."
-      },
-      {
-        "id": "defence_match_011",
-        "prompt": "Ώριμος αμυντικός μηχανισμός, σε αντίθεση με προβολή ή σχάση.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η μετουσίωση θεωρείται ώριμος αμυντικός μηχανισμός."
+        "explanation": "Buprenorphine is a partial opioid agonist. When taken by an opioid naive person, it can cause euphoria, sedation, and other symptoms of opioid intoxication. However, when taken by someone who is opioid-dependent and already has a lot of circulating opioid receptor agonists present (e.g., heroin), it can displace these agonists from opioid receptors and cause withdrawal symptoms. Chapter 9 The patient with psychotic symptoms Differential diagnosis of psychosis"
       }
     ]
   },
   {
-    "id": "personality_disorders_patterns_014",
-    "title": "Διαταραχές προσωπικότητας - πυρηνικά μοτίβα",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε διαπροσωπικό ή κλινικό μοτίβο με την πιθανότερη διαταραχή προσωπικότητας. Οι επιλογές ανήκουν στην ίδια διαγνωστική οικογένεια.",
+    "id": "crash_course_emq_14",
+    "title": "Crash Course EMQ 14 - Differential diagnosis of psychosis",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list of options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Παρανοειδής"
+        "id": "A",
+        "label": "Delusional disorder"
       },
       {
-        "id": "β",
-        "label": "Σχιζοειδής"
+        "id": "B",
+        "label": "Dementia/delirium"
       },
       {
-        "id": "γ",
-        "label": "Σχιζότυπη"
+        "id": "C",
+        "label": "Depressive episode, severe, with psychotic features"
       },
       {
-        "id": "δ",
-        "label": "Αντικοινωνική"
+        "id": "D",
+        "label": "Manic episode with psychotic features"
       },
       {
-        "id": "ε",
-        "label": "Οριακή"
+        "id": "E",
+        "label": "Neurodevelopmental disorder Personality disorder"
       },
       {
-        "id": "στ",
-        "label": "Δραματική/ιστριονική"
+        "id": "F",
+        "label": "ersonality disorder"
       },
       {
-        "id": "ζ",
-        "label": "Ναρκισσιστική"
+        "id": "G",
+        "label": "Psychosis secondary to a general medical condition"
       },
       {
-        "id": "η",
-        "label": "Αποφευκτική"
+        "id": "H",
+        "label": "Psychosis secondary to psychoactive substance use"
       },
       {
-        "id": "θ",
-        "label": "Εξαρτητική"
+        "id": "I",
+        "label": "Schizoaffective disorder Schizophrenia"
       },
       {
-        "id": "ι",
-        "label": "Ιδεοψυχαναγκαστική προσωπικότητα"
+        "id": "J",
+        "label": "chizophrenia"
+      },
+      {
+        "id": "K",
+        "label": "Schizophrenia-like psychotic disorders"
       }
     ],
     "items": [
       {
-        "id": "personality_match_001",
-        "prompt": "Διαρκής δυσπιστία και ερμηνεία ουδέτερων πράξεων ως ταπεινωτικών ή απειλητικών.",
+        "id": "crash_course_match_14_01",
+        "prompt": "The mother of a 22-year-old man asks for a home visit from their general practitioner (GP). For the last 6 weeks her son has barely left his room and seems to be collecting tinfoil. She is adamant that he has never used drugs. He is in second year at university, having passed first year with a distinction, but 6 months ago he lost interest and stopped going to lectures. He tells the GP that a terrorist organization is trying to brainwash him into becoming a terrorist and he needs the tinfoil to make it more difficult for them to beam thoughts into him.",
         "correct": [
-          "α"
+          "J"
         ],
-        "explanation": "Η παρανοειδής προσωπικότητα οργανώνεται γύρω από καχυποψία και δυσπιστία."
+        "explanation": "Schizophrenia. This man describes the symptom of thought insertion for greater than 1 month. The diagnosis is supported by his age and functional decline prior to the onset of symptoms. Although his mother does not think he misuses substances, it would be important to exclude this by asking the man himself and performing a urine drug screen."
       },
       {
-        "id": "personality_match_002",
-        "prompt": "Αδιαφορία για στενές σχέσεις, περιορισμένο συναισθηματικό εύρος και προτίμηση μοναχικών δραστηριοτήτων.",
+        "id": "crash_course_match_14_02",
+        "prompt": "A 45-year-old man has recurrent episodes of low mood associated with third person auditory hallucinations in the form of an abusive running commentary. These symptoms do not occur separately.",
         "correct": [
-          "β"
+          "I"
         ],
-        "explanation": "Η σχιζοειδής προσωπικότητα χαρακτηρίζεται από κοινωνική αποστασιοποίηση χωρίς έντονη επιθυμία εγγύτητας."
+        "explanation": "Schizoaffective disorder. This man has concurrent mood symptoms and first rank symptoms of schizophrenia. His mood and psychotic symptoms are equally prominent, making a recurrent psychotic depression unlikely."
       },
       {
-        "id": "personality_match_003",
-        "prompt": "Παράξενες πεποιθήσεις, ιδέες αναφοράς, περίεργος λόγος και κοινωνικό άγχος με ψυχωτικόμορφη χροιά.",
+        "id": "crash_course_match_14_03",
+        "prompt": "A52-year-old manhasrecurrentepisodes of low mood associated with second person auditory hallucinations in the form of abusive comments. He has noticed his mood starts to dip first, and the hallucinations emerge as his mood worsens.",
         "correct": [
-          "γ"
+          "C"
         ],
-        "explanation": "Η σχιζότυπη προσωπικότητα έχει εκκεντρικότητα και γνωστικο-αντιληπτικές ιδιαιτερότητες."
+        "explanation": "Depressive episode, severe, with psychotic features. This man has mood symptoms and psychotic symptoms which are not typical of schizophrenia (because they are second rather than third person). The mood symptoms appear to be more prominent than the psychotic symptoms, making schizoaffective disorder unlikely."
       },
       {
-        "id": "personality_match_004",
-        "prompt": "Παραβίαση δικαιωμάτων άλλων, εξαπάτηση, παρορμητικότητα και έλλειψη μεταμέλειας από νεαρή ηλικία.",
+        "id": "crash_course_match_14_04",
+        "prompt": "A 47-year-old teacher presents to his GP for the 25th time in 6 months convinced he has bowel cancer, despite having had a normal colonoscopy and abdomen/pelvis computed tomography. He tells his GP he knows logically he cannot have bowel cancer but at the same time he is certain he does. His mood is normal and he is still working.",
         "correct": [
-          "δ"
+          "A"
         ],
-        "explanation": "Το αντικοινωνικό μοτίβο απαιτεί παραβίαση κοινωνικών κανόνων/δικαιωμάτων και ιστορικό συμπεριφορικής διαταραχής."
+        "explanation": "Delusional disorder. This man has a longstanding unshakeable belief arrived at through faulty reasoning: a delusion. He has insight into this. Schizophrenia is unlikely because the delusion is nonbizarre and functioning is intact."
       },
       {
-        "id": "personality_match_005",
-        "prompt": "Φόβος εγκατάλειψης, ασταθείς σχέσεις, συναισθηματική αστάθεια και αυτοκαταστροφικότητα.",
+        "id": "crash_course_match_14_05",
+        "prompt": "A 37-year-old man who is brought to accident and emergency by the police for assessment after he called them to say his neighbour is persecuting him by refusing to move her wheelie-bin. The police note multiple previous calls over the last decade about previous neighbours. The man agrees it is not wanting to move the wheelie-bin, but thinks it is most likely because she wants to spite him. He is angry with the police for bringing him to see a doctor, stating he plans to contact his lawyer about their behaviour.",
         "correct": [
-          "ε"
+          "F"
         ],
-        "explanation": "Η οριακή προσωπικότητα συνδέεται με αστάθεια σχέσεων, ταυτότητας και συναισθήματος."
+        "explanation": "Personality disorder. This man is not delusional as his belief is not fixed. He is suspicious and litigious. The history from the police of multiple previous calls suggests his difficulties are longstanding. This would be consistent with a paranoid personality disorder. However, a fuller background history would be required to make a definite diagnosis."
       },
       {
-        "id": "personality_match_006",
-        "prompt": "Έντονη ανάγκη προσοχής, θεατρικότητα και υπερβολική συναισθηματική έκφραση.",
+        "id": "crash_course_match_14_06",
+        "prompt": "A woman requests a GP home visit for her 78-year- old father who has no previous psychiatric history. She is concerned that he has told her he can hear his mother and sister, who are both dead, talking. She is also concerned that he seems very forgetful and does not seem to be looking after himself properly. He is quite cheerful and enjoys speaking with his relatives. Psychosis secondary to a general medical condition orpsychoactive substance use",
         "correct": [
-          "στ"
+          "B"
         ],
-        "explanation": "Η ιστριονική προσωπικότητα χαρακτηρίζεται από αναζήτηση προσοχής και δραματοποίηση."
-      },
-      {
-        "id": "personality_match_007",
-        "prompt": "Μεγαλομανία, αίσθηση δικαιώματος, ανάγκη θαυμασμού και μειωμένη ενσυναίσθηση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Το ναρκισσιστικό μοτίβο οργανώνεται γύρω από μεγαλείο, θαυμασμό και entitlement."
-      },
-      {
-        "id": "personality_match_008",
-        "prompt": "Θέλει σχέσεις αλλά αποφεύγει λόγω έντονου φόβου κριτικής, απόρριψης και ανεπάρκειας.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η αποφευκτική προσωπικότητα διαφέρει από τη σχιζοειδή επειδή υπάρχει επιθυμία εγγύτητας αλλά φόβος απόρριψης."
-      },
-      {
-        "id": "personality_match_009",
-        "prompt": "Δυσκολία λήψης αποφάσεων χωρίς διαβεβαίωση, ανάγκη φροντίδας και φόβος αποχωρισμού.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η εξαρτητική προσωπικότητα οργανώνεται γύρω από ανάγκη φροντίδας και δυσκολία αυτονομίας."
-      },
-      {
-        "id": "personality_match_010",
-        "prompt": "Τελειοθηρία, ανάγκη ελέγχου, ακαμψία και υπερβολική προσήλωση σε κανόνες εις βάρος ευελιξίας.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η ιδεοψυχαναγκαστική προσωπικότητα αφορά ακαμψία και έλεγχο, όχι απαραίτητα ιδεοληψίες/καταναγκασμούς."
-      },
-      {
-        "id": "personality_match_011",
-        "prompt": "Cluster A διαταραχές προσωπικότητας. (3 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "γ"
-        ],
-        "explanation": "Cluster A: παρανοειδής, σχιζοειδής, σχιζότυπη."
-      },
-      {
-        "id": "personality_match_012",
-        "prompt": "Cluster C διαταραχές προσωπικότητας. (3 σωστά)",
-        "correct": [
-          "η",
-          "θ",
-          "ι"
-        ],
-        "explanation": "Cluster C: αποφευκτική, εξαρτητική και ιδεοψυχαναγκαστική προσωπικότητα."
+        "explanation": "Dementia/delirium. This man has cognitive impairment, functional decline and auditory hallucinations. It is crucial to exclude delirium by clarifying the onset of these symptoms (acute or chronic), by assessing his consciousness level and by completing a full physical examination and basic investigations.Dementia can also be associated with hallucinations.A mood disorder is made less likely by the description of him as ‘cheerful'; however, a severe depressive episode could also account for his symptoms. Schizophrenia is unlikely to have such late onset. Psychosis secondary to a general medical condition or psychoactive substance use"
       }
     ]
   },
   {
-    "id": "anxiety_ocd_trauma_015",
-    "title": "Άγχος, OCD και τραύμα - διαφορική διάγνωση",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τη διαταραχή ή τις διαταραχές που ταιριάζουν καλύτερα σε κάθε περιγραφή. Προσοχή στις κοντινές διαφορές.",
+    "id": "crash_course_emq_15",
+    "title": "Crash Course EMQ 15 - He is quite cheerful and enjoys speaking with his relatives. Psychosis secondary to a general medical condition orpsychoactive substance use",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Διαταραχή πανικού"
+        "id": "A",
+        "label": "Amphetamine"
       },
       {
-        "id": "β",
-        "label": "Αγοραφοβία"
+        "id": "B",
+        "label": "Cerebral tumour"
       },
       {
-        "id": "γ",
-        "label": "Κοινωνική αγχώδης διαταραχή"
+        "id": "C",
+        "label": "Cocaine"
       },
       {
-        "id": "δ",
-        "label": "Γενικευμένη αγχώδης διαταραχή"
+        "id": "D",
+        "label": "Corticosteroids Cushing syndrome L-dopa"
       },
       {
-        "id": "ε",
-        "label": "Ιδεοψυχαναγκαστική διαταραχή"
+        "id": "G",
+        "label": "Neurosyphilis"
       },
       {
-        "id": "στ",
-        "label": "PTSD"
+        "id": "H",
+        "label": "Huntington disease"
       },
       {
-        "id": "ζ",
-        "label": "Οξεία διαταραχή στρες"
+        "id": "I",
+        "label": "Hyperthyroidism Hypothyroidism"
       },
       {
-        "id": "η",
-        "label": "Διαταραχή άγχους ασθένειας"
+        "id": "K",
+        "label": "Thiamine deficiency"
       },
       {
-        "id": "θ",
-        "label": "Σωματοδυσμορφική διαταραχή"
-      },
-      {
-        "id": "ι",
-        "label": "Ειδική φοβία"
-      },
-      {
-        "id": "κ",
-        "label": "Διαταραχή προσαρμογής"
+        "id": "L",
+        "label": "Vitamin B12 deficiency"
       }
     ],
     "items": [
       {
-        "id": "anxiety_match_001",
-        "prompt": "Επαναλαμβανόμενες απροσδόκητες κρίσεις πανικού και επίμονη ανησυχία για νέες κρίσεις.",
+        "id": "crash_course_match_15_01",
+        "prompt": "A 62-year-old retired navy officer is brought to his general practitioner (GP) by his wife. She is concerned that his personality has changed over the lastfew months. He has been unusually cheerful and keeps mentioning that he expects to be knighted for his naval service. He has become very extravagant, wanting to sell their home and give half the proceeds to charity. He forgot their wedding anniversary. On examination he has unusually brisk reflexes.",
         "correct": [
-          "α"
+          "G"
         ],
-        "explanation": "Η διαταραχή πανικού αφορά απροσδόκητες κρίσεις και φόβο/αλλαγή συμπεριφοράς λόγω νέων κρίσεων."
+        "explanation": "Neurosyphilis. This is now a rare diagnosis in the UK but should always be considered in those with work or travel histories that may have placed them at risk of contracting syphilis. 315 Neurosyphilis is a type of tertiary syphilis that emerges several years after initial infection. Clinical features are diverse but can include personality change, grandiose behaviour and dementia, along with upper motor neurone abnormalities such as brisk reflexes and extensor plantars."
       },
       {
-        "id": "anxiety_match_002",
-        "prompt": "Αποφυγή μέσων μεταφοράς, ουρών, ανοιχτών/κλειστών χώρων επειδή η διαφυγή θα είναι δύσκολη αν εμφανιστούν συμπτώματα.",
+        "id": "crash_course_match_15_02",
+        "prompt": "A 57-year-old accountant is brought to accident and emergency by the police after going to the supermarket in swimming trunks and flippers. He does not see what the problem is. He states he wore the flippers because he has a constant headache which worsens when he bends down to tie his shoelaces. He has no psychiatric history or previous encounters with the police.",
         "correct": [
-          "β"
+          "B"
         ],
-        "explanation": "Η αγοραφοβία αφορά φόβο καταστάσεων όπου η διαφυγή ή βοήθεια φαίνεται δύσκολη."
+        "explanation": "Cerebral tumour. This man is socially disinhibited with a headache suggestive of raised intracranial pressure. The presence of focal neurological signswouldfurthersupportthe diagnosis."
       },
       {
-        "id": "anxiety_match_003",
-        "prompt": "Έντονος φόβος αρνητικής αξιολόγησης όταν πρέπει να μιλήσει, να φάει ή να λειτουργήσει μπροστά σε άλλους.",
+        "id": "crash_course_match_15_03",
+        "prompt": "A 46-year-old vegan goes to her GP because for the last 6 months she has found herself unusually clumsy, tripping over rugs and stairs in a way she never did before. She feels like everyone is watching her when she stumbles in the street and is sure she heard a group of strangers commenting on how they planned to rob her.",
         "correct": [
-          "γ"
+          "L"
         ],
-        "explanation": "Η κοινωνική αγχώδης διαταραχή έχει πυρήνα τον φόβο αξιολόγησης/ντροπής."
+        "explanation": "Vitamin B12 deficiency. As a vegan, this woman is at risk of vitamin B12 deficiency (which is present only in meat and dairy products). She describes ataxia and paranoia, both of which can be features of vitamin B12 deficiency."
       },
       {
-        "id": "anxiety_match_004",
-        "prompt": "Χρόνια υπερβολική ανησυχία για πολλά καθημερινά θέματα, με μυϊκή τάση, αϋπνία και δυσκολία ελέγχου της ανησυχίας.",
+        "id": "crash_course_match_15_04",
+        "prompt": "A 42-year-old man is admitted for emergency surgery following a road traffic accident. Two days after admission he becomes agitated and asks the charge nurse why there are so many insects in the ward (there are none). He keeps rubbing his skin and saying, 'get away, get away'. He has a stumbling gait and his eyes make rapid small movements to the side and back again. Mental state examination in psychosis (perceptual disturbance)",
         "correct": [
-          "δ"
+          "K"
         ],
-        "explanation": "Η GAD αφορά διάχυτη, πολυθεματική και δύσκολα ελεγχόμενη ανησυχία."
-      },
-      {
-        "id": "anxiety_match_005",
-        "prompt": "Εισβολικές σκέψεις μόλυνσης και επαναλαμβανόμενο πλύσιμο για μείωση άγχους.",
-        "correct": [
-          "ε"
-        ],
-        "explanation": "Ιδεοληψίες και καταναγκασμοί που μειώνουν προσωρινά άγχος δείχνουν OCD."
-      },
-      {
-        "id": "anxiety_match_006",
-        "prompt": "Επανεισβολές, αποφυγή, αρνητικές μεταβολές διάθεσης/γνωσιών και υπερδιέγερση μετά από τραυματικό γεγονός.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Το PTSD απαιτεί τραυματική έκθεση και συμπλέγματα επανεισβολής, αποφυγής, αρνητικής διάθεσης/γνωσιών και υπερδιέγερσης."
-      },
-      {
-        "id": "anxiety_match_007",
-        "prompt": "Παρόμοια μετατραυματικά συμπτώματα, αλλά μέσα στον πρώτο μήνα μετά το τραύμα.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η οξεία διαταραχή στρες αφορά το πρώιμο διάστημα μετά από τραυματική έκθεση."
-      },
-      {
-        "id": "anxiety_match_008",
-        "prompt": "Επίμονη πεποίθηση/φόβος σοβαρής ασθένειας παρά καθησυχαστικές εξετάσεις, με υψηλό άγχος υγείας και λίγα σωματικά συμπτώματα.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η διαταραχή άγχους ασθένειας έχει πυρήνα τον φόβο νόσου, όχι απαραίτητα έντονα σωματικά συμπτώματα."
-      },
-      {
-        "id": "anxiety_match_009",
-        "prompt": "Επίμονη ενασχόληση με υποτιθέμενο ελάττωμα εμφάνισης και επαναλαμβανόμενος έλεγχος στον καθρέφτη.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η σωματοδυσμορφική διαταραχή αφορά ενασχόληση με αντιληπτό ελάττωμα εμφάνισης."
-      },
-      {
-        "id": "anxiety_match_010",
-        "prompt": "Φόβος περιορισμένος σε συγκεκριμένο αντικείμενο ή κατάσταση, όπως αίμα, ύψη ή αεροπλάνο.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η ειδική φοβία είναι εστιασμένος φόβος συγκεκριμένου αντικειμένου/κατάστασης."
-      },
-      {
-        "id": "anxiety_match_011",
-        "prompt": "Συναισθηματικά/συμπεριφορικά συμπτώματα μετά από αναγνωρίσιμο στρεσογόνο γεγονός, χωρίς να πληρούνται πλήρως κριτήρια άλλης διαταραχής.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Η διαταραχή προσαρμογής είναι διάγνωση σχετιζόμενη με στρεσογόνο παράγοντα όταν δεν εξηγείται καλύτερα αλλιώς."
-      },
-      {
-        "id": "anxiety_match_012",
-        "prompt": "Διαταραχές στις οποίες η συμπεριφορική αποφυγή του ερεθίσματος ή της κατάστασης λειτουργεί ως βασικός μηχανισμός διατήρησης. (4 σωστά)",
-        "correct": [
-          "β",
-          "γ",
-          "στ",
-          "ι"
-        ],
-        "explanation": "Αγοραφοβία, κοινωνικό άγχος, PTSD και ειδική φοβία έχουν ισχυρή αποφυγή ως βασικό μηχανισμό."
+        "explanation": "Thiamine deficiency. This man is likely experiencing Wernicke encephalopathy. He is experiencing visual hallucinations and possibly tactile hallucinations of insects beneath the skin (formication). He is ataxic and has nystagmus. Thus, he has the classic triad for Wernicke: confusion,ataxia and ophthalmoplegia. Although this man's alcohol history is unknown, the time course of these symptoms is consistent with the onset of alcohol withdrawal and alcohol use may have predisposed him to being in a road traffic accident. Mental state examination in psychosis (perceptual disturbance) Second-person auditory hallucination."
       }
     ]
   },
   {
-    "id": "eating_disorders_016",
-    "title": "Διαταραχές πρόσληψης τροφής - διαφορική διάγνωση",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε περιγραφή με την κατάλληλη διαταραχή πρόσληψης τροφής. Μερικές περιγραφές ζητούν περισσότερες από μία σωστές επιλογές.",
+    "id": "crash_course_emq_17",
+    "title": "Crash Course EMQ 17 - Mental state examination in psychosis (thought disturbance)",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select ONE clinical feature described from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Νευρική ανορεξία - περιοριστικός τύπος"
+        "id": "A",
+        "label": "Delusion of control"
       },
       {
-        "id": "β",
-        "label": "Νευρική ανορεξία - υπερφαγικός/καθαρτικός τύπος"
+        "id": "B",
+        "label": "Delusion of infidelity"
       },
       {
-        "id": "γ",
-        "label": "Νευρική βουλιμία"
+        "id": "C",
+        "label": "Delusion of misidentification"
       },
       {
-        "id": "δ",
-        "label": "Διαταραχή επεισοδιακής υπερφαγίας"
+        "id": "D",
+        "label": "Delusion of reference"
       },
       {
-        "id": "ε",
-        "label": "ARFID"
+        "id": "E",
+        "label": "Erotomania Grandiose delusion"
       },
       {
-        "id": "στ",
-        "label": "Pica"
+        "id": "G",
+        "label": "Loosening of association"
       },
       {
-        "id": "ζ",
-        "label": "Διαταραχή μηρυκασμού"
+        "id": "H",
+        "label": "Nihilistic delusion Persecutory delusion"
       },
       {
-        "id": "η",
-        "label": "Σύνδρομο νυχτερινής πρόσληψης τροφής"
+        "id": "I",
+        "label": "ersecutory delusion."
       },
       {
-        "id": "θ",
-        "label": "OSFED"
-      },
-      {
-        "id": "ι",
-        "label": "Ορθορεξία"
+        "id": "J",
+        "label": "Somatic delusion"
       }
     ],
     "items": [
       {
-        "id": "eating_match_001",
-        "prompt": "Σημαντικά χαμηλό βάρος, έντονος φόβος αύξησης βάρους και περιορισμός πρόσληψης χωρίς επεισόδια υπερφαγίας/κάθαρσης.",
+        "id": "crash_course_match_17_01",
+        "prompt": "\"I'm sure I'm being spied on by the government, I can tell because of the amount of junk mail I get'.",
         "correct": [
-          "α"
+          "I"
         ],
-        "explanation": "Το χαμηλό βάρος με περιορισμό και φόβο πάχυνσης δείχνει νευρική ανορεξία περιοριστικού τύπου."
+        "explanation": "Persecutory delusion."
       },
       {
-        "id": "eating_match_002",
-        "prompt": "Σημαντικά χαμηλό βάρος με επαναλαμβανόμενα επεισόδια υπερφαγίας ή καθαρτικές συμπεριφορές.",
+        "id": "crash_course_match_17_02",
+        "prompt": "\"My boss definitely loves me, even though he denies it every time I remind him.'",
         "correct": [
-          "β"
+          "E"
         ],
-        "explanation": "Η παρουσία χαμηλού βάρους διαφοροποιεί την ανορεξία υπερφαγικού/καθαρτικού τύπου από τη βουλιμία."
+        "explanation": "Erotomania."
       },
       {
-        "id": "eating_match_003",
-        "prompt": "Επεισόδια υπερφαγίας με αίσθημα απώλειας ελέγχου και αντισταθμιστικές συμπεριφορές, χωρίς σημαντικά χαμηλό βάρος.",
+        "id": "crash_course_match_17_03",
+        "prompt": "‘I can't understand why that woman has dressed up as my wife and keeps referring to me as her husband'.",
         "correct": [
-          "γ"
+          "C"
         ],
-        "explanation": "Η νευρική βουλιμία έχει υπερφαγία και αντιρρόπηση χωρίς το κριτήριο σημαντικά χαμηλού βάρους."
+        "explanation": "Delusion of misidentification (Capgras syndrome)."
       },
       {
-        "id": "eating_match_004",
-        "prompt": "Επεισόδια υπερφαγίας με απώλεια ελέγχου, ντροπή και δυσφορία, αλλά χωρίς τακτικές αντισταθμιστικές συμπεριφορές.",
+        "id": "crash_course_match_17_04",
+        "prompt": "The newsreader on the radio keeps reading out my name for some reason'.",
         "correct": [
-          "δ"
+          "D"
         ],
-        "explanation": "Η διαταραχή επεισοδιακής υπερφαγίας δεν έχει τακτική κάθαρση/αντιρρόπηση."
+        "explanation": "Delusion of reference."
       },
       {
-        "id": "eating_match_005",
-        "prompt": "Περιορισμός τροφής λόγω αισθητηριακής αποστροφής, φόβου πνιγμού ή έλλειψης ενδιαφέροντος για φαγητό, χωρίς διαταραχή εικόνας σώματος.",
+        "id": "crash_course_match_17_05",
+        "prompt": "'I don't need to eat because I'm already dead'.",
         "correct": [
-          "ε"
+          "H"
         ],
-        "explanation": "Το ARFID δεν έχει πυρήνα τον φόβο πάχυνσης ή την εικόνα σώματος."
+        "explanation": "Nihilistic delusion."
       },
       {
-        "id": "eating_match_006",
-        "prompt": "Επίμονη κατανάλωση μη θρεπτικών/μη τροφικών ουσιών.",
+        "id": "crash_course_match_17_06",
+        "prompt": "'Someone else's thoughts are inside my head.'",
         "correct": [
-          "στ"
+          "A"
         ],
-        "explanation": "Η pica αφορά κατανάλωση μη τροφικών ουσιών."
+        "explanation": "Delusion of control."
       },
       {
-        "id": "eating_match_007",
-        "prompt": "Επαναλαμβανόμενη αναγωγή τροφής, επαναμάσηση ή φτύσιμο χωρίς να εξηγείται από γαστρεντερική νόσο.",
+        "id": "crash_course_match_17_07",
+        "prompt": "Why should the cat indeed bend that carrot tomatoes are red.'",
         "correct": [
-          "ζ"
+          "G"
         ],
-        "explanation": "Η διαταραχή μηρυκασμού αφορά αναγωγή και επαναμάσηση τροφής."
-      },
-      {
-        "id": "eating_match_008",
-        "prompt": "Μεγάλο μέρος της πρόσληψης τροφής μετά το βραδινό ή νυχτερινές αφυπνίσεις με κατανάλωση τροφής.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Το σύνδρομο νυχτερινής πρόσληψης τροφής είναι διαταραγμένο μοτίβο χρονισμού πρόσληψης."
-      },
-      {
-        "id": "eating_match_009",
-        "prompt": "Κλινικά σημαντική διατροφική διαταραχή που δεν πληροί πλήρως κριτήρια συγκεκριμένης κατηγορίας.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Το OSFED καλύπτει κλινικά σημαντικές εικόνες που δεν ταιριάζουν πλήρως σε άλλη κατηγορία."
-      },
-      {
-        "id": "eating_match_010",
-        "prompt": "Μη επίσημη διάγνωση με παθολογική ενασχόληση με «καθαρή» ή υγιεινή διατροφή.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η ορθορεξία είναι χρήσιμος όρος αλλά δεν είναι τυπική DSM διάγνωση όπως οι άλλες."
-      },
-      {
-        "id": "eating_match_011",
-        "prompt": "Διαταραχές όπου η υπερεκτίμηση σχήματος/βάρους είναι συνήθως κεντρική. (3 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "γ"
-        ],
-        "explanation": "Η εικόνα σώματος είναι κεντρική στη νευρική ανορεξία και στη νευρική βουλιμία, όχι στο ARFID."
+        "explanation": "Loosening of associations. See Table 9.1 for explanation."
       }
     ]
   },
   {
-    "id": "child_neurodevelopmental_017",
-    "title": "Παιδοψυχιατρική και νευροαναπτυξιακές διαταραχές",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τη διάγνωση ή τις διαγνώσεις που αντιστοιχούν καλύτερα στο κλινικό μοτίβο.",
+    "id": "crash_course_emq_18",
+    "title": "Crash Course EMQ 18 - Differential diagnosis of elevated or irritable mood",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "ADHD"
+        "id": "A",
+        "label": "Hypomanic episode"
       },
       {
-        "id": "β",
-        "label": "Διαταραχή αυτιστικού φάσματος"
+        "id": "B",
+        "label": "Manic episode without psychotic features"
       },
       {
-        "id": "γ",
-        "label": "Σύνδρομο Tourette"
+        "id": "C",
+        "label": "Manic episode with psychotic features"
       },
       {
-        "id": "δ",
-        "label": "Επίμονη κινητική ή φωνητική διαταραχή τικ"
+        "id": "D",
+        "label": "Mixed affective episode"
       },
       {
-        "id": "ε",
-        "label": "Νοητική αναπτυξιακή διαταραχή"
+        "id": "E",
+        "label": "Bipolar affective disorder Cyclothymia"
       },
       {
-        "id": "στ",
-        "label": "Ειδική μαθησιακή διαταραχή"
+        "id": "F",
+        "label": "yclothymia"
       },
       {
-        "id": "ζ",
-        "label": "Διαταραχή διαγωγής"
+        "id": "G",
+        "label": "Schizophrenia"
       },
       {
-        "id": "η",
-        "label": "Εναντιωματική προκλητική διαταραχή"
+        "id": "H",
+        "label": "Schizoaffective disorder Elevated or irritable mood secondary to a general medical condition"
       },
       {
-        "id": "θ",
-        "label": "Επιλεκτική αλαλία"
+        "id": "J",
+        "label": "Elevated or irritable mood secondary to psychoactive substance use"
       },
       {
-        "id": "ι",
-        "label": "Άγχος αποχωρισμού"
+        "id": "K",
+        "label": "Delirium/dementia"
       }
     ],
     "items": [
       {
-        "id": "child_match_001",
-        "prompt": "Διάχυτη απροσεξία, παρορμητικότητα ή υπερκινητικότητα σε περισσότερα από ένα περιβάλλοντα, με λειτουργική έκπτωση.",
+        "id": "crash_course_match_18_01",
+        "prompt": "A 40-year-old lawyer attends his general practitioner (GP) asking for a medication to reduce his sex drive because his wife is complaining. He is smartly dressed in a new suit and says he feels 'on top of the world'. He has been finding it hard to stay focused at work but so far no one has commented. Fortunately, he is able to stay up late catching up on work without feeling tired the next day. He denies any drug or alcohol use.",
         "correct": [
-          "α"
+          "A"
         ],
-        "explanation": "Το ADHD απαιτεί συμπτώματα σε πολλαπλά πλαίσια και λειτουργική επίπτωση."
+        "explanation": "elated mood with a decreased need for sleep, poor concentration, increased energy, increased recent expenditure and increased libido. It is interfering with his social and occupational functioning, but these activities are not completely disrupted.We are not given information on past mood abnormalities, so the diagnosis of bipolar affective disorder is not appropriate."
       },
       {
-        "id": "child_match_002",
-        "prompt": "Ελλείμματα κοινωνικής επικοινωνίας μαζί με περιορισμένα/επαναλαμβανόμενα ενδιαφέροντα ή συμπεριφορές.",
+        "id": "crash_course_match_18_02",
+        "prompt": "A 22-year-old trainee electrician is brought to Accident and emergency by the police after he was found breaking into an electronics shop. He states he needed the parts for a new jetpack he is designing- he plans to start a new business with it which will “revolutionize transatlantic flight'. He has resigned from his apprenticeship in order to spend more time on this venture. He is irritable with the male police officer but flirtatious towards thefemale police officer. He denies drug or alcohol use.",
         "correct": [
-          "β"
+          "C"
         ],
-        "explanation": "Αυτοί είναι οι δύο βασικοί άξονες της διαταραχής αυτιστικού φάσματος."
+        "explanation": "Manic episode with psychotic features. This man has irritable mood, sexual disinhibition and grandiose delusions which have led him to commit an offence and quit his career. Schizophrenia is made less likely by the presence of mood symptoms and disinhibition. It would be important to check a urine drug screen to exclude mania secondary to psychoactive substance use. We are not given information on past mood abnormalities, so the diagnosis of bipolar affective disorder is not appropriate."
       },
       {
-        "id": "child_match_003",
-        "prompt": "Πολλαπλά κινητικά τικ και τουλάχιστον ένα φωνητικό τικ για πάνω από ένα έτος.",
+        "id": "crash_course_match_18_03",
+        "prompt": "A 37-year-old man with a history of bipolar disorder was admitted to a psychiatric ward one day ago. The nurses tell you he has been very elated and disinhibited so far today. When you interview him he seems low and tearful, but as the interview progresses he gets very irritable and starts to speak too quickly for you to ask him any more questions.",
         "correct": [
-          "γ"
+          "D"
         ],
-        "explanation": "Το Tourette απαιτεί κινητικά και φωνητικά τικ με χρονιότητα."
+        "explanation": "Mixed affective episode. This man shows rapid changes between an elated, low and irritable mood within 24 hours."
       },
       {
-        "id": "child_match_004",
-        "prompt": "Μόνο κινητικά ή μόνο φωνητικά τικ για πάνω από ένα έτος, όχι και τα δύο.",
+        "id": "crash_course_match_18_04",
+        "prompt": "A 36-year-old secretary attends her GP because she is feeling unusually irritable at work. Sometimes she loves her job and sometimes she hates it, but forces herself to attend. Right now she is also feeling irritable with her family and neighbour. She has noticed her mood has seemed to cycle since her late teens, but it has never stopped her doing anything.",
         "correct": [
-          "δ"
+          "F"
         ],
-        "explanation": "Η επίμονη κινητική ή φωνητική διαταραχή τικ δεν έχει ταυτόχρονα και τις δύο κατηγορίες."
+        "explanation": "Cyclothymia. This woman describes alternating periods of mild elation and mild depression since early adulthood which do not impact on her functioning."
       },
       {
-        "id": "child_match_005",
-        "prompt": "Έκπτωση σε νοητικές και προσαρμοστικές λειτουργίες με έναρξη στην αναπτυξιακή περίοδο.",
+        "id": "crash_course_match_18_05",
+        "prompt": "A 28-year-old doctor suffers from recurrent depressive disorder. He has recently started a stressful new job and his flatmates are worried because he doesn't seem to be eating or sleeping well, despite seeming quite cheerful. He paces the flat at night talking about new operative techniques he is designing. His consultant sent him home from work because he refused to scrub for theatre, stating \"I'm pristine already'. Elevated or irritable mood secondary to a general medical condition or psychoactive substance use",
         "correct": [
-          "ε"
+          "E"
         ],
-        "explanation": "Η νοητική αναπτυξιακή διαταραχή καθορίζεται από νοητική και προσαρμοστική έκπτωση."
-      },
-      {
-        "id": "child_match_006",
-        "prompt": "Επίμονη δυσκολία ανάγνωσης, γραφής ή μαθηματικών παρά επαρκή ευκαιρία μάθησης.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η ειδική μαθησιακή διαταραχή αφορά συγκεκριμένο ακαδημαϊκό τομέα."
-      },
-      {
-        "id": "child_match_007",
-        "prompt": "Επαναλαμβανόμενη παραβίαση δικαιωμάτων άλλων ή σοβαρών κοινωνικών κανόνων, όπως επιθετικότητα, κλοπή ή καταστροφή περιουσίας.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η διαταραχή διαγωγής ξεπερνά την απλή αντιδραστικότητα και περιλαμβάνει παραβίαση δικαιωμάτων/κανόνων."
-      },
-      {
-        "id": "child_match_008",
-        "prompt": "Θυμός, αντιδραστικότητα, διαφωνία με ενήλικες και εκδικητικότητα χωρίς σοβαρή παραβίαση δικαιωμάτων άλλων.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η εναντιωματική προκλητική διαταραχή είναι λιγότερο σοβαρή από τη διαταραχή διαγωγής."
-      },
-      {
-        "id": "child_match_009",
-        "prompt": "Μιλά κανονικά στο σπίτι, αλλά δεν μιλά στο σχολείο ή σε συγκεκριμένα κοινωνικά πλαίσια.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η επιλεκτική αλαλία είναι αγχώδης αποτυχία ομιλίας σε συγκεκριμένα πλαίσια."
-      },
-      {
-        "id": "child_match_010",
-        "prompt": "Υπερβολικός φόβος αποχωρισμού από πρόσωπα προσκόλλησης, με σχολική άρνηση ή σωματικά παράπονα.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Το άγχος αποχωρισμού οργανώνεται γύρω από τον φόβο απώλειας/απομάκρυνσης από πρόσωπα προσκόλλησης."
-      },
-      {
-        "id": "child_match_011",
-        "prompt": "Καταστάσεις όπου μπορεί να φαίνονται κοινωνικές δυσκολίες ή κοινωνική απόσυρση, αλλά για διαφορετικό μηχανισμό από το πρωτογενές κοινωνικοεπικοινωνιακό έλλειμμα του αυτισμού. (3 σωστά)",
-        "correct": [
-          "β",
-          "θ",
-          "ι"
-        ],
-        "explanation": "ASD, επιλεκτική αλαλία και άγχος αποχωρισμού μπορούν να εμφανίζονται κοινωνικά, αλλά έχουν διαφορετική αιτιολογική/φαινομενολογική λογική."
+        "explanation": "Bipolar affective disorder. Current episode mania with psychotic features. This man has a history of depression and now presents with reduced sleep,reducedappetite,psychomotor agitation and a grandiose delusion which has resulted in marked disruption to his occupational function. Elevated or irritable mood secondary to a general medical condition or psychoactive substance use"
       }
     ]
   },
   {
-    "id": "psychotherapy_schools_018",
-    "title": "Ψυχοθεραπείες - σχολές, τεχνικές και πυρηνικές έννοιες",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε την ψυχοθεραπευτική προσέγγιση ή τις προσεγγίσεις που ταιριάζουν καλύτερα με κάθε έννοια ή τεχνική.",
+    "id": "crash_course_emq_19",
+    "title": "Crash Course EMQ 19 - Elevated or irritable mood secondary to a general medical condition or psychoactive substance use",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "CBT"
+        "id": "A",
+        "label": "Huntington disease"
       },
       {
-        "id": "β",
-        "label": "DBT"
+        "id": "B",
+        "label": "Multiple sclerosis"
       },
       {
-        "id": "γ",
-        "label": "ACT"
+        "id": "C",
+        "label": "Parkinson disease"
       },
       {
-        "id": "δ",
-        "label": "Ψυχοδυναμική θεραπεία"
+        "id": "D",
+        "label": "Cerebral tumour"
       },
       {
-        "id": "ε",
-        "label": "Διαπροσωπική θεραπεία"
+        "id": "E",
+        "label": "Cushing disease Hypothyroidism"
       },
       {
-        "id": "στ",
-        "label": "Κινητοποιητική συνέντευξη"
+        "id": "G",
+        "label": "Hyperthyroidism"
       },
       {
-        "id": "ζ",
-        "label": "Οικογενειακή θεραπεία"
+        "id": "H",
+        "label": "Anabolic steroids Corticosteroids"
       },
       {
-        "id": "η",
-        "label": "Έκθεση/ERP"
+        "id": "I",
+        "label": "orticosteroids"
       },
       {
-        "id": "θ",
-        "label": "Συμπεριφορική ενεργοποίηση"
+        "id": "J",
+        "label": "L-dopa Cocaine"
       },
       {
-        "id": "ι",
-        "label": "Schema therapy"
-      },
-      {
-        "id": "κ",
-        "label": "IFS"
+        "id": "L",
+        "label": "Amphetamine"
       }
     ],
     "items": [
       {
-        "id": "psychotherapy_match_001",
-        "prompt": "Αυτόματες σκέψεις, γνωσιακές διαστρεβλώσεις, συμπεριφορικά πειράματα και γνωσιακή αναδόμηση.",
+        "id": "crash_course_match_19_01",
+        "prompt": "A 66-year-old man with a shuffling gait and reduced facial expression has recently had a medication increase. Now he is elated, spends all his time playing online poker and asked his wife where all the monkeys in the kitchen had come from.",
         "correct": [
-          "α"
+          "J"
         ],
-        "explanation": "Αυτές είναι κεντρικές έννοιες της CBT."
+        "explanation": "L-dopa. This man probably has Parkinson disease and is likely to be treated with dopaminergic agents such as L-dopa, a precursor to dopamine. Excess dopamine is associated with euphoria, psychosis and a reduction in impulse control. Note it is the treatment rather than Parkinson's disease itself which is associated with these symptoms."
       },
       {
-        "id": "psychotherapy_match_002",
-        "prompt": "Chain analysis, δεξιότητες ενσυνειδητότητας, distress tolerance, emotion regulation και interpersonal effectiveness.",
+        "id": "crash_course_match_19_02",
+        "prompt": "A 22-year-old student is brought to accident and emergency (A&E) by his friends from a party because he tried to fly off the roof. He is adamant he is Superman. He admits to having swallowed a pill earlier. On examination he is restless with dilated pupils.",
         "correct": [
-          "β"
+          "L"
         ],
-        "explanation": "Η DBT οργανώνεται γύρω από ανάλυση αλυσίδας και δεξιότητες ρύθμισης."
+        "explanation": "Amphetamine.Amphetamineintoxication can be associated with an acute psychosis. It is a sympathomimetic and so associated with dilated pupils.Cocaine can have similar effects but is normally smoked or snorted."
       },
       {
-        "id": "psychotherapy_match_003",
-        "prompt": "Αποδοχή, γνωσιακή αποσύντηξη, αξίες και committed action.",
+        "id": "crash_course_match_19_03",
+        "prompt": "A 28-year-old bodybuilder has recently become convinced he will win the next world championship. He is irritable with his girlfriend whenever she queries this. He is also hypersexual and forgetful and has been reprimanded at work.",
         "correct": [
-          "γ"
+          "H"
         ],
-        "explanation": "Αυτά είναι κεντρικά στοιχεία της ACT."
+        "explanation": "Anabolic steroids. These are commonly used by bodybuilders to increase muscle bulk but can be associated with changes in mood, arousal and cognition."
       },
       {
-        "id": "psychotherapy_match_004",
-        "prompt": "Μεταβίβαση, αντιμεταβίβαση, άμυνες και ασυνείδητες συγκρούσεις.",
+        "id": "crash_course_match_19_04",
+        "prompt": "A 62-year-old woman is an inpatient on an acute medical ward following a severe asthma exacerbation. The nurses notice she seems irritable and suspicious and keeps asking for a single room 'as befits someone of my status'. Her daughter says this is a complete change from normal.",
         "correct": [
-          "δ"
+          "I"
         ],
-        "explanation": "Η ψυχοδυναμική θεραπεία εργάζεται με μεταβίβαση, άμυνες και ασυνείδητη σύγκρουση."
+        "explanation": "Corticosteroids. High dose corticosteroids are often prescribed for severe acute asthma. Mood changes and psychosis are common psychiatric complications of steroid use."
       },
       {
-        "id": "psychotherapy_match_005",
-        "prompt": "Πένθος, role transitions, interpersonal disputes και interpersonal deficits ως θεραπευτικοί άξονες.",
+        "id": "crash_course_match_19_05",
+        "prompt": "A 45-year-old woman presents to A&E with palpitations. When not seen immediately she becomes extremely irritated and starts pacing in the waiting room. On examination she has a tremor, pupils are normal and electrocardiogram (ECG) shows sinus tachycardia. She shouts at the ECG technician for not being gentle enough when she removes the electrodes. Mental state examination in elevated or irritable mood",
         "correct": [
-          "ε"
+          "G"
         ],
-        "explanation": "Η διαπροσωπική θεραπεία οργανώνει τη θεραπεία γύρω από διαπροσωπικές προβληματικές περιοχές."
-      },
-      {
-        "id": "psychotherapy_match_006",
-        "prompt": "Αμφιθυμία, change talk, rolling with resistance και ενίσχυση αυτο-αποτελεσματικότητας.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η κινητοποιητική συνέντευξη στοχεύει στην κινητοποίηση αλλαγής χωρίς αντιπαράθεση."
-      },
-      {
-        "id": "psychotherapy_match_007",
-        "prompt": "Εκφραζόμενο συναίσθημα, οικογενειακά μοτίβα επικοινωνίας και συστημική διατύπωση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η οικογενειακή/συστημική εργασία βλέπει το σύμπτωμα μέσα στο διαπροσωπικό σύστημα."
-      },
-      {
-        "id": "psychotherapy_match_008",
-        "prompt": "Σταδιακή επαφή με φοβικό ερέθισμα ή ιδεοληψία χωρίς τελετουργική απάντηση.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η έκθεση με παρεμπόδιση απάντησης είναι κεντρική στο OCD και σε φοβικά/αγχώδη πρωτόκολλα."
-      },
-      {
-        "id": "psychotherapy_match_009",
-        "prompt": "Προγραμματισμός δραστηριοτήτων, παρακολούθηση διάθεσης και επανασύνδεση με ενισχυτικές συμπεριφορές.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η συμπεριφορική ενεργοποίηση στοχεύει τη σχέση αποφυγής, δραστηριότητας και διάθεσης."
-      },
-      {
-        "id": "psychotherapy_match_010",
-        "prompt": "Πρώιμα δυσλειτουργικά σχήματα, modes και limited reparenting.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Αυτές είναι κεντρικές έννοιες της Schema therapy."
-      },
-      {
-        "id": "psychotherapy_match_011",
-        "prompt": "Εσωτερικά μέρη, προστατευτικά μέρη, εξόριστα μέρη και Self-led θεραπευτική στάση.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Το IFS δουλεύει με εσωτερικά μέρη και την ηγεσία του Self."
-      },
-      {
-        "id": "psychotherapy_match_012",
-        "prompt": "Θεραπείες από τη λίστα όπου η ενεργός συμπεριφορική αλλαγή ή/και η έκθεση μπορεί να αποτελούν ουσιώδες θεραπευτικό συστατικό, και όχι μόνο διερευνητική συζήτηση. (5 σωστά)",
-        "correct": [
-          "α",
-          "β",
-          "γ",
-          "η",
-          "θ"
-        ],
-        "explanation": "CBT, DBT, ACT, ERP και συμπεριφορική ενεργοποίηση έχουν ισχυρή συμπεριφορική/βιωματική συνιστώσα."
+        "explanation": "Hyperthyroidism. This is suggested by tremor, tachycardia and irritability. Substance use is an important differential although her normal pupils make use of a stimulant less likely. Mental state examination in elevated or irritable mood"
       }
     ]
   },
   {
-    "id": "risk_assessment_domains_019",
-    "title": "Εκτίμηση κινδύνου - παράγοντες και κλινική προτεραιότητα",
-    "source": "Generated matching set",
-    "instructions": "Επιλέξτε τους παράγοντες που ταιριάζουν καλύτερα με κάθε είδος κινδύνου ή κλινικό σενάριο. Οι περισσότερες περιγραφές έχουν περισσότερες από μία σωστές επιλογές.",
+    "id": "crash_course_emq_20",
+    "title": "Crash Course EMQ 20 - Mental state examination in elevated or irritable mood",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Lead in: For each of the following patients, select ONE clinical feature described from the list of options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Προηγούμενη απόπειρα αυτοκτονίας"
+        "id": "A",
+        "label": "Pressured speech"
       },
       {
-        "id": "β",
-        "label": "Πρόσβαση σε θανατηφόρα μέσα"
+        "id": "B",
+        "label": "Flight of ideas"
       },
       {
-        "id": "γ",
-        "label": "Απελπισία"
+        "id": "C",
+        "label": "Tangential thinking"
       },
       {
-        "id": "δ",
-        "label": "Οξεία μέθη/χρήση ουσιών"
+        "id": "D",
+        "label": "Poor concentration"
       },
       {
-        "id": "ε",
-        "label": "Εντολές από φωνές"
+        "id": "E",
+        "label": "Psychomotor retardation"
       },
       {
-        "id": "στ",
-        "label": "Διωκτικές παραληρητικές ιδέες"
+        "id": "F",
+        "label": "Psychomotor agitation"
       },
       {
-        "id": "ζ",
-        "label": "Μη συμμόρφωση με αγωγή"
+        "id": "G",
+        "label": "Hyperacusis"
       },
       {
-        "id": "η",
-        "label": "Πρόσφατο εξιτήριο"
+        "id": "H",
+        "label": "Visual hyperaesthesia Auditory hallucination"
       },
       {
-        "id": "θ",
-        "label": "Κοινωνική απομόνωση"
-      },
-      {
-        "id": "ι",
-        "label": "Παρορμητικότητα"
-      },
-      {
-        "id": "κ",
-        "label": "Ιστορικό βίας"
-      },
-      {
-        "id": "λ",
-        "label": "Σοβαρή αυτοπαραμέληση"
+        "id": "J",
+        "label": "Visual hallucination"
       }
     ],
     "items": [
       {
-        "id": "risk_match_001",
-        "prompt": "Σημαντικοί παράγοντες που μπαίνουν στον πυρήνα της συνολικής διατύπωσης αυτοκτονικού κινδύνου, ακόμη και αν δεν έχουν όλοι την ίδια άμεση βραχυπρόθεσμη βαρύτητα. (6 σωστά)",
+        "id": "crash_course_match_20_01",
+        "prompt": "There are no natural breaks in the conversation and it is impossible to interrupt the patient without speaking over them.",
         "correct": [
-          "α",
-          "β",
-          "γ",
-          "δ",
-          "θ",
-          "ι"
+          "A"
         ],
-        "explanation": "Προηγούμενη απόπειρα, μέσα, απελπισία, ουσίες, απομόνωση και παρορμητικότητα αυξάνουν κλινικά τον κίνδυνο."
+        "explanation": "Pressured speech."
       },
       {
-        "id": "risk_match_002",
-        "prompt": "Παράγοντες που αυξάνουν κίνδυνο βίας σε ψυχωτικό ασθενή, ειδικά όταν συνδυάζονται με ουσίες ή ιστορικό. (4 σωστά)",
+        "id": "crash_course_match_20_02",
+        "prompt": "The patient comments she has never seen a blue as blue as the nurse's uniform before.",
         "correct": [
-          "δ",
-          "ε",
-          "στ",
-          "κ"
+          "H"
         ],
-        "explanation": "Ουσίες, εντολές από φωνές, διωκτικότητα και ιστορικό βίας είναι σημαντικοί δείκτες για βίαιο κίνδυνο."
+        "explanation": "Visual hyperaesthesia. This is an increased intensity of perception."
       },
       {
-        "id": "risk_match_003",
-        "prompt": "Παράγοντες που κάνουν πιο επισφαλές το transition μετά από νοσηλεία και αυξάνουν κίνδυνο ταχείας υποτροπής ή επανεισαγωγής. (4 σωστά)",
+        "id": "crash_course_match_20_03",
+        "prompt": "The patient speaks normally and initially starts to answer a question but quickly diverts onto related but unimportant topics.",
         "correct": [
-          "ζ",
-          "η",
-          "θ",
-          "δ"
+          "C"
         ],
-        "explanation": "Μη συμμόρφωση, πρόσφατο εξιτήριο, απομόνωση και ουσίες συνδέονται με υποτροπή."
+        "explanation": "Tangential thinking."
       },
       {
-        "id": "risk_match_004",
-        "prompt": "Παράγοντες που αυξάνουν άμεσα την πρακτική επικινδυνότητα σήμερα και συχνά απαιτούν safety planning, επίβλεψη ή μείωση πρόσβασης σε κίνδυνο. (3 σωστά)",
+        "id": "crash_course_match_20_04",
+        "prompt": "The patient speaks rapidly and initially starts to answer a question but very rapidly diverts onto lots of other topics. It is very confusing to listen to but in retrospect there are links between the topics. Some of the links were rhyming words.",
         "correct": [
-          "β",
-          "δ",
-          "ι"
+          "B"
         ],
-        "explanation": "Η πρόσβαση σε μέσα, η μέθη και η παρορμητικότητα αυξάνουν τον άμεσο κίνδυνο συμπεριφορικής εκφόρτισης."
+        "explanation": "Flight of ideas."
       },
       {
-        "id": "risk_match_005",
-        "prompt": "Παράγοντες που είναι ιδιαίτερα σχετικοί με κίνδυνο αυτοπαραμέλησης. (3 σωστά)",
+        "id": "crash_course_match_20_05",
+        "prompt": "The patient is trying to complete serial 7s but keeps being distracted by the noise of hoovering.",
         "correct": [
-          "ζ",
-          "θ",
-          "λ"
+          "D"
         ],
-        "explanation": "Μη συμμόρφωση, απομόνωση και ήδη σοβαρή αυτοπαραμέληση δείχνουν λειτουργικό κίνδυνο."
+        "explanation": "Poor concentration (or distractibility)."
       },
       {
-        "id": "risk_match_006",
-        "prompt": "Παράγοντας που συχνά έχει μεγαλύτερη προγνωστική αξία από μια αφηρημένη δήλωση ιδεασμού.",
+        "id": "crash_course_match_20_06",
+        "prompt": "The patient comments there is a beautiful blue bird in the corner of the room, but no one else can see anything there.",
         "correct": [
-          "α"
+          "J"
         ],
-        "explanation": "Το ιστορικό προηγούμενης απόπειρας είναι από τους σημαντικότερους παράγοντες μελλοντικού κινδύνου."
-      },
-      {
-        "id": "risk_match_007",
-        "prompt": "Ασθενής με κατάθλιψη λέει ότι δεν βλέπει κανένα μέλλον και έχει αγοράσει μεγάλη ποσότητα φαρμάκων. (2 σωστά)",
-        "correct": [
-          "β",
-          "γ"
-        ],
-        "explanation": "Απελπισία και πρόσβαση σε μέσα κάνουν την εκτίμηση άμεση και συγκεκριμένη."
-      },
-      {
-        "id": "risk_match_008",
-        "prompt": "Ασθενής με ψύχωση πιστεύει ότι ο γείτονας θα τον σκοτώσει και ακούει φωνή που του λέει να επιτεθεί πρώτος. (2 σωστά)",
-        "correct": [
-          "ε",
-          "στ"
-        ],
-        "explanation": "Ο συνδυασμός διωκτικότητας και προστακτικών φωνών είναι κλινικά σημαντικός για κίνδυνο βίας."
-      },
-      {
-        "id": "risk_match_009",
-        "prompt": "Κίνδυνος που δεν πρέπει να εκτιμάται μόνο με τη φράση «έχει ή δεν έχει ιδεασμό», αλλά με μέσα, πρόθεση, παρορμητικότητα, ουσίες και προστατευτικούς παράγοντες. (3 σωστά)",
-        "correct": [
-          "β",
-          "δ",
-          "ι"
-        ],
-        "explanation": "Η απλή παρουσία ιδεασμού δεν αρκεί· η άμεση επικινδυνότητα εξαρτάται από μέσα, κατάσταση και έλεγχο παρορμήσεων."
-      },
-      {
-        "id": "risk_match_010",
-        "prompt": "Κοινωνικοί/μεταβατικοί παράγοντες που απαιτούν προσεκτικό follow-up plan. (2 σωστά)",
-        "correct": [
-          "η",
-          "θ"
-        ],
-        "explanation": "Το πρόσφατο εξιτήριο και η απομόνωση είναι συχνά κρίσιμα σημεία για σχέδιο παρακολούθησης."
+        "explanation": "Visual hallucination. A perception in the absence of a stimulus."
       }
     ]
   },
   {
-    "id": "psychiatry_history_figures_020",
-    "title": "Ιστορία ψυχιατρικής και ψυχοθεραπείας - πρόσωπα και συνεισφορές",
-    "source": "Generated matching set",
-    "instructions": "Ταιριάξτε κάθε συνεισφορά με το πρόσωπο που συνδέεται πιο κλασικά με αυτή. Ορισμένες έννοιες μπορεί να έχουν ιστορικές αποχρώσεις, αλλά ζητείται η εξεταστικά πιο αναγνωρίσιμη αντιστοίχιση.",
+    "id": "crash_course_emq_21",
+    "title": "Crash Course EMQ 21 - Differential diagnosis of low mood",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Emil Kraepelin"
+        "id": "A",
+        "label": "Mild depressive episode"
       },
       {
-        "id": "β",
-        "label": "Eugen Bleuler"
+        "id": "B",
+        "label": "Moderate depressive episode"
       },
       {
-        "id": "γ",
-        "label": "Sigmund Freud"
+        "id": "C",
+        "label": "Severe depressive episode without psychotic features Severe depressive episode with psychotic features"
       },
       {
-        "id": "δ",
-        "label": "Carl Jung"
+        "id": "D",
+        "label": "S"
       },
       {
-        "id": "ε",
-        "label": "Aaron Beck"
+        "id": "E",
+        "label": "Recurrent depressive episode"
       },
       {
-        "id": "στ",
-        "label": "Albert Ellis"
+        "id": "F",
+        "label": "Dysthymia"
       },
       {
-        "id": "ζ",
-        "label": "Marsha Linehan"
+        "id": "G",
+        "label": "Bipolar affective disorder"
       },
       {
-        "id": "η",
-        "label": "Jacob Moreno"
+        "id": "H",
+        "label": "Schizoaffective disorder"
       },
       {
-        "id": "θ",
-        "label": "John Bowlby"
+        "id": "I",
+        "label": "Low mood secondary to a general medical condition"
       },
       {
-        "id": "ι",
-        "label": "B. F. Skinner"
-      },
-      {
-        "id": "κ",
-        "label": "Ivan Pavlov"
-      },
-      {
-        "id": "λ",
-        "label": "Jean-Martin Charcot"
+        "id": "J",
+        "label": "Low mood secondary to psychoactive substance use"
       }
     ],
     "items": [
       {
-        "id": "history_match_001",
-        "prompt": "Dementia praecox και διάκριση από manic-depressive illness.",
+        "id": "crash_course_match_21_01",
+        "prompt": "A 40-year-old man feels he has been depressed for 20 years. He cannot recall a lengthy period of normal mood since his early adulthood. Despite this, he is able to work as a supermarket manager, has a loving relationship with his wife and reports that he quite enjoyed his last holiday in Tenerife.",
         "correct": [
-          "α"
+          "F"
         ],
-        "explanation": "Ο Kraepelin συνδέεται κλασικά με τη dementia praecox και τη νοσολογική διάκριση από τη μανιοκαταθλιπτική νόσο."
+        "explanation": "Dysthymia. This man describes subsyndromal symptoms of depression which emerged in adulthood and do not significantly interfere with his functioning. The lack of discrete episodes excludes recurrentdepressivedisorder."
       },
       {
-        "id": "history_match_002",
-        "prompt": "Εισαγωγή/καθιέρωση του όρου schizophrenia και έμφαση στα βασικά συμπτώματα.",
+        "id": "crash_course_match_21_02",
+        "prompt": "A 24-year-old waitress has had low mood and lethargy for 3 weeks. She finds it harder than normal to remember her customer's orders. She thinks this is because she has never been an intelligent person. She is eating normally, sleeping well and enjoyed going out to the movies last night.",
         "correct": [
-          "β"
+          "A"
         ],
-        "explanation": "Ο Bleuler εισήγαγε τον όρο schizophrenia και τα «4 A» ως βασικά συμπτώματα."
+        "explanation": "Mild depressive episode. This woman has two out of three of the core symptoms of depression, poor concentration and poor self-esteem. There are no biological symptoms mentioned. She is able to continue her normal activities, meeting criteria for mild depression."
       },
       {
-        "id": "history_match_003",
-        "prompt": "Ψυχανάλυση, ασυνείδητο, μεταβίβαση, όνειρα και δομικό μοντέλο id-ego-superego.",
+        "id": "crash_course_match_21_03",
+        "prompt": "A 71-year-old widowed woman who lives alone is brought to the surgery by her neighbour. The neighbour is shocked because the patient put a rude note through his door telling him to get his drains unblocked in order to get rid of the stench in the street. No one else has noticed a bad smell. Before her husband died the patient used to be very social and visited her neighbours frequently. On examination, she is unkempt and walks very slowly. When you ask her questions, she makes poor eye contact and does not answer for a long time.",
         "correct": [
-          "γ"
+          "D"
         ],
-        "explanation": "Αυτές είναι κλασικές συνδέσεις με τον Freud."
+        "explanation": "Severe depression with psychotic features. This woman has a clear change in functioning from her baseline, psychomotor retardation and what may be olfactory hallucinations of foul smells leading to the secondary delusional belief that her neighbour's drains are clogged. Although her mood is not reported, she is at risk of depression following a bereavement and these hallucinations are typical of severe depression."
       },
       {
-        "id": "history_match_004",
-        "prompt": "Αναλυτική ψυχολογία, συλλογικό ασυνείδητο και αρχέτυπα.",
+        "id": "crash_course_match_21_04",
+        "prompt": "A 35-year-old cashier presents to his general practitioner asking for a sick line. He feels he cannot continue at work because for the last month he has been low in mood and finds himself becoming easily tired during his shifts. He is not enjoying talking with his colleagues as much as he used to. He finds himself wakening at 5 a.m. (he normally rises at 8 a.m.) and lies in bed worrying about the day ahead. His mood is a bit better in the evenings. He has been eating poorly and lost a stone in weight over the last month.",
         "correct": [
-          "δ"
+          "B"
         ],
-        "explanation": "Ο Jung συνδέεται με την αναλυτική ψυχολογία και τα αρχέτυπα."
+        "explanation": "Moderate depression. This man has the three core symptoms of depression and two further symptoms (disturbed sleep and appetite). He is having great difficulty continuing his normal activities, meeting criteria for moderate depression."
       },
       {
-        "id": "history_match_005",
-        "prompt": "Γνωσιακή θεραπεία της κατάθλιψης και γνωσιακή τριάδα.",
+        "id": "crash_course_match_21_05",
+        "prompt": "A 42-year-old construction worker reports intermittent low mood. Sometimes he is so low he is unable to go to work. On closer questioning it seems it is mainly Mondays he misses, and the weekends he feels low. The problem has come on over the last year, when he has been binge-drinking at the weekends after his wife left him. On weekends when he looks after his daughter he does not drink and feels fine. Low mood secondary to a general medical condition",
         "correct": [
-          "ε"
+          "J"
         ],
-        "explanation": "Ο Beck είναι κεντρικό πρόσωπο της γνωσιακής θεραπείας."
-      },
-      {
-        "id": "history_match_006",
-        "prompt": "Rational Emotive Behavior Therapy και ABC μοντέλο.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Ο Ellis ανέπτυξε την REBT και το ABC μοντέλο."
-      },
-      {
-        "id": "history_match_007",
-        "prompt": "Dialectical Behavior Therapy για χρόνια αυτοκαταστροφικότητα/οριακή προσωπικότητα.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η Linehan ανέπτυξε την DBT."
-      },
-      {
-        "id": "history_match_008",
-        "prompt": "Ψυχόδραμα και κοινωνιομετρία.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Ο Moreno συνδέεται με το ψυχόδραμα και την κοινωνιομετρία."
-      },
-      {
-        "id": "history_match_009",
-        "prompt": "Θεωρία προσκόλλησης.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Ο Bowlby είναι το κεντρικό όνομα στη θεωρία προσκόλλησης."
-      },
-      {
-        "id": "history_match_010",
-        "prompt": "Συντελεστική μάθηση και operant conditioning.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Ο Skinner συνδέεται με το operant conditioning."
-      },
-      {
-        "id": "history_match_011",
-        "prompt": "Κλασική εξαρτημένη μάθηση με το γνωστό πείραμα σκύλων.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Ο Pavlov συνδέεται με την κλασική εξαρτημένη μάθηση."
-      },
-      {
-        "id": "history_match_012",
-        "prompt": "Υστερία, ύπνωση και νευρολογική/ψυχιατρική διδασκαλία στο Salpêtrière.",
-        "correct": [
-          "λ"
-        ],
-        "explanation": "Ο Charcot συνδέεται ιστορικά με την ύπνωση, την υστερία και το Salpêtrière."
-      },
-      {
-        "id": "history_match_013",
-        "prompt": "Κλασικά ονόματα που συνδέονται με συμπεριφορική μάθηση. (2 σωστά)",
-        "correct": [
-          "ι",
-          "κ"
-        ],
-        "explanation": "Skinner και Pavlov είναι οι βασικές εξεταστικές φιγούρες για operant και classical conditioning."
+        "explanation": "Low mood secondary to psychoactive substance use. This would normally be diagnosed as harmful use of alcohol (see Chapter 20). This man gives a clear history of low mood following alcohol excess. This is impacting upon his mental health and occupational functioning.He is easily able to abstain from drink, indicating he is not dependent. Low mood secondary to a general medical condition"
       }
     ]
   },
   {
-    "id": "toxidrome_recognition_021",
-    "title": "Αντιστοίχηση - τοξικά σύνδρομα και σοβαρές ανεπιθύμητες ενέργειες",
-    "source": "Generated matching set",
-    "instructions": "Αντιστοιχίστε κάθε σύντομο κλινικό σενάριο με τη σωστότερη διάγνωση. Κάθε επιλογή χρησιμοποιείται μία φορά.",
+    "id": "crash_course_emq_22",
+    "title": "Crash Course EMQ 22 - On weekends when he looks after his daughter he does not drink and feels fine. Low mood secondary to a general medical condition",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE key diagnosis to exclude from the list above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Οξεία δυστονική αντίδραση"
+        "id": "A",
+        "label": "Huntington disease"
       },
       {
-        "id": "β",
-        "label": "Κακόηθες νευροληπτικό σύνδρομο"
+        "id": "B",
+        "label": "Parkinson disease"
       },
       {
-        "id": "γ",
-        "label": "Σύνδρομο σεροτονίνης"
+        "id": "C",
+        "label": "Multiple sclerosis"
       },
       {
-        "id": "δ",
-        "label": "Τοξικότητα λιθίου"
+        "id": "D",
+        "label": "Cerebral tumour"
       },
       {
-        "id": "ε",
-        "label": "Τοξίκωση από οπιοειδή"
+        "id": "E",
+        "label": "Cushing syndrome Addison disease"
       },
       {
-        "id": "στ",
-        "label": "Δηλητηρίαση από παρακεταμόλη"
+        "id": "G",
+        "label": "Conn syndrome"
       },
       {
-        "id": "ζ",
-        "label": "Αντιχολινεργικό τοξίδρομο"
+        "id": "H",
+        "label": "Thrombocytopenia Hypothyroidism"
       },
       {
-        "id": "η",
-        "label": "Συμπαθομιμητικό τοξίδρομο"
+        "id": "I",
+        "label": "Hyperthyroidism"
       },
       {
-        "id": "θ",
-        "label": "Χολινεργικό τοξίδρομο"
-      },
-      {
-        "id": "ι",
-        "label": "Δηλητηρίαση από σαλικυλικά"
-      },
-      {
-        "id": "κ",
-        "label": "Καρδιοτοξικότητα από τρικυκλικά"
-      },
-      {
-        "id": "λ",
-        "label": "Τοξίκωση από φαινκυκλιδίνη (PCP)"
+        "id": "K",
+        "label": "Systemic lupus erythematosus"
       }
     ],
     "items": [
       {
-        "id": "toxidrome_recognition_001",
-        "prompt": "Νεαρός άνδρας λίγες ώρες μετά από αύξηση δόσης αντιψυχωτικού εμφανίζει επώδυνο ραιβόκρανο, βολβοστροφή και τρισμό, με διαύγεια συνείδησης και χωρίς πυρετό.",
+        "id": "crash_course_match_22_01",
+        "prompt": "A 52-year-old care assistant presents to her general practitioner (GP) with a 6-month history of low mood and fatigue. She complains she has put on a lot of weight recently despite no changes in her diet or exercise. On examination she is obese, hypertensive and the blood pressure cuff leaves a bruise.",
         "correct": [
-          "α"
+          "E"
         ],
-        "explanation": "Η οξεία έναρξη επώδυνων μυϊκών σπασμών μετά από αντιψυχωτικό είναι τυπική για οξεία δυστονική αντίδραση."
+        "explanation": "Cushing syndrome is an excess of cortisol. It can present with depression or psychosis. Clinical features include obesity, hypertension and easy bruising."
       },
       {
-        "id": "toxidrome_recognition_002",
-        "prompt": "Άνδρας που ξεκίνησε ισχυρό αντιψυχωτικό πριν από 4 ημέρες παρουσιάζει 39,6°C πυρετό, γενικευμένη δυσκαμψία, σύγχυση και ασταθή αρτηριακή πίεση με διακυμάνσεις σφύξεων.",
+        "id": "crash_course_match_22_02",
+        "prompt": "A 35-year-old traffic warden presents to his GP after he tripped over the curb and banged his knee. He also mentions a 3-month history of low mood. He is not sure why he tripped but has been stumbling more often than he used to and has given up football. He does not drink. He thinks he may have a family historyof depression becausehis fatherwent into a psychiatric hospital in his early 40s and died there 10 years later.",
         "correct": [
-          "β"
+          "A"
         ],
-        "explanation": "Η πρόσφατη έκθεση σε αντιψυχωτικό μαζί με υπερθερμία, σοβαρή δυσκαμψία και αυτόνομη αστάθεια είναι κλασική για κακόηθες νευροληπτικό σύνδρομο."
+        "explanation": "Huntington disease is an autosomal dominant neurodegenerative disorder beginning in the basal ganglia. Depression is often an early symptom. Increased clumsiness and poor coordination can be subtle earlyfeatures of the movement disorder which progresses to marked ataxia with choreiform movements. Huntington disease is not always talked about in families and the description of the patient's father is more typical of the course of Huntington than of depression."
       },
       {
-        "id": "toxidrome_recognition_003",
-        "prompt": "Γυναίκα προσέρχεται με υπερθερμία, διάρροια, έντονη ανησυχία, οφθαλμικό και προκλητό κλόνο και διάχυτη υπεραντανακλαστικότητα.",
+        "id": "crash_course_match_22_03",
+        "prompt": "A 46-year-old florist presents because for the last 2 months she has felt tired all the time and low in mood. She feels ugly, her hair never seems to be glossy anymore and she thinks her skin is dry and flaky. On examination, her pulse is 52 regular.",
         "correct": [
-          "γ"
+          "I"
         ],
-        "explanation": "Ο κλόνος και η υπεραντανακλαστικότητα είναι ιδιαίτερα χρήσιμα στοιχεία υπέρ συνδρόμου σεροτονίνης."
+        "explanation": "Hypothyroidism is suggested by this woman's fatigue, low mood, dry, thin hair, dry skin and bradycardia."
       },
       {
-        "id": "toxidrome_recognition_004",
-        "prompt": "Ασθενής με διπολική διαταραχή και πρόσφατη γαστρεντερίτιδα εμφανίζει αδρό τρόμο, αταξία, δυσαρθρία και σύγχυση.",
+        "id": "crash_course_match_22_04",
+        "prompt": "A 26-year-old veterinary student presents with tingling in her left arm. She becomes tearful during the consultation, admitting she is finding the fourth year of her studies much more difficult than the previous years. You see she attended 3 months ago with a sore eye and blurred vision which resolved spontaneously. Mental state examination in low mood",
         "correct": [
-          "δ"
+          "C"
         ],
-        "explanation": "Η αφυδάτωση αυξάνει τον κίνδυνο τοξικότητας λιθίου, που συχνά εκδηλώνεται με νευρολογικά σημεία όπως αταξία και δυσαρθρία."
-      },
-      {
-        "id": "toxidrome_recognition_005",
-        "prompt": "Άνδρας προσέρχεται στα ΤΕΠ με μύση, βραδύπνοια και βαριά καταστολή επιπέδου συνείδησης.",
-        "correct": [
-          "ε"
-        ],
-        "explanation": "Η τριάδα μύσης, αναπνευστικής καταστολής και μειωμένης συνείδησης είναι τυπική για τοξίκωση από οπιοειδή."
-      },
-      {
-        "id": "toxidrome_recognition_006",
-        "prompt": "Νεαρή γυναίκα 6 ώρες μετά από απόπειρα αυτοδηλητηρίασης με κοινό αναλγητικό του σπιτιού είναι σχεδόν ασυμπτωματική, με μόνο ήπια ναυτία και αρχικά φυσιολογικές τρανσαμινάσες.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η πρώιμη κλινική εικόνα στη δηλητηρίαση από παρακεταμόλη μπορεί να είναι φτωχή, χωρίς αυτό να μειώνει τον κίνδυνο καθυστερημένης ηπατοτοξικότητας."
-      },
-      {
-        "id": "toxidrome_recognition_007",
-        "prompt": "Ασθενής μετά από λήψη άγνωστων δισκίων εμφανίζει θερμό και ξηρό δέρμα, μυδρίαση, κατακράτηση ούρων, μειωμένους εντερικούς ήχους και παραληρητική σύγχυση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Το ξηρό δέρμα, η κατακράτηση ούρων και το παραλήρημα με μυδρίαση είναι συμβατά με αντιχολινεργικό τοξίδρομο."
-      },
-      {
-        "id": "toxidrome_recognition_008",
-        "prompt": "Νεαρός προσέρχεται με έντονη διέγερση, υπέρταση, ταχυκαρδία, μυδρίαση, υπερθερμία, θωρακικό άλγος και έντονη εφίδρωση.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Η αυτόνομη διέγερση με έντονη εφίδρωση και ψυχοκινητική ενεργοποίηση παραπέμπει σε συμπαθομιμητικό τοξίδρομο."
-      },
-      {
-        "id": "toxidrome_recognition_009",
-        "prompt": "Αγρότης μετά από ψεκασμό θερμοκηπίου παρουσιάζει μύση, βρογχόρροια, βραδυκαρδία, διάρροια και μυϊκές δεσμιδώσεις.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Η εικόνα υπερέκκρισης, μύσης και δεσμιδώσεων μετά από έκθεση σε οργανοφωσφορικό παράγοντα είναι τυπική για χολινεργικό τοξίδρομο."
-      },
-      {
-        "id": "toxidrome_recognition_010",
-        "prompt": "Έφηβος μετά από λήψη άγνωστου αναλγητικού αναφέρει εμβοές και εμφανίζει ταχύπνοια με μικτή αναπνευστική αλκάλωση και μεταβολική οξέωση.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Οι εμβοές και η μικτή οξεοβασική διαταραχή είναι κλασικά στοιχεία δηλητηρίασης από σαλικυλικά."
-      },
-      {
-        "id": "toxidrome_recognition_011",
-        "prompt": "Άνδρας βρέθηκε υπνηλικός δίπλα σε άδειο κουτί παλαιού αντικαταθλιπτικού· εμφανίζει υπόταση, ξηροστομία και ευρύ QRS στο ΗΚΓ.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Το ευρύ QRS μετά από λήψη τρικυκλικού είναι βασικό σημείο καρδιοτοξικότητας από αποκλεισμό διαύλων νατρίου."
-      },
-      {
-        "id": "toxidrome_recognition_012",
-        "prompt": "Νεαρός με οριζόντιο και κάθετο νυσταγμό, έντονη διέγερση, αναλγησία και επεισόδια βίαιης συμπεριφοράς μετά από χρήση ψυχοδραστικής ουσίας.",
-        "correct": [
-          "λ"
-        ],
-        "explanation": "Ο οριζόντιος ή κάθετος νυσταγμός μαζί με αποσυνδετικά στοιχεία, αναλγησία και διέγερση είναι χαρακτηριστικός για τοξίκωση από φαινκυκλιδίνη."
+        "explanation": "Multiple sclerosis would be an important differential. This is suggested by her two neurological symptoms separated in time and place. Depression is common in multiple sclerosis. Mental state examination in low mood"
       }
     ]
   },
   {
-    "id": "toxidrome_management_022",
-    "title": "Αντιστοίχηση - αρχική αντιμετώπιση τοξικών συνδρόμων και σοβαρών ανεπιθύμητων ενεργειών",
-    "source": "Generated matching set",
-    "instructions": "Αντιστοιχίστε κάθε κλινικό σενάριο με την καταλληλότερη αρχική αντιμετώπιση. Κάθε επιλογή χρησιμοποιείται μία φορά.",
+    "id": "crash_course_emq_23",
+    "title": "Crash Course EMQ 23 - You see she attended 3 months ago with a sore eye and blurred vision which resolved spontaneously. Mental state examination in low mood",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select ONE clinical feature described from the list of options above.",
     "choices": [
       {
-        "id": "α",
-        "label": "Παρεντερική βιπεριδένη"
+        "id": "A",
+        "label": "Poor self-care"
       },
       {
-        "id": "β",
-        "label": "Διακοπή του αντιψυχωτικού και επιθετική υποστηρικτική αγωγή"
+        "id": "B",
+        "label": "Malingering"
       },
       {
-        "id": "γ",
-        "label": "Διακοπή των σεροτονινεργικών, βενζοδιαζεπίνη και υποστηρικτική αγωγή"
+        "id": "C",
+        "label": "Reduced range of reactivity"
       },
       {
-        "id": "δ",
-        "label": "Διακοπή λιθίου, ενυδάτωση και εκτίμηση για αιμοκάθαρση"
+        "id": "D",
+        "label": "Incongruous affect"
       },
       {
-        "id": "ε",
-        "label": "Εξασφάλιση αεραγωγού και ναλοξόνη"
+        "id": "E",
+        "label": "Low mood Psychomotor retardation"
       },
       {
-        "id": "στ",
-        "label": "Επίπεδο παρακεταμόλης ορού και Ν-ακετυλοκυστεΐνη"
+        "id": "G",
+        "label": "Psychomotor agitation"
       },
       {
-        "id": "ζ",
-        "label": "Υποστηρικτική αγωγή, ψύξη και καθετηριασμός εφόσον χρειάζεται"
+        "id": "H",
+        "label": "Marche a petits pas"
       },
       {
-        "id": "η",
-        "label": "Βενζοδιαζεπίνη, υγρά και ενεργός ψύξη"
+        "id": "I",
+        "label": "Negative cognition"
       },
       {
-        "id": "θ",
-        "label": "Ατροπίνη, πραλιδοξίμη και υποστήριξη αεραγωγού"
+        "id": "J",
+        "label": "Hopelessness"
       },
       {
-        "id": "ι",
-        "label": "Αλκαλοποίηση με διττανθρακικά και εκτίμηση για αιμοκάθαρση"
+        "id": "K",
+        "label": "Complete anhedonia"
       },
       {
-        "id": "κ",
-        "label": "Ενδοφλέβια διττανθρακικά νατρίου"
-      },
-      {
-        "id": "λ",
-        "label": "Βενζοδιαζεπίνη και περιβάλλον χαμηλών ερεθισμάτων"
+        "id": "L",
+        "label": "Partial anhedonia"
       }
     ],
     "items": [
       {
-        "id": "toxidrome_management_001",
-        "prompt": "Νεαρός άνδρας λίγες ώρες μετά από αύξηση δόσης αντιψυχωτικού εμφανίζει επώδυνο ραιβόκρανο, βολβοστροφή και τρισμό, με διαύγεια συνείδησης και χωρίς πυρετό.",
+        "id": "crash_course_match_23_01",
+        "prompt": "A 76-year-old widowed retired headmistress is brought to accident and emergency by her family who are concerned she has not been eating. She paces the cubicle, keeps buttoning and unbuttoning her coat and does not sit down when offered a chair.",
         "correct": [
-          "α"
+          "G"
         ],
-        "explanation": "Η οξεία δυστονική αντίδραση αντιμετωπίζεται άμεσα με παρεντερικό αντιχολινεργικό, όπως βιπεριδένη."
+        "explanation": "Psychomotor agitation. This is a common feature of depression in older adults. Negative cognition. When considering the loss"
       },
       {
-        "id": "toxidrome_management_002",
-        "prompt": "Άνδρας που ξεκίνησε ισχυρό αντιψυχωτικό πριν από 4 ημέρες παρουσιάζει 39,6°C πυρετό, γενικευμένη δυσκαμψία, σύγχυση και ασταθή αρτηριακή πίεση με διακυμάνσεις σφύξεων.",
+        "id": "crash_course_match_23_02",
+        "prompt": "A 44-year-old architect being treated for depression is upset because he has lost a contract after the company went bust. He says this means he will lose all his other contracts and never be asked to design another building.",
         "correct": [
-          "β"
+          "I"
         ],
-        "explanation": "Στο κακόηθες νευροληπτικό σύνδρομο το πρώτο βήμα είναι η διακοπή του εκλυτικού φαρμάκου και η επιθετική υποστηρικτική αγωγή."
+        "explanation": "of the contract this man has demonstrated Beck's cognitive triad: negative views of himself, the world and the future."
       },
       {
-        "id": "toxidrome_management_003",
-        "prompt": "Γυναίκα προσέρχεται με υπερθερμία, διάρροια, έντονη ανησυχία, οφθαλμικό και προκλητό κλόνο και διάχυτη υπεραντανακλαστικότητα.",
+        "id": "crash_course_match_23_03",
+        "prompt": "A 22-year-old woman tells her general practitioner (GP) she has passed a recent exam but does not smile or appear pleased. Later she mentions she has broken up with her partner but does not look sad or relieved. She describes both things in a similar tone of speech.",
         "correct": [
-          "γ"
+          "C"
         ],
-        "explanation": "Το σύνδρομο σεροτονίνης απαιτεί διακοπή των σεροτονινεργικών και υποστηρικτική αγωγή, συχνά με βενζοδιαζεπίνη."
+        "explanation": "Reduced range of reactivity (blunted affect). This woman's affect does not vary as would be expected when discussing content of different types."
       },
       {
-        "id": "toxidrome_management_004",
-        "prompt": "Ασθενής με διπολική διαταραχή και πρόσφατη γαστρεντερίτιδα εμφανίζει αδρό τρόμο, αταξία, δυσαρθρία και σύγχυση.",
+        "id": "crash_course_match_23_04",
+        "prompt": "A 36-year-old sales assistant attends his GP straight from work for a prescription of citalopram. He has greasy hair and stains on his shirt and is slightly malodorous.",
         "correct": [
-          "δ"
+          "A"
         ],
-        "explanation": "Η τοξικότητα λιθίου απαιτεί διακοπή, ενυδάτωση και αξιολόγηση για αιμοκάθαρση ανάλογα με επίπεδα και κλινική βαρύτητα."
+        "explanation": "Poor self-care. This is particularly concerning as personal appearance is important to this man's job. 317"
       },
       {
-        "id": "toxidrome_management_005",
-        "prompt": "Άνδρας βρίσκεται με μύση, βραδύπνοια και βαριά καταστολή επιπέδου συνείδησης.",
+        "id": "crash_course_match_23_05",
+        "prompt": "A 55-year-old lorry driver tells his GP he has lost interest in everything he used to enjoy. He no longer plays darts or watches football as he does not care who wins now. However, he did enjoy spending time with his grandson at the weekend.",
         "correct": [
-          "ε"
+          "L"
         ],
-        "explanation": "Προτεραιότητα στην τοξίκωση από οπιοειδή είναι η υποστήριξη αεραγωγού και η ναλοξόνη."
+        "explanation": "Partial anhedonia. This man reports a markedly reduced interest in all activities with loss of the ability to derive pleasure from most, but not all, activities he previously enjoyed. Chapter 12 The patient with anxiety, fear or avoidance Differential diagnosis of anxiety, fear or avoidance"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_24",
+    "title": "Crash Course EMQ 24 - Differential diagnosis of anxiety, fear or avoidance",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Agoraphobia withpanic disorder"
       },
       {
-        "id": "toxidrome_management_006",
-        "prompt": "Νεαρή γυναίκα 6 ώρες μετά από απόπειρα αυτοδηλητηρίασης με κοινό αναλγητικό του σπιτιού είναι σχεδόν ασυμπτωματική, με μόνο ήπια ναυτία και αρχικά φυσιολογικές τρανσαμινάσες.",
-        "correct": [
-          "στ"
-        ],
-        "explanation": "Η δηλητηρίαση από παρακεταμόλη χρειάζεται έγκαιρη εκτίμηση με επίπεδο παρακεταμόλης ορού και χορήγηση Ν-ακετυλοκυστεΐνης όταν ενδείκνυται."
+        "id": "B",
+        "label": "Agoraphobia without panic disorder"
       },
       {
-        "id": "toxidrome_management_007",
-        "prompt": "Ασθενής μετά από λήψη άγνωστων δισκίων εμφανίζει θερμό και ξηρό δέρμα, μυδρίαση, κατακράτηση ούρων, μειωμένους εντερικούς ήχους και παραληρητική σύγχυση.",
-        "correct": [
-          "ζ"
-        ],
-        "explanation": "Η αρχική αντιμετώπιση του αντιχολινεργικού τοξιδρόμου είναι κυρίως υποστηρικτική, με ψύξη και ανακούφιση της κατακράτησης ούρων όταν χρειάζεται."
+        "id": "C",
+        "label": "Social phobia"
       },
       {
-        "id": "toxidrome_management_008",
-        "prompt": "Νεαρός προσέρχεται με έντονη διέγερση, υπέρταση, ταχυκαρδία, μυδρίαση, υπερθερμία, θωρακικό άλγος και έντονη εφίδρωση.",
-        "correct": [
-          "η"
-        ],
-        "explanation": "Στο συμπαθομιμητικό τοξίδρομο βασικές παρεμβάσεις είναι βενζοδιαζεπίνη, υγρά και ενεργός ψύξη."
+        "id": "D",
+        "label": "Generalized anxiety disorder"
       },
       {
-        "id": "toxidrome_management_009",
-        "prompt": "Αγρότης μετά από ψεκασμό θερμοκηπίου παρουσιάζει μύση, βρογχόρροια, βραδυκαρδία, διάρροια και μυϊκές δεσμιδώσεις.",
-        "correct": [
-          "θ"
-        ],
-        "explanation": "Το χολινεργικό τοξίδρομο από οργανοφωσφορικά απαιτεί ατροπίνη, πραλιδοξίμη και υποστήριξη αεραγωγού."
+        "id": "E",
+        "label": "Panic disorder"
       },
       {
-        "id": "toxidrome_management_010",
-        "prompt": "Έφηβος μετά από λήψη άγνωστου αναλγητικού αναφέρει εμβοές και εμφανίζει ταχύπνοια με μικτή αναπνευστική αλκάλωση και μεταβολική οξέωση.",
-        "correct": [
-          "ι"
-        ],
-        "explanation": "Η δηλητηρίαση από σαλικυλικά αντιμετωπίζεται με αλκαλοποίηση και, σε βαριές περιπτώσεις, αξιολόγηση για αιμοκάθαρση."
+        "id": "F",
+        "label": "Depressive episode"
       },
       {
-        "id": "toxidrome_management_011",
-        "prompt": "Άνδρας βρέθηκε υπνηλικός δίπλα σε άδειο κουτί παλαιού αντικαταθλιπτικού· εμφανίζει υπόταση, ξηροστομία και ευρύ QRS στο ΗΚΓ.",
-        "correct": [
-          "κ"
-        ],
-        "explanation": "Τα διττανθρακικά νατρίου είναι βασική αρχική θεραπεία για καρδιοτοξικότητα από τρικυκλικά με διάνοιξη QRS."
+        "id": "G",
+        "label": "Acute stress reaction"
       },
       {
-        "id": "toxidrome_management_012",
-        "prompt": "Νεαρός με οριζόντιο και κάθετο νυσταγμό, έντονη διέγερση, αναλγησία και επεισόδια βίαιης συμπεριφοράς μετά από χρήση ψυχοδραστικής ουσίας.",
+        "id": "H",
+        "label": "Posttraumatic stress disorder"
+      },
+      {
+        "id": "I",
+        "label": "Adjustment disorder"
+      },
+      {
+        "id": "J",
+        "label": "Personality disorder"
+      },
+      {
+        "id": "K",
+        "label": "Anxiety secondary to a general medical condition"
+      },
+      {
+        "id": "L",
+        "label": "Anxiety secondary to psychoactive substance use"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_24_01",
+        "prompt": "A 25-year-old librarian avoids being with others whenever possible. He does all his shopping online and always volunteers to reshelvebooks rather than deal with enquiries. When he is forced to interact with people he can feel himself blushing and sweating. He feels they are scrutinizing and judging him critically, even though he knows he is not really a bad person.",
         "correct": [
-          "λ"
+          "C"
         ],
-        "explanation": "Η αντιμετώπιση της τοξίκωσης από φαινκυκλιδίνη είναι κυρίως υποστηρικτική, με χαμηλά ερεθίσματα και βενζοδιαζεπίνη."
+        "explanation": "Social phobia. This man has a generalized social phobia shown by his avoidance of social situations and marked anxiety and distress when in them."
+      },
+      {
+        "id": "crash_course_match_24_02",
+        "prompt": "A 43-year-old woman feels she has been on edge for 2 years. She spends most of each day worrying about many trivial topics and sometimes she feels something bad is going to happen for no reason. She lies awake at night thinking about these things. She often has a dry mouth, epigastric discomfort and a bilateral frontal headache.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Generalized anxiety disorder. This lady has experienced continuous anxiety and apprehension about minor matters associated with autonomic overactivity andmuscletension for over 6 months."
+      },
+      {
+        "id": "crash_course_match_24_03",
+        "prompt": "A 28-year-old secretary presents to her general practitioner with weight loss. Six months ago in a supermarket she suddenly felt like she was going to die. She had pain in her chest, was short of breath and her arms and lips tingled. She rushed outside and the feeling subsided, but now she does not like to go into any large shops and is eating less well. She is still going to work but now walks 5 miles each way as she does not want to be on a bus and have another attack. As long as she is in her house or with her friends she is relaxed.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Agoraphobia with panic disorder. This lady had a panic attack in a supermarket and has now become increasingly avoidant of crowding and confinement. Her symptoms are restricted to these situations. The weight loss may well be explained by her reduced dietary intake and increased exercise, but other disorders should be screened for, i.e., hyperthyroidism."
+      },
+      {
+        "id": "crash_course_match_24_04",
+        "prompt": "Over the last 3 months, a 35-year-old builder has experienced several episodes of sudden onset shortness of breath, palpitations, sweatiness, nausea, feeling that the world is unreal and feeling he is about to die. These feelings resolve spontaneously over 20 minutes. He cannot identify any triggers. In particular they are not brought on by exercise and he can continue to do his active job. His electrocardiogram (ECG) is normal.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Panic disorder. This man reports repeated nonsituational panic attacks including a sensation of derealization. His symptoms could be due to cardiac problems but his young age, lack of exercise-induced symptoms and normal ECG are reassuring."
+      },
+      {
+        "id": "crash_course_match_24_05",
+        "prompt": "A 37-year-old professional violinist finds himself unable to play concerts. He can play well when alone but starts to sweat and shake such that he cannot play properly when in the presence of others. He has had to cancel a tour. These symptoms came on after he received a series of negative reviews. In general, he is a relaxed person who enjoys socializing.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Social phobia (specific to playing a musical instrument in concert). This man has a social phobia as shown by his situation- specific anxiety and avoidance. This is not a generalized social phobia but is limited to one specific situation. The Diagnostic and Statistical Manual of Mental Disorders,5th Edition codes for generalized or performance only social phobias whereas ICD-10 does not differentiate."
+      },
+      {
+        "id": "crash_course_match_24_06",
+        "prompt": "A 42-year-old policeman has experienced low mood, anhedonia, fatigue, early morning wakening and anorexia for the last month. He has free-floating anxiety most of the time and has had two panic attacks. These symptoms had onset after he witnessed an armed robbery but he denies flashbacks and still buys milk in the shop where he witnessed the robbery. Anxiety secondary to a general medical condition orpsychoactive substance use",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Depressive episode. This man has the three core symptoms of depression and two further biological symptoms. His anxiety symptoms are concurrent with his depression so the primary diagnosis is of a depressive disorder rather than an anxiety disorder. Although his symptoms had onset following a traumatic event, they are too prolonged to be an acute stress reaction, too severe to be an adjustment disorder, and he denies two of the three key symptoms of posttraumatic stress disorder (flashbacks, avoidance and hyperarousal). 318 Anxiety secondary to a general medical condition or psychoactive substance use"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_25",
+    "title": "Crash Course EMQ 25 - Anxiety secondary to a general medical condition orpsychoactive substance use",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Cushing syndrome"
+      },
+      {
+        "id": "B",
+        "label": "Hypoglycaemia"
+      },
+      {
+        "id": "C",
+        "label": "Hyperthyroidism"
+      },
+      {
+        "id": "D",
+        "label": "Pheochromocytoma"
+      },
+      {
+        "id": "E",
+        "label": "Caffeine"
+      },
+      {
+        "id": "F",
+        "label": "Alcohol"
+      },
+      {
+        "id": "G",
+        "label": "Cannabis"
+      },
+      {
+        "id": "H",
+        "label": "Amphetamine"
+      },
+      {
+        "id": "I",
+        "label": "Fluoxetine Mirtazapine"
+      },
+      {
+        "id": "K",
+        "label": "Trazodone"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_25_01",
+        "prompt": "A 63-year-old shopkeeper with hypertension has periodic episodes of anxiety, tachycardia, sweating and pallor. She can identify no triggers but recalls her mother having a similar problem. Her random glucose is elevated.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Pheochromocytoma. Although, because of its rarity, this remains an unlikely diagnosis for the scenario, it is the most likely from the options given. The features suggestive of pheochromocytoma are the family history (not always present),hypertension,hyperglycaemia and intermittent episodes of increased catecholamine release. The history alone is not diagnostic: urinary or serum catecholamine assays and imaging of the adrenals would be required."
+      },
+      {
+        "id": "crash_course_match_25_02",
+        "prompt": "A 48-year-old scientist with a past medical history of vitiligo presents with a 3-month history of anxiety, increased appetite and heat intolerance. Her hands are shaky, and she has knocked over a lot of test tubes recently.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Hyperthyroidism. This lady already suffers from one autoimmune disorder (vitiligo) which increases her risk of another (Graves disease). Tremor, heat intolerance, anxiety and increased appetite are classic symptoms of hyperthyroidism. Fluoxetine. Selective serotonin reuptake"
+      },
+      {
+        "id": "crash_course_match_25_03",
+        "prompt": "A 25-year-old joiner has recently been diagnosed with depression and commenced an antidepressant 4 days ago. Since then he has been very restless reassurance. His sleep has worsened further.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "inhibitors can initially be alerting and agitating, particularly in young people.This can increase the risk of suicide in the severely depressed. Use of an alternative antidepressant should be considered."
+      },
+      {
+        "id": "crash_course_match_25_04",
+        "prompt": "A 23-year-old man has started a new job as a welder. He has noticed that he gets very irritable and anxious by the end of the day and has had to go home early a couple of times. He sweats a lot while working so is drinking a lot of his favourite soft drink, 'Go-Man'. A 19-year-old man is brought to accident and",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Caffeine. Caffeine has anxiogenic effects. Many soft drinks contain large amounts of caffeine."
+      },
+      {
+        "id": "crash_course_match_25_05",
+        "prompt": "emergency by his friends. He is pacing the cubicle, is tachycardic, hyperventilating, sweating and has dilated pupils. He jumps when his name is called. His friends saw him swallow a white tablet earlier in the evening.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Amphetamine. This drug increases concentrations of dopamine and noradrenaline (norepinephrine), leading to increased sympathetic nervous system activation. Cocaine intoxication would give a similar presentation. Chapter 13 The patient with obsessions and compulsions Differential diagnosis of obsessions and compulsions"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_26",
+    "title": "Crash Course EMQ 26 - Differential diagnosis of obsessions and compulsions",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "No mental illness"
+      },
+      {
+        "id": "B",
+        "label": "Obsessive-compulsive disorder"
+      },
+      {
+        "id": "C",
+        "label": "Depressive episode"
+      },
+      {
+        "id": "D",
+        "label": "Phobia"
+      },
+      {
+        "id": "E",
+        "label": "Agoraphobia with panic disorder"
+      },
+      {
+        "id": "F",
+        "label": "Agoraphobia without panic disorder"
+      },
+      {
+        "id": "G",
+        "label": "Social phobia"
+      },
+      {
+        "id": "H",
+        "label": "Panic disorder"
+      },
+      {
+        "id": "I",
+        "label": "Eating disorder"
+      },
+      {
+        "id": "J",
+        "label": "Personality disorder"
+      },
+      {
+        "id": "K",
+        "label": "Hypochondriacal disorder"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_26_01",
+        "prompt": "For the last year, a 27-year-old woman has experienced repetitive images of soiled hands that she acknowledges are from her own mind. Washing her hands reduces her fear that her hands are dirty, but now she spends around 2 hours a day washing and is developing contact dermatitis. She has tried to wash less but this makes her very anxious.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Obsessive-compulsive disorder. This woman has a greater than 2-week history of both obsessions and compulsions associated with functional impairment."
+      },
+      {
+        "id": "crash_course_match_26_02",
+        "prompt": "For the last year, a 27-year-old nurse has been influenced by a National Health Service advertising campaign featuring soiled hands spreading infection. Washing her hands reduces her fear that they are dirty. Now she washes her hands before and after every patient contact, up to 100 times a day, and is developing contact dermatitis.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "No mental illness. This woman is not experiencing obsessions or compulsions. She is responding to external influences and her handwashing may realistically reduce the feared outcome of infection transmission."
+      },
+      {
+        "id": "crash_course_match_26_03",
+        "prompt": "For the last 4 months, a 27-year-old woman has experienced repetitive images of herself having sexual encounters with children. This makes her feel extremely guilty and unclean. Showering reduces her fear that she will engage in such behaviour, but she now has to spend several hours a day in the shower. She describes herself as worthless and hopeless and admits that 6 months ago she started to feel low in mood, anhedonic and fatigued.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Depressive episode. This woman has the three core symptoms of depression and two further symptoms. Her obsessions and compulsions are concurrent with her depression so the primary diagnosis is of a depressive disorder rather than obsessive-compulsive disorder."
+      },
+      {
+        "id": "crash_course_match_26_04",
+        "prompt": "After a bad experience as a child, a 27-year-old woman has been terrified of llness. Most of the time she has no problems, but if she meets anyone who is unwell she avoids them and washes her hands thoroughly to reduce her risk of contracting theirillness. If she cannot get away from the person, she feels overwhelmingly anxious and may have a panic attack.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Phobia. This woman has situation-specific anxiety with avoidance and panic attacks.She does not have obsessional thoughts, rather her anxiety is brought on by external stimuli. Although she washes her hands to reduce her anxiety, it is not a purposeless or excessive action, meaning it is not a compulsion. She is not hypochondriacal as she does not believe she is ill."
+      },
+      {
+        "id": "crash_course_match_26_05",
+        "prompt": "For the last 4 months, a 27-year-old woman has experienced recurrent thoughts of herself as being fat and ugly. She feels these thoughts are her own, and are appropriate, as she believes she is fat and ugly. She has been avoiding food and exercising lots. Her periods have stopped and her body mass index is 17. She still views herself as overweight. Differentiating types of repetitive or intrusive thoughts",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Eating disorder. This woman's low body weight, self-induced weight loss, body image disturbance and amenorrhoea mean she meets criteria for anorexia nervosa. She is not experiencing obsessions as she describes ego-syntonic thoughts which she does not resist. Rather they which have come to dominate her life. Differentiating types of repetitive or intrusive thoughts"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_27",
+    "title": "Crash Course EMQ 27 - She still views herself as overweight. Differentiating types of repetitive or intrusive thoughts",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following descriptions, select the ONE most likely psychopathology from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "No mental illness"
+      },
+      {
+        "id": "B",
+        "label": "Obsession"
+      },
+      {
+        "id": "C",
+        "label": "Rumination"
+      },
+      {
+        "id": "D",
+        "label": "Pseudohallucination"
+      },
+      {
+        "id": "E",
+        "label": "Hallucination Over-valued idea"
+      },
+      {
+        "id": "F",
+        "label": "ver-valued idea"
+      },
+      {
+        "id": "G",
+        "label": "Delusion"
+      },
+      {
+        "id": "H",
+        "label": "Thought insertion"
+      },
+      {
+        "id": "I",
+        "label": "Flashback"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_27_01",
+        "prompt": "‘l keep seeing images of germs crawling on my skin. I try to stop my mind showing them to me, but I can't'.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Obsession. The patient knows the images originate from their mind and is trying to resist."
+      },
+      {
+        "id": "crash_course_match_27_02",
+        "prompt": "“After I got viral gastroenteritis, I became much more careful about hygiene. I'm worried I'll get it again. Now I autoclave every utensil and piece of crockery I use. 1 had to give up my job at the hospital, it wasn't worth the risk'.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Over-valued idea. The fear of infection is logical but held with undue importance."
+      },
+      {
+        "id": "crash_course_match_27_03",
+        "prompt": "'l lie awake at night thinking about all the ways I could have avoided getting sick. I think about it from all the different angles but never reach a conclusion'.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Rumination."
+      },
+      {
+        "id": "crash_course_match_27_04",
+        "prompt": "“I keep hearing a voice inside my head saying, \"you're dirty\". I don't know who it is but I think they're probably right'.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Pseudohallucination."
+      },
+      {
+        "id": "crash_course_match_27_05",
+        "prompt": "'I keep hearing a voice outside my head saying, \"you're dirty\". I don't know who it is, but I think they're probably right'.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Hallucination."
+      },
+      {
+        "id": "crash_course_match_27_06",
+        "prompt": "'Someone puts ideas in my head. like thoughts of germs, and of being ill. I don't know how they get in there, but they're not my thoughts.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Thought insertion."
+      },
+      {
+        "id": "crash_course_match_27_07",
+        "prompt": "'When I saw a picture on TV of germs crawling on someone's skin, I knew that I was fatally ill. The doctor told me I was fine, but I know my days are numbered'.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Delusion."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_28",
+    "title": "Crash Course EMQ 28 - Dissociative disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Stupor"
+      },
+      {
+        "id": "B",
+        "label": "Dissociative anaesthesia"
+      },
+      {
+        "id": "C",
+        "label": "Depersonalization disorder"
+      },
+      {
+        "id": "D",
+        "label": "Functional seizures"
+      },
+      {
+        "id": "E",
+        "label": "Functional paralysis"
+      },
+      {
+        "id": "F",
+        "label": "Psychogenic amnesia"
+      },
+      {
+        "id": "G",
+        "label": "Fugue state"
+      },
+      {
+        "id": "H",
+        "label": "Hysterical blindness Dissociation secondary to psychoactive substance use"
+      },
+      {
+        "id": "I",
+        "label": "issociation secondary to psychoactive substance use"
+      },
+      {
+        "id": "J",
+        "label": "Dissociative identity disorder Assuming physical causes have been excluded, which of the above would be the most likely diagnosis for the following?"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_28_01",
+        "prompt": "A 29-year-old mother of two, with a history of depression and a family history of epilepsy, has recently started having seizures, which last for less than a minute, and do not cause tongue-biting, incontinence or post-ictal confusion. She denies alcohol or drug use and seems indifferent to her predicament. Her husband tells you that this started when he told his wife of his new job on an oil rig. He now feels he cannot leave home for fear that she will be seriously harmed by the seizures.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "This woman appears to be suffering from functional seizures. This is suggested by the chronological association with a significant stressor (being told that she will be left alone when her husband starts work). These are often more common in those with a family or personal history of epilepsy."
+      },
+      {
+        "id": "crash_course_match_28_02",
+        "prompt": "A 46-year-old businessman from a distant city is brought to hospital by the police, after apparently trying to withdraw money from a building society and being unable to remember his name. At interview, he seems unable to recall any personal details about himself and has no idea where he is. He is carrying a bundle of business cards for a company that was recently reported to have gone bankrupt.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "This is a classic presentation of a dissociative fugue, or ‘fugue state'. The man is unable to have travelled from a distant city. Note the possible severe stressor of being involved with a company that has recently been bankrupted."
+      },
+      {
+        "id": "crash_course_match_28_03",
+        "prompt": "A 21-year-old male prisoner complains of lack of sensation in his right arm, anterior abdomen and left leg. Neurological examination is otherwise normal. The prison guard tells you that he has been moved to protective custody because a senior gang member has threatened to kill him.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Dissociative anaesthesia. This is suggested by the chronological association with a significant stressor, the nondermatomal distribution of signs and the otherwise normal neurological exam."
+      },
+      {
+        "id": "crash_course_match_28_04",
+        "prompt": "An 18-year-old tells you that she feels like she is 'in a bubble' and feels that everything around her appears to be unreal and distant from her life. She has no psychiatric history and was fine until yesterday. Her parents tell you that she returned home from a 'rave' party only a couple of hours ago. Diagnosis following stressful events",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Dissociation secondary to psychoactive substance use. Given the history of onset, and the fact that she was at a party the previous evening, initial consideration should be given to substance-induced dissociation.Common substances associated with this include ketamine and tranquillizers; however, it can also occur following ingestion of less common substances such as mescaline or peyote. Diagnosis following stressful events"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_29",
+    "title": "Crash Course EMQ 29 - Her parents tell you that she returned home from a 'rave' party only a couple of hours ago. Diagnosis following stressful events",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Acute stress reaction"
+      },
+      {
+        "id": "B",
+        "label": "Posttraumatic stress disorder (PTSD)"
+      },
+      {
+        "id": "C",
+        "label": "Moderate depression"
+      },
+      {
+        "id": "D",
+        "label": "Adjustment disorder"
+      },
+      {
+        "id": "E",
+        "label": "Bereavement response"
+      },
+      {
+        "id": "F",
+        "label": "Acute/transient psychotic disorder"
+      },
+      {
+        "id": "G",
+        "label": "Alcoholic hallucinosis"
+      },
+      {
+        "id": "H",
+        "label": "Panic disorder"
+      },
+      {
+        "id": "I",
+        "label": "Conversion disorder"
+      },
+      {
+        "id": "J",
+        "label": "Temporal lobe epilepsy"
+      },
+      {
+        "id": "K",
+        "label": "Musculoskeletal injury From the options above, which of the diagnoses would be the most appropriate for the scenarios below?"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_29_01",
+        "prompt": "The wife of a 35-year-old Royal Air Force pilot has been hearing the voice of her husband, who was recently killed on duty in Syria. She has been feeling very low in mood since his death.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Bereavement response. Note the chronological proximity to his death, and that the psychotic content features her husband."
+      },
+      {
+        "id": "crash_course_match_29_02",
+        "prompt": "An 18-year-old man complains of pains in his neck and right shoulder that seem to have developed shortly after he was driving a car that had a head-on collision with a lorry.Hefeels lucky to be alive,and you are unable to elicit any other psychopathology.",
+        "correct": [
+          "K"
+        ],
+        "explanation": "Musculoskeletal injury. Note the distribution of injuries and given the fact he was a driver (intheUK,thedriver'sseatbeltcrossesthe right shoulder) this is likely to be a whiplash/ seatbelt-related injury. There is no suggestion of psychogenic origin in this case."
+      },
+      {
+        "id": "crash_course_match_29_03",
+        "prompt": "A 52-year-old deep sea diver has felt constantly 'on edge' for the last 3 months since he was involved in an incident involving loss of oxygen flow while deep under the sea. He was convinced that he was going to die. He reports vivid nightmares and has been unable to return to work.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "PTSD is the likely diagnosis in this case. Note the hyperarousal, avoidance and nightmares. Also note the persistent duration of the symptoms."
+      },
+      {
+        "id": "crash_course_match_29_04",
+        "prompt": "A 27-year-old woman is referred from the neurosurgical unit 4 months after a fall from a first- floorbalcony. She reports episodes of derealization, followed by visual hallucinations, loss of memory and extreme tiredness.",
+        "correct": [
+          "J"
+        ],
+        "explanation": "These symptoms are fairly typical of temporal lobe epilepsy. Note the history of likely head injury (implied by the fact she was referred from the neurosurgical unit). She should be referred for electroencephalogram. Chapter 15 The patient with medically unexplained physical symptoms Diagnosis of medically unexplained physical symptoms"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_30",
+    "title": "Crash Course EMQ 30 - Diagnosis of medically unexplained physical symptoms",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following scenarios, select the most appropriate diagnosis from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Munchausen syndrome by proxy"
+      },
+      {
+        "id": "B",
+        "label": "Body dysmorphic disorder"
+      },
+      {
+        "id": "C",
+        "label": "Factitious disorder"
+      },
+      {
+        "id": "D",
+        "label": "Somatic delusional disorder"
+      },
+      {
+        "id": "E",
+        "label": "Schizophrenia"
+      },
+      {
+        "id": "F",
+        "label": "Hypochondriacal disorder"
+      },
+      {
+        "id": "G",
+        "label": "Somatization disorder"
+      },
+      {
+        "id": "H",
+        "label": "Malingering Severe depression with psychotic features Dissociative disorder"
+      },
+      {
+        "id": "I",
+        "label": "sychotic depression (Cotard syndrome)."
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_30_01",
+        "prompt": "A 23-year-old quit her job as a dancer 2 years ago because she is preoccupied with the idea her breasts are misshapen. Now she barely leaves the house, wears baggy clothes and is requesting surgical augmentation. The cosmetic surgeon noted no abnormalities.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Body dysmorphic disorder."
+      },
+      {
+        "id": "crash_course_match_30_02",
+        "prompt": "An 8-year-old girl is drowsy. Her mother tells you that it is sudden onset. On examination, you find subcutaneous needle marks between hertoes.One of the nurses finds an insulin syringe on the bedside while her mother is at the bathroom.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "This is highly suggestive of Munchausen syndrome by proxy. The safety of the child should be the immediate concern."
+      },
+      {
+        "id": "crash_course_match_30_03",
+        "prompt": "A 21-year-old man is preoccupied by a small scar behind his ear, which he believes is where the government have implanted a microchip to insert thoughts.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "This is a first rank symptom of schizophrenia."
+      },
+      {
+        "id": "crash_course_match_30_04",
+        "prompt": "A 65-year-old man in a surgical ward with abdominal pain believes that he is dead and rotting from the inside.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Psychotic depression (Cotard syndrome)."
+      },
+      {
+        "id": "crash_course_match_30_05",
+        "prompt": "A 45-year-old man complains of whiplash following a road traffic accident and asks you to complete a medical report. He tells you he has been disabled permanently and alway wears a neck brace. You saw him getting off the bus earlier that morning wearing no neck brace.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Malingering. While more information would ideally be required, this scenario is suggestive of malingering. Chapter 16 The patient with eating or weight problems Psychiatric causes of low weight"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_31",
+    "title": "Crash Course EMQ 31 - Psychiatric causes of low weight",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Schizophrenia"
+      },
+      {
+        "id": "B",
+        "label": "Specific phobia"
+      },
+      {
+        "id": "C",
+        "label": "Depression, severe without psychotic symptoms"
+      },
+      {
+        "id": "D",
+        "label": "Bulimia nervosa"
+      },
+      {
+        "id": "E",
+        "label": "Alcohol dependence"
+      },
+      {
+        "id": "F",
+        "label": "Alzheimer dementia"
+      },
+      {
+        "id": "G",
+        "label": "Acute psychotic episode"
+      },
+      {
+        "id": "H",
+        "label": "Anorexia nervosa Obsessive-compulsive disorder"
+      },
+      {
+        "id": "I",
+        "label": "compulsive symptoms: obsession (fear of infection); compulsion (having to prepare food in a specific manner), with awareness that it is irrational, but severe anxiety if the compulsion is not used to 'cancel out' the obsession."
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_31_01",
+        "prompt": "A 42-year-old man with schizophrenia has a body mass index (BMI) of 17, with evidence of rapid weight loss. He denies any problems with body image. He says he is a little lonely as his mother died recently, and they used to live together. However, his mood is not pervasively low and there are no acute psychotic symptoms.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "This man with schizophrenia may not be able to look after himself due to negative symptoms of schizophrenia impairing his motivation and executive function.His mothermay have been providing substantial support with meal 319 preparation. He needs a functional assessment by an occupational therapist. It is also important to exclude depression, alcohol or substance misuse, or psychotic symptoms as an alternative cause for his weight loss."
+      },
+      {
+        "id": "crash_course_match_31_02",
+        "prompt": "A 19-year-old male student was admitted to a general medical ward after collapsing in the street. He denies any problems and tells you it was ‘probably just a funny turn'. His BMI is 22, serum potassium is 2.1 mmol/L, there are U waves on his electrocardiogram (EKG) and you notice that his parotid glands appear swollen.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Even though he has told you that he is fine, it is likely that he is suffering from bulimia nervosa. Both hypokalaemia and swollen parotid glands can be caused by excessive vomiting. The hypokalaemia is probably responsible for the U waves on the ECG. This girl describes classic obsessive-"
+      },
+      {
+        "id": "crash_course_match_31_03",
+        "prompt": "A 16-year-old girl has lost 15 kg in the last 3 months, giving her a BMI of 16. She denies any body image concerns but tells you that she is only able to eat food prepared in a specific, time-consuming manner. She knows this is irrational; however, if she doesn't do this the prospect of contamination with food-borne pathogens causes her to have unpleasant panic attacks.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "compulsive symptoms: obsession (fear of infection); compulsion (having to prepare food in a specific manner), with awareness that it is irrational, but severe anxiety if the compulsion is not used to 'cancel out' the obsession."
+      },
+      {
+        "id": "crash_course_match_31_04",
+        "prompt": "A 62-year-old ex-model has recently begun to lose weight, and her BMI is 18. She has a past history of anorexia nervosa. She reported that she could not bring herself to eat because of intense worry that she would vomit. Any time that she has tried to eat, she has suffered a panic attack and has ended up vomiting. She suffered from a severe case of norovirus about 6 weeks ago.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Despite this woman's history of anorexia nervosa, her current presentation is not suggestive of relapse. She appears to have developed a specific phobia (with panic attacks) of vomiting, which hasprobably resultedfrom her recent physical illness (norovirus, the 'winter vomiting bug'). The link between the two could be understood as an example of psychological 'conditioning'."
+      },
+      {
+        "id": "crash_course_match_31_05",
+        "prompt": "A 21-year-old plumber with no past psychiatric history has recently lost 12 kilograms, causing his BMI to fall to 15. He appears incredibly frightened and tells you that the owners of all the food shops in his locality are poisoning his food on behalf of government agents, who want him dead because of his involvement in recent terrorist attacks. Physical consequences of eating disorders",
+        "correct": [
+          "G"
+        ],
+        "explanation": "The cause of weight loss in this case does not suggest any concern with body shape. Instead, this man appears not to be eating food because of a delusional belief that the food would be poisoned. He is suffering from an acute psychotic episode. More information is needed to make a diagnosis of schizophrenia or psychotic depression. Assessing for substance use is crucial. Physical consequences of eating disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_32",
+    "title": "Crash Course EMQ 32 - Physical consequences of eating disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Lanugo"
+      },
+      {
+        "id": "B",
+        "label": "Caries"
+      },
+      {
+        "id": "C",
+        "label": "Xerosis"
+      },
+      {
+        "id": "D",
+        "label": "Russell's sign"
+      },
+      {
+        "id": "E",
+        "label": "C Onychorrhexis Alopecia areata"
+      },
+      {
+        "id": "G",
+        "label": "Cheilitis"
+      },
+      {
+        "id": "H",
+        "label": "Acrocyanosis"
+      },
+      {
+        "id": "I",
+        "label": "Striae distensae"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_32_01",
+        "prompt": "The fine, downy hair often seen on the body of sufferers of anorexia nervosa.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Lanugo."
+      },
+      {
+        "id": "crash_course_match_32_02",
+        "prompt": "Erosion of dental enamel caused by repeated vomiting.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Caries."
+      },
+      {
+        "id": "crash_course_match_32_03",
+        "prompt": "Dry nails, often associated with anorexia nervosa.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Onychorrhexis."
+      },
+      {
+        "id": "crash_course_match_32_04",
+        "prompt": "$ Stretch marks on the abdomen, associated with rapid changes in body weight.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Striae distensae."
+      },
+      {
+        "id": "crash_course_match_32_05",
+        "prompt": "A callus on the knuckle that may develop as a result of self-induced vomiting.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Russell's sign. General feedback: xerosis is dry skin, alopecia areata is spot baldness and acrocyanosis is blueness of the extremities."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_33",
+    "title": "Crash Course EMQ 33 - Diagnosis of personality disorder",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Paranoid personality disorder"
+      },
+      {
+        "id": "B",
+        "label": "Schizoid personality disorder"
+      },
+      {
+        "id": "C",
+        "label": "Schizotypal personality disorder"
+      },
+      {
+        "id": "D",
+        "label": "Borderline personality disorder"
+      },
+      {
+        "id": "E",
+        "label": "Antisocial personality disorder"
+      },
+      {
+        "id": "F",
+        "label": "Narcissistic personality disorder"
+      },
+      {
+        "id": "G",
+        "label": "Histrionic personality disorder"
+      },
+      {
+        "id": "H",
+        "label": "Dependent personality disorder Avoidant (anxious) personality disorder"
+      },
+      {
+        "id": "I",
+        "label": "voidant (anxious) personality disorder"
+      },
+      {
+        "id": "J",
+        "label": "Anankastic personality disorder"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_33_01",
+        "prompt": "A 24-year-old accountant wears inappropriate clothes to work. Her colleagues feel that she is always flirtatious and always seeks to be the centre of attention. When this does not happen, she tends to become very upset and dramatically displays emotion.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Histrionic personality disorder."
+      },
+      {
+        "id": "crash_course_match_33_02",
+        "prompt": "A 47-year-old housewife refuses to leave her abusive partner, despite having recently been hospitalized after he assaulted her. She feels that she could never manage without him.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Dependent personality disorder."
+      },
+      {
+        "id": "crash_course_match_33_03",
+        "prompt": "A 26-year-old unemployed man is constantly preoccupied by the mischief of local youths and is concerned that he is a ‘marked man'. He cannot hold down a job as he always becomes concernedthat colleagues are talking about him behind his back. His last girlfriend left him 3 years ago after he accused her of cheating on him.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Paranoid personality disorder."
+      },
+      {
+        "id": "crash_course_match_33_04",
+        "prompt": "A 49-year-old successful entrepreneur feels that others have trouble getting on with him. His fourth marriage has recently ended because of his affairs. He has always been incredibly confident and able to succeed.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Narcissistic personality disorder."
+      },
+      {
+        "id": "crash_course_match_33_05",
+        "prompt": "A 35-year-old website designer has difficulty making friends because of his fear of others criticizing, rejecting or disliking him. Instead, he socializes mainly using social networking sites and will not physically meet others until he is sure they will like and accept him. Traits of personality disorder",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Avoidant (anxious) personality disorder. General feedback: see Table 17.1."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_34",
+    "title": "Crash Course EMQ 34 - Instead, he socializes mainly using social networking sites and will not physically meet others until he is sure they will like and accept h",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Callous unconcern for the feelings of others"
+      },
+      {
+        "id": "B",
+        "label": "Excessive sensitivity to setbacks and rebuffs"
+      },
+      {
+        "id": "C",
+        "label": "Consistent preference for solitary activities"
+      },
+      {
+        "id": "D",
+        "label": "Perfectionism that interferes with task completion"
+      },
+      {
+        "id": "E",
+        "label": "Over-concern with physical attractiveness"
+      },
+      {
+        "id": "F",
+        "label": "Frantic efforts to avoid real or imagined abandonment"
+      },
+      {
+        "id": "G",
+        "label": "Allowing others to make most of one's important life decisions"
+      },
+      {
+        "id": "H",
+        "label": "Excessive preoccupation with being rejected in social situations"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_34_01",
+        "prompt": "Histrionic personality disorder.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Over-concern with physical attractiveness."
+      },
+      {
+        "id": "crash_course_match_34_02",
+        "prompt": "Schizoid personality disorder.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Consistent preference for solitary activities."
+      },
+      {
+        "id": "crash_course_match_34_03",
+        "prompt": "C Obsessive-compulsivepersonality disorder.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Perfectionism that interferes with task completion."
+      },
+      {
+        "id": "crash_course_match_34_04",
+        "prompt": "Paranoid personality disorder.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Excessive sensitivity to setbacks and rebuffs."
+      },
+      {
+        "id": "crash_course_match_34_05",
+        "prompt": "Dependent personality disorder.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Allowing others to make most of one's important life decisions. Note that frantic efforts to avoid abandonment is a trait of borderline personality disorder."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_35",
+    "title": "Crash Course EMQ 35 - Functional estimation of IQ in intellectual disability",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the scenarios below, select the ONE most appropriate estimation of IQ and level of disability from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": ">100 (above average intelligence)"
+      },
+      {
+        "id": "B",
+        "label": "86-100 (below average intelligence)"
+      },
+      {
+        "id": "C",
+        "label": "71-85 (borderline intellectual disability)"
+      },
+      {
+        "id": "D",
+        "label": "50-69 (mild intellectual disability)"
+      },
+      {
+        "id": "E",
+        "label": "35-49 (moderate intellectual disability)"
+      },
+      {
+        "id": "F",
+        "label": "20-34 (severe intellectual disability)"
+      },
+      {
+        "id": "G",
+        "label": "<20 (profound intellectual disability)"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_35_01",
+        "prompt": "A 24-year-old woman lives alone and works in a bakery. She cannot serve customers because she finds it very difficult to use the cash register or give correct change. She needed extra help at school with reading and writing and did not achieve any qualifications.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "This lady has a mild intellectual disability and will have an estimated Q of 50-69. Individuals in this group represent the majority (85%) of all people with intellectual disabilities."
+      },
+      {
+        "id": "crash_course_match_35_02",
+        "prompt": "A 19-year-old man lives alone, does not see his family and is unemployed. He has no support at home and spends much of his time writing programmes and reading about the mathematics of quantum mechanics. He has always found social interactions difficult and strongly dislikes socializing with others. There were no problems with language development.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "From the information given, this gentleman manages to live alone without support. His symptoms suggest that he may suffer from an autism spectrum disorder. His interests would suggest that he has above-average intelligence (IQ > 100),"
+      },
+      {
+        "id": "crash_course_match_35_03",
+        "prompt": "A 14-year-old boy is wheelchair-bound and incontinent. He lives with his mother, who is his main carer. He is unable to undertake activities of daily living and his mother has to feed him.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "This boy has a profound intellectual disability (IQ < 20). He is unable to care for himself and fully dependent on the support of others. This woman has a moderate intellectual"
+      },
+      {
+        "id": "crash_course_match_35_04",
+        "prompt": "A 35-year-old woman lives in sheltered accommodation and requires support to cook meals, keep her flat tidy and do laundry. She has a job at a local toy factory, where she works on a production line and is closely supervised by a trained support worker.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "disability (IQ 35-49). She is able to live on her own, albeit in a supported housing complex with a great deal of support."
+      },
+      {
+        "id": "crash_course_match_35_05",
+        "prompt": "A 22-year-old man lives with his family, who are his main carers. He requires some assistance getting dressed and tending to personal hygiene, though he can do this by himself on good days. He can feed himself and spends his days watching children's television programmes and playing with Lego.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "This gentleman has a severe intellectual disability (IQ 20-34). He lives with his family, who are his main carers and is able to perform simple tasks under supervision. His self-care skills are limited, but sometimes he seems able to contribute to these. Differential diagnosis in adults presenting for attention deficit hyperactivity disorder (ADHD) assessment B. Bipolar affective disorder. Her symptoms may represent hypomanic episodes. ADHD is excluded by the episodic nature of the symptoms. A urine drug screen would be helpful J. Substance abuse, harmful. His behaviour while not under the influence of substances for a period of at least six months needs to be assessed before a diagnosis of ADHD can be considered. Cocaine use may well lead to making careless mistakes at work. His history of possibly having ADHD symptoms from childhood is not relevant unless he has on-going symptoms now. C. Depressive episode. The acute onset of these symptoms excludes ADHD. Irritability and psychomotor agitation are common in depression. A. ADHD. A fuller history would be needed to make this diagnosis definitive. However, ADHD is suggested by his problems with impulsivity and inattention present during childhood and adulthood.Dissocial personality disorderis unlikely as the assault sounds impulsive and he is now regretful of this. Traumatic brain injury. This would need to be confirmed by checking the details of his injuries in the road traffic accident. ADHD is excluded by the lack of significant difficulties prior to the accident. He may be suffering neuropsychological sequelae post damage to his frontal lobes. Chapter 19 Dementia and delirium Management of dementia"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_36",
+    "title": "Crash Course EMQ 36 - Management of dementia",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the best treatment for maintaining cognition from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Donepezil"
+      },
+      {
+        "id": "B",
+        "label": "Rivastigmine"
+      },
+      {
+        "id": "C",
+        "label": "Galantamine"
+      },
+      {
+        "id": "D",
+        "label": "Memantine"
+      },
+      {
+        "id": "E",
+        "label": "Citalopram"
+      },
+      {
+        "id": "F",
+        "label": "Methylphenidate"
+      },
+      {
+        "id": "G",
+        "label": "Quetiapine"
+      },
+      {
+        "id": "H",
+        "label": "Trazodone"
+      },
+      {
+        "id": "I",
+        "label": "No treatment recommended by current guidelines"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_36_01",
+        "prompt": "A woman with a recent diagnosis of Alzheimer dementia who continues to live at home with support workers visiting daily.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Donepezil. This woman has mild to moderate dementia for which cholinesterase inhibitors are recommended. Donepezil is first line."
+      },
+      {
+        "id": "crash_course_match_36_02",
+        "prompt": "A woman with a diagnosis of Alzheimer dementia who lives in a nursing home and is aphasic.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Memantine. This woman has severe dementia for which memantine is recommended."
+      },
+      {
+        "id": "crash_course_match_36_03",
+        "prompt": "A woman with a diagnosis of Alzheimer dementia who continues to live at home with support workers visiting daily. Her past medical history includes sick sinus syndrome, chronic obstructive pulmonary disease (COPD) and an active peptic ulcer.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Memantine. This woman has mild to moderate dementia for which cholinesterase inhibitors are recommended. However, she has a number of relative contraindications to cholinesterase inhibitor use. Their cholinergic effects can induce bradycardia, which may be particularly problematic in those with conduction defects. Similarly, cholinergic drugs can cause bronchoconstriction, which may be problematic in COPD and asthma. Cholinergic drugs can also increase gastric acid secretions, which could worsen peptic ulceration. Overall, it would probably be better to try memantine first for this woman."
+      },
+      {
+        "id": "crash_course_match_36_04",
+        "prompt": "Parkinson disease with dementia.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Rivastigmine. This is the cholinesterase inhibitor with the best evidence for maintaining cognition in Parkinson disease with dementia and Lewy body dementia, although other cholinesterase inhibitors are also of benefit."
+      },
+      {
+        "id": "crash_course_match_36_05",
+        "prompt": "Frontotemporal dementia.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "No treatment recommended by current guidelines. Unfortunately, no medications have yet been found to slow the progression of frontotemporal dementia. Chapter 20 Alcohol and substance-related disorders Pharmacological management of opioid dependence"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_37",
+    "title": "Crash Course EMQ 37 - Pharmacological management of opioid dependence",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Naloxone"
+      },
+      {
+        "id": "B",
+        "label": "Dihydrocodeine"
+      },
+      {
+        "id": "C",
+        "label": "Levacetylmethadol"
+      },
+      {
+        "id": "D",
+        "label": "Buprenorphine"
+      },
+      {
+        "id": "E",
+        "label": "Lofexidine"
+      },
+      {
+        "id": "F",
+        "label": "Naltrexone"
+      },
+      {
+        "id": "G",
+        "label": "Loperamide"
+      },
+      {
+        "id": "H",
+        "label": "Methadone Paracetamol"
+      },
+      {
+        "id": "J",
+        "label": "Diazepam"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_37_01",
+        "prompt": "A 37-year-old man is admitted to A&E via emergency ambulance. He is Glasgow Coma Scale (GCS) 5/15, with pinpoint pupils and a respiratory rate of six per minute. He has syringes and hypodermic needles in his pocket.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "It is likely that this man has overdosed on intravenous opioids, leading to respiratory depression and a reduced consciousness level. Naloxone is an opioid antagonist and needs to begiventoreversetoxicity.Naltrexoneisalso an opioid antagonist, but it needs to be given orallysoisnotsuitableforsomeonewith alow GCS (risk of aspiration)."
+      },
+      {
+        "id": "crash_course_match_37_02",
+        "prompt": "A 22-year-old man wants to abstain entirely from opioids. He is not interested in substitution therapy. However, he asks if he can be prescribed something to 'take the edge off' the withdrawal state.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Lofexidine can be helpful in reducing the unpleasant symptoms of opioid withdrawal. It would not be advisable to prescribe benzodiazepines to someone who already has substance dependence."
+      },
+      {
+        "id": "crash_course_match_37_03",
+        "prompt": "A 30-year-old woman is motivated to stop injecting heroin. However, she feels that she needs to be prescribed a substitute for the long-term. She was previously spending 100 per day on heroin.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "While methadone, buprenorphine and dihydrocodeine are used as substitution therapy, this lady's heavy use of heroin means that she is likely to have severe withdrawal symptoms. As a partial opioid agonist, buprenorphine is likely to precipitate a withdrawal state given the magnitude of her usage. There is some evidence to suggest that dihydrocodeine can be as effective as methadone. However, because it is in tablet form, it is easier to divert and its use is therefore not widespread. Levacetylmethadol is a synthetic opioid similar to methadone, which is no longer prescribed due to dangerous arrhythmias."
+      },
+      {
+        "id": "crash_course_match_37_04",
+        "prompt": "A 27-year-old man is undergoing detoxification from dihydrocodeine, but he is troubled by profuse diarrhoea.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "This man could benefit from loperamide, which is a mu-opioid receptor agonist that acts only in the large intestine to reduce gut motility (and hence diarrhoea)."
+      },
+      {
+        "id": "crash_course_match_37_05",
+        "prompt": "A 38-year-old lady who intermittently abuses opioids asks to be prescribed a drug to reduce the associated ‘high', as she feels this will discourage her from using. Prochaska and DiClemente Transtheoretical Model of Change",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Naltrexone is an opioid receptor antagonist that can be used to reduce the euphoric effects of opioids. Naloxone would also have this effect, but it needs to be given parenteral and is short- acting, and therefore naltrexone is preferred. Prochaska and DiClemente Transtheoretical Model of Change"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_38",
+    "title": "Crash Course EMQ 38 - Prochaska and DiClemente Transtheoretical Model of Change",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Precontemplative"
+      },
+      {
+        "id": "B",
+        "label": "Relapse"
+      },
+      {
+        "id": "C",
+        "label": "Preparation"
+      },
+      {
+        "id": "D",
+        "label": "Action"
+      },
+      {
+        "id": "E",
+        "label": "Contemplative"
+      },
+      {
+        "id": "F",
+        "label": "Maintenance"
+      },
+      {
+        "id": "G",
+        "label": "Termination"
+      },
+      {
+        "id": "H",
+        "label": "Recycling"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_38_01",
+        "prompt": "A 31-year-old nurse has set a 'quit date' to stop smoking.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Preparation."
+      },
+      {
+        "id": "crash_course_match_38_02",
+        "prompt": "A 62-year-old salesman has been abstinent from alcohol for 30 years, and is no longer even tempted by the thought of drinking.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Termination. 321"
+      },
+      {
+        "id": "crash_course_match_38_03",
+        "prompt": "A 22-year-old female student does not consider her heavy cannabis use to be a problem.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Precontemplative."
+      },
+      {
+        "id": "crash_course_match_38_04",
+        "prompt": "A 29-year-old banker is considering stopping his cocaine use; however, he is worried about what his friends will say.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Contemplative."
+      },
+      {
+        "id": "crash_course_match_38_05",
+        "prompt": "A 33-year-old unemployed man has been using heroin on a daily basis for the last 2 weeks since his partner left him. He had previously been clean for 3 years. Treatment of alcohol dependence",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Relapse. General feedback: see Fig. 20.3 Treatment of alcohol dependence"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_39",
+    "title": "Crash Course EMQ 39 - He had previously been clean for 3 years. Treatment of alcohol dependence",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Alcoholics anonymous"
+      },
+      {
+        "id": "B",
+        "label": "Lorazepam"
+      },
+      {
+        "id": "C",
+        "label": "Psychoeducational group"
+      },
+      {
+        "id": "D",
+        "label": "Disulfiram"
+      },
+      {
+        "id": "E",
+        "label": "Thiamine"
+      },
+      {
+        "id": "F",
+        "label": "Chlordiazepoxide"
+      },
+      {
+        "id": "G",
+        "label": "Naltrexone"
+      },
+      {
+        "id": "H",
+        "label": "Cognitive-behavioural therapy (CBT)"
+      },
+      {
+        "id": "I",
+        "label": "Acamprosate Motivational interviewing"
+      },
+      {
+        "id": "K",
+        "label": "Diazepam"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_39_01",
+        "prompt": "A 55-year-old man, currently drinking 70 units of alcohol per day, requires a benzodiazepine during an inpatient detoxification. He suffers from severe chronic liver failure.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Lorazepam is preferred during detoxification where there is significant liver disease or risk from long-acting benzodiazepines."
+      },
+      {
+        "id": "crash_course_match_39_02",
+        "prompt": "A 45-year-old woman with alcohol dependence is uncharacteristically confused, walking with an ataxic gait and has nystagmus. She does not smell of alcohol.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Thiamine is required when Wernicke encephalopathy is suspected."
+      },
+      {
+        "id": "crash_course_match_39_03",
+        "prompt": "A 57-year-old woman with a history of alcohol dependence is currently abstinent. However, she wants help to 'avoid temptation'. She does not want drugs and is frightened by the prospect of group therapy.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Cognitive-behavioural therapy can help relapse prevention."
+      },
+      {
+        "id": "crash_course_match_39_04",
+        "prompt": "A 36-year-old man is currently abstinent from alcohol but has experienced a couple of 'slips' that he attributed to powerful cravings. He is also prescribed tramadol for knee pain.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Disulfiram may be used as an aversive relapse-prevention treatment when appropriate and supervised."
+      },
+      {
+        "id": "crash_course_match_39_05",
+        "prompt": "A 44-year-old man has recently stopped drinking and wants to remain abstinent for life. He considers alcohol to be a 'disease' and does not really want to be involved with health services. He is socially isolated and feels that he would benefit from meeting like-minded individuals.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Alcoholics Anonymous can support long-term abstinence."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_40",
+    "title": "Crash Course EMQ 40 - Antipsychotic choice in schizophrenia",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE best management option from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Chlorpromazine"
+      },
+      {
+        "id": "B",
+        "label": "Haloperidol"
+      },
+      {
+        "id": "C",
+        "label": "Flupentixol depot"
+      },
+      {
+        "id": "D",
+        "label": "Clozapine"
+      },
+      {
+        "id": "E",
+        "label": "Quetiapine Aripiprazole"
+      },
+      {
+        "id": "F",
+        "label": "ripiprazole"
+      },
+      {
+        "id": "G",
+        "label": "Risperidone"
+      },
+      {
+        "id": "H",
+        "label": "No antipsychotic indicated"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_40_01",
+        "prompt": "A 47-year-old woman with schizophrenia. She remembers a good response to haloperidol in her 20s and would like to try it again.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Haloperidol. Although haloperidol is not first line for schizophrenia, patient preference is important in the choice of antipsychotic. She should have an electrocardiogram before recommencing as haloperidol can prolong the QTc."
+      },
+      {
+        "id": "crash_course_match_40_02",
+        "prompt": "A 28-year-old model experiencing a first episode of psychosis. She is very keen to avoid weight gain.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Aripiprazole. This is the antipsychotic least likely to be associated with weight gain and the metabolic syndrome. First-generation antipsychotics would be the next best choice. 322"
+      },
+      {
+        "id": "crash_course_match_40_03",
+        "prompt": "A 33-year-old man experiencing his second episode of psychosis. He recalls very unpleasant tremor and would like to avoid these symptoms.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Quetiapine. From the options given, haloperidol, risperidone and chlorpromazine are most likely to be associated with extrapyramidal side- effects.Aripiprazole is less associated with extrapyramidal side-effects, but quetiapine has an even lower likelihood. Flupentixol is a depot medication and the majority of patients prefer oral. Clozapine is not indicated as the patient is not treatment resistant."
+      },
+      {
+        "id": "crash_course_match_40_04",
+        "prompt": "A 36-year-old man with schizophrenia who has had multiple relapses after forgetting to take oral medication.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Flupentixol depot formulation. Long-acting intramuscular injections (depot formulations) administered 1-12 weekly are a good option for patients with poor concordance."
+      },
+      {
+        "id": "crash_course_match_40_05",
+        "prompt": "A 26-year-old woman who has tried 3 months of olanzapine and 3 months of risperidone at optimum doses but remains troubled by distressing psychotic experiences associated with functional impairment. Presentation of antipsychotic side-effects",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Clozapine. This woman has treatment-resistant schizophrenia as she has had two trials of antipsychotic at adequate doses for adequate durations, including at least one second- generation drug. Presentation of antipsychotic side-effects"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_41",
+    "title": "Crash Course EMQ 41 - Presentation of antipsychotic side-effects",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Select the ONE term used to describe the following side- effects from the list of options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Photosensitivity"
+      },
+      {
+        "id": "B",
+        "label": "Postural hypotension"
+      },
+      {
+        "id": "C",
+        "label": "Hypersalivation"
+      },
+      {
+        "id": "D",
+        "label": "Dry mouth"
+      },
+      {
+        "id": "E",
+        "label": "Agranulocytosis Parkinsonism"
+      },
+      {
+        "id": "G",
+        "label": "Akathisia"
+      },
+      {
+        "id": "H",
+        "label": "Dystonia"
+      },
+      {
+        "id": "I",
+        "label": "Somnolence"
+      },
+      {
+        "id": "J",
+        "label": "Hyperprolactinaemia"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_41_01",
+        "prompt": "A 27-year-old man wakes up each morning drooling onto a wet pillow.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Hypersalivation. This is most commonly seen with clozapine. Most antipsychotics cause a dry mouth."
+      },
+      {
+        "id": "crash_course_match_41_02",
+        "prompt": "A 57-year-old woman describes feeling dizzy. On examination, she has a supine blood pressure of 1 40 mmHg systolic and an erect blood pressure of 100 mmHg systolic.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Postural hypotension. This is a side-effect of most antipsychotics, secondary to adrenergic receptor blockade."
+      },
+      {
+        "id": "crash_course_match_41_03",
+        "prompt": "A 22-year-old woman has noticed milk coming from her nipples bilaterally, but is not pregnant or breast-feeding.",
+        "correct": [
+          "J"
+        ],
+        "explanation": "Hyperprolactinaemia, causing galactorrhoea. This is a side-effect of most but not all antipsychotics, secondary to D2 receptor blockade in the tuberoinfundibular pathway."
+      },
+      {
+        "id": "crash_course_match_41_04",
+        "prompt": "A 43-year-old man collapses with a severe pneumonia. He has an undetectable neutrophil count.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Agranulocytosis. Without monitoring, this is seen in just under 1% of patients taking clozapine."
+      },
+      {
+        "id": "crash_course_match_41_05",
+        "prompt": "A 30-year-old woman keeps crossing and uncrossing her legs during an interview. She also keeps smoothing her hair and handbag. She says she feels like she is 'crawling out of my own skin'.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Akathisia. This is frequent purposeless movement associated with a subjective inner restlessness. It is very unpleasant for patients, and a risk factor for suicide. It is a side-effect of most antipsychotics and some other psychotropics also. High doses are a risk factor. Chapter 22 The mood (affective) disorders Treatment setting for depression"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_42",
+    "title": "Crash Course EMQ 42 - Treatment setting for depression",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select the ONE best management option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Admit to psychiatric hospital"
+      },
+      {
+        "id": "B",
+        "label": "Admit to general medical hospital"
+      },
+      {
+        "id": "C",
+        "label": "Manage in primary care"
+      },
+      {
+        "id": "D",
+        "label": "Refer to psychiatric outpatients routinely"
+      },
+      {
+        "id": "E",
+        "label": "Refer to psychiatric outpatients urgently"
+      },
+      {
+        "id": "F",
+        "label": "Refer to crisis team"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_42_01",
+        "prompt": "A 55-year-old man with a severe depressive episode who has sent goodbye emails to his family. A dog walkeralerted the police after he found him in isolated woodland tying a noose to a tree.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Admission to psychiatric hospital. This man is at high risk of suicide because of his age, sex, violent method of planned suicide, final acts and mental disorder. The extremely high suicidal intent indicated by the circumstances of his presentation means hospital admission is the only safe management option."
+      },
+      {
+        "id": "crash_course_match_42_02",
+        "prompt": "A55-year-old man with a moderate depressive episode which has not responded to adequate trials of two antidepressants.He denies suicidal ideas and maintains an oral intake. who reports derogatory second person auditory hallucinations. He denies suicidal ideas and maintains an oral intake.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Refer to psychiatric outpatients routinely. A psychiatric referral is advisable given his treatment-resistant depression. There is no suggestion of acute risk to necessitate an urgent referral."
+      },
+      {
+        "id": "crash_course_match_42_03",
+        "prompt": "A 55-year-old man with a severe depressive episode who has lost 3 stone in weight over 3 months and has refused food and fluids for the last 2 days.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Refer to crisis team. Even without evidence of risk to self or others, psychotic features are suggestive of a very severe depression that could worsen rapidly."
+      },
+      {
+        "id": "crash_course_match_42_04",
+        "prompt": "A 55-year-old man with a mild depressive episode who has not benefited from self-help CBT. First-line antidepressants",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Admit to psychiatric hospital. This man has depression with poor oral intake. This is not manageable in the community. He needs an urgent physical examination and blood samples evaluation. If his renal function is acutely impaired, he may need transfer to a general hospital for intravenous fluids. If this man is in a general hospital at the time of mental health assessment, he should be physically assessed prior to transfer."
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_43",
+    "title": "Crash Course EMQ 43 - CBT. First-line antidepressants",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients with moderate to severe depression, select the ONE best first-line antidepressant from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Selective serotonin reuptake inhibitor (SSRI)"
+      },
+      {
+        "id": "B",
+        "label": "Venlafaxine"
+      },
+      {
+        "id": "C",
+        "label": "Duloxetine"
+      },
+      {
+        "id": "D",
+        "label": "Mirtazapine"
+      },
+      {
+        "id": "E",
+        "label": "Amitriptyline"
+      },
+      {
+        "id": "F",
+        "label": "Lofepramine"
+      },
+      {
+        "id": "G",
+        "label": "Phenelzine"
+      },
+      {
+        "id": "H",
+        "label": "Moclobemide Lithium"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_43_01",
+        "prompt": "A 49-year-old stunt man on long-term ibuprofen for back pain.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Mirtazapine. SsRls increase risk of bleeding when coprescribed with nonsteroidals and anticoagulants. Mirtazapine is suggested as an alternative first-line antidepressant by NICE (2009)."
+      },
+      {
+        "id": "crash_course_match_43_02",
+        "prompt": "A 23-year-old shop assistant with no past medical history.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "SSRI. NICE (2009) recommends SSRls as first- line antidepressants if there are no cautions."
+      },
+      {
+        "id": "crash_course_match_43_03",
+        "prompt": "A 32-year-old teacher whose chief complaint is insomnia.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "SSRI. NICE (2009) recommends SSRIs as first- line antidepressants. Sleep disturbance often resolves as depression improves. A more sedating antidepressant such as mirtazapine would be a good second-line option."
+      },
+      {
+        "id": "crash_course_match_43_04",
+        "prompt": "A 45-year-old butcher who says he will stop any antidepressant that affects his sexual function.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Mirtazapine. Although first line, SSRls often cause sexual dysfunction. If avoidance of this side-effect is very important to patients, an alternative such as mirtazapine can be considered."
+      },
+      {
+        "id": "crash_course_match_43_05",
+        "prompt": "A 64-year-old librarian with stress incontinence.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Duloxetine. Duloxetine is licensed for both stress incontinence and depression. It is a joint serotonin and noradrenaline (norepinephrine) reuptake inhibitor. This action in the spinal cord leads to increased tone in the urethral sphincter. It would be reasonable to try to avoid polypharmacy by using one drug to treat both problems. Chapter 23 The anxiety and somatoform disorders Management of posttraumatic stress disorder"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_44",
+    "title": "Crash Course EMQ 44 - Management of posttraumatic stress disorder",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Selective serotonin reuptake inhibitor (SSRI) G. Tricyclic antidepressant (TCA) H. Benzodiazepine Venlafaxine J. Pregabalin For each of the following patients, select the ONE best first-line management option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Self-help"
+      },
+      {
+        "id": "B",
+        "label": "Watchful waiting"
+      },
+      {
+        "id": "C",
+        "label": "Cognitive-behavioural therapy (CBT) with exposure response prevention"
+      },
+      {
+        "id": "D",
+        "label": "Eye movement desensitization and reprocessing therapy"
+      },
+      {
+        "id": "E",
+        "label": "Applied relaxation"
+      },
+      {
+        "id": "F",
+        "label": "SRI"
+      },
+      {
+        "id": "G",
+        "label": "CA"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_44_01",
+        "prompt": "A 23-year-old woman has symptoms of posttraumatic stress disorder (PTSD) following being raped 2 weeks ago. She is no longer attending classes at university as she avoids leaving her house.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Eye movement desensitization and reprocessing therapy. This or trauma-focused CBT is recommended for moderate to severe PTSD even if the trauma occurred less than 4 weeks ago."
+      },
+      {
+        "id": "crash_course_match_44_02",
+        "prompt": "A 23-year-old woman has symptoms of PTSD following being raped 2 weeks ago. She is still able to attend classes at university.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Watchful waiting. This is recommended for symptoms of mild PTSD within 4 weeks of the trauma."
+      },
+      {
+        "id": "crash_course_match_44_03",
+        "prompt": "A 23-year-old woman has symptoms of PTSD following being raped 2 months ago. She is still able to attend classes at university.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Eye movement desensitization and reprocessing therapy. This or trauma-focused CBT is recommended for all severities of PTSD where the trauma occurred more than 4 weeks ago."
+      },
+      {
+        "id": "crash_course_match_44_04",
+        "prompt": "A 47-year-old former soldier has tried trauma-focused CBT for PTSD but continues to have symptoms which markedly affect his functioning.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "SSRI. Mirtazapine or paroxetine are recommended as first-line medications for PTSD."
+      },
+      {
+        "id": "crash_course_match_44_05",
+        "prompt": "A 35-year-old survivor of an airplane crash has tried talking therapies and two first-line drug therapies for severe PTSD symptoms. She would like to try a further medication. Management of generalized anxiety disorder and panic disorder",
+        "correct": [
+          "G"
+        ],
+        "explanation": "TCA. Amitriptyline (a tricyclic antidepressant) and phenelzine (monoamine oxidase inhibitor) are second-line drug therapies for PTSD. Management of generalized anxiety disorder and panic disorder"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_45",
+    "title": "Crash Course EMQ 45 - PTSD symptoms. She would like to try a further medication. Management of generalized anxiety disorder and panic disorder",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Selective serotonin reuptake inhibitor (SSRI) G. Monoamine oxidase inhibitor H. Benzodiazepine 1.Pregabalin For each of the following patients, select the ONE best first-line management option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Self-help"
+      },
+      {
+        "id": "B",
+        "label": "Watchful waiting"
+      },
+      {
+        "id": "C",
+        "label": "Cognitive-behavioural therapy (CBT)"
+      },
+      {
+        "id": "D",
+        "label": "Eye movement desensitization and reprocessing therapy"
+      },
+      {
+        "id": "E",
+        "label": "Applied relaxation"
+      },
+      {
+        "id": "F",
+        "label": "S"
+      },
+      {
+        "id": "I",
+        "label": "regabalin"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_45_01",
+        "prompt": "A 27-year-old female grocer has panic disorder. She has had to leave her shop on several occasions in the last month because of panic attacks.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "CBT. First-line therapy for moderate to severe panic disorder is CBT."
+      },
+      {
+        "id": "crash_course_match_45_02",
+        "prompt": "A 27-year-old female grocer has panic disorder but does not feel it stops her from doing anything.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Self-help. First-line therapy for mild panic disorder is self-help materials."
+      },
+      {
+        "id": "crash_course_match_45_03",
+        "prompt": "A 44-year-old zookeeper has generalized anxiety disorder and is unable to work. He has tried CBT in the past and would now like to try a different talking therapy.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Applied relaxation. This and CBT are the two psychological therapies recommended for moderate to severe generalized anxiety disorder."
+      },
+      {
+        "id": "crash_course_match_45_04",
+        "prompt": "A 44-year-old zookeeper has generalized anxiety disorder and is unable to work.He has tried CBT in the past and would now like to try a medication.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "SSRl. First-line drug therapy for moderate to severe generalized anxiety disorder is an SsRl."
+      },
+      {
+        "id": "crash_course_match_45_05",
+        "prompt": "A 44-year-old zookeeper has generalized anxiety disorder and is unable to work. He has tried CBT and an SSRl in the past and would now like to try a different class of medication.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Pregabalin. This is a second-line drug therapy for moderate to severe generalized anxiety disorder. Chapter 24 Eating disorders Treatment strategies for patients with eating disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_46",
+    "title": "Crash Course EMQ 46 - Treatment strategies for patients with eating disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Nutritional advice from general practitioner"
+      },
+      {
+        "id": "B",
+        "label": "High-dose fluoxetine"
+      },
+      {
+        "id": "C",
+        "label": "Voluntary sector referral"
+      },
+      {
+        "id": "D",
+        "label": "Motivational interviewing"
+      },
+      {
+        "id": "E",
+        "label": "Cognitive-behavioural therapy (eating disorder focused)"
+      },
+      {
+        "id": "F",
+        "label": "Interpersonal therapy"
+      },
+      {
+        "id": "G",
+        "label": "Family therapy"
+      },
+      {
+        "id": "H",
+        "label": "Community mental health team involvement Intensive home treatment by specialist eating disorder service"
+      },
+      {
+        "id": "J",
+        "label": "Informal admission to general psychiatric ward"
+      },
+      {
+        "id": "K",
+        "label": "Forced, involuntary nasogastric feeding under mental health legislation"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_46_01",
+        "prompt": "A 23-year-old pole-dancer has a diagnosis of anorexia nervosa. Her weight has recently stabilized and is slowly increasing. She has previously appeared fairly bubbly and cheerful. However, she reports a 3-week history of tearfulness, loss of interest in all hobbies, early morning wakening and strong suicidal thoughts. When questioned directly, she tearfully discloses that she bought a rope and posted final letters earlier today and intends to hang herself this evening when her flatmate goes out to work. She says she is amenable to whatever management is suggested.",
+        "correct": [
+          "J"
+        ],
+        "explanation": "Informal admission to general psychiatric ward. It would appearthat this lady has developed a comorbid depressive illness. Her eating appears to have been improving. Therapeutic priority should be given to managing her depressive symptoms and her high risk of completing suicide. From the options listed, the most appropriate would be an informal admission to a general psychiatric ward. Outpatient or home treatment may be considered; however, given the levels of risk involved, admission to hospital would probably be more appropriate."
+      },
+      {
+        "id": "crash_course_match_46_02",
+        "prompt": "A 19-year-old male medical student has a diagnosis of bulimia nervosa.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "NICE recommends cognitive-behavioural therapy as the first-line intervention for bulimia nervosa. Initially, this should be delivered via guided self- help but if this is ineffective or inappropriate, then therapist-guided individual cognitive-behavioural therapy is recommended."
+      },
+      {
+        "id": "crash_course_match_46_03",
+        "prompt": "A 16-year-old schoolgirl has a diagnosis of anorexia nervosa. She has been under the care of the specialist intensive team but has continued to lose weight. Her body mass index is currently 11.7 kg/ m?. On examination, it is noted that she has incredible difficulty concentrating. She is hypotensive and bradycardic. Blood tests show profound hypoglycaemia and hypokalaemia. There are U waves on electrocardiogram. She vehemently refuses to eat, refutes that she has a problem and categorically declines hospital admission. She just wants to be left alone to study for her Alevels.",
+        "correct": [
+          "K"
+        ],
+        "explanation": "This girl is incredibly unwell, and her current physical condition poses a threat to her life. By virtue of her mentalillness, and probably also her state of malnutrition, she clearly lacks capacity to make decisions regarding her healthcare. Immediate hospital treatment is required, and she should be transferred urgently under mental health legislation. In addition, 323 given her persistent refusal to eat, and her lack of capacity and insight, it is likely that involuntary nasogastric feeding will be required to save her life. This is both a clinically and medicolegally difficult situation and should be managed by a specialist."
+      },
+      {
+        "id": "crash_course_match_46_04",
+        "prompt": "A 28-year-old lawyer has a diagnosis of anorexia nervosa. She is motivated to engage with treatment. She feels that a number of her past difficulties, including the death of her mother, starting work in her current firm, and not being able to stand up to dominant male partners, have played a role in the development of her illness. She is keen to explore these.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Cognitive-behavioural therapy (eating disorder focused). This is one of the first-line psychological therapies recommended by NICE (2017) for managing anorexia. Although this women's difficulties with relationships may suggest interpersonal therapy, this is not currently recommended for management of eating disorders."
+      },
+      {
+        "id": "crash_course_match_46_05",
+        "prompt": "A 14-year-old schoolboy was recently diagnosed with anorexia nervosa. It is noted that his parents consistently correct him when he is trying to tell his story. Mum is a consultant surgeon, and dad is a barrister, and both spend a lot of time at work. They have persistently told him that they want him to be a doctor when he grows up and have set high standards for him. However, when interviewed alone, he stated that he aspired to attend art college and hoped for a career in photojournalism.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Family therapy; This boy lives in a family in which both parents are high-achievers, and expectations. Family therapy is likely to be useful in this case and is the first-line treatment recommended by NICE (2017)foranorexia in adolescents. Chapter 25 The sleep-wake disorders Diagnosis of sleep-wake disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_47",
+    "title": "Crash Course EMQ 47 - Diagnosis of sleep-wake disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Circadian rhythm sleep disorders"
+      },
+      {
+        "id": "B",
+        "label": "Primary insomnia"
+      },
+      {
+        "id": "C",
+        "label": "Insomnia secondary to psychiatric disorder"
+      },
+      {
+        "id": "D",
+        "label": "Insomnia secondary to general medical condition"
+      },
+      {
+        "id": "E",
+        "label": "Insomnia secondary to substances"
+      },
+      {
+        "id": "F",
+        "label": "Narcolepsy"
+      },
+      {
+        "id": "G",
+        "label": "Non-rapid eye movement (non-REM) sleep arousal disorder"
+      },
+      {
+        "id": "H",
+        "label": "Primary hypersomnolence REMsleepbehaviourdisorder Sleep-related breathing disorder"
+      },
+      {
+        "id": "I",
+        "label": "EM sleep behaviour disorder"
+      },
+      {
+        "id": "J",
+        "label": "leep-related breathing disorder"
+      },
+      {
+        "id": "K",
+        "label": "Sleep-related movement disorder What is the most likely diagnosis?"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_47_01",
+        "prompt": "A 52-year-old man fractures his wrist after punching his wardrobe while asleep. His wife reports that he was repeatedly shouting 'Leave me alone!' When woken he recalls a vivid dream about being chased by terrorists. He has no past psychiatric history, uses no substances and is otherwise well.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "REM sleep behaviour disorder. This commonly presents in middle-aged men. Details of the dream are recalled. It is closely linked with synucleinopathies."
+      },
+      {
+        "id": "crash_course_match_47_02",
+        "prompt": "A A 14-year-old girl fractures her wrist after walking into her wardrobe while asleep.When woken she seems disorientated. In the morning she recalls nothing of the night's events. Her father experienced sleep terrors during childhood.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Non-REM sleep arousal disorder. Sleepwalking and sleep terrors are both subtypes of non- REM sleep arousal disorders. Sufferers are disorientated on waking. The two subtypes are closely linked and run in families."
+      },
+      {
+        "id": "crash_course_match_47_03",
+        "prompt": "A 52-year-old man fractures his wrist after being in a road traffic accident caused by him falling asleep at the wheel. He reports excessive daytime sleepiness for the past 5 years. His wife reports that he snores. His body mass index is 37 kg/m? and his blood pressure is 180/100mmHg.",
+        "correct": [
+          "J"
+        ],
+        "explanation": "Sleep-related breathing disorder. This increases the risk of road traffic accidents several fold. Obesity increases risk for it, and hypertension can arise as a consequence. His wife's account of snoring is suggestive of upper airway obstruction, but he would need further investigation to confirm the diagnosis."
+      },
+      {
+        "id": "crash_course_match_47_04",
+        "prompt": "A 27-year-old man fractures his wrist after leaping off a bus shelter to prove he can fly. He has not slept for the last 3 nights. He denies any use of substances and his urine drug screen is clear. He was depressed for 3 months the previous year.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Insomnia secondary to psychiatric disorder. This history is suggestive of mania, likely secondary to bipolar disorder."
+      },
+      {
+        "id": "crash_course_match_47_05",
+        "prompt": "A 23-year-old woman fractures her wrist after falling suddenly to the floor when her uncle makes a joke. She sleeps well at night, but also often falls asleep during the day without warning.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Narcolepsy. This history is suggestive of cataplexy. Intrusive daytime sleepiness is the other core symptom of narcolepsy. Chapter 26 The psychosexual disorders Medication associated with psychosexual disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_48",
+    "title": "Crash Course EMQ 48 - Medication associated with psychosexual disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Select the medication most likely to cause the problem:",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Clozapine"
+      },
+      {
+        "id": "B",
+        "label": "Fluoxetine"
+      },
+      {
+        "id": "C",
+        "label": "Mirtazapine"
+      },
+      {
+        "id": "D",
+        "label": "Paracetamol"
+      },
+      {
+        "id": "E",
+        "label": "Propranolol"
+      },
+      {
+        "id": "F",
+        "label": "Pregabalin"
+      },
+      {
+        "id": "G",
+        "label": "Ropinirole"
+      },
+      {
+        "id": "H",
+        "label": "$ Salbutamol Trazodone"
+      },
+      {
+        "id": "I",
+        "label": "razodone"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_48_01",
+        "prompt": "Difficulty in achieving orgasm.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Fluoxetine. Selective serotonin reuptake inhibitors are commonly associated with anorgasmia. Mirtazapine is the antidepressant 324 least likelytobeassociatedwithsexual side-effects."
+      },
+      {
+        "id": "crash_course_match_48_02",
+        "prompt": "Difficulty in achieving an erection.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Propranolol. Antihypertensives including β- blockers can result in erectile dysfunction."
+      },
+      {
+        "id": "crash_course_match_48_03",
+        "prompt": "Exhibitionism.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Ropinirole is a dopamine agonist. Paraphilia is a rare side-effect of dopamine agonists."
+      },
+      {
+        "id": "crash_course_match_48_04",
+        "prompt": "Prolonged, painful erection.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Trazodone. Priapism is a very rare side- effect of any drug which blocks α-adrenergic receptors. Chapter 27 Disorders relating to the menstrual cycle, pregnancy and the puerperium Management of mental illness in the puerperium"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_49",
+    "title": "Crash Course EMQ 49 - Management of mental illness in the puerperium",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Lithium"
+      },
+      {
+        "id": "B",
+        "label": "Sertraline"
+      },
+      {
+        "id": "C",
+        "label": "Maternal skills teaching"
+      },
+      {
+        "id": "D",
+        "label": "Doxepin Reassurance and check-up in 1 week"
+      },
+      {
+        "id": "E",
+        "label": "Olanzapine"
+      },
+      {
+        "id": "F",
+        "label": "his woman appears to be developing a puerperal psychosis"
+      },
+      {
+        "id": "G",
+        "label": "Sodium valproate Electroconvulsive therapy"
+      },
+      {
+        "id": "H",
+        "label": "E Mirtazapine"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_49_01",
+        "prompt": "A 17-year-old mother of a 3-month-old baby reports that she is finding motherhood to be a burden and is worried that she is not 'doing it properly'.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "This woman may benefit from maternal skills teaching. The health visitor can be an invaluable resource for providing this."
+      },
+      {
+        "id": "crash_course_match_49_02",
+        "prompt": "A 26-year-old lady appears weepy and reports feeling 'down' 3 days after the birth of her son.",
+        "correct": [
+          "E"
+        ],
+        "explanation": "This woman appears to be suffering from the “babyblues'.Simple reassurance should be given. This will likely pass after 10 days or so, but follow-up is important to ensure that she is not developing postnatal depression."
+      },
+      {
+        "id": "crash_course_match_49_03",
+        "prompt": "A 24-year-old lady with a history of bipolar affective disorder is 1 week postpartum and presents with child is Jesus Christ.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "This woman appears to be developing a puerperal psychosis. Given her symptoms, the use of an antipsychotic medication is indicated. Olanzapine is widely used for puerperal psychosis. Electroconvulsive therapy may be required if she does not respond to pharmacological treatment. These interventions would need to be delivered on an inpatient basis, preferably in a mother-and-baby psychiatric unit."
+      },
+      {
+        "id": "crash_course_match_49_04",
+        "prompt": "A 33-year-old lady with a history of depression is 4 weeks postpartum. She has marked psychomotor retardation. Her husband reports that she has not been eating or drinking for the past week.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "This woman is likely to have a severe postnatal depressive illness. Given her presentation and her poor oral intake, her illness should be considered to be potentially life-threatening. Electroconvulsive therapy should be considered."
+      },
+      {
+        "id": "crash_course_match_49_05",
+        "prompt": "A 29-year-old mother of a 2-month-old girl is tearful and reports feeling low in mood. She is finding breastfeeding difficult. She has early morning wakening and has stopped running the mother-and- baby group she set up while pregnant. Psychotropic medication in pregnancy",
+        "correct": [
+          "B"
+        ],
+        "explanation": "This woman is likely to be suffering a depressive episode with some functional impairment suggesting it is of moderate severity. The National Institute for Healthand Care Excellence (NICE; 2014) recommends she should be offered antidepressant medication or a high- intensity psychological intervention (e.g., cognitive-behavioural therapy). Should she wish to start an antidepressant, sertraline is a good choice as very little is excreted in breast milk. Doxepin should be avoided in breastfeeding mothers but in general tricyclics are probably safe in breastfeeding. She may also benefit from referral to the health visitor for support with breastfeeding. Psychotropic medication in pregnancy"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_50",
+    "title": "Crash Course EMQ 50 - She has early morning wakening and has stopped running the mother-and- baby group she set up while pregnant. Psychotropic medication in preg",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Haloperidol"
+      },
+      {
+        "id": "B",
+        "label": "Olanzapine"
+      },
+      {
+        "id": "C",
+        "label": "Diazepam"
+      },
+      {
+        "id": "D",
+        "label": "Aripiprazole"
+      },
+      {
+        "id": "E",
+        "label": "Imipramine Lithium carbonate"
+      },
+      {
+        "id": "F",
+        "label": "he use of lithium during pregnancy has been associated with an increased risk of fetal heart defects, including but not limited to Ebstein anomaly (displacement of the opening of the tricuspid valve)"
+      },
+      {
+        "id": "G",
+        "label": "Carbamazepine"
+      },
+      {
+        "id": "H",
+        "label": "Fluoxetine Chlorpromazine From the list above, select the medication described by each of the statements below."
+      },
+      {
+        "id": "I",
+        "label": "oth carbamazepine and sodium valproate are associated with the development of neural tube defects"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_50_01",
+        "prompt": "Should not be prescribed to women of childbearing age, due to the high risk of neural tube defects.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Both carbamazepine and sodium valproate are associated with the development of neural tube defects. It is not recommended to prescribe carbamazepine or sodium valproate to women of childbearing age, and less teratogenic alternatives should be considered. If it is considered absolutely necessary (e.g., treatment-resistant mania), reliable contraception is essential."
+      },
+      {
+        "id": "crash_course_match_50_02",
+        "prompt": "Associated with increased risk of gestational diabetes.",
+        "correct": [
+          "B"
+        ],
+        "explanation": "Olanzapine is associated with an increased risk of gestational diabetes. It should be prescribed with caution in all pregnant women, and alternatives should be used in women who are already at increased risk of gestational diabetes (e.g., obesity, gestational diabetes of diabetes). In any case, blood and/or urinary glucose should be regularly monitored."
+      },
+      {
+        "id": "crash_course_match_50_03",
+        "prompt": "May be continued in pregnancy if risks of discontinuation are high, but should be balanced against the increased risk of fetal heart defects.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "The use of lithium during pregnancy has been associated with an increased risk of fetal heart defects, including but not limited to Ebstein anomaly (displacement of the opening of the tricuspid valve). Cardiac abnormalities occur in around 1 in 100 live births, increasing twofold to 2 in 100 live births in children exposed to lithium. There is a dose-response effect, with higher doses associated with greater risk. This risk needs to be balanced against the risk of relapse of illness associated with discontinuation of lithium, as untreated affective/psychotic illness can place the fetus at greatly increased risk."
+      },
+      {
+        "id": "crash_course_match_50_04",
+        "prompt": "May be continued in pregnancy if benefits outweigh risks, but associated with an increased risk of pulmonary hypertension in the neonate.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "A class effect of selective serotonin reuptake inhibitors taken in the third trimester is an increased risk of persistent neonatal pulmonary hypertension (absolute risk increased from 1 in 1000 to 3 in 1000 live births). This needs to be balanced against the risk of untreated anxiety or depression on the developing fetus."
+      },
+      {
+        "id": "crash_course_match_50_05",
+        "prompt": "Likely to need dose adjustment during pregnancy.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Lithium. Lithium levels should be checked every 4 weeks during pregnancy. Physiological changes during pregnancy mean doses have to be increased on average by 50% during the third trimester to remain within the therapeutic range. Chapter 28 The personality disorders Management of patients with personality disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_51",
+    "title": "Crash Course EMQ 51 - Management of patients with personality disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each item, select the ONE best option from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Weekly dispensing of medication"
+      },
+      {
+        "id": "B",
+        "label": "Detention under mental health legislation"
+      },
+      {
+        "id": "C",
+        "label": "Informal, time-limited admission to psychiatric ward"
+      },
+      {
+        "id": "D",
+        "label": "Removal to police custody"
+      },
+      {
+        "id": "E",
+        "label": "Referral for mentalization-based therapy"
+      },
+      {
+        "id": "F",
+        "label": "Encouragement to engage with existing care plan"
+      },
+      {
+        "id": "G",
+        "label": "Referral to social work"
+      },
+      {
+        "id": "H",
+        "label": "Trial of antipsychotic medication Advice regarding lifestyle choices"
+      },
+      {
+        "id": "I",
+        "label": "his gentleman could benefit from lifestyle advice"
+      },
+      {
+        "id": "J",
+        "label": "Day-hospital referral"
+      },
+      {
+        "id": "K",
+        "label": "Urgent multiagency meeting Choose the most appropriate intervention for the cases below."
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_51_01",
+        "prompt": "A 36-year-old lady with dependent personality disorder arrives at accident and emergency demanding admission to the hospital because she feels that she is not coping at home. She has missed her last two appointments with the occupational therapist.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Encourage to engage with existing care plan. Patients with dependent personality disorder can quickly become institutionalized, and alternatives to admission should be preferred. In this case, the lady should be empathically reassured, and encouraged to engage with her occupational therapist."
+      },
+      {
+        "id": "crash_course_match_51_02",
+        "prompt": "A 22-year-old lady with emotionally unstable personality disorder was brought to hospital by police after being restrained to prevent her from jumping from a railway viaduct. She is covered in bruises and reports that her partner assaulted her and threw her out of the house. She is inconsolably upset, extremely pessimistic and voicing ongoing suicidal intent and plans.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Informal, time-limited admission to psychiatric ward. She is clearly distressed and-in the short term-at incredibly high risk of completing suicide or otherwise harming herself.It would also appear that there is no safe place to which she could be discharged. A short 'crisis\" admission to a psychiatric ward, of agreed duration and with clear goals and boundaries, would allow for her distress and short-term risk to be managed, and longer-term support organized. Discharging her to police custody is not appropriate."
+      },
+      {
+        "id": "crash_course_match_51_03",
+        "prompt": "A 43-year-old man has paranoid personality disorder. He is socially isolated and has longstanding worries that he will be targeted by local youth gangs. He does not trust doctors; however, he has recently acknowledged that his concerns are perhaps unfounded.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "It may be worth offering this gentleman a trial of antipsychotic medication. While psychotherapeutic measures would be more likely to be effective in the long term, he appears to be untrusting of services, and it would be unlikely that he would engage with this.Asmall dose of an antipsychotic may be enough to reduce his paranoia to the extent that he may engage with a psychotherapist and may also provide a reason for ongoing contact with doctors such that trust and rapport can be established."
+      },
+      {
+        "id": "crash_course_match_51_04",
+        "prompt": "A 19-year-old lady has a diagnosis of emotionally unstable personality disorder, and an extensive history of self-harm. She has recently developed a comorbid depressive illness that her general practitioner (GP) feels would benefit from treatment with an antidepressant. However, the GP is reluctant to prescribe because of previous overdoses.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Weekly dispensing. Depression arising in patients with personality disorders can be amenable to drug treatment; however, the benefits of this needto be balanced with the risk of overdosing on potentially harmful drugs. Antidepressants dispensed on a weekly/twice- weekly/three times weekly/daily basis can, to some degree, modify this risk."
+      },
+      {
+        "id": "crash_course_match_51_05",
+        "prompt": "A 39-year-old man with a diagnosis of anxious personality disorder reports recent initial insomnia. He attributed this to worries about his future. Since he was made homeless, he has been spending his days drinking complimentary coffee in the support centre. When he cannot sleep at night, he lies in bed and smokes cigarettes.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "This gentleman could benefit from lifestyle advice. His situation has recently changed, which may explain his increased anxiety. However, it is likely that his caffeine consumption is contributing to his insomnia, and that smoking cigarettes all night is perpetuating the problem. Advice regarding caffeine, nicotine, diet and exercise should be given in the first instance. Chapter 29 The neurodevelopmental disorders Psychosocial interventions in neurodevelopmental disorders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_52",
+    "title": "Crash Course EMQ 52 - Psychosocial interventions in neurodevelopmental disorders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "Select the psychosocial intervention which is recommended as first-line treatment for each of the cases below.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Anger management"
+      },
+      {
+        "id": "B",
+        "label": "Antivictimization intervention"
+      },
+      {
+        "id": "C",
+        "label": "Cognitive-behavioural therapy"
+      },
+      {
+        "id": "D",
+        "label": "Habit control"
+      },
+      {
+        "id": "E",
+        "label": "Nil recommended Parent-training/education programme"
+      },
+      {
+        "id": "F",
+        "label": "arent-training/education programme is first line for children of school age."
+      },
+      {
+        "id": "G",
+        "label": "Play-based social-communication intervention"
+      },
+      {
+        "id": "H",
+        "label": "Social learning program"
+      },
+      {
+        "id": "I",
+        "label": "Structured leisure activity"
+      },
+      {
+        "id": "J",
+        "label": "Supported employment programme"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_52_01",
+        "prompt": "A 7-year-old boy with attention deficit hyperactivity disorder (ADHD)",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Parent-training/education programme is first line for children of school age."
+      },
+      {
+        "id": "crash_course_match_52_02",
+        "prompt": "A 27-year-old woman with ADHD",
+        "correct": [
+          "E"
+        ],
+        "explanation": "Nil recommended. Although cognitive- behavioural therapy may be helpful in adults with ADHD, particularly in those with residual symptoms after medication, there is insufficient evidence for NICE to currently recommend its standalone use as first line. 325"
+      },
+      {
+        "id": "crash_course_match_52_03",
+        "prompt": "A 7-year-old girl with autism spectrum disorder (ASD)",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Play-based social-communication intervention. First-line intervention for children of school age with ASD."
+      },
+      {
+        "id": "crash_course_match_52_04",
+        "prompt": "A 27-year-old man with ASD",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Social learning program. First-line intervention for adults with ASD."
+      },
+      {
+        "id": "crash_course_match_52_05",
+        "prompt": "A 10-year-old girl with Tourette syndrome",
+        "correct": [
+          "D"
+        ],
+        "explanation": "Habit control. Psychoeducation, habit control or exposure and response prevention are recommended first line for Tourette syndrome. Chapter 30 Child and adolescent psychiatry Diagnosis of psychiatric disorders with onset in childhood or adolescence"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_53",
+    "title": "Crash Course EMQ 53 - Diagnosis of psychiatric disorders with onset in childhood or adolescence",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each scenario below, choose the most likely corresponding option from the list given above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Academic setting inappropriate to ability"
+      },
+      {
+        "id": "B",
+        "label": "Age-appropriate behaviour"
+      },
+      {
+        "id": "C",
+        "label": "Attention deficit hyperactivity disorder (ADHD)"
+      },
+      {
+        "id": "D",
+        "label": "Child abuse Conduct disorder"
+      },
+      {
+        "id": "F",
+        "label": "Elective mutism"
+      },
+      {
+        "id": "G",
+        "label": "Oppositional defiant disorder"
+      },
+      {
+        "id": "H",
+        "label": "Reactive attachment disorder"
+      },
+      {
+        "id": "I",
+        "label": "Separation anxiety disorder Social anxiety"
+      },
+      {
+        "id": "K",
+        "label": "Specific phobia"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_53_01",
+        "prompt": "A 6-year-old boy is referred by an educational psychologist, due to his behaviour at school. He seems to be unable to concentrate on his schoolwork and has been running around the classroom distracting fellow pupils from completing their work, often by jumping on tables and throwing chairs around. On one occasion, he flooded the play area when he broke a water pipe. His parents are very surprised, because he is entirely normal at home.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Academic setting inappropriate to ability. While many of the behaviours are suggestive of the core symptoms of ADHD, note that they appear to be limited to the academic setting (he appears fine at home). ADHD is pervasive rather than situational, and this case is suggestive that the boy may be having difficulties with schoolwork (either because it is too difficult or too easy)."
+      },
+      {
+        "id": "crash_course_match_53_02",
+        "prompt": "A 12-year-old boy has been incredibly disobedient, both at school and within the home. He has been dancing in front of the TV when his father has been watching the football. He has also been using swear words in thehouse,and-ontwo occasions inthelast week-has run away from home afterbeing confined to his room. His parents are surprised that he has not been bullying others, or in trouble with the police.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Oppositional defiant disorderis similar to conduct disorder in that behaviour is negativistic, rebellious, defiant and disruptive. However, unlike conduct disorder, the behaviour associated with oppositional defiantdisorder does not violate the rights of others and troubles with the law are less common."
+      },
+      {
+        "id": "crash_course_match_53_03",
+        "prompt": "A 4-year-old girl watches other children playing at nursery but does not attempt to join in. When she falls over in the playground she cowers away when an adult offers first-aid.She has a sad demeanour but otherwise shows little emotion. She has been taken into care after experiencing physical abuse from both parents.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Reactive attachment disorder.This is suggested by the child's history of abuse, markedfearfulness and social withdrawal.The diagnosis is not child abuse alone, as not all children who are abused respond in this way or go on to experience mental disorder."
+      },
+      {
+        "id": "crash_course_match_53_04",
+        "prompt": "A 10-year-old girl has always been shy. Recently, her father worked away for a month. Now she is experiencing nausea and abdominal pain every morning, except at the weekends. She can be persuaded to go to school but only if her father walks with her to the school gates.",
+        "correct": [
+          "I"
+        ],
+        "explanation": "Separation anxiety disorder. This is suggested by the child's fear of removal from a major attachment figure, triggered by a time apart. She is more anxious about this than would be expected of a 10-year-old. She is experiencing somatic symptoms of anxiety."
+      },
+      {
+        "id": "crash_course_match_53_05",
+        "prompt": "A 4-year-old boy has recently been adopted by his aunt and uncle after his parents died in a road traffic accident. He had normal language development and initially he seemed to settle in well to his new home. However, he gradually stopped speaking at home. Nursery staff report he speaks normally there. During the consultation he initially does not speak but does so when his adoptive parents leave the room. His adoptive parents appear caring but anxious and unsure what to do. They have been arguing recently.",
+        "correct": [
+          "F"
+        ],
+        "explanation": "Elective mutism. This is suggested by the child's normal language development and ability to speak in some situations. Elective mutism often follows emotional trauma (such as separation from parents, war, severe illness) and situations where there is conflict at home. Chapter 31 Older adult psychiatry Adverse drug reactions in older adults receiving psychotropic medication"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_54",
+    "title": "Crash Course EMQ 54 - Adverse drug reactions in older adults receiving psychotropic medication",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following patients, select themedication most likely to be implicated in their presentation from the options above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Lithium"
+      },
+      {
+        "id": "B",
+        "label": "Sodium valproate"
+      },
+      {
+        "id": "C",
+        "label": "Diazepam"
+      },
+      {
+        "id": "D",
+        "label": "Lorazepam"
+      },
+      {
+        "id": "E",
+        "label": "Trazodone"
+      },
+      {
+        "id": "F",
+        "label": "Mirtazapine"
+      },
+      {
+        "id": "G",
+        "label": "Amitriptyline"
+      },
+      {
+        "id": "H",
+        "label": "Fluoxetine"
+      },
+      {
+        "id": "I",
+        "label": "Olanzapine"
+      },
+      {
+        "id": "J",
+        "label": "Haloperidol"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_54_01",
+        "prompt": "A 67-year-old woman complains of insomnia, anxiety and anorexia. She has tinnitus and keeps mistaking her oxygen tubing for a snake. She was admitted 10 days ago with a myocardial infarction and her sleeping tablet was stopped.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "Diazepam. Abruptly discontinuing benzodiazepines can result in withdrawal symptoms. These can have onset within a day 326 of stopping a short-acting benzodiazepine (e.g., lorazepam) or up to 3 weeks for a longer acting drug (e.g., diazepam). Symptoms include insomnia, anxiety, anorexia, tremor, perspiration, tinnitus and perceptual disturbances. such as this woman's visual illusion."
+      },
+      {
+        "id": "crash_course_match_54_02",
+        "prompt": "A 72-year-old man receiving treatment for depression presents with general malaise. His serum sodium is 126mmol/L.",
+        "correct": [
+          "H"
+        ],
+        "explanation": "Fluoxetine. All antidepressants, but particularly selective serotonin reuptake inhibitors, can be associated with the syndrome of inappropriate secretion of antidiuretic hormone, leading to hyponatraemia.This is particularly likely in older adults."
+      },
+      {
+        "id": "crash_course_match_54_03",
+        "prompt": "A 69-year-old man receiving treatment for bipolar affective disorder presents with vomiting and diarrhoea. His serum sodium is 151 mmol/L.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "Lithium. Lithium can induce nephrogenic diabetes insipidus, leading to hypernatraemia if fluid intake cannot be maintained, e.g., due to diarrhoea and vomiting. Dehydration increases the risk of lithium toxicity (which is renally excreted) so a random lithium level should also be urgently checked for this man."
+      },
+      {
+        "id": "crash_course_match_54_04",
+        "prompt": "A 74-year-old man collapses. His electrocardiogram shows torsade de pointes. He was admitted 5 days ago with delirium requiring pharmacological management.",
+        "correct": [
+          "J"
+        ],
+        "explanation": "Haloperidol. This man is likely to have received haloperidol to manage his delirium. Haloperidol can cause prolongation of the QT interval. In extreme cases this can lead to torsade de pointes. Olanzapine is less likely to have this side-effect."
+      },
+      {
+        "id": "crash_course_match_54_05",
+        "prompt": "An 81-year-old woman has delirium. She has recently been started on analgesia for trigeminal neuralgia.",
+        "correct": [
+          "G"
+        ],
+        "explanation": "Amitriptyline. Anticholinergic medication is a big risk factor for delirium. Amitriptyline is often prescribed for neuropathic pain. Chapter 32 Forensic psychiatry Diagnosis of mental disorder in offenders"
+      }
+    ]
+  },
+  {
+    "id": "crash_course_emq_55",
+    "title": "Crash Course EMQ 55 - Diagnosis of mental disorder in offenders",
+    "source": "Crash Course Psychiatry, Extended-matching questions",
+    "sourceStatus": "exact",
+    "instructions": "For each of the following scenarios, select the most appropriate diagnosis from the list above.",
+    "choices": [
+      {
+        "id": "A",
+        "label": "Othello syndrome"
+      },
+      {
+        "id": "B",
+        "label": "Paranoid schizophrenia"
+      },
+      {
+        "id": "C",
+        "label": "Antisocial personality disorder"
+      },
+      {
+        "id": "D",
+        "label": "Mania with psychotic symptoms"
+      },
+      {
+        "id": "E",
+        "label": "Severe depression with psychotic symptoms Emotionally unstable personality disorder"
+      },
+      {
+        "id": "G",
+        "label": "De Clerambault syndrome"
+      },
+      {
+        "id": "H",
+        "label": "Delirium tremens Obsessive-compulsive disorder Mild intellectual disability"
+      },
+      {
+        "id": "J",
+        "label": "here is an association between fire-setting and mild intellectual disability.This should be differentiated from arson (deliberate fire-raising for secondary gain, e.g., insurance money), pyromania (compulsion to set fires, followed by a 'release of tension'), wilful destruction of property (e.g., in antisocial personality disorder) orfire-setting driven by other mental disorders"
+      },
+      {
+        "id": "K",
+        "label": "Drug-induced psychosis"
+      }
+    ],
+    "items": [
+      {
+        "id": "crash_course_match_55_01",
+        "prompt": "A 35-year-old man was arrested after he assaulted a bus driver. He believed that the driver was trying to procure the services of his wife, who he is convinced is working as a prostitute. He has dismissed extensive reassurances from his wife and his own siblings. He reports that he has a sword in the back of his car and intended to 'get the truth out of her'. He has a history of alcohol abuse.",
+        "correct": [
+          "A"
+        ],
+        "explanation": "This man has delusional jealousy. He is convinced that his partner is being unfaithful, despite extensive reassurances and evidence tothecontrary.The nameOthellosyndrome\" is derived from the play Othello by William Shakespeare, in which the protagonist murders his wife (Desdemona. which means ‘the unfortunate' in Greek). Othello syndrome is associated with alcohol misuse and violence. Treatment includes antipsychotic medication and psychotherapy; however, given the very poor prognosis, it is often said that the most effective treatment is 'geographical' (i.e., relocation of the spouse to a distant area)."
+      },
+      {
+        "id": "crash_course_match_55_02",
+        "prompt": "A 50-year-old man with no psychiatric history was arrested after committing a public order offence on a train home from a music festival. He assaulted three police officers and required restraint. At interview, he appears distressed and is clearly responding to auditory hallucinations. He is convinced that the police are Nazis who plan to use his brain for experimentation.",
+        "correct": [
+          "K"
+        ],
+        "explanation": "The symptoms present in this man (delusions and hallucinations) are suggestive of a paranoid psychotic state. Given his age, the implied rapid onset of symptoms and the fact that he has no psychiatric history, this is unlikely to be a first presentation of paranoid schizophrenia. The fact that he has been at a music festival should be a pointer that substances may be implicated in his presentation. His symptoms are not typical of an alcohol-withdrawal delirium; however, this is an important differential."
+      },
+      {
+        "id": "crash_course_match_55_03",
+        "prompt": "A 21-year-old woman has been charged with fraud. She has applied for several credit cards and bank loans in the last fortnight and has used a number of different names to do so. She says that she is a pop star and needs money to fund a world tour. She was recently discharged from hospital following a depressive episode.",
+        "correct": [
+          "D"
+        ],
+        "explanation": "This lady is likely to be suffering from a manic illness. She has grandiose delusions (that she is a pop star). Note that she has recently been hospitalized with a depressive illness: her mania may be associated with drug treatment or may signify the presence of a bipolar illness. Crimes related to mania include financial offences and occasionally aggression."
+      },
+      {
+        "id": "crash_course_match_55_04",
+        "prompt": "A 44-year-old man is arrested and charged with murdering a sandwich shop clerk, who was on his way home from work. He has an extensive forensic history and is a well-known member of an organized criminal gang. He denies any psychiatric history and admits killing the man because he got his order wrong. He appears cold and emotionless.",
+        "correct": [
+          "C"
+        ],
+        "explanation": "The nature of this crime (killing a man in retribution for a mistake in making a sandwich) is alarming. The fact this man has an extensive forensic history,isactively involved with organized crime and appears cold and emotionless in the face of a crime of such magnitude is strongly suggestive ofdissocial/antisocial personality disorder.It could be that the man also scores highly on the Hare Psychopathy Checklist Revised (the'gold assessment would be required to confirm this diagnosis."
+      },
+      {
+        "id": "crash_course_match_55_05",
+        "prompt": "A 30-year-old man is arrested and charged with setting his neighbour's caravan on fire. He appears to be from a distant town; however, he reports that he used to have contact with psychiatric services as a youngster. He thought his actions would please people in his neighbourhood because the flames were “pretty\".",
+        "correct": [
+          "J"
+        ],
+        "explanation": "There is an association between fire-setting and mild intellectual disability.This should be differentiated from arson (deliberate fire-raising for secondary gain, e.g., insurance money), pyromania (compulsion to set fires, followed by a 'release of tension'), wilful destruction of property (e.g., in antisocial personality disorder) orfire-setting driven by other mental disorders. 327"
       }
     ]
   }
