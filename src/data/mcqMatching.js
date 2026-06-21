@@ -1,7 +1,7 @@
 const mcqMatchingSets = [
   {
     "id": "crash_course_emq_01",
-    "title": "Crash Course EMQ 1 - Management of antipsychotic-induced extrapyramidal side-effects",
+    "title": "Antipsychotic EPS management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE best management option from the list above.",
@@ -92,7 +92,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_02",
-    "title": "Crash Course EMQ 2 - He makes frequent darting movements with his tongue but seems unaware of this. Mechanism of action of antidepressants",
+    "title": "Antidepressant mechanisms",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Select the antidepressant whose mechanism is best described by the descriptions below:",
@@ -179,7 +179,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_03",
-    "title": "Crash Course EMQ 3 - Modalities of individual psychotherapy",
+    "title": "Individual psychotherapy modalities",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -274,7 +274,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_04",
-    "title": "Crash Course EMQ 4 - He feels that a therapy that is 'more practical than talking' would be helpful. Psychodynamic psychotherapy",
+    "title": "Psychodynamic psychotherapy",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following, select the ONE most appropriate descriptor from the list above.",
@@ -365,7 +365,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_05",
-    "title": "Crash Course EMQ 5 - Legislation",
+    "title": "Legislation",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Which type of legislation could help in the management of the following cases?",
@@ -440,7 +440,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_06",
-    "title": "Crash Course EMQ 6 - Choice of service provision for mental disorder",
+    "title": "Service provision",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following situations, select the ONE most appropriate service provision from the list above.",
@@ -531,7 +531,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_07",
-    "title": "Crash Course EMQ 7 - Mental disorder and self-harm",
+    "title": "Mental disorder and self-harm",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely mental disorder from the list above.",
@@ -626,7 +626,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_08",
-    "title": "Crash Course EMQ 8 - Immediate psychiatric management of the patient who has inflicted harm upon themselves",
+    "title": "Self-harm management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following cases, select the ONE most appropriate management option from the list above.",
@@ -649,7 +649,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "E",
-        "label": "Discharge with community mental health team later in the week Discharge with outpatient psychiatry clinic appointment next month"
+        "label": "Discharge with community mental health team later in the week"
+      },
+      {
+        "id": "F",
+        "label": "Discharge with outpatient psychiatry clinic appointment next month"
       },
       {
         "id": "G",
@@ -717,7 +721,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_09",
-    "title": "Crash Course EMQ 9 - Differential diagnosis of cognitive impairment Delirium",
+    "title": "Cognitive impairment differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the most likely diagnosis from the list above.",
@@ -804,7 +808,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_10",
-    "title": "Crash Course EMQ 10 - During a recent admission with pancreatitis she was noted to show signs of alcohol withdrawal. Potentially reversible causes of dementia",
+    "title": "Reversible dementia causes",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the most likely diagnosis from the list above.",
@@ -899,7 +903,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_11",
-    "title": "Crash Course EMQ 11 - ACE-Ill is 76/100.Physical examination is normal. Subtypes of dementia",
+    "title": "Dementia subtypes",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the most likely cause from the options above.",
@@ -994,7 +998,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_12",
-    "title": "Crash Course EMQ 12 - CT of the head shows generalized cerebral atrophy. Clinical features in cognitive impairment",
+    "title": "Cognitive impairment signs",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the clinical feature described from the options above.",
@@ -1081,7 +1085,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_13",
-    "title": "Crash Course EMQ 13 - substance use problems",
+    "title": "Substance use problems",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following statements, select the most appropriate answer from the options above.",
@@ -1168,7 +1172,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_14",
-    "title": "Crash Course EMQ 14 - Differential diagnosis of psychosis",
+    "title": "Psychosis differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list of options above.",
@@ -1271,7 +1275,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_15",
-    "title": "Crash Course EMQ 15 - He is quite cheerful and enjoys speaking with his relatives. Psychosis secondary to a general medical condition orpsychoactive substance use",
+    "title": "Organic or substance-induced psychosis",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
@@ -1350,7 +1354,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_17",
-    "title": "Crash Course EMQ 17 - Mental state examination in psychosis (thought disturbance)",
+    "title": "Psychosis thought disturbance",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select ONE clinical feature described from the list above.",
@@ -1453,7 +1457,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_18",
-    "title": "Crash Course EMQ 18 - Differential diagnosis of elevated or irritable mood",
+    "title": "Elevated or irritable mood differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
@@ -1476,11 +1480,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "E",
-        "label": "Bipolar affective disorder Cyclothymia"
+        "label": "Bipolar affective disorder"
       },
       {
         "id": "F",
-        "label": "yclothymia"
+        "label": "Cyclothymia"
       },
       {
         "id": "G",
@@ -1488,7 +1492,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Schizoaffective disorder Elevated or irritable mood secondary to a general medical condition"
+        "label": "Schizoaffective disorder"
+      },
+      {
+        "id": "I",
+        "label": "Elevated or irritable mood secondary to a general medical condition"
       },
       {
         "id": "J",
@@ -1544,7 +1552,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_19",
-    "title": "Crash Course EMQ 19 - Elevated or irritable mood secondary to a general medical condition or psychoactive substance use",
+    "title": "Secondary elevated mood",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
@@ -1635,7 +1643,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_20",
-    "title": "Crash Course EMQ 20 - Mental state examination in elevated or irritable mood",
+    "title": "Elevated mood MSE",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Lead in: For each of the following patients, select ONE clinical feature described from the list of options above.",
@@ -1730,7 +1738,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_21",
-    "title": "Crash Course EMQ 21 - Differential diagnosis of low mood",
+    "title": "Low mood differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
@@ -1745,11 +1753,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "C",
-        "label": "Severe depressive episode without psychotic features Severe depressive episode with psychotic features"
+        "label": "Severe depressive episode without psychotic features"
       },
       {
         "id": "D",
-        "label": "S"
+        "label": "Severe depressive episode with psychotic features"
       },
       {
         "id": "E",
@@ -1821,7 +1829,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_22",
-    "title": "Crash Course EMQ 22 - On weekends when he looks after his daughter he does not drink and feels fine. Low mood secondary to a general medical condition",
+    "title": "Secondary low mood",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE key diagnosis to exclude from the list above.",
@@ -1900,7 +1908,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_23",
-    "title": "Crash Course EMQ 23 - You see she attended 3 months ago with a sore eye and blurred vision which resolved spontaneously. Mental state examination in low mood",
+    "title": "Low mood MSE",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select ONE clinical feature described from the list of options above.",
@@ -1995,7 +2003,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_24",
-    "title": "Crash Course EMQ 24 - Differential diagnosis of anxiety, fear or avoidance",
+    "title": "Anxiety differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
@@ -2102,7 +2110,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_25",
-    "title": "Crash Course EMQ 25 - Anxiety secondary to a general medical condition orpsychoactive substance use",
+    "title": "Secondary anxiety",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely cause from the options above.",
@@ -2193,7 +2201,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_26",
-    "title": "Crash Course EMQ 26 - Differential diagnosis of obsessions and compulsions",
+    "title": "Obsessions and compulsions differential",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE most likely diagnosis from the list above.",
@@ -2288,7 +2296,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_27",
-    "title": "Crash Course EMQ 27 - She still views herself as overweight. Differentiating types of repetitive or intrusive thoughts",
+    "title": "Intrusive thoughts",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following descriptions, select the ONE most likely psychopathology from the options above.",
@@ -2391,7 +2399,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_28",
-    "title": "Crash Course EMQ 28 - Dissociative disorders",
+    "title": "Dissociative disorders",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2426,15 +2434,15 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Hysterical blindness Dissociation secondary to psychoactive substance use"
+        "label": "Hysterical blindness"
       },
       {
         "id": "I",
-        "label": "issociation secondary to psychoactive substance use"
+        "label": "Dissociation secondary to psychoactive substance use"
       },
       {
         "id": "J",
-        "label": "Dissociative identity disorder Assuming physical causes have been excluded, which of the above would be the most likely diagnosis for the following?"
+        "label": "Dissociative identity disorder"
       }
     ],
     "items": [
@@ -2474,7 +2482,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_29",
-    "title": "Crash Course EMQ 29 - Her parents tell you that she returned home from a 'rave' party only a couple of hours ago. Diagnosis following stressful events",
+    "title": "Stress-related diagnoses",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2521,7 +2529,7 @@ const mcqMatchingSets = [
       },
       {
         "id": "K",
-        "label": "Musculoskeletal injury From the options above, which of the diagnoses would be the most appropriate for the scenarios below?"
+        "label": "Musculoskeletal injury"
       }
     ],
     "items": [
@@ -2561,7 +2569,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_30",
-    "title": "Crash Course EMQ 30 - Diagnosis of medically unexplained physical symptoms",
+    "title": "Medically unexplained symptoms",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following scenarios, select the most appropriate diagnosis from the list above.",
@@ -2648,7 +2656,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_31",
-    "title": "Crash Course EMQ 31 - Psychiatric causes of low weight",
+    "title": "Psychiatric causes of low weight",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2683,11 +2691,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Anorexia nervosa Obsessive-compulsive disorder"
+        "label": "Anorexia nervosa"
       },
       {
         "id": "I",
-        "label": "compulsive symptoms: obsession (fear of infection); compulsion (having to prepare food in a specific manner), with awareness that it is irrational, but severe anxiety if the compulsion is not used to 'cancel out' the obsession."
+        "label": "Obsessive-compulsive disorder"
       }
     ],
     "items": [
@@ -2735,7 +2743,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_32",
-    "title": "Crash Course EMQ 32 - Physical consequences of eating disorders",
+    "title": "Eating disorder physical signs",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2818,7 +2826,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_33",
-    "title": "Crash Course EMQ 33 - Diagnosis of personality disorder",
+    "title": "Personality disorder diagnosis",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2909,7 +2917,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_34",
-    "title": "Crash Course EMQ 34 - Instead, he socializes mainly using social networking sites and will not physically meet others until he is sure they will like and accept h",
+    "title": "Personality disorder traits",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -2992,7 +3000,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_35",
-    "title": "Crash Course EMQ 35 - Functional estimation of IQ in intellectual disability",
+    "title": "Functional IQ estimation",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the scenarios below, select the ONE most appropriate estimation of IQ and level of disability from the list above.",
@@ -3071,7 +3079,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_36",
-    "title": "Crash Course EMQ 36 - Management of dementia",
+    "title": "Dementia management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the best treatment for maintaining cognition from the options above.",
@@ -3158,7 +3166,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_37",
-    "title": "Crash Course EMQ 37 - Pharmacological management of opioid dependence",
+    "title": "Opioid dependence pharmacology",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -3245,7 +3253,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_38",
-    "title": "Crash Course EMQ 38 - Prochaska and DiClemente Transtheoretical Model of Change",
+    "title": "Stages of change",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -3328,7 +3336,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_39",
-    "title": "Crash Course EMQ 39 - He had previously been clean for 3 years. Treatment of alcohol dependence",
+    "title": "Alcohol dependence treatment",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -3419,7 +3427,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_40",
-    "title": "Crash Course EMQ 40 - Antipsychotic choice in schizophrenia",
+    "title": "Antipsychotic choice",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE best management option from the options above.",
@@ -3502,7 +3510,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_41",
-    "title": "Crash Course EMQ 41 - Presentation of antipsychotic side-effects",
+    "title": "Antipsychotic side-effects",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Select the ONE term used to describe the following side- effects from the list of options above.",
@@ -3589,7 +3597,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_42",
-    "title": "Crash Course EMQ 42 - Treatment setting for depression",
+    "title": "Depression treatment setting",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select the ONE best management option from the list above.",
@@ -3656,7 +3664,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_43",
-    "title": "Crash Course EMQ 43 - CBT. First-line antidepressants",
+    "title": "First-line antidepressants",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients with moderate to severe depression, select the ONE best first-line antidepressant from the options above.",
@@ -3739,7 +3747,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_44",
-    "title": "Crash Course EMQ 44 - Management of posttraumatic stress disorder",
+    "title": "PTSD management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Selective serotonin reuptake inhibitor (SSRI) G. Tricyclic antidepressant (TCA) H. Benzodiazepine Venlafaxine J. Pregabalin For each of the following patients, select the ONE best first-line management option from the list above.",
@@ -3818,7 +3826,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_45",
-    "title": "Crash Course EMQ 45 - PTSD symptoms. She would like to try a further medication. Management of generalized anxiety disorder and panic disorder",
+    "title": "GAD and panic management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Selective serotonin reuptake inhibitor (SSRI) G. Monoamine oxidase inhibitor H. Benzodiazepine 1.Pregabalin For each of the following patients, select the ONE best first-line management option from the list above.",
@@ -3897,7 +3905,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_46",
-    "title": "Crash Course EMQ 46 - Treatment strategies for patients with eating disorders",
+    "title": "Eating disorder treatment",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -3932,7 +3940,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Community mental health team involvement Intensive home treatment by specialist eating disorder service"
+        "label": "Community mental health team involvement"
+      },
+      {
+        "id": "I",
+        "label": "Intensive home treatment by specialist eating disorder service"
       },
       {
         "id": "J",
@@ -3988,7 +4000,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_47",
-    "title": "Crash Course EMQ 47 - Diagnosis of sleep-wake disorders",
+    "title": "Sleep-wake disorders",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -4023,19 +4035,19 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Primary hypersomnolence REMsleepbehaviourdisorder Sleep-related breathing disorder"
+        "label": "Primary hypersomnolence"
       },
       {
         "id": "I",
-        "label": "EM sleep behaviour disorder"
+        "label": "REM sleep behaviour disorder"
       },
       {
         "id": "J",
-        "label": "leep-related breathing disorder"
+        "label": "Sleep-related breathing disorder"
       },
       {
         "id": "K",
-        "label": "Sleep-related movement disorder What is the most likely diagnosis?"
+        "label": "Sleep-related movement disorder"
       }
     ],
     "items": [
@@ -4083,7 +4095,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_48",
-    "title": "Crash Course EMQ 48 - Medication associated with psychosexual disorders",
+    "title": "Medication and psychosexual disorders",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Select the medication most likely to cause the problem:",
@@ -4162,7 +4174,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_49",
-    "title": "Crash Course EMQ 49 - Management of mental illness in the puerperium",
+    "title": "Puerperium management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -4245,7 +4257,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_50",
-    "title": "Crash Course EMQ 50 - She has early morning wakening and has stopped running the mother-and- baby group she set up while pregnant. Psychotropic medication in preg",
+    "title": "Psychotropic medication in pregnancy",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -4268,11 +4280,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "E",
-        "label": "Imipramine Lithium carbonate"
+        "label": "Imipramine"
       },
       {
         "id": "F",
-        "label": "he use of lithium during pregnancy has been associated with an increased risk of fetal heart defects, including but not limited to Ebstein anomaly (displacement of the opening of the tricuspid valve)"
+        "label": "Lithium carbonate"
       },
       {
         "id": "G",
@@ -4280,11 +4292,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Fluoxetine Chlorpromazine From the list above, select the medication described by each of the statements below."
+        "label": "Fluoxetine"
       },
       {
         "id": "I",
-        "label": "oth carbamazepine and sodium valproate are associated with the development of neural tube defects"
+        "label": "Chlorpromazine"
       }
     ],
     "items": [
@@ -4332,7 +4344,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_51",
-    "title": "Crash Course EMQ 51 - Management of patients with personality disorders",
+    "title": "Personality disorder management",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each item, select the ONE best option from the list above.",
@@ -4367,11 +4379,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Trial of antipsychotic medication Advice regarding lifestyle choices"
+        "label": "Trial of antipsychotic medication"
       },
       {
         "id": "I",
-        "label": "his gentleman could benefit from lifestyle advice"
+        "label": "Advice regarding lifestyle choices"
       },
       {
         "id": "J",
@@ -4379,7 +4391,7 @@ const mcqMatchingSets = [
       },
       {
         "id": "K",
-        "label": "Urgent multiagency meeting Choose the most appropriate intervention for the cases below."
+        "label": "Urgent multiagency meeting"
       }
     ],
     "items": [
@@ -4427,7 +4439,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_52",
-    "title": "Crash Course EMQ 52 - Psychosocial interventions in neurodevelopmental disorders",
+    "title": "Neurodevelopmental psychosocial interventions",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "Select the psychosocial intervention which is recommended as first-line treatment for each of the cases below.",
@@ -4518,7 +4530,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_53",
-    "title": "Crash Course EMQ 53 - Diagnosis of psychiatric disorders with onset in childhood or adolescence",
+    "title": "Child and adolescent diagnoses",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each scenario below, choose the most likely corresponding option from the list given above.",
@@ -4605,7 +4617,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_54",
-    "title": "Crash Course EMQ 54 - Adverse drug reactions in older adults receiving psychotropic medication",
+    "title": "Older adult psychotropic adverse effects",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following patients, select themedication most likely to be implicated in their presentation from the options above.",
@@ -4696,7 +4708,7 @@ const mcqMatchingSets = [
   },
   {
     "id": "crash_course_emq_55",
-    "title": "Crash Course EMQ 55 - Diagnosis of mental disorder in offenders",
+    "title": "Offender mental disorder diagnosis",
     "source": "Crash Course Psychiatry, Extended-matching questions",
     "sourceStatus": "exact",
     "instructions": "For each of the following scenarios, select the most appropriate diagnosis from the list above.",
@@ -4719,7 +4731,11 @@ const mcqMatchingSets = [
       },
       {
         "id": "E",
-        "label": "Severe depression with psychotic symptoms Emotionally unstable personality disorder"
+        "label": "Severe depression with psychotic symptoms"
+      },
+      {
+        "id": "F",
+        "label": "Emotionally unstable personality disorder"
       },
       {
         "id": "G",
@@ -4727,11 +4743,15 @@ const mcqMatchingSets = [
       },
       {
         "id": "H",
-        "label": "Delirium tremens Obsessive-compulsive disorder Mild intellectual disability"
+        "label": "Delirium tremens"
+      },
+      {
+        "id": "I",
+        "label": "Obsessive-compulsive disorder"
       },
       {
         "id": "J",
-        "label": "here is an association between fire-setting and mild intellectual disability.This should be differentiated from arson (deliberate fire-raising for secondary gain, e.g., insurance money), pyromania (compulsion to set fires, followed by a 'release of tension'), wilful destruction of property (e.g., in antisocial personality disorder) orfire-setting driven by other mental disorders"
+        "label": "Mild intellectual disability"
       },
       {
         "id": "K",
