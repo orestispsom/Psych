@@ -8,6 +8,8 @@ import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 import mcqVignettes from "./data/mcqVignettes.js";
 import mcqMatchingSets from "./data/mcqMatching.js";
 import dsm5trSelfExamChapters, { dsm5trSelfExamQuestions } from "./data/dsm5trSelfExamQuestions.js";
+import { oxfordBoxes } from "./data/oxfordBoxes.js";
+import { crashCourseBoxes } from "./data/crashCourseBoxes.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -89,6 +91,50 @@ function getDisplayedOptionIndex(question, originalIndex, optionOrders = {}) {
 function getDisplayedOptionLetter(question, originalIndex, optionOrders = {}) {
   if (!Number.isInteger(originalIndex)) return "-";
   return OPTION_LETTERS[getDisplayedOptionIndex(question, originalIndex, optionOrders)] || "-";
+}
+
+function normalizeGreekSearch(text) {
+  return String(text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ς/g, "σ")
+    .trim();
+}
+
+function getBoxSourceKey(box) {
+  return String(box?.source || "").toLowerCase().includes("crash") ? "crash" : "oxford";
+}
+
+function getBoxesForSource(sourceKey) {
+  const boxes = sourceKey === "crash" ? crashCourseBoxes : oxfordBoxes;
+  return [...boxes].sort((a, b) => {
+    if (sourceKey === "crash") return (Number(a.order) || 0) - (Number(b.order) || 0);
+    const chapterDiff = (Number(a.chapter) || 0) - (Number(b.chapter) || 0);
+    if (chapterDiff) return chapterDiff;
+    return String(a.boxNumber || "").localeCompare(String(b.boxNumber || ""), undefined, { numeric: true });
+  });
+}
+
+function getRandomBoxIndex(boxes, currentIndex = -1) {
+  if (!boxes.length) return -1;
+  if (boxes.length === 1) return 0;
+  let next = currentIndex;
+  while (next === currentIndex) {
+    next = Math.floor(Math.random() * boxes.length);
+  }
+  return next;
+}
+
+function getBoxSearchText(box) {
+  return normalizeGreekSearch([
+    box.source,
+    box.chapter ? `chapter ${box.chapter} κεφάλαιο ${box.chapter}` : "",
+    box.boxNumber ? `box ${box.boxNumber} ${box.boxNumber}` : "",
+    box.page ? `page ${box.page} pg ${box.page} σελίδα ${box.page}` : "",
+    box.title,
+    box.content,
+  ].join(" "));
 }
 
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
@@ -5217,6 +5263,172 @@ const STYLES = `
     font-weight: 620;
   }
 
+  .pinakakia-screen {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .pinakakia-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .pinakakia-search-wrap {
+    margin: 0 0 24px;
+  }
+
+  .pinakakia-search {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .pinakakia-search:focus {
+    border-color: var(--border-active);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .pinakakia-results,
+  .pinakakia-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .pinakakia-section-title {
+    margin: 0 0 18px;
+    font-size: 25px;
+    letter-spacing: 0;
+  }
+
+  .pinakakia-card,
+  .pinakakia-row {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  }
+
+  .pinakakia-card {
+    min-height: 96px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 21px;
+    font-weight: 800;
+  }
+
+  .pinakakia-row {
+    padding: 16px 18px;
+  }
+
+  .pinakakia-card:hover,
+  .pinakakia-row:hover {
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .pinakakia-row-title {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 5px;
+  }
+
+  .pinakakia-row-meta,
+  .pinakakia-viewer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .pinakakia-empty {
+    padding: 24px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    background: rgba(17,24,39,0.55);
+  }
+
+  .pinakakia-viewer {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    padding: 28px;
+  }
+
+  .pinakakia-viewer h2 {
+    margin: 10px 0 22px;
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .pinakakia-reveal {
+    width: 100%;
+    min-height: 260px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-surface);
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    padding: 30px;
+    text-align: left;
+  }
+
+  .pinakakia-reveal-placeholder {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .pinakakia-content-text {
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  .pinakakia-hide-note {
+    margin-bottom: 18px;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .pinakakia-viewer-nav {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
     .home-title { font-size: 32px; }
@@ -5236,6 +5448,9 @@ const STYLES = `
     .vignette-complete-toggle { min-height: 44px; }
     .vignette-question-card { min-height: 680px; }
     .vignette-question-card .structured-option { min-height: 66px; }
+    .pinakakia-viewer { padding: 18px; }
+    .pinakakia-viewer-nav { grid-template-columns: 1fr; }
+    .pinakakia-content-text { font-size: 16px; }
   }
 `;
 
@@ -5340,6 +5555,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
     { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
     { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
     { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, πίνακες, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
+    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', desc: 'High-yield boxes από Oxford και Crash Course', active: true },
   ];
 
   useEffect(() => {
@@ -7974,6 +8190,346 @@ function OralTable({ rows, onBack, onHome }) {
   );
 }
 
+function PinakakiaModule({ onBack, onHome }) {
+  const [screen, setScreen] = useState("sources");
+  const [sourceKey, setSourceKey] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [query, setQuery] = useState("");
+  const [viewer, setViewer] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+
+  const allBoxes = useMemo(() => ([
+    ...getBoxesForSource("oxford").map(box => ({ ...box, sourceKey: "oxford" })),
+    ...getBoxesForSource("crash").map(box => ({ ...box, sourceKey: "crash" })),
+  ]), []);
+
+  const searchResults = useMemo(() => {
+    const normalized = normalizeGreekSearch(query);
+    if (!normalized) return [];
+    return allBoxes.filter(box => getBoxSearchText(box).includes(normalized)).slice(0, 40);
+  }, [allBoxes, query]);
+
+  const oxfordChapterGroups = useMemo(() => {
+    const groups = new Map();
+    getBoxesForSource("oxford").forEach(box => {
+      const chapter = Number(box.chapter) || 0;
+      if (!groups.has(chapter)) groups.set(chapter, []);
+      groups.get(chapter).push(box);
+    });
+    return [...groups.entries()].sort((a, b) => a[0] - b[0]);
+  }, []);
+
+  const sourceLabel = sourceKey === "crash" ? "Crash Course" : "Oxford";
+
+  const openViewer = (nextSourceKey, boxes, index, options = {}) => {
+    if (!boxes.length || index < 0) return;
+    setSourceKey(nextSourceKey);
+    setViewer({
+      sourceKey: nextSourceKey,
+      boxes,
+      index,
+      randomMode: Boolean(options.randomMode),
+      history: options.history || (options.randomMode ? [index] : []),
+      historyIndex: options.historyIndex ?? (options.randomMode ? 0 : -1),
+      backScreen: options.backScreen || "sources",
+      backChapter: options.backChapter ?? null,
+    });
+    setRevealed(false);
+    setScreen("viewer");
+  };
+
+  const openRandom = (nextSourceKey, backScreen = null) => {
+    const boxes = getBoxesForSource(nextSourceKey);
+    const index = getRandomBoxIndex(boxes);
+    openViewer(nextSourceKey, boxes, index, {
+      randomMode: true,
+      backScreen: backScreen || (nextSourceKey === "crash" ? "crash-modes" : "oxford-modes"),
+    });
+  };
+
+  const handleBack = () => {
+    if (screen === "sources") {
+      onBack();
+      return;
+    }
+
+    if (screen === "viewer" && viewer) {
+      setScreen(viewer.backScreen || "sources");
+      setSelectedChapter(viewer.backChapter ?? null);
+      setRevealed(false);
+      return;
+    }
+
+    if (screen === "oxford-modes" || screen === "crash-modes") {
+      setScreen("sources");
+      setSourceKey(null);
+      return;
+    }
+
+    if (screen === "oxford-chapters") {
+      setScreen("oxford-modes");
+      return;
+    }
+
+    if (screen === "oxford-boxes") {
+      setScreen("oxford-chapters");
+      return;
+    }
+
+    if (screen === "crash-list") {
+      setScreen("crash-modes");
+      return;
+    }
+
+    setScreen("sources");
+  };
+
+  const openSearchResult = (box) => {
+    const nextSourceKey = box.sourceKey || getBoxSourceKey(box);
+    const boxes = getBoxesForSource(nextSourceKey);
+    const index = boxes.findIndex(item => item.id === box.id);
+    openViewer(nextSourceKey, boxes, index, { backScreen: screen, backChapter: selectedChapter });
+  };
+
+  const goViewerPrev = () => {
+    if (!viewer) return;
+    if (viewer.randomMode) {
+      if (viewer.historyIndex <= 0) return;
+      const nextHistoryIndex = viewer.historyIndex - 1;
+      setViewer({ ...viewer, index: viewer.history[nextHistoryIndex], historyIndex: nextHistoryIndex });
+      setRevealed(false);
+      return;
+    }
+    if (viewer.index <= 0) return;
+    setViewer({ ...viewer, index: viewer.index - 1 });
+    setRevealed(false);
+  };
+
+  const goViewerRandom = () => {
+    if (!viewer) return;
+    const boxes = getBoxesForSource(viewer.sourceKey);
+    const index = getRandomBoxIndex(boxes, viewer.index);
+    const history = [...(viewer.history || []).slice(0, viewer.historyIndex + 1), index];
+    setViewer({
+      ...viewer,
+      boxes,
+      index,
+      randomMode: true,
+      history,
+      historyIndex: history.length - 1,
+    });
+    setRevealed(false);
+  };
+
+  const goViewerNext = () => {
+    if (!viewer) return;
+    if (viewer.randomMode) {
+      goViewerRandom();
+      return;
+    }
+    if (viewer.index >= viewer.boxes.length - 1) return;
+    setViewer({ ...viewer, index: viewer.index + 1 });
+    setRevealed(false);
+  };
+
+  const renderShell = (children) => (
+    <div className="pinakakia-screen fade-in">
+      <div className="pinakakia-topbar">
+        <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
+          <Icons.ChevronLeft /> Πίσω
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <div className="pinakakia-search-wrap">
+        <input
+          className="pinakakia-search"
+          value={query}
+          onChange={event => setQuery(event.target.value)}
+          placeholder="Αναζήτηση σε πινακάκια..."
+        />
+      </div>
+      {normalizeGreekSearch(query) && (
+        <div className="pinakakia-results" style={{ marginBottom: 28 }}>
+          {searchResults.length ? searchResults.map(box => (
+            <button key={`${box.sourceKey}-${box.id}`} className="pinakakia-row" onClick={() => openSearchResult(box)}>
+              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
+              <span className="pinakakia-row-meta">
+                <span>{box.source}</span>
+                {box.chapter && <span>Κεφάλαιο {box.chapter}</span>}
+                {box.page && <span>pg. {box.page}</span>}
+              </span>
+            </button>
+          )) : (
+            <div className="pinakakia-empty">Δεν βρέθηκαν αποτελέσματα.</div>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+
+  if (screen === "sources") {
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Πινακάκια</h2>
+        <div className="pinakakia-list">
+          <button className="pinakakia-card" onClick={() => { setSourceKey("oxford"); setScreen("oxford-modes"); }}>
+            Oxford <Icons.ChevronRight />
+          </button>
+          <button className="pinakakia-card" onClick={() => { setSourceKey("crash"); setScreen("crash-modes"); }}>
+            Crash Course <Icons.ChevronRight />
+          </button>
+        </div>
+      </>
+    );
+  }
+
+  if (screen === "oxford-modes") {
+    const boxes = getBoxesForSource("oxford");
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Oxford</h2>
+        <div className="pinakakia-list">
+          <button className="pinakakia-card" onClick={() => setScreen("oxford-chapters")}>
+            Κεφάλαια <Icons.ChevronRight />
+          </button>
+          <button className="pinakakia-card" disabled={!boxes.length} onClick={() => openRandom("oxford", "oxford-modes")}>
+            Τυχαία <Icons.ChevronRight />
+          </button>
+        </div>
+        {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Oxford.</div>}
+      </>
+    );
+  }
+
+  if (screen === "oxford-chapters") {
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Oxford — Κεφάλαια</h2>
+        <div className="pinakakia-list">
+          {oxfordChapterGroups.map(([chapter, boxes]) => (
+            <button
+              key={chapter}
+              className="pinakakia-row"
+              onClick={() => {
+                setSelectedChapter(chapter);
+                setScreen("oxford-boxes");
+              }}
+            >
+              <span className="pinakakia-row-title">Κεφάλαιο {chapter} — {boxes.length} πινακάκια</span>
+            </button>
+          ))}
+        </div>
+        {!oxfordChapterGroups.length && <div className="pinakakia-empty">Δεν έχουν προστεθεί ακόμα κεφάλαια.</div>}
+      </>
+    );
+  }
+
+  if (screen === "oxford-boxes") {
+    const boxes = getBoxesForSource("oxford").filter(box => Number(box.chapter) === Number(selectedChapter));
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Κεφάλαιο {selectedChapter}</h2>
+        <div className="pinakakia-list">
+          {boxes.map((box, index) => (
+            <button
+              key={box.id}
+              className="pinakakia-row"
+              onClick={() => openViewer("oxford", boxes, index, { backScreen: "oxford-boxes", backChapter: selectedChapter })}
+            >
+              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
+              <span className="pinakakia-row-meta">{box.page && <span>pg. {box.page}</span>}</span>
+            </button>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  if (screen === "crash-modes") {
+    const boxes = getBoxesForSource("crash");
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Crash Course</h2>
+        <div className="pinakakia-list">
+          <button className="pinakakia-card" onClick={() => setScreen("crash-list")}>
+            Με σειρά <Icons.ChevronRight />
+          </button>
+          <button className="pinakakia-card" disabled={!boxes.length} onClick={() => openRandom("crash", "crash-modes")}>
+            Τυχαία <Icons.ChevronRight />
+          </button>
+        </div>
+        {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Crash Course.</div>}
+      </>
+    );
+  }
+
+  if (screen === "crash-list") {
+    const boxes = getBoxesForSource("crash");
+    return renderShell(
+      <>
+        <h2 className="pinakakia-section-title">Crash Course — Με σειρά</h2>
+        <div className="pinakakia-list">
+          {boxes.map((box, index) => (
+            <button
+              key={box.id}
+              className="pinakakia-row"
+              onClick={() => openViewer("crash", boxes, index, { backScreen: "crash-list" })}
+            >
+              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
+              <span className="pinakakia-row-meta">{box.page && <span>pg. {box.page}</span>}</span>
+            </button>
+          ))}
+        </div>
+        {!boxes.length && <div className="pinakakia-empty">Δεν έχουν προστεθεί ακόμα πινακάκια.</div>}
+      </>
+    );
+  }
+
+  if (screen === "viewer" && viewer) {
+    const box = viewer.boxes[viewer.index];
+    const canGoPrev = viewer.randomMode ? viewer.historyIndex > 0 : viewer.index > 0;
+    const canGoNext = viewer.randomMode || viewer.index < viewer.boxes.length - 1;
+
+    return renderShell(
+      <div className="pinakakia-viewer">
+        <div className="pinakakia-viewer-meta">
+          <span>{box.source || sourceLabel}</span>
+          <span>Box {box.boxNumber}</span>
+          {box.chapter && <span>Κεφάλαιο {box.chapter}</span>}
+          {box.page && <span>pg. {box.page}</span>}
+        </div>
+        <h2>{box.title}</h2>
+        <button className="pinakakia-reveal" onClick={() => setRevealed(value => !value)}>
+          {revealed ? (
+            <>
+              <div className="pinakakia-hide-note">Πάτησε για απόκρυψη</div>
+              <div className="pinakakia-content-text">{box.content}</div>
+            </>
+          ) : (
+            <div className="pinakakia-reveal-placeholder">Πάτησε για εμφάνιση</div>
+          )}
+        </button>
+        <div className="pinakakia-viewer-nav">
+          <button className="nav-btn" onClick={goViewerPrev} disabled={!canGoPrev}>
+            <Icons.ChevronLeft /> Προηγούμενο
+          </button>
+          <button className="nav-btn primary" onClick={goViewerRandom}>
+            Τυχαίο
+          </button>
+          <button className="nav-btn" onClick={goViewerNext} disabled={!canGoNext}>
+            Επόμενο <Icons.ChevronRight />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return renderShell(<div className="pinakakia-empty">Δεν υπάρχει διαθέσιμο περιεχόμενο.</div>);
+}
+
 function SosHome({ onBack, onHome, onOpenSection }) {
   const sections = [
     { id: "highyield", title: "Γρήγορα SOS" },
@@ -8599,6 +9155,12 @@ export default function App() {
             updateMessage={updateMessage}
             updateMessageStatus={updateMessageStatus}
             onSaveUpdateMessage={handleSaveUpdateMessage}
+          />
+        )}
+        {activeProfile && screen === 'pinakakia' && (
+          <PinakakiaModule
+            onBack={() => setScreen('home')}
+            onHome={() => setScreen('home')}
           />
         )}
         {activeProfile && screen === 'mcq' && !testMode && (
