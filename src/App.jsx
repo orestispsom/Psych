@@ -137,6 +137,24 @@ function getBoxSearchText(box) {
   ].join(" "));
 }
 
+function getBoxContentLines(content) {
+  if (Array.isArray(content)) {
+    return content.map(line => String(line || "").trim()).filter(Boolean);
+  }
+
+  const text = String(content || "").trim();
+  if (!text) return [];
+  const explicitLines = text.split(/\r?\n+/).map(line => line.trim()).filter(Boolean);
+  if (explicitLines.length > 1) return explicitLines;
+
+  return text
+    .replace(/\.([Α-ΩA-Z])/g, ".\n$1")
+    .replace(/([)])([Α-ΩA-Z])/g, "$1\n$2")
+    .split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean);
+}
+
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
@@ -5374,48 +5392,85 @@ const STYLES = `
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
-    padding: 28px;
-  }
-
-  .pinakakia-viewer h2 {
-    margin: 10px 0 22px;
-    font-size: 28px;
-    line-height: 1.25;
+    padding: 26px;
   }
 
   .pinakakia-reveal {
     width: 100%;
-    min-height: 260px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-surface);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--text);
     font-family: inherit;
     cursor: pointer;
-    padding: 30px;
+    padding: 0;
     text-align: left;
   }
 
   .pinakakia-reveal-placeholder {
-    min-height: 200px;
+    min-height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-dim);
-    font-size: 24px;
+    color: #fce7f3;
+    font-size: 22px;
     font-weight: 800;
     text-align: center;
   }
 
+  .pinakakia-book-box {
+    overflow: hidden;
+    border: 1px solid rgba(244,114,182,0.35);
+    border-radius: var(--radius-sm);
+    background: rgba(244,114,182,0.12);
+  }
+
+  .pinakakia-book-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 16px;
+    padding: 13px 16px 10px;
+    border-bottom: 1px solid rgba(244,114,182,0.45);
+    color: #f472b6;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .pinakakia-book-header-title {
+    color: #fce7f3;
+  }
+
+  .pinakakia-book-header-page {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: none;
+  }
+
+  .pinakakia-book-body {
+    padding: 18px 22px 24px;
+    background: rgba(244,114,182,0.08);
+  }
+
   .pinakakia-content-text {
     color: var(--text);
-    font-size: 18px;
-    line-height: 1.8;
-    white-space: pre-wrap;
+    font-size: 19px;
+    line-height: 1.55;
+    white-space: normal;
+  }
+
+  .pinakakia-content-line {
+    margin: 0 0 8px;
+  }
+
+  .pinakakia-content-line:last-child {
+    margin-bottom: 0;
   }
 
   .pinakakia-hide-note {
-    margin-bottom: 18px;
+    margin: 0 0 14px;
     color: var(--accent);
     font-size: 14px;
     font-weight: 800;
@@ -8492,6 +8547,7 @@ function PinakakiaModule({ onBack, onHome }) {
     const box = viewer.boxes[viewer.index];
     const canGoPrev = viewer.randomMode ? viewer.historyIndex > 0 : viewer.index > 0;
     const canGoNext = viewer.randomMode || viewer.index < viewer.boxes.length - 1;
+    const contentLines = getBoxContentLines(box.content);
 
     return renderShell(
       <div className="pinakakia-viewer">
@@ -8501,16 +8557,28 @@ function PinakakiaModule({ onBack, onHome }) {
           {box.chapter && <span>Κεφάλαιο {box.chapter}</span>}
           {box.page && <span>pg. {box.page}</span>}
         </div>
-        <h2>{box.title}</h2>
         <button className="pinakakia-reveal" onClick={() => setRevealed(value => !value)}>
-          {revealed ? (
-            <>
-              <div className="pinakakia-hide-note">Πάτησε για απόκρυψη</div>
-              <div className="pinakakia-content-text">{box.content}</div>
-            </>
-          ) : (
-            <div className="pinakakia-reveal-placeholder">Πάτησε για εμφάνιση</div>
-          )}
+          <div className="pinakakia-book-box">
+            <div className="pinakakia-book-header">
+              <span>Box {box.boxNumber}</span>
+              <span className="pinakakia-book-header-title">{box.title}</span>
+              {box.page && <span className="pinakakia-book-header-page">pg. {box.page}</span>}
+            </div>
+            <div className="pinakakia-book-body">
+              {revealed ? (
+                <>
+                  <div className="pinakakia-hide-note">Πάτησε για απόκρυψη</div>
+                  <div className="pinakakia-content-text">
+                    {contentLines.map((line, index) => (
+                      <div className="pinakakia-content-line" key={`${box.id}-line-${index}`}>{line}</div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="pinakakia-reveal-placeholder">Πάτησε για εμφάνιση</div>
+              )}
+            </div>
+          </div>
         </button>
         <div className="pinakakia-viewer-nav">
           <button className="nav-btn" onClick={goViewerPrev} disabled={!canGoPrev}>
