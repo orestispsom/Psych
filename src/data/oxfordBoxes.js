@@ -1,10 +1,3 @@
-// Oxford textbook boxes.
-// Extracted in original English; translation/review to be done manually.
-// Structured content schema:
-// - { type: "section", heading: "...", items: ["..."] }
-// - { type: "text", lines: ["..."] }
-// Viewer should render section headings prominently and indent section items.
-
 export const oxfordBoxes = [
   {
     "id": "oxford-1.1",
@@ -1205,6 +1198,1112 @@ export const oxfordBoxes = [
           "tory and the predisposing factors noted above, she is at",
           "increased risk of further depressive episodes, particularly",
           "at times of stress."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-4.1",
+    "source": "Oxford",
+    "chapter": 4,
+    "boxNumber": "4.1",
+    "page": 72,
+    "title": "Ethical problems discussed in other chapters",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Classification (Chapter 2)",
+        "items": [
+          "Diagnosis on the basis of moral or political judgements (page 24)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Evidence-based approaches (Chapter 6)",
+        "items": [
+          "Placebo-controlled trials and randomization (page 123)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Eating disorders (Chapter 13)",
+        "items": [
+          "Compulsory treatment in anorexia nervosa (page 320)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Personality and personality disorder (Chapter 15)",
+        "items": [
+          "Stigma and patient involvement (page 412)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Child psychiatry (Chapter 16)",
+        "items": [
+          "Conflict of interest, confidentiality, and consent (page 481)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Intellectual disability (Chapter 17)",
+        "items": [
+          "Normalization, autonomy, and conflict of interests (page 510)",
+          "Consent to treatment, and consent to research (page 510)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Drugs and other physical treatments (Chapter 20)",
+        "items": [
+          "Drug treatment (page 715)",
+          "ECT and psychosurgery (pages 769 and 772)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Suicide and deliberate self-harm (Chapter 21)",
+        "items": [
+          "Patients who harm themselves and refuse treatment (page 629 (Box 21.10))"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Psychiatry in medical settings (Chapter 22)",
+        "items": [
+          "Patients who refuse treatment (page 661 (Box 22.14))",
+          "Genetic counselling (page 660)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-4.2",
+    "source": "Oxford",
+    "chapter": 4,
+    "boxNumber": "4.2",
+    "page": 78,
+    "title": "Assessment of competence of adult patients",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Step 1 Identify the decision required and the information relevant to it:",
+        "items": [
+          "the decision to be made",
+          "the alternative reasonable decisions",
+          "the pros and cons of each reasonable decision."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Step 2 Assess cognitive ability.",
+        "items": [
+          "Assess whether the patient has the cognitive ability to:",
+          "understand the information",
+          "retain the information",
+          "evaluate the information and reach a decision."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Step 3 Consider the possible causes of impaired cognitive ability:",
+        "items": [
+          "delirium",
+          "dementia",
+          "other neurological disorders that may impair cognition",
+          "learning disability."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Step 4 Assess other factors that may interfere with capacity.",
+        "items": [
+          "Mental illness:",
+          "delusions",
+          "hallucinations",
+          "mood disorder.",
+          "Lack of maturity:",
+          "assess emotional and cognitive maturity."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-4.3",
+    "source": "Oxford",
+    "chapter": 4,
+    "boxNumber": "4.3",
+    "page": 79,
+    "title": "Assessment of some ethical issues relating to research",
+    "content": [
+      {
+        "type": "text",
+        "lines": [
+          "Note: Ethical problems related to recruitment for and conduct of clinical trials are considered on page 123."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Scientific merits",
+        "items": [
+          "Will the findings be of value?",
+          "Are the methods and the size of the groups likely to achieve the aims?",
+          "What are the sources of financial and other support, and are there any potential conflicts of interest?",
+          "Are there any potential conflicts of interest for any of the investigators?",
+          "Could the aims be achieved in an ethically better way?"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Safety",
+        "items": [
+          "Are the procedures safe? If there is a risk, are all of the necessary precautions being taken?",
+          "Is the assessed level of risk acceptable to investigators, subjects, and relatives?"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Consent",
+        "items": [
+          "Will the subjects be competent to give consent?",
+          "Will the subjects receive clear and sufficient information?",
+          "Will they have adequate time to consider and, should they wish to do so, to withdraw consent?",
+          "Will it be clear that refusal will not affect the quality or quantity of care provided?",
+          "Is the relationship between subject and investigator potentially coercive (e.g. a supervisor and a student)?",
+          "Is any payment to subjects excessive and acts as an overwhelming incentive to consent?",
+          "Is the researcher under any pressure to recruit subjects (e.g. receiving payments from a sponsoring company)?"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Confidentiality",
+        "items": [
+          "Have subjects consented to the use of confidential information in the research?",
+          "Will the data from the research be kept securely?"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Adapted from Hope T, Savelescu J and Hendrick J, Medical Ethics and Law: The Core Curriculum, 2nd Edition, Copyright (2008), with permission from Elsevier."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-4.4",
+    "source": "Oxford",
+    "chapter": 4,
+    "boxNumber": "4.4",
+    "page": 80,
+    "title": "Key clinical procedures in the Mental Health Act",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Procedures",
+        "items": [
+          "Criteria for detention",
+          "Assessment orders",
+          "Treatment orders",
+          "Transfer from prisons and courts",
+          "Police powers and powers of entry",
+          "Community Treatment Orders"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-4.5",
+    "source": "Oxford",
+    "chapter": 4,
+    "boxNumber": "4.5",
+    "page": 83,
+    "title": "Levels of persuasion",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Levels",
+        "items": [
+          "Persuasion (includes providing information, appreciation of patient’s preferences, and discussion and collaboration between clinician and patient).",
+          "Interpersonal leverage (based on a patient’s emotional dependency on clinician; patient agrees to adhere to please clinician.",
+          "Inducement (clinician offers reward for adherence).",
+          "Threats (clinician proposes negative or prevents positive consequences of a patient’s non-adherence).",
+          "Compulsion (involuntary)."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Reproduced from Journal of Mental Health, 17(3), Szmukler G and Appelbaum P, Treatment pressures, leverage, coercion and compulsion in mental health care, pp. 233–44, Copyright (2008), with permission from Taylor & Francis."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.1",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.1",
+    "page": 93,
+    "title": "Psychoanalysis",
+    "content": [
+      {
+        "type": "text",
+        "lines": [
+          "Psychoanalysis is derived from clinical experience rather than from basic sciences, and consists of elaborate theories of both normal and abnormal mental development. Compared with experimental psychology it is more concerned with irrational aspects of mental activity.",
+          "Psychoanalytic theories are derived from data obtained in the course of psychoanalytic treatment, and relate to the patient’s thoughts, dreams, and fantasies, as well as their memories of childhood experiences and relationships with carers and siblings. Therefore psychoanalytic theories are forms of intuitive understanding (‘Verstehen’) rather than scientific explanation (‘Erklären’) (see page 3).",
+          "Freud developed a number of ideas about the unconscious mind, from which he believed all mental processes originated. The unconscious mind has three key features that are important in the genesis of psychological problems."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The unconscious mind",
+        "items": [
+          "It is divorced from reality.",
+          "It is dynamic and contains powerful forces.",
+          "It is in conflict with the conscious mind."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Freud believed that the unconscious mind could be probed by dream analysis and free association. The manifest content of a dream can be traced back to a latent content, which is an infantile wish. This wish is disguised by dreamwork, which, through various psychological mechanisms, transforms the latent content into a manifest form that is more acceptable to consciousness.",
+          "The unconscious mind is the seat of powerful instinctual drives (e.g. sexual and aggressive impulses). The forces in the unconscious mind struggle against the conscious mind, which can give rise to anxiety. This anxiety can be reduced by a variety of defence mechanisms, which can be discerned in the behaviour of healthy people as well as those with psychological disorders (see Chapter 7).",
+          "Sexual impulses are present from the earliest stages of child development, and there is a progression through different stages of organization (oral, anal, and genital) as the child grows. Failure to pass through these stages effectively can lead to sexual energy (libido) becoming fixated, which results in the individual exhibiting infantile patterns of behaviour or regressing to them when under stress. The object of libido also changes with development, first focusing on the self and then focusing on the mother. In the course of this maternal attachment, boys experience angry feelings towards their father (the Oedipus complex), while girls develop reverse attachments. Difficulties in resolving these conflicted attachments can give rise to problems in interpersonal relationships later in life.",
+          "Freud’s theories were developed by many others. Melanie Klein’s work, which addresses pre-Oedipal aggressive and sexual drives in a theory of object relations, has been influential in the UK."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.2",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.2",
+    "page": 96,
+    "title": "Scientific disciplines that contribute to psychiatric aetiology",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Disciplines",
+        "items": [
+          "Clinical descriptive studies",
+          "Epidemiology",
+          "Social sciences",
+          "Experimental and clinical psychology",
+          "Genetics",
+          "Biochemical studies",
+          "Pharmacology",
+          "Endocrinology",
+          "Physiology",
+          "Neuropathology"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.3",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.3",
+    "page": 104,
+    "title": "Considerations in the interpretation of twin studies in genetic epidemiology",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Considerations",
+        "items": [
+          "Has zygosity been accurately determined? Although MZ co-twins are virtually genetically identical, there can be minor differences.",
+          "It is assumed that MZ and DZ twin pairs both experience the same degree of environmental sharing, and this ‘equal environments assumption’ appears to hold for most disorders. However, this may not necessarily be true, especially with regard to the prenatal environment; counterintuitively, this is more dissimilar for MZ than for DZ co-twins. It should also be noted that gene and environment effects interact with each other, and so their effects are not simply additive. For example, parents with antisocial personality disorder may pass on genes that increase the risk that their children will inherit a liability to conduct disorder, but may also produce a family environment that itself increases the risk of behavioural disturbance.",
+          "Most twin studies are now population based, rather than being derived from psychiatric case registers. This reduces the biases of the latter, but does mean that relatively few cases are detected even in large samples, resulting in estimates that can have wide confidence intervals. In addition, the reliability of diagnoses may be less certain.",
+          "Being a twin might in itself affect the risk of developing a psychiatric disorder. However, there is little evidence of this."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.4",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.4",
+    "page": 106,
+    "title": "The terminology of molecular genetic variation: polymorphisms, alleles, and mutations",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Terminology",
+        "items": [
+          "No two people share precisely the same genome (the total genetic information contained on our 23 pairs of chromosomes, about 3 billion base pairs of DNA). Each person has a unique DNA sequence (with the exception of MZ twins). DNA sequence variants are called polymorphisms or allelic variants. Most polymorphisms involve a change in a single nucleotide, hence the term single nucleotide polymorphism (SNP). SNPs occur on average about every 1000 base pairs (around 2 million SNPs in total), both within genes and in the stretches of DNA between genes. A given polymorphism can be rare, or both variants (alleles) can occur at equal frequency in the population.",
+          "The term mutation can be used to refer to any very rare polymorphism (i.e. one present in less than 1% of people). However, it is often used in a more restricted way to denote a change in DNA sequence which is by definition harmful—that is, it causes a disease. This differs from polymorphisms in general, which, as noted above, often have no consequences at all; if they do, they can be beneficial, neutral, or harmful, and any effects are not deterministic but merely change the probability of a particular phenotype. The term mutation is therefore used largely with reference to Mendelian disorders.",
+          "Most polymorphisms have no functional significance because they do not lead to an amino acid change in the encoded protein (called synonymous or conservative polymorphisms), either because the SNP is in non-coding parts of the DNA or because of some redundancy in the coding region. However, some SNPs do have functional correlates, or affect disease risk, and it is these that are sought in genetic association studies.",
+          "Because we have two copies of every autosomal gene (autosomes are chromosomes other than X or Y), one from each parent, at any point in the genome the two alleles may be identical (homozygosity), or they may differ (heterozygosity).",
+          "SNPs that are close together tend to be inherited together. They are said to be in linkage disequilibrium, and the SNPs together comprise a haplotype. These properties and concepts are important for the conduct and interpretation of genetic association studies. For example, linkage disequilibrium means that if one SNP is measured and shown to be genetically associated with a disorder, it cannot be concluded that it is the biologically important variant; it might simply be a marker for another SNP within the haplotype that is in fact the important one. And the haplotype itself might be more significant than any one of its constituent SNPs. For a review of this subject, see Slatkin (2008)."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.5",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.5",
+    "page": 109,
+    "title": "Examples of polymorphisms in psychiatry",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Apolipoprotein E4 in Alzheimer’s disease",
+        "items": [
+          "The apoE gene on chromosome 19 exists in three common forms (alleles): apoE2, apoE3, and apoE4. ApoE3 is the commonest variant in the population. Since 1993, dozens of studies involving thousands of people have shown an unequivocal association between apoE4 and Alzheimer’s disease—a higher proportion of patients have the apoE4 variant of the gene than do age-matched subjects without the disease. In some populations, apoE2 is protective. ApoE4 is thus said to be genetically associated with Alzheimer’s disease and, as such, is a genetic risk factor for it. Individuals with one copy of apoE4 (heterozygotes, with their other chromosome carrying apoE3 or apoE2) are two to three times more likely to develop Alzheimer’s disease, and the risk is over fivefold greater in apoE4 homozygotes (in whom both copies of the gene are apoE4). In other words, apoE4 accounts for about one-third of all cases of Alzheimer’s disease. However, about half of all Alzheimer’s disease occurs in people without an apoE4 allele, and some apoE4 homozygotes never develop it.",
+          "ApoE4 represents the best established example of a genetic risk factor for a common psychiatric disorder. However, it also emphasizes that apoE4, like most genes involved in psychiatric disorder, acts as a risk factor, not a determinant; it is neither necessary nor sufficient. The apoE genotype also affects the risk of developing certain other neurological conditions, illustrating the fact that genes can have effects across different disorders. For a further discussion of apoE4, see Chapter 14, and for a review, see Verghese et al. (2011)."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Catechol-O-methyl transferase and dopaminergic function and dysfunction",
+        "items": [
+          "The enzyme catechol-O-methyl transferase (COMT) metabolizes monoamines, especially dopamine. It occurs as a high-activity form and a low-activity form, which in turn results in lesser or greater availability of dopamine in the synapse. The difference is due to a SNP in the gene (called Val158Met), which leads to a single amino acid being changed in the COMT protein. The high-activity allele encodes valine (Val-COMT) and the low-activity allele encodes methionine (Met-COMT). Egan et al. (2001) showed that subjects with Val-COMT had a less efficient prefrontal cortex, and tended to perform less well during working memory tasks compared with Met-COMT subjects. In other situations (e.g. during emotional processing), Val-COMT subjects are more efficient than Met-COMT subjects.",
+          "The COMT Val158Met is perhaps the best psychiatric example of a polymorphism that is known to be functional (i.e. it affects the protein that the gene encodes, and since that protein regulates dopamine, it in turn affects dopamine-mediated brain functions). For that reason it has been extensively studied in a range of behaviours, and in many psychiatric disorders. However, the results have generally not been conclusive, and have led to controversies about the data and their interpretation. Possible reasons for the inconclusive results include the occurrence of sex differences in COMT function, and the presence of other SNPs in the gene which interact with Val158Met to determine COMT activity. For a review of this subject, see Tunbridge et al. (2006)."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "5-HT transporter gene, stress, and depression",
+        "items": [
+          "The 5-HT transporter (5-HTT) regulates synaptic 5-HT availability and is the target of selective serotonin reuptake inhibitors (SSRIs). Its gene contains a polymorphism in its ‘upstream’ promoter region (which regulates the expression of the gene). The polymorphism is unlike the above examples in two ways. First, it is non-coding (i.e. it does not change the amino acid sequence of the protein). Secondly, it is not an SNP, but is a polymorphism in the length of the DNA, the two alleles being called short (S) and long (L). Lesch et al. (1996) showed that the S allele was associated with neuroticism (trait anxiety), and Caspi et al. (2004) found that it influenced whether a person who had experienced adverse early-life events developed depression. The polymorphism may also contribute to individual differences in the therapeutic response to, and side-effects of, SSRIs.",
+          "The finding of Caspi et al. (2004) is a prominent example of a gene–environment interaction (see below). It is also a prime example of the controversies in the field, since there have been multiple subsequent studies, and controversies as to whether the result is robust, with different meta-analyses coming to opposite conclusions. For a review of this subject, see Karg et al. (2011)."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-5.6",
+    "source": "Oxford",
+    "chapter": 5,
+    "boxNumber": "5.6",
+    "page": 110,
+    "title": "Some reasons why finding genes for psychiatric disorders is difficult",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Reasons",
+        "items": [
+          "Starting with the ‘wrong’ clinical phenotype. Genes are highly unlikely to map on to current diagnostic categories, yet samples are usually collected based upon the latter. Stronger genotype–phenotype relationships may be seen if categories are broadened (e.g. ‘psychosis’ rather than schizophrenia and bipolar disorder) or decomposed (e.g. schizophrenia into cognitive deficits and psychotic symptoms, etc.).",
+          "No ‘major genes’ exist. Each gene on its own contributes only a small fraction of the heritable risk.",
+          "Different genes may affect risk in different people (genetic heterogeneity).",
+          "Within a given gene, different variants may affect risk in different people (allelic heterogeneity).",
+          "The presence of phenocopies and de novo mutations.",
+          "Gene–gene interactions (epistasis).",
+          "Gene–environment interactions."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-6.1",
+    "source": "Oxford",
+    "chapter": 6,
+    "boxNumber": "6.1",
+    "page": 120,
+    "title": "Hierarchy of the quality of research about treatment",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Hierarchy",
+        "items": [
+          "Ia Evidence from a systematic review of randomized controlled trials",
+          "Ib Evidence from at least one randomized controlled trial",
+          "IIa Evidence from at least one controlled study without randomization",
+          "IIb Evidence from at least one other type of quasi-experimental study",
+          "III Evidence from non-experimental descriptive studies, such as comparative studies, correlation studies, and case–control studies",
+          "IV Evidence from expert committee reports or opinions and/or clinical experience of respected authorities"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-6.2",
+    "source": "Oxford",
+    "chapter": 6,
+    "boxNumber": "6.2",
+    "page": 122,
+    "title": "Indices for translating research results into clinical practice",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Outcome table",
+        "items": [
+          "Experimental treatment, X / Control treatment, Y",
+          "Positive outcome: a / b",
+          "Negative outcome: c / d"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Indices",
+        "items": [
+          "Control event rate (CER) = b/(b + d)",
+          "Experimental event rate (EER) = a/(a + c)",
+          "Absolute risk reduction (ARR)",
+          "The difference in the proportions with a positive outcome on treatments X and Y = (CER – EER)",
+          "Relative risk = EER/CER",
+          "Odds ratio (OR)",
+          "The ratio of the odds of a positive outcome on treatments X and Y = (a/c)/(b/d) = ad/bc",
+          "Number needed to treat (NNT)—the number of patients that need to be treated with treatment X to obtain one more positive outcome than would be expected on treatment Y (= 1/AAR)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-6.3",
+    "source": "Oxford",
+    "chapter": 6,
+    "boxNumber": "6.3",
+    "page": 130,
+    "title": "Evaluation of utility of therapeutic guidelines",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Questions",
+        "items": [
+          "Did preparation and publication avoid significant conflict of interest?",
+          "Is the guideline concerned with an appropriate topic and patient group?",
+          "Did the guideline panel include multidisciplinary, relevant expertise?",
+          "Have subjective judgements been made explicit and justified?",
+          "Have all relevant data been obtained and evaluated?",
+          "Has the evidence been properly synthesised and are results obtained in keeping with the guideline conclusion?",
+          "Are variations in medical practice addressed?",
+          "Is the guideline clinically relevant, comprehensive and flexible",
+          "Does the guideline take into account the acceptability, affordability and practicality of its recommendations?",
+          "Does the guideline describe how it should be disseminated, implemented and reviewed?"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Reproduced from Greenhalgh T, How to Read a Paper, Copyright (2010), with permission from John Wiley & Sons."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.1",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.1",
+    "page": 137,
+    "title": "Defence mechanisms",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Repression",
+        "items": [
+          "This is the exclusion from consciousness of impulses, emotions, or memories that would otherwise cause distress. For example, especially painful aspects of the memory of distressing events such as sexual abuse in childhood may be kept out of full awareness for many years."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Denial",
+        "items": [
+          "This is a related concept, which is inferred when a person behaves as if they are unaware of something that they may reasonably be expected to know. For example, on learning that they are dying of cancer, a patient may continue to live normally as if they are unaware of the diagnosis. In this example, denial is adaptive, as it can help to reduce depression. However, in the early stage of illness, denial may delay help-seeking or lead to refusal of necessary investigations and treatment."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Displacement",
+        "items": [
+          "This is the transfer of emotion from a person, object, or situation with which it is properly associated, to another source. For example, after the recent death of his wife, a man may blame the doctor for failure to provide adequate care, and may thus avoid blaming himself for putting his work before his wife’s needs during the last months of her life."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Projection",
+        "items": [
+          "This is the attribution to another person of thoughts or feelings similar to one’s own, thereby rendering one’s own thoughts or feelings more acceptable. For example, a person who dislikes a colleague may attribute reciprocal feelings of dislike to him; it is then easier to justify his own feelings of dislike for the colleague."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Regression",
+        "items": [
+          "This is the adoption of behaviour appropriate to an earlier stage of development—for example, dependence on others. Regression often occurs among physically ill people. In the acute stages of illness it can be adaptive, enabling the person to acquiesce passively to intensive medical and nursing care. If regression persists into the stage of recovery and rehabilitation, it can be maladaptive because it reduces the patient’s ability to make efforts to help themself."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Reaction formation",
+        "items": [
+          "This is the unconscious adoption of behaviour that is the opposite to that which would reflect the person’s true feelings and intentions. For example, excessively prudish attitudes to sex are sometimes (but not always) a reaction to the person’s own sexual urges that they cannot accept."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Rationalization",
+        "items": [
+          "This is the unconscious provision of a false but acceptable explanation for behaviour that has a less acceptable origin. For example, a husband may leave his wife at home because he does not enjoy her company, but he may reassure himself falsely that she is shy and would not enjoy going out."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sublimation",
+        "items": [
+          "This is the unconscious diversion of unacceptable impulses into more acceptable outlets—for example, turning the need to dominate others into the organization of good works for charity. (There are, of course, many other motives for charitable work.)"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Identification",
+        "items": [
+          "This is the unconscious adoption of the characteristics or activities of another person, often to reduce the pain of separation or loss. For example, a widow may undertake the same voluntary work that her husband used to do."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.2",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.2",
+    "page": 141,
+    "title": "The principal components of psychological first aid",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Components",
+        "items": [
+          "Comfort and consolation",
+          "Protection from further threat and distress",
+          "Immediate physical care",
+          "Helping reunion with loved ones",
+          "Sharing the experience (but not forced)",
+          "Linking survivors with sources of support",
+          "Facilitating a sense of being in control",
+          "Identifying those who need further help (triage)"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.3",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.3",
+    "page": 143,
+    "title": "ICD-10 criteria for “Enduring personality changes after catastrophic experience”",
+    "content": [
+      {
+        "type": "section",
+        "heading": "(A) At least two of the following:",
+        "items": [
+          "a permanent hostile or distrustful attitude towards the world",
+          "social withdrawal",
+          "a constant feeling of emptiness or hopelessness",
+          "an enduring feeling of being on edge or being threatened without external cause",
+          "a permanent feeling of being changed or being different from others."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "(B)",
+        "items": [
+          "The change causes significant interference with personal or social functioning or significant distress."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "(C)",
+        "items": [
+          "The personality change developed after the catastrophic event, and the person did not have a personality disorder prior to the event that explains the current traits."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "(D)",
+        "items": [
+          "The personality change must have been present for at least 2 years, and is not related to episodes of any other mental disorder (other than PTSD) or to brain damage or disease."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from The ICD-10 classification of mental and behavioural disorders: clinical descriptions and diagnostic guidelines, Copyright (1992), World Health Organization."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.4",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.4",
+    "page": 143,
+    "title": "The principal symptoms of post-traumatic stress disorder",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Hyperarousal",
+        "items": [
+          "Persistent anxiety",
+          "Irritability",
+          "Insomnia",
+          "Poor concentration"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Re-experiencing",
+        "items": [
+          "Intense intrusive imagery",
+          "“Flashbacks”",
+          "Recurrent distressing dreams"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Avoidance",
+        "items": [
+          "Difficulty in recalling stressful events at will",
+          "Avoidance of reminders of the events",
+          "Detachment",
+          "Inability to feel emotion (“numbness”)",
+          "Diminished interest in activities"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.5",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.5",
+    "page": 145,
+    "title": "Neurobiological abnormalities in PTSD",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Hypothalamic–pituitary–adrenal axis",
+        "items": [
+          "Evidence, albeit somewhat contradictory, for low plasma cortisol levels and increased sensitivity to dexamethasone suppression. Increased levels of corticotropin-releasing hormone in cerebrospinal fluid (CSF)."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Noradrenaline",
+        "items": [
+          "Increased sympathetic tone. Increased startle response. Increased levels of 3-methoxy-4-hydroxyphenylglycol (MHPG) in CSF. Increased anxiety response to noradrenaline challenge. Decreased levels of neuropeptide Y at baseline and in response to noradrenaline challenge."
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Brain imaging",
+        "items": [
+          "Smaller volume of the hippocampus (which may be a vulnerability factor), overactivity of the amygdala in response to traumatic psychological stimuli, as well as decreased activity in anterior cingulate cortex and prefrontal cortex."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from Murray KE, Keifer OP, Ressler KJ, Norrholm SD, Jovanovic T, Neurobiology and treatment of PTSD, In: Charney DS, Buxbaum JD, Sklar P, Nestler EJ (Eds), Neurobiology of Mental Illness (4th edition), Copyright (2013), Oxford University Press."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.6",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.6",
+    "page": 147,
+    "title": "National Institute for Health and Care Excellence (NICE) guidance for the management of PTSD and related traumatic syndromes",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Guidance",
+        "items": [
+          "The routine use of a brief screening instrument for PTSD at 1 month post incident should be considered for all people who have been involved in a major disaster.",
+          "Where symptoms are mild and have been present for less than 4 weeks after the trauma, watchful waiting—as a way of managing the difficulties presented by individual sufferers—should be routinely considered by healthcare professionals. A follow-up contact should be arranged within 1 month.",
+          "Trauma-focused cognitive behavioural therapy should be considered for those with severe post-traumatic symptoms during the first month after the traumatic event. All PTSD sufferers should be offered a course of trauma-focused psychological treatment.",
+          "These treatments are usually given individually on an outpatient basis.",
+          "Drug treatments for PTSD should not be used as a routine first-line treatment in preference to a trauma-focused psychological therapy.",
+          "Drug treatments such as paroxetine, mirtazapine, amitriptyline, and phenelzine (the latter supervised by specialists) should be considered for the treatment of PTSD where a sufferer expresses a preference not to engage in a trauma-focused psychological treatment, or such treatment has proved ineffective."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from the National Institute for Health and Care Excellence, Post-traumatic stress disorder (PTSD), Copyright (2013), National Institute for Health and Care Excellence."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.7",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.7",
+    "page": 149,
+    "title": "Some stressful issues faced by refugees",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Causes",
+        "items": [
+          "War",
+          "Human rights abuses",
+          "Persecution on grounds of politics, religion, gender, or ethnicity",
+          "Refugee camps and immigration detention centres",
+          "Illegal methods of transportation and border crossings, often in the hands of people traffickers"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Resultant losses",
+        "items": [
+          "Country",
+          "Culture",
+          "Family",
+          "Profession",
+          "Language",
+          "Friends",
+          "Possessions",
+          "Plans for the future"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Issues in country of asylum",
+        "items": [
+          "Psychological and practical adjustment",
+          "Uncertain future",
+          "Traumatic life events",
+          "Social exclusion and poverty",
+          "Racism and bullying",
+          "Stereotyping by host country",
+          "Immigration policies",
+          "Immigration detention centres",
+          "Unknown cultural traditions"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Reproduced from Advances in Psychiatric Treatment, 8(4), Tribe R, Mental Health of Refugees and Asylum Seekers, pp. 240–7, Copyright (2002), with permission from Royal College of Psychiatrists."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.8",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.8",
+    "page": 155,
+    "title": "Priorities for care of the dying person",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Priorities",
+        "items": [
+          "The possibility that a person may die within the next few days or hours is recognized and communicated clearly, decisions made and actions taken in accordance with the person’s needs and wishes, and these are regularly reviewed and decisions revised accordingly.",
+          "Sensitive communication takes place between staff and the dying person, and those identified as important to them.",
+          "The dying person, and those identified as important to them, are involved in decisions about treatment and care to the extent that the dying person wants.",
+          "The needs of families and others identified as important to dying person are actively explored, respected, and met as far as possible.",
+          "An individual plan of care, which includes food and drink, symptom control, and psychological, social, and spiritual support, is agreed, coordinated and delivered with compassion."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from Leadership Alliance for the Care of Dying People, Copyright (2014)."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-7.9",
+    "source": "Oxford",
+    "chapter": 7,
+    "boxNumber": "7.9",
+    "page": 155,
+    "title": "Normal grief reaction",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Stage 1: hours to days",
+        "items": [
+          "Denial, disbelief",
+          "“Numbness”"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Stage 2: weeks to 6 months",
+        "items": [
+          "Sadness, weeping, waves of grief",
+          "Somatic symptoms of anxiety",
+          "Restlessness",
+          "Poor sleep",
+          "Diminished appetite",
+          "Guilt, blame of others",
+          "Experience of a presence",
+          "Illusions, vivid imagery",
+          "Hallucinations of the dead person’s voice",
+          "Preoccupation with memories of the deceased",
+          "Social withdrawal"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Stage 3: weeks to months",
+        "items": [
+          "Experiences of grief diminish",
+          "Social activities resumed",
+          "Memories of good times"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Symptoms may recur at anniversaries."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.1",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.1",
+    "page": 162,
+    "title": "Symptoms of anxiety",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Psychological arousal",
+        "items": [
+          "Fearful anticipation",
+          "Irritability",
+          "Sensitivity to noise",
+          "Restlessness",
+          "Poor concentration",
+          "Worrying thoughts"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Autonomic arousal",
+        "items": [
+          "Gastrointestinal",
+          "Dry mouth",
+          "Difficulty in swallowing",
+          "Epigastric discomfort",
+          "Excessive wind",
+          "Frequent or loose motions",
+          "Respiratory",
+          "Constriction in the chest",
+          "Difficulty inhaling",
+          "Cardiovascular",
+          "Palpitations",
+          "Discomfort in the chest",
+          "Awareness of missed beats",
+          "Genitourinary",
+          "Frequent or urgent micturition",
+          "Failure of erection",
+          "Menstrual discomfort"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Muscle tension",
+        "items": [
+          "Tremor",
+          "Headache",
+          "Aching muscles"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hyperventilation",
+        "items": [
+          "Dizziness",
+          "Tingling in the extremities",
+          "Feeling of breathlessness"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sleep disturbance",
+        "items": [
+          "Insomnia",
+          "Night terror"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.2",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.2",
+    "page": 164,
+    "title": "Symptoms of generalized anxiety disorder",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Symptoms",
+        "items": [
+          "Worry and apprehension",
+          "Muscle tension*",
+          "Autonomic overactivity*",
+          "Psychological arousal*",
+          "Sleep disturbance*",
+          "Other features",
+          "Depression",
+          "Obsessions",
+          "Depersonalization"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "* See Box 8.1."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.3",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.3",
+    "page": 169,
+    "title": "Stepped-care approach* for generalized anxiety disorder",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Steps",
+        "items": [
+          "Identification and assessment: education about GAD and treatment options; active monitoring.",
+          "Low-intensity psychological interventions: pure self-help and guided self-help, group psychoeducation.",
+          "Choice of a high-intensity psychological intervention (cognitive behaviour therapy or applied relaxation) or a drug treatment.",
+          "Specialist treatment (complex drug and psychological regimens): input from multiagency teams, crisis services, or day hospitals."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "* Initiate treatment at Step 3 if the patient presents with more severe symptomatology and/or significant functional impairment.",
+          "Source: data from the National Institute for Health and Care Excellence, Generalised anxiety disorder and panic disorder in adults, Copyright (2010), National Institute for Health and Care Excellence."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.4",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.4",
+    "page": 180,
+    "title": "Symptoms of a panic attack",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Sudden onset of:",
+        "items": [
+          "Palpitations",
+          "Choking sensations",
+          "Chest pain",
+          "Dizziness and faintness",
+          "Depersonalization",
+          "Derealization",
+          "Fear of dying, losing control, or going mad"
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from The ICD-10 classification of mental and behavioural disorders: clinical descriptions and diagnostic guidelines, Copyright (1992), World Health Organization."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.5",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.5",
+    "page": 181,
+    "title": "Symptoms caused by hyperventilation",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Symptoms",
+        "items": [
+          "Dizziness",
+          "Tinnitus",
+          "Headache",
+          "Feeling of weakness",
+          "Faintness",
+          "Numbness",
+          "Tingling in the hands, feet, and face",
+          "Carpopedal spasms",
+          "Precordial discomfort",
+          "Feeling of breathlessness"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.6",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.6",
+    "page": 185,
+    "title": "Principal features of obsessive-compulsive disorder",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Features",
+        "items": [
+          "Obsessional symptoms",
+          "Thoughts",
+          "Ruminations",
+          "Impulses",
+          "“Phobias”",
+          "Compulsive rituals",
+          "Abnormal slowness",
+          "Anxiety",
+          "Depression",
+          "Depersonalization"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "oxford-8.7",
+    "source": "Oxford",
+    "chapter": 8,
+    "boxNumber": "8.7",
+    "page": 188,
+    "title": "Some key cognitive processes in obsessive-compulsive disorder",
+    "content": [
+      {
+        "type": "section",
+        "heading": "Processes",
+        "items": [
+          "Thought–action fusion. Magical thinking—for example, the belief that if one thinks of harming others one is likely to act on the thought or might have done so in the past.",
+          "Responsibility. An inflated sense of responsibility for preventing harm to others; the belief that one has power that is pivotal to bringing about or preventing crucial negative outcomes.",
+          "Compulsions and safety-seeking behaviours. Compulsions—whether behavioural or mental—are reinforcing because they reduce anxiety temporarily. They strengthen the belief that, had the compulsion not been carried out, discomfort would have increased and harm might have occurred.",
+          "Overestimation of the likelihood that harm will occur.",
+          "Intolerance of uncertainty and ambiguity.",
+          "The need for control."
+        ]
+      },
+      {
+        "type": "text",
+        "lines": [
+          "Source: data from Advances in Psychiatric Treatment, 13(6), Veale D, Cognitive behavioural therapy for obsessive compulsive disorder, pp. 438–46, Copyright (2007), The Royal College of Psychiatrists."
         ]
       }
     ]
