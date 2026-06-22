@@ -155,6 +155,11 @@ function getBoxContentLines(content) {
     .filter(Boolean);
 }
 
+function isBoxHeadingLine(line) {
+  const value = String(line || "").trim();
+  return value.startsWith("Κατά ") || value === "Αυτοσκοπικές ψευδαισθήσεις";
+}
+
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
@@ -5442,6 +5447,24 @@ const STYLES = `
     color: #fce7f3;
   }
 
+  .pinakakia-book-box.oxford {
+    border-color: rgba(52,211,153,0.48);
+    background: rgba(16,185,129,0.12);
+  }
+
+  .pinakakia-book-box.oxford .pinakakia-book-header {
+    border-bottom-color: rgba(52,211,153,0.5);
+    color: #34d399;
+  }
+
+  .pinakakia-book-box.oxford .pinakakia-book-header-title {
+    color: #d1fae5;
+  }
+
+  .pinakakia-book-box.oxford .pinakakia-book-body {
+    background: rgba(16,185,129,0.08);
+  }
+
   .pinakakia-book-header-page {
     color: var(--text-dim);
     font-size: 13px;
@@ -5463,6 +5486,21 @@ const STYLES = `
 
   .pinakakia-content-line {
     margin: 0 0 8px;
+  }
+
+  .pinakakia-content-line.heading {
+    margin-top: 14px;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-weight: 900;
+  }
+
+  .pinakakia-content-line.item {
+    padding-left: 24px;
+  }
+
+  .pinakakia-content-line:first-child {
+    margin-top: 0;
   }
 
   .pinakakia-content-line:last-child {
@@ -8558,7 +8596,7 @@ function PinakakiaModule({ onBack, onHome }) {
           {box.page && <span>pg. {box.page}</span>}
         </div>
         <button className="pinakakia-reveal" onClick={() => setRevealed(value => !value)}>
-          <div className="pinakakia-book-box">
+          <div className={`pinakakia-book-box ${viewer.sourceKey}`}>
             <div className="pinakakia-book-header">
               <span>Box {box.boxNumber}</span>
               <span className="pinakakia-book-header-title">{box.title}</span>
@@ -8569,9 +8607,17 @@ function PinakakiaModule({ onBack, onHome }) {
                 <>
                   <div className="pinakakia-hide-note">Πάτησε για απόκρυψη</div>
                   <div className="pinakakia-content-text">
-                    {contentLines.map((line, index) => (
-                      <div className="pinakakia-content-line" key={`${box.id}-line-${index}`}>{line}</div>
-                    ))}
+                    {contentLines.map((line, index) => {
+                      const isHeading = isBoxHeadingLine(line);
+                      return (
+                        <div
+                          className={`pinakakia-content-line ${isHeading ? "heading" : "item"}`}
+                          key={`${box.id}-line-${index}`}
+                        >
+                          {line}
+                        </div>
+                      );
+                    })}
                   </div>
                 </>
               ) : (
