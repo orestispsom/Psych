@@ -3939,14 +3939,14 @@ const STYLES = `
     flex-wrap: wrap;
   }
 
-  .extra-chapter-list {
+  .DSM-5-TR-chapter-list {
     display: flex;
     flex-direction: column;
     gap: 14px;
     margin-top: 18px;
   }
 
-  .extra-chapter-row {
+  .DSM-5-TR-chapter-row {
     width: 100%;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -3962,32 +3962,32 @@ const STYLES = `
     cursor: pointer;
   }
 
-  .extra-chapter-row.featured {
+  .DSM-5-TR-chapter-row.featured {
     border-color: var(--border-active);
     background: var(--accent-soft);
   }
 
-  .extra-chapter-row:disabled {
+  .DSM-5-TR-chapter-row:disabled {
     opacity: 0.55;
     cursor: not-allowed;
   }
 
-  .extra-chapter-title {
+  .DSM-5-TR-chapter-title {
     color: var(--text);
     font-size: 16px;
     font-weight: 700;
   }
 
-  .extra-session-header,
-  .extra-session-stats {
+  .DSM-5-TR-session-header,
+  .DSM-5-TR-session-stats {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     margin-bottom: 18px;
   }
 
-  .extra-session-header span,
-  .extra-session-stats span {
+  .DSM-5-TR-session-header span,
+  .DSM-5-TR-session-stats span {
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--bg-surface);
@@ -3997,25 +3997,25 @@ const STYLES = `
     font-variant-numeric: tabular-nums;
   }
 
-  .extra-question-card {
+  .DSM-5-TR-question-card {
     padding: 26px;
   }
 
-  .extra-question-stem {
+  .DSM-5-TR-question-stem {
     font-size: 17px;
     line-height: 1.65;
   }
 
-  .extra-option {
+  .DSM-5-TR-option {
     min-height: 72px;
     align-items: flex-start;
   }
 
-  .extra-option-text {
+  .DSM-5-TR-option-text {
     white-space: pre-line;
   }
 
-  .extra-explanation {
+  .DSM-5-TR-explanation {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -4024,22 +4024,22 @@ const STYLES = `
     text-align: left;
   }
 
-  .extra-empty-note {
+  .DSM-5-TR-empty-note {
     color: var(--text-dim);
     line-height: 1.55;
   }
 
-  .extra-review-list {
+  .DSM-5-TR-review-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
   }
 
-  .extra-result-modal {
+  .DSM-5-TR-result-modal {
     max-width: 520px;
   }
 
-  .extra-nav-row {
+  .DSM-5-TR-nav-row {
     justify-content: center;
   }
 
@@ -4311,11 +4311,11 @@ const STYLES = `
     height: 16px;
   }
 
-  .extra-password-modal {
+  .DSM-5-TR-password-modal {
     position: relative;
   }
 
-  .extra-password-modal input {
+  .DSM-5-TR-password-modal input {
     width: 100%;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -5937,8 +5937,8 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         Αντιστοίχηση
         <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
       </button>
-      <button className="mode-btn" onClick={() => onStart('extra')}>
-        Extra
+      <button className="mode-btn" onClick={() => onStart('DSM-5-TR')}>
+        DSM-5-TR
       </button>
 
       {recentWrittenExamSessions.length > 0 && (
@@ -5988,17 +5988,17 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic }) {
       </div>
       <h2>Ερωτήσεις ανά Κατηγορία</h2>
 
-      <div className="extra-chapter-list">
+      <div className="DSM-5-TR-chapter-list">
         {MCQ_TOPIC_CATEGORIES.map(topic => {
           const count = topicCounts.get(topic) || 0;
           return (
             <button
               key={topic}
-              className="extra-chapter-row"
+              className="DSM-5-TR-chapter-row"
               disabled={!count}
               onClick={() => onSelectTopic(topic)}
             >
-              <span className="extra-chapter-title">{topic}</span>
+              <span className="DSM-5-TR-chapter-title">{topic}</span>
               <span>{count} ερωτήσεις</span>
             </button>
           );
@@ -6047,7 +6047,7 @@ function getMatchingSetMenuTitle(set) {
   return title.startsWith(prefix) ? title.slice(prefix.length).trim() : title;
 }
 
-function getExtraChapterQuestions(chapter) {
+function getDSM-5-TRChapterQuestions(chapter) {
   if (!chapter) return [];
   return (chapter.questions || []).map(question => ({
     ...question,
@@ -6058,7 +6058,7 @@ function getExtraChapterQuestions(chapter) {
   }));
 }
 
-function normalizeExtraCorrectIndex(question) {
+function normalizeDSM-5-TRCorrectIndex(question) {
   const correct = Array.isArray(question?.correct)
     ? question.correct[0]
     : question?.correct ?? question?.correctIndex ?? question?.answerIndex;
@@ -6075,17 +6075,17 @@ function normalizeExtraCorrectIndex(question) {
   return -1;
 }
 
-function buildExtraSession(sourceType, chapter = null) {
+function buildDSM-5-TRSession(sourceType, chapter = null) {
   const sourceQuestions = sourceType === "random"
     ? dsm5trSelfExamQuestions
-    : getExtraChapterQuestions(chapter);
+    : getDSM-5-TRChapterQuestions(chapter);
 
   const eligibleQuestions = sourceQuestions.filter(question => question?.options?.length);
   return sourceType === "random" ? shuffleItems(eligibleQuestions) : eligibleQuestions;
 }
 
-function ExtraMcqMode({ onBack, onHome }) {
-  const totalExtraQuestions = dsm5trSelfExamQuestions.length;
+function DSM-5-TRMcqMode({ onBack, onHome }) {
+  const totalDSM-5-TRQuestions = dsm5trSelfExamQuestions.length;
   const [sessionLabel, setSessionLabel] = useState("");
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -6101,7 +6101,7 @@ function ExtraMcqMode({ onBack, onHome }) {
   const answeredRows = questions.map(item => {
     const chosen = answers[item.id];
     const answered = Boolean(locked[item.id]);
-    const correct = answered && chosen === normalizeExtraCorrectIndex(item);
+    const correct = answered && chosen === normalizeDSM-5-TRCorrectIndex(item);
     return { question: item, selected: chosen, answered, correct };
   });
   const answeredCount = answeredRows.filter(row => row.answered).length;
@@ -6109,7 +6109,7 @@ function ExtraMcqMode({ onBack, onHome }) {
   const wrongRows = answeredRows.filter(row => row.answered && !row.correct);
 
   const startSession = (sourceType, chapter = null) => {
-    const nextQuestions = buildExtraSession(sourceType, chapter);
+    const nextQuestions = buildDSM-5-TRSession(sourceType, chapter);
     setSessionLabel(sourceType === "random" ? "Random" : `Chapter ${chapter.chapter}: ${chapter.title}`);
     setQuestions(nextQuestions);
     setCurrentIdx(0);
@@ -6119,7 +6119,7 @@ function ExtraMcqMode({ onBack, onHome }) {
     setReviewWrong(false);
   };
 
-  const backToExtraHome = () => {
+  const backToDSM-5-TRHome = () => {
     setSessionLabel("");
     setQuestions([]);
     setCurrentIdx(0);
@@ -6137,7 +6137,7 @@ function ExtraMcqMode({ onBack, onHome }) {
     if (questions.every(item => nextLocked[item.id])) {
       const rows = questions.map(item => {
         const chosen = answers[item.id];
-        const correct = chosen === normalizeExtraCorrectIndex(item);
+        const correct = chosen === normalizeDSM-5-TRCorrectIndex(item);
         return { question: item, selected: chosen, answered: true, correct };
       });
       const correct = rows.filter(row => row.correct).length;
@@ -6152,22 +6152,22 @@ function ExtraMcqMode({ onBack, onHome }) {
     progressLabel = questions.length > 0 ? `${currentIdx + 1}/${questions.length}` : null
   ) => {
     if (!rowQuestion) return null;
-    const correctIndex = normalizeExtraCorrectIndex(rowQuestion);
+    const correctIndex = normalizeDSM-5-TRCorrectIndex(rowQuestion);
     const displayedOptions = getStoredOptionOrder(rowQuestion, optionOrders).map(originalIndex => ({
       originalIndex,
       text: rowQuestion.options[originalIndex],
     }));
 
     return (
-      <div className="structured-card extra-question-card">
+      <div className="structured-card DSM-5-TR-question-card">
         <div className="structured-top">
           <span className="structured-progress">{rowQuestion.chapterTitle || "DSM-5-TR Self-Exam"}</span>
           {progressLabel && <span className="structured-progress">{progressLabel}</span>}
         </div>
-        <div className="structured-question extra-question-stem">{rowQuestion.stem}</div>
-        <div className="structured-options extra-options">
+        <div className="structured-question DSM-5-TR-question-stem">{rowQuestion.stem}</div>
+        <div className="structured-options DSM-5-TR-options">
           {displayedOptions.map((option, displayIndex) => {
-            let cls = "structured-option extra-option";
+            let cls = "structured-option DSM-5-TR-option";
             if (!lockedView && option.originalIndex === rowSelected) cls += " selected";
             if (lockedView && option.originalIndex === correctIndex) cls += " correct";
             if (lockedView && option.originalIndex === rowSelected && option.originalIndex !== correctIndex) cls += " incorrect";
@@ -6180,13 +6180,13 @@ function ExtraMcqMode({ onBack, onHome }) {
                 onClick={() => setAnswers(prev => ({ ...prev, [rowQuestion.id]: option.originalIndex }))}
               >
                 <span className="structured-option-letter">{OPTION_LETTERS[displayIndex] || displayIndex + 1}</span>
-                <span className="extra-option-text">{option.text}</span>
+                <span className="DSM-5-TR-option-text">{option.text}</span>
               </button>
             );
           })}
         </div>
         {lockedView && (
-          <div className="explanation-box extra-explanation">
+          <div className="explanation-box DSM-5-TR-explanation">
             <strong>{rowSelected === correctIndex ? "Correct" : "Explanation"}</strong>
             <span>{rowQuestion.explanation || rowQuestion.answer || "No explanation has been added for this question yet."}</span>
           </div>
@@ -6208,11 +6208,11 @@ function ExtraMcqMode({ onBack, onHome }) {
         </div>
         <h2>Wrong Answer Review</h2>
         {wrongRows.length === 0 ? (
-          <div className="structured-card extra-empty-note">No wrong answers in this session.</div>
+          <div className="structured-card DSM-5-TR-empty-note">No wrong answers in this session.</div>
         ) : (
-          <div className="extra-review-list">
+          <div className="DSM-5-TR-review-list">
             {wrongRows.map((row, index) => (
-              <div className="extra-review-item" key={row.question.id}>
+              <div className="DSM-5-TR-review-item" key={row.question.id}>
                 {renderQuestion(row.question, row.selected, true, `Review ${index + 1}/${wrongRows.length}`)}
               </div>
             ))}
@@ -6220,7 +6220,7 @@ function ExtraMcqMode({ onBack, onHome }) {
         )}
         <div className="structured-actions">
           <button className="nav-btn" onClick={() => setReviewWrong(false)}>Back to results</button>
-          <button className="nav-btn primary" onClick={backToExtraHome}>Extra menu</button>
+          <button className="nav-btn primary" onClick={backToDSM-5-TRHome}>DSM-5-TR menu</button>
         </div>
       </div>
     );
@@ -6237,25 +6237,25 @@ function ExtraMcqMode({ onBack, onHome }) {
             <Icons.Home /> Home
           </button>
         </div>
-        <h2>Extra</h2>
-        <div className="structured-card compact extra-empty-note">
-          DSM-5-TR Self-Exam bank: {totalExtraQuestions} questions loaded.
+        <h2>DSM-5-TR</h2>
+        <div className="structured-card compact DSM-5-TR-empty-note">
+          DSM-5-TR Self-Exam bank: {totalDSM-5-TRQuestions} questions loaded.
         </div>
-        <div className="extra-chapter-list">
-          <button className="extra-chapter-row featured" disabled={!totalExtraQuestions} onClick={() => startSession("random")}>
-            <span className="extra-chapter-title">Random</span>
-            <span>{totalExtraQuestions} questions</span>
+        <div className="DSM-5-TR-chapter-list">
+          <button className="DSM-5-TR-chapter-row featured" disabled={!totalDSM-5-TRQuestions} onClick={() => startSession("random")}>
+            <span className="DSM-5-TR-chapter-title">Random</span>
+            <span>{totalDSM-5-TRQuestions} questions</span>
           </button>
           {dsm5trSelfExamChapters.map(chapter => {
-            const count = getExtraChapterQuestions(chapter).length;
+            const count = getDSM-5-TRChapterQuestions(chapter).length;
             return (
               <button
                 key={chapter.id}
-                className="extra-chapter-row"
+                className="DSM-5-TR-chapter-row"
                 disabled={!count}
                 onClick={() => startSession("chapter", chapter)}
               >
-                <span className="extra-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
+                <span className="DSM-5-TR-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
                 <span>{count} questions</span>
               </button>
             );
@@ -6268,22 +6268,22 @@ function ExtraMcqMode({ onBack, onHome }) {
   return (
     <div className="structured-mcq fade-in">
       <div className="structured-top">
-        <button className="back-link" onClick={backToExtraHome}>
-          <Icons.ChevronLeft /> Extra Menu
+        <button className="back-link" onClick={backToDSM-5-TRHome}>
+          <Icons.ChevronLeft /> DSM-5-TR Menu
         </button>
         <button className="home-btn" onClick={onHome}>
           <Icons.Home /> Home
         </button>
       </div>
       <h2>{sessionLabel}</h2>
-      <div className="extra-session-header">
+      <div className="DSM-5-TR-session-header">
         <span>{questions.length} total</span>
         <span>{answeredCount} answered</span>
         <span>{correctCount} correct</span>
         <span>{Math.max(0, answeredCount - correctCount)} incorrect</span>
       </div>
       {renderQuestion()}
-      <div className="structured-actions extra-nav-row">
+      <div className="structured-actions DSM-5-TR-nav-row">
         <button className="nav-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
           <Icons.ChevronLeft />
         </button>
@@ -6297,16 +6297,16 @@ function ExtraMcqMode({ onBack, onHome }) {
 
       {result && (
         <div className="modal-overlay">
-          <div className="modal extra-result-modal">
+          <div className="modal DSM-5-TR-result-modal">
             <h3>Session complete</h3>
-            <div className="extra-session-stats">
+            <div className="DSM-5-TR-session-stats">
               <span>{result.correct}/{result.total}</span>
               <span>{Math.round((result.correct / Math.max(1, result.total)) * 100)}%</span>
               <span>{result.wrong} wrong</span>
             </div>
             <div className="modal-actions">
               <button className="results-btn" onClick={() => setReviewWrong(true)}>Review wrong answers</button>
-              <button className="results-btn primary" onClick={backToExtraHome}>Extra menu</button>
+              <button className="results-btn primary" onClick={backToDSM-5-TRHome}>DSM-5-TR menu</button>
             </div>
           </div>
         </div>
@@ -9455,13 +9455,13 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'extra' && (
-          <ExtraMcqMode
+        {activeProfile && screen === 'mcq' && testMode === 'DSM-5-TR' && (
+          <DSM-5-TRMcqMode
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'extra'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
+        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'DSM-5-TR'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
           <McqTest
             mode={testMode}
             progress={mcqProgress}
