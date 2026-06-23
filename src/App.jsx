@@ -5467,7 +5467,7 @@ const STYLES = `
 
   .pinakakia-row-title {
     display: block;
-    font-size: 16px;
+    font-size: 21px;
     font-weight: 800;
     margin-bottom: 5px;
   }
@@ -5478,7 +5478,7 @@ const STYLES = `
     flex-wrap: wrap;
     gap: 8px;
     color: var(--text-dim);
-    font-size: 13px;
+    font-size: 16px;
     line-height: 1.4;
   }
 
@@ -5563,14 +5563,14 @@ const STYLES = `
     border-radius: 9px;
     background: linear-gradient(90deg, #2fa772, #7dc79d);
     color: #d8f8e6;
-    font-size: 15px;
+    font-size: 19px;
     line-height: 1.15;
   }
 
   .pinakakia-book-box.oxford .pinakakia-book-header-title {
     color: white;
     text-transform: none;
-    font-size: 15px;
+    font-size: 19px;
   }
 
   .pinakakia-book-box.oxford .pinakakia-book-body {
@@ -5582,7 +5582,7 @@ const STYLES = `
   .pinakakia-book-box.oxford .pinakakia-book-header-page {
     margin-left: auto;
     color: #e8fff1;
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .pinakakia-book-box.oxford .pinakakia-hide-note {
@@ -5624,7 +5624,7 @@ const STYLES = `
 
   .pinakakia-book-header-page {
     color: var(--text-dim);
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 800;
     text-transform: none;
   }
@@ -5667,7 +5667,7 @@ const STYLES = `
   .pinakakia-hide-note {
     margin: 0 0 14px;
     color: var(--accent);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 800;
     text-align: center;
   }
@@ -5692,7 +5692,7 @@ const STYLES = `
     .breakdown-row { flex-direction: column; gap: 4px; }
     .breakdown-row strong { white-space: normal; }
     .nav-bar { gap: 6px; padding: 12px 16px; }
-    .nav-btn { padding: 8px 12px; font-size: 13px; }
+    .nav-btn { padding: 8px 12px; font-size: 16px; }
     .sprint-auto-toggle { right: 12px; bottom: 68px; }
     .vignette-row { grid-template-columns: 1fr; }
     .vignette-complete-toggle { min-height: 44px; }
