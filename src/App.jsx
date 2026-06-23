@@ -5591,13 +5591,13 @@ const STYLES = `
 
   .pinakakia-book-box.oxford .pinakakia-content-text {
     color: #111827;
-    font-size: 15px;
-    line-height: 1.32;
+    font-size: 19px;
+    line-height: 1.69;
     font-family: Arial, Helvetica, sans-serif;
   }
 
   .pinakakia-book-box.oxford .pinakakia-content-line {
-    margin: 0 0 3px;
+    margin: 0 0 4px;
   }
 
   .pinakakia-book-box.oxford .pinakakia-content-line.heading {
@@ -5637,7 +5637,7 @@ const STYLES = `
   .pinakakia-content-text {
     color: var(--text);
     font-size: 19px;
-    line-height: 1.55;
+    line-height: 1.69;
     white-space: normal;
   }
 
@@ -5700,7 +5700,7 @@ const STYLES = `
     .vignette-question-card .structured-option { min-height: 66px; }
     .pinakakia-viewer { padding: 18px; }
     .pinakakia-viewer-nav { grid-template-columns: 1fr; }
-    .pinakakia-content-text { font-size: 16px; }
+    .pinakakia-content-text { font-size: 19px; }
   }
 `;
 
