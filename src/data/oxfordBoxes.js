@@ -1,5 +1,4 @@
 export const oxfordBoxes = [
-  // Box 1.1 – fully structured
   {
     "id": "oxford-1.1",
     "source": "Oxford",
@@ -28,117 +27,44 @@ export const oxfordBoxes = [
         "heading": "Σύμφωνα με ιδιαίτερα χαρακτηριστικά",
         "items": [
           "Ακουστικές",
-          {
-            "type": "subsection",
-            "heading": "Δευτέρου προσώπου",
-            "items": ["Δευτέρου προσώπου"]
-          },
-          {
-            "type": "subsection",
-            "heading": "Τρίτου προσώπου",
-            "items": ["Τρίτου προσώπου"]
-          },
+          "Δευτέρου προσώπου",
+          "Τρίτου προσώπου",
           "Ηχοποίηση σκέψης (Gedankenlautwerden)",
           "Ηχώ της σκέψης (Écho de la pensée)",
           "Οπτικές",
-          {
-            "type": "subsection",
-            "heading": "Εκτός οπτικού πεδίου",
-            "items": ["Εκτός οπτικού πεδίου"]
+          "Εκτός οπτικού πεδίου"]
           },
-          "Εαυτοσκοπικές ψευδαισθήσεις",
-          "Αντανακλαστικές ψευδαισθήσεις",
+          { "type": "section",
+        "heading": "Εαυτοσκοπικές ψευδαισθήσεις",
+         "items": [     "Αντανακλαστικές ψευδαισθήσεις",
           "Υπναγωγικές και υπνοπομπικές"
         ]
       }
     ]
   },
 
-  // Box 1.2 – placeholder structure
   {
     "id": "oxford-1.2",
     "source": "Oxford",
     "chapter": 1,
     "boxNumber": "1.2",
     "page": 9,
-    "title": "Problems with the definition of delusions",
+    "title": "Προβλήματα με τον ορισμό του παραληρήματος",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
-        "items": [
-          "Delusions are firmly held despite evidence to the contrary",
-          "The hallmark of a delusion is that it is held with such",
-          "conviction that it cannot be altered by presenting",
-          "evidence to the contrary. For example, a patient who",
-          "holds the delusion that there are persecutors in the",
-          "adjoining house will not be convinced by evidence",
-          "that the house is empty. Instead he may suggest that",
-          "the persecutors left the house shortly before it was",
-          "searched. The problem with this criterion for delusions",
-          "is that some of the ideas of normal people are equally",
-          "impervious to contrary evidence. For example, the",
-          "beliefs of a convinced spiritualist are not undermined",
-          "by the counterarguments of a non-believer. Strongly",
-          "held non-delusional beliefs are called overvalued ideas",
-          "(see page 14).",
-          "A further problem with this part of the definition of",
-          "delusion relates to partial delusions. Although delu-",
-          "sions are usually held strongly from the start, some-",
-          "times they are at first held with a degree of doubt. Also,",
-          "during recovery it is not uncommon for patients to pass",
-          "through a stage of increasing doubt about their delu-",
-          "sions before finally rejecting them. The term ‘partial",
-          "delusion’ refers to both these situations of doubt. It",
-          "should be used during recovery only when it is known",
-          "that the beliefs were preceded by a full delusion, and",
-          "applied to the development of a delusion only when it",
-          "is known in retrospect that a full delusion developed",
-          "later. Partial delusions are not, in isolation, helpful in",
-          "diagnosis—akin to the status of pseudohallucinations",
-          "mentioned on page 8.",
-          "Delusions are held on inadequate grounds",
-          "Delusions are not arrived at by the ordinary processes of",
-          "observation and logic. Some delusions appear suddenly",
-          "without any previous thinking about the subject (primary",
-          "delusions). Other delusions appear to be attempts to",
-          "explain another abnormal experiences—for example, the",
-          "delusion that hallucinated voices are those of people who",
-          "are spying on the patient.",
-          "Delusions are not beliefs shared by others in the same culture",
-          "This criterion is important when the patient is a mem-",
-          "ber of a culture or subculture (including a religious",
-          "faith), because healthy people in such a group may hold",
-          "beliefs that are not accepted outside it. Like delusions,",
-          "such cultural beliefs are generally impervious to contrary",
-          "evidence and reasoned argument—for example, beliefs",
-          "in evil spirits. Therefore, before deciding that an idea is",
-          "delusional, it is important to determine whether other",
-          "members of the same culture share the belief.",
-          "Delusions as false beliefs",
-          "Some definitions of delusions indicate that they are",
-          "false beliefs, but this criterion was not included in",
-          "the definition given above. This omission is because,",
-          "in exceptional circumstances, a delusional belief can",
-          "be true or can subsequently become true. A well-rec-",
-          "ognized example relates to pathological jealousy (see",
-          "page 306). It is not falsity that determines whether the",
-          "belief is delusional, but the nature of the mental pro-",
-          "cesses that led up to it. (The difficulty with this state-",
-          "ment is that we cannot define these mental processes",
-          "precisely.) There is a further practical problem concern-",
-          "ing the use of falsity as a criterion for delusion. It is that",
-          "if the criterion is used, it may be assumed that, because",
-          "a belief is highly improbable, it is false. This is certainly",
-          "not a sound assumption, because improbable stories—",
-          "for example, of persecution by neighbours—sometimes",
-          "turn out to be true and arrived at through sound obser-",
-          "vations and logical thought. Therefore ideas should be",
-          "investigated thoroughly before they are accepted as",
-          "delusions.",
-          "These issues are discussed further in Spitzer (1990)",
-          "and Butler and Braff (1991). See Garety and Freeman",
-          "(2013) for a cognitive account of delusions."
+        "heading": "Τα παραληρήματα παραμένουν σταθερά παρά τις αποδείξεις περί του αντιθέτου",
+        "items": [ 
+          "Χαρακτηριστικό στοιχείο ενός παραληρήματος είναι ότι αποτελεί μια σταθερή \
+          πεποίθηση που δεν μπορεί να αλλάξει με την παρουσίαση αποδεικτικών στοιχείων \
+          περί του αντιθέτου. Παραδείγματος χάριν, ένας ασθενής που έχει το παραλήρημα \
+          ότι τον καταδιώκουν από το διπλανό σπίτι δεν θα πειστεί από αποδείξεις ότι το σπίτι \
+          είναι άδειο. Αντ'αυτού, μπορεί να αντιπροτείνει ότι οι διώκτες του έφυγαν από το σπίτι \
+          λίγο πριν το ψάξουν. Το πρόβλημα με αυτό το κριτήριο του παραληρήματος είναι ότι κάποιες από τις ιδέες \
+          των φυσιολογικών ατόμων είναι εξίσου αμετάβλητες στις αποδείξεις περί του αντιθέτου. \
+          Παραδείγματος χάριν,η πεποίθηση ενός πνευματιστή δεν αλλάζει από τα αντεπιχειρήματα κάποιου που δεν πιστεύει. \
+          Οι ισχυρές μη παραληρητικές πεποιθήσεις αποκαλούνται <b>υπερτιμημένες ιδέες</b> (βλέπε σελ. 27)."
+        
         ]
       }
     ]
