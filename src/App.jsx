@@ -8773,8 +8773,8 @@ function PinakakiaModule({ onBack, onHome }) {
   else cls += " item";
   return (
     <div className={cls} style={style} key={`${box.id}-line-${index}`}>
-      {line.text}
-    </div>
+  <span dangerouslySetInnerHTML={{ __html: line.text }} />
+</div>
   );
 })}
                   </div>
