@@ -5,6 +5,7 @@ export const oxfordBoxes = [
     "chapter": 1,
     "boxNumber": "1.1",
     "page": 18,
+    "gravity": 3,
     "title": "Περιγραφή των ψευδαισθήσεων",
     "content": [
       {
@@ -49,6 +50,7 @@ export const oxfordBoxes = [
     "chapter": 1,
     "boxNumber": "1.2",
     "page": 21,
+    "gravity": 1,
     "title": "Προβλήματα με τον ορισμό του παραληρήματος",
     "content": [
       {
@@ -118,6 +120,7 @@ export const oxfordBoxes = [
     "chapter": 1,
     "boxNumber": "1.3",
     "page": 22,
+    "gravity": 3,
     "title": "Περιγραφές παραληρήματος",
     "content": [
       {
@@ -177,6 +180,7 @@ export const oxfordBoxes = [
     "chapter": 1,
     "boxNumber": "1.4",
     "page": 23,
+    "gravity": 1,
     "title": "Ο όρος «παρανοειδής»’",
     "content": [
       {
@@ -201,6 +205,7 @@ export const oxfordBoxes = [
     "chapter": 1,
     "boxNumber": "1.5",
     "page": 25,
+    "gravity": 3,
     "title": "Ιδεοληπτικά και ψυχαναγκαστικά συμπτώματα",
     "content": [
       {
@@ -225,11 +230,12 @@ export const oxfordBoxes = [
     "chapter": 2,
     "boxNumber": "2.1",
     "page": 39,
+    "gravity": 0,
     "title": "Stigma",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "People stigmatize others when they judge them not on their",
           "personal qualities but on the basis of a mark or label which",
@@ -324,6 +330,7 @@ export const oxfordBoxes = [
     "chapter": 2,
     "boxNumber": "2.2",
     "page": 46,
+    "gravity": 0,
     "title": "Οι βασικές κατηγορίες του Κεφαλαίου V ICD-10  (F)",
     "content": [
       {
@@ -350,6 +357,7 @@ export const oxfordBoxes = [
     "chapter": 2,
     "boxNumber": "2.3",
     "page": 49,
+    "gravity": 0,
     "title": "Other national systems of classification",
     "content": [
       {
@@ -402,6 +410,7 @@ export const oxfordBoxes = [
     "chapter": 3,
     "boxNumber": "3.1",
     "page": 55,
+    "gravity": 0,
     "title": "Some techniques for effective psychiatric assessments",
     "content": [
       {
@@ -421,309 +430,263 @@ export const oxfordBoxes = [
     ]
   },
 
-  // Box 3.2 – placeholder
   {
     "id": "oxford-3.2",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.2",
-    "page": 40,
-    "title": "Outline of the psychiatric history",
+    "page": 56,
+    "gravity": 1,
+    "title": "Περίγραμμα του ψυχιατρικού ιστορικού",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
         "items": [
-          "Name, age, and address of the patient",
-          "Name(s) of informant(s) and their relationship to the",
-          "patient",
-          "History of present condition",
-          "Family history",
-          "Personal history (expanded in Box 3.3)",
-          "Past illness",
-          "Personality (expanded in Box 3.4)"
+          "Όνομα, ηλικία και διεύθυνση του ασθενούς",
+          "Όνομα του πληροφοριοδότη και σχέση του με τον ασθενή",
+          "Ιστορικό παρούσας κατάστασης",
+          "Οικογενειακό ιστορικό",
+          "Ατομικό ιστορικό (αναλύεται στο Πλαίσιο 3.3)",
+          "Παλαιότερα νοσήματα",
+          "Προσωπικότητα (αναλύεται στο Πλαίσιο 3.4)"
         ]
       }
     ]
   },
 
-  // Box 3.3 – placeholder
   {
     "id": "oxford-3.3",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.3",
-    "page": 40,
-    "title": "Outline of the personal history",
+    "page": 57,
+    "gravity": 1,
+    "title": "Περίγραμμα του ατομικού ιστορικού",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Mother’s pregnancy and the birth",
-          "Early development",
-          "Childhood: separations, emotional problems, illnesses,",
-          "education",
-          "Occupations",
-          "Relationships and sex",
-          "Children",
-          "Social circumstances",
-          "Substance use",
-          "Forensic history"
+          "Κύηση της μητέρας και τοκετός",
+          "Πρώιμη ανάπτυξη",
+          "Παιδική ηλικία: αποχωρισμοί, συναισθηματικά προβλήματα, νοσήματα, εκπαίδευση",
+          "Επαγγέλματα",
+          "Σχέσεις και σεξουαλική δραστηριότητα",
+          "Παιδιά",
+          "Κοινωνικές συνθήκες",
+          "Χρήση ουσιών",
+          "Ιατροδικαστικό ιστορικό"
         ]
       }
     ]
   },
 
-  // Box 3.4 – placeholder
   {
     "id": "oxford-3.4",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.4",
-    "page": 41,
-    "title": "Assessment of personality",
+    "page": 58,
+    "gravity": 1,
+    "title": "Αξιολόγηση της προσωπικότητας",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Relationships",
-          "Leisure activities",
-          "Prevailing mood and emotional tone",
-          "Character",
-          "Attitudes and standards",
-          "‘Ultimate concern’"
+          "Σχέσεις",
+          "Δραστηριότητες στον ελεύθερο χρόνο",
+          "Επικρατούσα διάθεση και συναισθηματικός τόνος",
+          "Χαρακτήρας",
+          "Στάσεις ζωής και πρότυπα",
+          "«Νέγιστη ανησυχία»"
         ]
       }
     ]
   },
 
-  // Box 3.5 – placeholder
   {
     "id": "oxford-3.5",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.5",
-    "page": 44,
-    "title": "Mental state examination headings",
+    "page": 61,
+    "gravity": 3,
+    "title": "Θέματα εξέτασης της ψυχικής κατάστασης",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Appearance and behaviour",
-          "Speech",
-          "Mood",
-          "Thoughts",
-          "Perceptions",
-          "Cognitive function",
-          "Insight"
+          "Εμφάνιση και συμπεριφορά",
+          "Ομιλία",
+          "Διάθεση",
+          "Σκέψεις",
+          "Αντιλήψεις",
+          "Νοητική λειτουργία",
+          "Εναισθησία"
         ]
       }
     ]
   },
 
-  // Box 3.6 – placeholder
   {
     "id": "oxford-3.6",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.6",
-    "page": 46,
-    "title": "The neuropsychiatric examination",
+    "page": 64,
+    "gravity": 2,
+    "title": "Η νευροψυχιατρική εξέταση",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Language abilities",
-          "Dysarthria is difficulty in the production of speech by the",
-          "speech organs. Dysphasia is partial failure of language",
-          "function of cortical origin; it can be receptive or expres-",
-          "sive. Testing for dysarthria can be done by giving difficult",
-          "phrases such as ‘West Register Street’ or a tongue twister.",
-          "Receptive dysphasia can be detected by asking the",
-          "patient to read a passage of appropriate difficulty or, if",
-          "they fail in this, individual words or letters. If they can read",
-          "the passage, they are asked to explain it. Comprehension",
-          "of spoken language is tested by asking the patient to lis-",
-          "ten to a spoken passage and explain it (first checking that",
-          "memory is intact) or to respond to simple commands (e.g.",
-          "to point at named objects).",
-          "Expressive dysphasia is detected by asking the",
-          "patient to name common objects such as a watch, key,",
-          "and pen, and some of their parts (e.g. the face of a watch),",
-          "and parts of the body. The patient is also asked to talk",
-          "spontaneously (e.g. about hobbies) and to write a brief",
-          "passage, first to dictation, and then spontaneously, on a",
-          "familiar topic (e.g. the members of the family). A patient",
-          "who cannot do these tests should be asked to copy a",
-          "short passage.",
-          "Language disorders point to the left hemisphere in",
-          "right-handed people. In left-handed patients localization",
-          "is less certain, but in many it is still the left hemisphere.",
-          "The type of language disorder gives some further guide",
-          "to localization. Expressive dysphasia suggests an anterior",
-          "lesion, receptive dysphasia suggests a posterior lesion,",
-          "mainly auditory dysphasia suggests a lesion towards the",
-          "temporal region, and mainly visual dysphasia suggests a",
-          "more posterior lesion.",
-          "Construction abilities",
-          "Apraxia is inability to perform a volitional act even",
-          "though the motor system and sensorium are sufficiently",
-          "intact for the person to do so. Apraxia can be tested in",
-          "several ways.",
-          "● Constructional apraxia is tested by asking the patient",
-          "to draw simple figures (e.g. a bicycle, house, or",
-          "clock face).",
-          "● Dressing apraxia is tested by asking the patient to put",
-          "on some of their clothes.",
-          "● Ideomotor apraxia is tested by asking the patient to",
-          "perform increasingly complicated tasks to command,",
-          "usually ending with a three-stage sequence such",
-          "as: (1) touch the right ear with (2) the left middle finger",
-          "while (3) placing the right thumb on the table.",
-          "Apraxia, especially if the patient fails to complete the",
-          "left side of figures or dressing on the left side, suggests a",
-          "right-sided lesion in the posterior parietal region. It may",
-          "be associated with other disorders related to this region,",
-          "namely sensory inattention and anosognosia.",
-          "Agnosia is the inability to understand the significance",
-          "of sensory stimuli even though the sensory pathways and",
-          "sensorium are sufficiently intact for the patient to be able",
-          "to do so. Agnosia cannot be diagnosed until there is good",
-          "evidence that the sensory pathways are intact and con-",
-          "sciousness is not impaired.",
-          "● Astereognosia is failure to identify three-dimensional",
-          "form; it is tested by asking the patient to identify",
-          "objects placed in their hand while their eyes are",
-          "closed. Suitable items are keys, coins of different sizes,",
-          "and paper clips.",
-          "● Atopognosia is inability to locate the position of an",
-          "object on the skin.",
-          "● In finger agnosia the patient cannot identify which",
-          "of their fingers has been touched when their eyes are",
-          "closed. Right–left confusion is tested by touching one",
-          "hand or ear and asking the patient which side of the",
-          "body has been touched.",
-          "● Agraphognosia is failure to identify letters or numbers",
-          "‘written’ on the skin. It is tested by tracing numbers",
-          "on the palms with a closed fountain pen or similar",
-          "object.",
-          "● Anosognosia is failure to identify functional deficits",
-          "caused by disease. It is seen most often as unaware-",
-          "ness of left-sided weakness and sensory inattention.",
-          "● Agnosias point to lesions of the parietal association",
-          "cortex posterior to the primary somatosensory cortex.",
-          "Lesions of either parietal lobe can cause contralat-",
-          "eral astereognosia, agraphognosia, and atopognosia.",
-          "Sensory inattention and anosognosia are more com-",
-          "mon with right parietal lesions. Finger agnosia and",
-          "right–left disorientation are said to be more common",
-          "with lesions of the dominant parietal region."
+          "<b>Δεξιότητες Λόγου</b>",
+          "",
+          "<b>Δυσαρθρία</b> είναι η δυσκολία στην εκφορά του λόγου από τα όργανα της ομιλίας. Η <b>δυσφασία</b> είναι μια μερική ανεπάρκεια της λειτουργίας \
+          του λόγου λόγω φλοιώδους προσέλευσης. Μπορεί να είναι είτε δεκτική ή εκφραστική. Ο έλεγχος για τη δυσαρθρία γίνεται ζητώντας από τον ασθενή να προφέρει \
+          δύσκολες φράσεις όπως «άσπρη πέτρα ξέξασπρη» ή άλλο γλωσσοδέτη.",
+          "Η <b>δεκτική αφασία</b> ανιχνεύεται ζητώντας από τον ασθενή να διαβάσει ένα κείμενο κατάλληλης δυσκολίας ή, αν δεν το καταφέρει αυτό, μεμονωμένες λέξεις ή γράμματα. \
+          Αν μπορεί να διαβάσει το κείμενο, του ζητάμε κατόπιν να το εξηγήσει. Η κατανόηση του προφορικού λόγου ελέγχεται ζητώντας από τον ασθενή να ακούσει ένα εκφωνούμενο κείμενο \
+          και να το εξηγήσει (ελέγχοντας πρώτα ότι η μνήμη του είναι ακέραιη) ή ζητώντας του να απαντήσει σε απλές εντολές (π.χ. να δείξει αντικείμενο που του κατανομάζουμε) ",
+          "Η <b>εκφραστική δυσφασία</b> ελέγχεται ζητώντας από τον ασθενή να κατανομάσει συνηθισμένα αντικείμενα όπως ένα ρολόι, ένα κλειδί και ένα στυλό και κάποια από τα μέρη τους (π.χ. το καντράν του ρολογιού), \
+          καθώς και τμήματα του σώματος του. Ζητάμε επίσης από τον ασθενή να μιλήσει αυθόρμητα (π.χ. για τα χόμπι του) και να γράψει ένα σύντομο κείμενο, αρχικά καθ'υπαγόρευση και \
+          μετά αυθόρμητα, για ένα συνηθισμένο θέμα (π.χ. τα μέλη της οικογένειας του). Ο ασθενής που δεν μπορεί να εκτελέσει αυτές τις δοκιμασίες, θα πρέπει να επιχειρήσει να αντιγράψει ένα σύντομο κείμενο.",
+          "Οι διαταραχές του λόγου καταδεικνύουν στους δεξιόχειρες βλάβη στο αριστερό ημισφαίριο. Στους αριστερόχειρες ασθενείς ο εντοπισμός της βλάβης είναι λιγότερο βέβαιος, για πολλούς όμως \
+          εξακολουθεί να εντοπίζεται στο αριστερό ημισφαίριο. Ο τύπος της διαταραχής του λόγου δίνει ακόμη περισσότερα στοιχεία για την εντόπιση της βλάβης. Η εκφραστική δυσφασία υποδηλώνει \
+          πρόσθια βλάβη, η υποδεκτική αφασία υποδηλώνει οπίσθια βλάβη, η κυρίως ακουστική δυσφασία υποδηλώνει βλάβη προς την κροταφική περιοχή και η κυρίως οπτική δυσφασία υποδηλώνει βλάβη με περισσότερο οπίσθια εντόπιση.",
+          "<b>Κατασκευαστικές δεξιότητες</b>",
+          "",
+          "<b>Απραξία</b> είναι η αδυναμία εκτέλεσης μιας εκούσιας πράξης, παρότι το κινητικό σύστημα και τα αισθητήρια όργανα είναι επαρκώς ακέραια για να γίνει κάτι τέτοιο. Η απραξία ελέγχεται με διάφορους τρόπους:",
+          "● Η <b>κατασκευαστική απραξία</b> ελέγχεται ζητώντας από τον ασθενή να φτιάξει απλά σκίτσα (π.χ. ένα ποδήλατο, ένα σπίτι ή ένα ρολόι).",
+          "● Η <b>απραξία ένδυσης</b> ελέγχεται ζητώντας από τον ασθενή να φορέσει κάποιο από τα ρούχα του.",
+          "● Η <b>ιδεοκινητική απραξία</b> ελέγχεται ζητώντας από τον ασθενή να εκτελέσει σύνθετες εντολές αυξανόμενης δυσκολίας, που συνήθως καταλήγουν σε μία αλληλουχία τριών σταδίων όπως τα εξής: \
+          (1) άγγιξε το δεξί αυτί με (2) το αριστερό μεσαίο δάκτυλο ενώ (3) βάζεις τον δεξί σου αντίχειρα στο τραπέζι.",
+          "",
+          "Η απραξία, συνήθως αν ο ασθενής δεν καταφέρνει να ολοκληρώσει την αριστερή πλευρά των σχημάτων ή να ντύσει το αριστερό ήμισυ του σώματος του, υποδηλώνει βλάβη δεξιάς εντόπισης στην πρόσθια κροταφική περιοχή. \
+          Μπορεί να σχετίζεται με άλλες διαταραχές της συγκεκριμένης περιοχήςμ και συγκεκριμένα αισθητική παραμέληση και νοσοαγνωσία",
+          "● <b>Αγνωσία</b> είναι η αδυναμία κατανόησης της σημασίας των αισθητικών ερεθισμάτων, παρότι οι αισθητικές οδοί και τα αισθητήρια όργανα είναι επαρκώς ακέραια για να μπορεί να γίνει κάτι τέτοιο. \
+          Η αγνωσία δεν μπορεί να διαγνωστεί αν δεν υπάρχουν επαρκή στοιχεία ότι οι αισθητικές οδοί είναι ακέραιοι και η συνείδηση δεν εμφανίζει έκπτωση",
+          "● <b>Στερεοαγνωσία</b> είναι η αδυναμία αναγνώρισης τρισδιάστατων μορφών. Ελέγχεται ζητώντας από τον ασθενή να αναγνωρίσει αντικείμενα που τοποθετούνται στο χέρι του ενώ έχει τα μάτια του κλειστά. \
+          Κατάλληλα αντικείμενα είναι κλειδιά, νομίσματα διαφόρων μεγεθών και συνδετήρες.",
+          "● Η <b>τοποαγνωσία</b> είναι η αδυναμία εντόπισης της θέσης ενός αντικειμένου στο δέρμα.",
+          "● Κατά την <b>αγνωσία δακτύλων</b> ο ασθενής δεν μπορεί να αναγνωρίσει ποιο από τα δάκτυλα του αγγίζουμε όταν τα μάτια του είναι κλειστά. Η σύγχυση αριστερού-δεξιού ελέγχεται αγγίζοντας το ένα χέρι ή αυτί και ρωτώντας \
+          τον ασθενή ποιά πλευρά του σώματος του αγγίζουμε.",
+          "● Η <b>γραφοαγνωσία</b> είναι η αδυναμία αναγνώρισης γραμμάτων ή αριθμών που «γράφονται» στο δέρμα του ασθενούς. Ελέγχεται ιχνηλατώντας αριθμούς στην παλάμη με στυλό ή ένα αντίστοιχο αντικείμενο.",
+          "● <b>Νοσοαγνωσία</b> είναι η αδυναμία αναγνώρισης λειτουργικών ελλειμμάτων που προκαλεί η νόσος. Απαντάται συνήθως με τη μορφή απουσίας συνείδησης της αδυναμίας του \
+          αριστερού ημιμορίου του σώματος και αισθητηριακής παραμέλησης.",
+          "● Οι <b>αγνωσίες</b> καταδεικνύουν βλάβες του κροταφικού συνειρμικού φλοιού, οπισθίως του πρωτοπαθούς σωματοαισθητικού φλοιού. Οι βλάβες σε οποιοδήποτε κροταφικό λοβόο \
+          μπορούν να προκαλέσουν ετερόπλευρη στερεοαγνωσία, γραφοαγνωσία και τοποαγνωσία. Η αισθητηριακή παραμέληση και η νοσοαγνωσία είναι συνηθέστερες σε βλάβες του δεξιού βρεγματικού λοβού. \
+          Η αγνωσία δακτύλων και ο αποπροσανατολισμός δεξιού-αριστερού θεωρούνται συχνότερες σε βλάβες της κυρίάρχης βρεγματικής χώρας."
         ]
       }
     ]
   },
-
-  // Box 3.7 – placeholder
   {
     "id": "oxford-3.7",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.7",
     "page": 53,
-    "title": "Risk factors for harm to others",
+    "gravity": 3,
+    "title": "Παράγοντες κινδύνου για την πρόκληση βλάβης στους άλλους",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Personal factors",
-          "Previous violence to others*",
-          "Antisocial, impulsive, or irritable",
-          "personality traits",
-          "Male and young",
-          "Recent life crisis",
-          "Poor social network",
-          "Divorced or separated",
-          "Unemployed",
-          "Social instability",
-          "Parent with history of violence",
-          "Illness-related factors",
-          "Pychotic symptoms*",
-          "Substance abuse*",
-          "Treatment-resistant",
-          "Poor compliance with treatment",
-          "Stopped medication recently",
-          "Asterisks denote the most important factors in each category.",
-          "Factors in the mental state",
-          "Irritability, hostility, anger",
-          "Suspiciousness",
-          "Thoughts of violence towards others",
-          "Threats to people to whom patient has access*",
-          "Planning of violence*",
-          "Persecutory delusions",
-          "Delusions of jealousy",
-          "Delusions of influence",
-          "Hallucinations commanding violence to others",
-          "Suicidal ideas with severe depression",
-          "Clouding of consciousness",
-          "Lack of insight about illness",
-          "Situational factors",
-          "Confrontation and provocation by others",
-          "Situations associated with previous violence",
-          "Ready availability of weapons*"
+          "<b>Ατομικοί Παράγοντες</b>",
+          "Ιστορικό προηγούμενης βίας προς άλλους*",
+          "Αντικοινωνικά, παρορμητικά ή στοιχεία ευερεθιστότητας προσωπικότητας",
+          "Νεαρός άρρεν",
+          "Πρόσφατη κρίση στη ζωή",
+          "Φτωχό κοινωνικό/υποστηρικτικό δίκτυο",
+          "Διαζύγιο ή χωρισμός",
+          "Ανεργία",
+          "Κοινωνική αστάθεια",
+          "Γονέας με ιστορικό βίας",
+          "",
+          "<b>Παράγοντες που σχετίζονται με τη νόσο</b>",
+          "Ψυχωσικά συμπτώματα*",
+          "Κατάχρηση ουσιών*",
+          "Treatment resistant",
+          "Κακή συμμόρφωση στη θεραπεία",
+          "Πρόσφατη διακοπή αγωγής",
+          "",
+          "<b>Παράγοντες από την παρούσα ψυχική κατάσταση</b>",
+          "Ευερεθιστότητα, εχθρικότητα, θυμός",
+          "Καχυποψία",
+          "Σκέψεις βίας προς τους άλλους (ετεροκαταστροφικός ιδεασμός)",
+          "Απειλές προς ανθρώπους στους οποίους ο ασθενής έχει πρόσβαση*",
+          "Σχεδιασμός βίαιης πράξης*",
+          "Παραληρητικές ιδέες δίωξης",
+          "Παραληρητική ζήλεια",
+          "Παραληρητικές ιδέες ελέγχου",
+          "Εντέλλουσες ψευδαισθήσεις που επιτάσσουν την άσκηση βία στους άλλους",
+          "Αυτοκτονικός ιδεασμός σε σοβαρή κατάθλιψη",
+          "Θόλωση της συνείδησης",
+          "Απουσία εναισθησίας για τη νόσο",
+          "",
+          "<b>Περιστασιακοί παράγοντες</b>",
+          "Αντιπαράθεση και πρόκληση από άλλους",
+          "Καταστάσεις που σχετίζονται με παλιότερα περιστατικά βίας",
+          "Εύκολη προσβασιμότητα σε όπλα*",
+          "",
+          "<i>Ο αστερίσκος υποδηλώνει τους σημαντικότερους παράγοντες σε κάθε κατηγορία</i>"
         ]
       }
     ]
   },
-
-  // Box 3.8 – placeholder
   {
     "id": "oxford-3.8",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.8",
-    "page": 58,
-    "title": "Topics to be evaluated in a psychiatric assessment",
+    "page": 77,
+    "gravity": 1,
+    "title": "Θέματα που πρέπει να εκτιμηθούν κατά την ψυχιατρική αξιολόγηση",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "The patient’s problem and its consequences",
-          "● Diagnosis",
-          "● Impact on self and others (dysfunction)",
-          "● Risk to self and others",
-          "● Effects on others",
-          "The patient and their circumstances",
-          "● Personal history",
-          "● Current circumstances",
-          "● Personality",
-          "Aetiology",
-          "The response to the patient’s problem",
-          "● Treatment",
-          "● Prognosis",
-          "The patient’s understanding of the above"
+          "Το πρόβλημα του ασθενούς και οι συνέπειές του:",
+          "● Διάγνωση",
+          "● Επίπτωση στον εαυτό και τους άλλους (δυσλειτουργία)",
+          "● Κίνδυνος για τον εαυτό και τους άλλους",
+          "● Επίδραση στους άλλους",
+          "",
+          "Ο ασθενής και οι συνθήκες ζωής του:",
+          "● Ατομικό ιστορικό",
+          "● Τρέχουσες συνθήκες ζωής",
+          "● Προσωπικότητα",
+          "",
+          "Αιτιολογία",
+          "",
+          "Η απάντηση στο πρόβλημα του ασθενούς:",
+          "● Θεραπεία",
+          "● Πρόγνωση",
+          "",
+          "Η αντίληψη του ασθενούς για τα παραπάνω"
         ]
       }
     ]
   },
 
-  // Box 3.9 – placeholder
   {
     "id": "oxford-3.9",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.9",
-    "page": 61,
+    "page": 81,
+    "gravity": 0,
     "title": "Communicating with patients and relatives",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The diagnosis",
           "● What is the diagnosis? If uncertain, what are the",
@@ -759,18 +722,18 @@ export const oxfordBoxes = [
     ]
   },
 
-  // Box 3.10 – placeholder
   {
     "id": "oxford-3.10",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.10",
-    "page": 63,
+    "page": 83,
+    "gravity": 0,
     "title": "Example of a case summary",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Patient: Mrs AB. Date of birth: 7.2.83",
           "Consultant: Dr C. Summary compiled by Dr D (CT2 core",
@@ -866,41 +829,41 @@ export const oxfordBoxes = [
     ]
   },
 
-  // Box 3.11 – placeholder
   {
     "id": "oxford-3.11",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.11",
     "page": 64,
-    "title": "The formulation",
+    "gravity": 0,
+    "title": "Η έκθεση",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
-          "Statement of the problem",
-          "Differential diagnosis",
-          "Aetiology",
-          "Plan of treatment",
-          "Prognosis"
+          "Περιγραφή του προβλήματος",
+          "Διαφορική διάγνωση",
+          "Αιτιολογία",
+          "Θεραπευτικός σχεδιασμός",
+          "Πρόγνωση"
         ]
       }
     ]
   },
 
-  // Box 3.12 – placeholder
   {
     "id": "oxford-3.12",
     "source": "Oxford",
     "chapter": 3,
     "boxNumber": "3.12",
-    "page": 64,
+    "page": 85,
+    "gravity": 0,
     "title": "Example of a formulation",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "(Note: This formulation refers to the case summarized in",
           "ways of condensing information, the reader can appreci-",
@@ -978,11 +941,12 @@ export const oxfordBoxes = [
     "chapter": 4,
     "boxNumber": "4.1",
     "page": 72,
+    "gravity": 0,
     "title": "Ethical problems discussed in other chapters",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Classification (Chapter 2)",
           "Diagnosis on the basis of moral or political judgements (page 24)",
@@ -1017,11 +981,12 @@ export const oxfordBoxes = [
     "chapter": 4,
     "boxNumber": "4.2",
     "page": 78,
+    "gravity": 3,
     "title": "Assessment of competence of adult patients",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Step 1 Identify the decision required and the information relevant to it:",
           "the decision to be made",
@@ -1056,11 +1021,12 @@ export const oxfordBoxes = [
     "chapter": 4,
     "boxNumber": "4.3",
     "page": 79,
+    "gravity": 3,
     "title": "Assessment of some ethical issues relating to research",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Note: Ethical problems related to recruitment for and conduct of clinical trials are considered on page 123.",
           "Scientific merits",
@@ -1096,11 +1062,12 @@ export const oxfordBoxes = [
     "chapter": 4,
     "boxNumber": "4.4",
     "page": 80,
+    "gravity": 2,
     "title": "Key clinical procedures in the Mental Health Act",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Procedures",
           "Criteria for detention",
@@ -1121,11 +1088,12 @@ export const oxfordBoxes = [
     "chapter": 4,
     "boxNumber": "4.5",
     "page": 83,
+    "gravity": 2,
     "title": "Levels of persuasion",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Levels",
           "Persuasion (includes providing information, appreciation of patient’s preferences, and discussion and collaboration between clinician and patient).",
@@ -1146,11 +1114,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.1",
     "page": 93,
+    "gravity": 0,
     "title": "Psychoanalysis",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Psychoanalysis is derived from clinical experience rather than from basic sciences, and consists of elaborate theories of both normal and abnormal mental development. Compared with experimental psychology it is more concerned with irrational aspects of mental activity.",
           "Psychoanalytic theories are derived from data obtained in the course of psychoanalytic treatment, and relate to the patient’s thoughts, dreams, and fantasies, as well as their memories of childhood experiences and relationships with carers and siblings. Therefore psychoanalytic theories are forms of intuitive understanding (‘Verstehen’) rather than scientific explanation (‘Erklären’) (see page 3).",
@@ -1175,11 +1144,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.2",
     "page": 96,
+    "gravity": 2,
     "title": "Scientific disciplines that contribute to psychiatric aetiology",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Disciplines",
           "Clinical descriptive studies",
@@ -1204,11 +1174,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.3",
     "page": 104,
+    "gravity": 2,
     "title": "Considerations in the interpretation of twin studies in genetic epidemiology",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Considerations",
           "Has zygosity been accurately determined? Although MZ co-twins are virtually genetically identical, there can be minor differences.",
@@ -1227,11 +1198,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.4",
     "page": 106,
+    "gravity": 2,
     "title": "The terminology of molecular genetic variation: polymorphisms, alleles, and mutations",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Terminology",
           "No two people share precisely the same genome (the total genetic information contained on our 23 pairs of chromosomes, about 3 billion base pairs of DNA). Each person has a unique DNA sequence (with the exception of MZ twins). DNA sequence variants are called polymorphisms or allelic variants. Most polymorphisms involve a change in a single nucleotide, hence the term single nucleotide polymorphism (SNP). SNPs occur on average about every 1000 base pairs (around 2 million SNPs in total), both within genes and in the stretches of DNA between genes. A given polymorphism can be rare, or both variants (alleles) can occur at equal frequency in the population.",
@@ -1251,11 +1223,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.5",
     "page": 109,
+    "gravity": 2,
     "title": "Examples of polymorphisms in psychiatry",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Apolipoprotein E4 in Alzheimer’s disease",
           "The apoE gene on chromosome 19 exists in three common forms (alleles): apoE2, apoE3, and apoE4. ApoE3 is the commonest variant in the population. Since 1993, dozens of studies involving thousands of people have shown an unequivocal association between apoE4 and Alzheimer’s disease—a higher proportion of patients have the apoE4 variant of the gene than do age-matched subjects without the disease. In some populations, apoE2 is protective. ApoE4 is thus said to be genetically associated with Alzheimer’s disease and, as such, is a genetic risk factor for it. Individuals with one copy of apoE4 (heterozygotes, with their other chromosome carrying apoE3 or apoE2) are two to three times more likely to develop Alzheimer’s disease, and the risk is over fivefold greater in apoE4 homozygotes (in whom both copies of the gene are apoE4). In other words, apoE4 accounts for about one-third of all cases of Alzheimer’s disease. However, about half of all Alzheimer’s disease occurs in people without an apoE4 allele, and some apoE4 homozygotes never develop it.",
@@ -1278,11 +1251,12 @@ export const oxfordBoxes = [
     "chapter": 5,
     "boxNumber": "5.6",
     "page": 110,
+    "gravity": 1,
     "title": "Some reasons why finding genes for psychiatric disorders is difficult",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Reasons",
           "Starting with the ‘wrong’ clinical phenotype. Genes are highly unlikely to map on to current diagnostic categories, yet samples are usually collected based upon the latter. Stronger genotype–phenotype relationships may be seen if categories are broadened (e.g. ‘psychosis’ rather than schizophrenia and bipolar disorder) or decomposed (e.g. schizophrenia into cognitive deficits and psychotic symptoms, etc.).",
@@ -1304,11 +1278,12 @@ export const oxfordBoxes = [
     "chapter": 6,
     "boxNumber": "6.1",
     "page": 120,
+    "gravity": 3,
     "title": "Hierarchy of the quality of research about treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Hierarchy",
           "Ia Evidence from a systematic review of randomized controlled trials",
@@ -1329,11 +1304,12 @@ export const oxfordBoxes = [
     "chapter": 6,
     "boxNumber": "6.2",
     "page": 122,
+    "gravity": 2,
     "title": "Indices for translating research results into clinical practice",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Outcome table",
           "Experimental treatment, X / Control treatment, Y",
@@ -1360,11 +1336,12 @@ export const oxfordBoxes = [
     "chapter": 6,
     "boxNumber": "6.3",
     "page": 130,
+    "gravity": 2,
     "title": "Evaluation of utility of therapeutic guidelines",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Questions",
           "Did preparation and publication avoid significant conflict of interest?",
@@ -1390,11 +1367,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.1",
     "page": 137,
+    "gravity": 2,
     "title": "Defence mechanisms",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Repression",
           "This is the exclusion from consciousness of impulses, emotions, or memories that would otherwise cause distress. For example, especially painful aspects of the memory of distressing events such as sexual abuse in childhood may be kept out of full awareness for many years.",
@@ -1426,11 +1404,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.2",
     "page": 141,
+    "gravity": 2,
     "title": "The principal components of psychological first aid",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Components",
           "Comfort and consolation",
@@ -1453,11 +1432,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.3",
     "page": 143,
+    "gravity": 3,
     "title": "ICD-10 criteria for “Enduring personality changes after catastrophic experience”",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "(A) At least two of the following:",
           "a permanent hostile or distrustful attitude towards the world",
@@ -1484,11 +1464,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.4",
     "page": 143,
+    "gravity": 3,
     "title": "The principal symptoms of post-traumatic stress disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Hyperarousal",
           "Persistent anxiety",
@@ -1517,11 +1498,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.5",
     "page": 145,
+    "gravity": 2,
     "title": "Neurobiological abnormalities in PTSD",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Hypothalamic–pituitary–adrenal axis",
           "Evidence, albeit somewhat contradictory, for low plasma cortisol levels and increased sensitivity to dexamethasone suppression. Increased levels of corticotropin-releasing hormone in cerebrospinal fluid (CSF).",
@@ -1542,11 +1524,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.6",
     "page": 147,
+    "gravity": 3,
     "title": "National Institute for Health and Care Excellence (NICE) guidance for the management of PTSD and related traumatic syndromes",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Guidance",
           "The routine use of a brief screening instrument for PTSD at 1 month post incident should be considered for all people who have been involved in a major disaster.",
@@ -1568,11 +1551,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.7",
     "page": 149,
+    "gravity": 2,
     "title": "Some stressful issues faced by refugees",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Causes",
           "War",
@@ -1612,11 +1596,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.8",
     "page": 155,
+    "gravity": 2,
     "title": "Priorities for care of the dying person",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Priorities",
           "The possibility that a person may die within the next few days or hours is recognized and communicated clearly, decisions made and actions taken in accordance with the person’s needs and wishes, and these are regularly reviewed and decisions revised accordingly.",
@@ -1637,11 +1622,12 @@ export const oxfordBoxes = [
     "chapter": 7,
     "boxNumber": "7.9",
     "page": 155,
+    "gravity": 2,
     "title": "Normal grief reaction",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Stage 1: hours to days",
           "Denial, disbelief",
@@ -1675,11 +1661,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.1",
     "page": 162,
+    "gravity": 2,
     "title": "Symptoms of anxiety",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Psychological arousal",
           "Fearful anticipation",
@@ -1729,11 +1716,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.2",
     "page": 164,
+    "gravity": 2,
     "title": "Symptoms of generalized anxiety disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Symptoms",
           "Worry and apprehension",
@@ -1758,11 +1746,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.3",
     "page": 169,
+    "gravity": 2,
     "title": "Stepped-care approach* for generalized anxiety disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Steps",
           "Identification and assessment: education about GAD and treatment options; active monitoring.",
@@ -1783,11 +1772,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.4",
     "page": 180,
+    "gravity": 3,
     "title": "Symptoms of a panic attack",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Sudden onset of:",
           "Palpitations",
@@ -1810,11 +1800,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.5",
     "page": 181,
+    "gravity": 2,
     "title": "Symptoms caused by hyperventilation",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Symptoms",
           "Dizziness",
@@ -1839,11 +1830,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.6",
     "page": 185,
+    "gravity": 3,
     "title": "Principal features of obsessive-compulsive disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Obsessional symptoms",
@@ -1868,11 +1860,12 @@ export const oxfordBoxes = [
     "chapter": 8,
     "boxNumber": "8.7",
     "page": 188,
+    "gravity": 3,
     "title": "Some key cognitive processes in obsessive-compulsive disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Processes",
           "Thought–action fusion. Magical thinking—for example, the belief that if one thinks of harming others one is likely to act on the thought or might have done so in the past.",
@@ -1894,11 +1887,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.1",
     "page": 194,
+    "gravity": 3,
     "title": "Symptoms needed to meet the criteria for ‘depressive episode’ in ICD-10",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A",
           "Depressed mood",
@@ -1929,11 +1923,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.2",
     "page": 199,
+    "gravity": 3,
     "title": "Clinical features of depression with ‘somatic’ or ‘melancholic’ features",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Loss of interest or pleasure in usual activities",
@@ -1959,11 +1954,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.3",
     "page": 202,
+    "gravity": 2,
     "title": "Additional specifiers for depressive disorders in DSM-5",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Specifiers",
           "With anxious distress",
@@ -1985,11 +1981,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.4",
     "page": 205,
+    "gravity": 2,
     "title": "Multifactorial origin of mood disorders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Key points",
           "An important genetic contribution to mood disorder is made by multiple genes of small individual effect. This genetic contribution may be expressed directly through modification of relevant cortical circuitry, or indirectly through effects on personality and psychological coping mechanisms.",
@@ -2008,11 +2005,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.5",
     "page": 208,
+    "gravity": 2,
     "title": "Psychoanalytical theory",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Key points",
           "In his seminal paper ‘Mourning and melancholia’, Freud drew attention to the resemblance between the phenomena of mourning and symptoms of depressive disorders, and suggested that their causes might be similar (Freud, 1917).",
@@ -2033,11 +2031,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.6",
     "page": 210,
+    "gravity": 3,
     "title": "Evidence for abnormalities in monoamine activity in depression",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "5-HT",
           "Decreased plasma tryptophan",
@@ -2063,11 +2062,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.7",
     "page": 214,
+    "gravity": 3,
     "title": "Immune changes in depression",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Changes",
           "Lowered proliferative responses of lymphocytes to mitogens",
@@ -2087,11 +2087,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.8",
     "page": 215,
+    "gravity": 2,
     "title": "Some neuropsychological correlates of altered cerebral perfusion and metabolism in depressed patients",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Dorsolateral and dorsomedial prefrontal cortex",
           "Cognitive dysfunction (particularly executive dysfunction). Impaired voluntary regulation of emotion",
@@ -2117,11 +2118,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.9",
     "page": 226,
+    "gravity": 2,
     "title": "What patients and families want to know",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Particularly for patients with a first episode of moderate to severe depression, questions such as the following are important:",
           "Questions",
@@ -2149,11 +2151,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.10",
     "page": 226,
+    "gravity": 3,
     "title": "Guidelines for the management of depression",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Guidelines",
           "Patients with short-lived mild depression who may recover quickly without treatment should be offered an early review (‘active monitoring’).",
@@ -2176,11 +2179,12 @@ export const oxfordBoxes = [
     "chapter": 9,
     "boxNumber": "9.11",
     "page": 228,
+    "gravity": 3,
     "title": "Some pharmacological treatments for resistant depression",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Treatments",
           "Increase antidepressant to the maximum dose, if tolerance permits; if the patient has depressive psychosis, add an antipsychotic drug; try a different class of antidepressant drug, including venlafaxine and tricyclic antidepressants",
@@ -2201,11 +2205,12 @@ export const oxfordBoxes = [
     "chapter": 10,
     "boxNumber": "10.1",
     "page": 235,
+    "gravity": 3,
     "title": "Clinical features of a manic episode in ICD-10",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Clinical features",
           "Mood is elevated out of keeping with the individual’s circumstances, varying from carefree joviality to almost uncontrollable excitement. In some manic episodes the mood is irritable and suspicious rather than elated",
@@ -2228,11 +2233,12 @@ export const oxfordBoxes = [
     "chapter": 10,
     "boxNumber": "10.2",
     "page": 249,
+    "gravity": 3,
     "title": "NICE guidance on the pharmacological treatment of mania and hypomania",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Guidance",
           "If a person develops mania or hypomania and is taking an antidepressant; a) consider stopping the antidepressant and b) offer an antipsychotic regardless of whether the antidepressant is stopped.",
@@ -2253,11 +2259,12 @@ export const oxfordBoxes = [
     "chapter": 10,
     "boxNumber": "10.3",
     "page": 250,
+    "gravity": 3,
     "title": "NICE guidance on the pharmacological treatment of bipolar depression",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Guidance",
           "If a person develops moderate or severe bipolar depression and is not taking a drug to treat their bipolar disorder, offer fluoxetine combined with olanzapine, or quetiapine on its own, depending on the person’s preference and previous response to treatment.",
@@ -2278,11 +2285,12 @@ export const oxfordBoxes = [
     "chapter": 10,
     "boxNumber": "10.4",
     "page": 251,
+    "gravity": 3,
     "title": "Monitoring physical health in bipolar disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Ensure that the physical health check for people with bipolar disorder, performed at least annually, includes:",
           "Physical health check",
@@ -2304,11 +2312,12 @@ export const oxfordBoxes = [
     "chapter": 10,
     "boxNumber": "10.5",
     "page": 252,
+    "gravity": 3,
     "title": "Psychological approaches to bipolar disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Approaches",
           "Advice about lifestyle (regular social and sleep routines, avoidance of illegal drugs).",
@@ -2327,11 +2336,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.1",
     "page": 254,
+    "gravity": 3,
     "title": "A vignette of acute schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A previously healthy 20-year-old student had been behaving in an odd way. At times he appeared angry and told his friends that he was being persecuted; at other times he was seen to be laughing to himself for no apparent reason. For several months he had seemed increasingly preoccupied with his own thoughts. His academic work had deteriorated. When interviewed, he was restless, suspicious, and exhibited odd mannerisms. He described hearing voices commenting on his actions and abusing him. He believed that the police had conspired with his university teachers to harm his brain and interfere with his thoughts. He also suspected that they could read his thoughts."
         ]
@@ -2346,11 +2356,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.2",
     "page": 255,
+    "gravity": 2,
     "title": "Schneider’s symptoms of the first rank",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Among the many abnormal modes of experience that occur in schizophrenia, there are some which we put in the first rank of importance, not because we think of them as basic disturbances, but because they have this special value in helping us to determine the diagnosis of schizophrenia. When any one of these modes of experience is undeniably present and no basic somatic illness can be found, we may make the diagnosis of schizophrenia. . . .. Symptoms of first rank importance always possess this diagnostic significance. — Kurt Schneider, Clinical Psychopathology"
         ]
@@ -2365,11 +2376,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.3",
     "page": 255,
+    "gravity": 2,
     "title": "First-rank symptoms",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Symptoms",
           "Hearing thoughts spoken aloud",
@@ -2392,11 +2404,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.4",
     "page": 256,
+    "gravity": 3,
     "title": "A vignette of chronic schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A middle-aged man lives in a supported hostel and attends a sheltered workshop. He spends most of his time alone. He is usually dishevelled and unshaven, and cares for himself only when encouraged to do so by others. His social behaviour seems odd and stilted. His speech is slow, and its content is vague and incoherent. He shows few signs of emotion. For several years this clinical picture has changed little except for brief periods of acute symptoms, which are usually related to upsets in the ordered life of the hostel."
         ]
@@ -2411,11 +2424,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.5",
     "page": 260,
+    "gravity": 3,
     "title": "Development of schizophrenia concepts and terminologies",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In the nineteenth century, one view was that all serious mental disorders were expressions of a single entity, which Griesinger called Einheitpsychose (unitary psychosis). The alternative view, put forward by Morel in France, was that mental disorders could be separated and classified. Morel searched for specific entities, and argued for a classification based on cause, symptoms, and outcome. In 1852 he gave the name démence précoce to a disorder which he described as starting in adolescence and leading first to withdrawal, odd mannerisms, and self-neglect, and eventually to intellectual deterioration. A few years later, Kahlbaum (1863) described the syndrome of catatonia, and Hecker (1871) wrote an account of a condition he called hebephrenia.",
           "Emil Kraepelin (1856–1926) derived his ideas from studying the course and outcome of the disorder. His observations led him to argue against the idea of a single psychosis, and to propose a division into dementia praecox and manic–depressive psychosis. This grouping brought together as subclasses of dementia praecox the previously separate entities of hebephrenia and catatonia. (His adoption of the word dementia emphasizes the prominence he attributed to the cognitive impairments of the disorder.) Kraepelin’s description of dementia praecox appeared for the first time in 1893, in the fourth edition of his textbook, and the account was expanded in subsequent editions. He described the illness as occurring in clear consciousness, and consisting of ‘a series of states, the common characteristic of which is a peculiar destruction of the internal connections of the psychic personality’ (Kraepelin, 1919). Kraepelin originally divided dementia praecox into three subtypes (catatonic, hebephrenic, and paranoid), and later added a fourth subtype (simple). He separated the condition that he named paraphrenia (Box 12.2) from dementia praecox on the grounds that it started in middle life and seemed to be free from the changes in emotion and volition found in dementia praecox. It is commonly held that Kraepelin regarded dementia praecox as invariably progressing to chronic deterioration. However, he reported that, in his series of cases, 13% recovered completely (although some relapsed later) and 17% were ultimately able to live and work without difficulty.",
@@ -2437,11 +2451,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.6",
     "page": 263,
+    "gravity": 3,
     "title": "Simplified description of criteria for schizophrenia in DSM-5",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A",
           "Two or more of the following, each present for at least 1 month (or less if successfully treated). At least one of these must be 1, 2 or 3:",
@@ -2473,11 +2488,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.7",
     "page": 264,
+    "gravity": 3,
     "title": "Criteria for schizophrenia in ICD-10",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The normal requirement for a diagnosis of schizophrenia is that a minimum of one very clear symptom (and usually two or more if less clear-cut) belonging to any one of the groups listed as (a)–(d) below, or symptoms from at least two of the groups referred to as (e)–(h), should have been clearly present for most of the time during a period of 1 month or more",
           "Criteria groups",
@@ -2503,11 +2519,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.8",
     "page": 266,
+    "gravity": 3,
     "title": "Differential diagnosis of schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Cases meeting some but not all criteria for schizophrenia",
           "Brief psychotic disorder",
@@ -2538,11 +2555,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.9",
     "page": 271,
+    "gravity": 3,
     "title": "Why finding schizophrenia genes has been difficult",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Knowing the right phenotype to study",
           "Most genetic studies have been conducted on subjects who meet diagnostic criteria for schizophrenia, yet there are no grounds for assuming this syndrome has a specific genetic basis. As discussed, there is good evidence that the genetic predisposition is to a broader range of disorders than just schizophrenia. Equally, different genes may contribute to different aspects of schizophrenia (e.g. cognitive deficits, negative symptoms), sometimes called endophenotypes or intermediate phenotypes.",
@@ -2568,11 +2586,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.10",
     "page": 273,
+    "gravity": 3,
     "title": "Velocardiofacial syndrome: a schizophrenia-associated CNV",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Unlike most CNVs associated with schizophrenia, which were discovered by chance from GWAS, velocardiofacial syndrome (VCFS, also known as di George syndrome) was already well known, being detectable using standard clinical genetic techniques. VCFS is caused by deletion of one copy of chromosome 22q11 (hence its alternative name, 22q11 hemideletion syndrome). It is a relatively common cytogenetic anomaly, occurring in 1 in 4000 live births, and causes a range of physical abnormalities. Of relevance here, it is also associated with psychosis (either schizophrenia-like or affective) in about 30% of individuals. Even though VCFS is a rare cause of schizophrenia overall, 22q11 is implicated as a locus for schizophrenia genes in general, and several such genes within this region have been identified. 22q11 hemideletion is also associated with other neurodevelopmental and neuropsychiatric syndromes (e.g. intellectual disability, attention deficit hyperactivity disorder [ADHD]), illustrating how one CNV can produce different phenotypes (pleiotropy).",
           "For review, see Jonas et al. (2014)."
@@ -2588,11 +2607,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.11",
     "page": 274,
+    "gravity": 3,
     "title": "Convergence of schizophrenia genes: the examples of immune function and NMDA receptor signalling",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Immune function",
           "The major histocompatibility complex (MHC) locus on chromosome 6 shows the strongest statistical association to schizophrenia (Schizophrenia Working Group of the Psychiatric Genomics Consortium, 2014). There are two main interpretations of this finding. The first is that it supports a role for immune, autoimmune, or inflammatory factors in schizophrenia, consistent with a range of epidemiological and biological evidence discussed later in this chapter. The alternative interpretation is that is also known that many ‘immune genes’ (such as the classical complement pathway) also play a role in brain development, influencing synaptogenesis and other processes, and this might be the basis for the genetic association. In support, Sekar et al. (2016) showed that the genetic signal to the MHC locus arises mainly from the complement component 4 (C4) gene, which is expressed by developing neurons and synapses. They also showed that individuals with the risk forms of C4 express the gene at higher levels, and that (at least in mice) this is associated with more pruning of synapses during brain development.",
@@ -2610,11 +2630,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.12",
     "page": 278,
+    "gravity": 2,
     "title": "Psychodynamic and family theories of aetiology",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Psychodynamic theories",
           "Freud elaborated his theory of schizophrenia in his 1911 analysis of the Judge Schreber case. He proposed that libido was withdrawn from external objects and attached to the ego, resulting in exaggerated self-reference. The withdrawal of libido deprived the external world of salience so meaning was derived from abnormal beliefs. The libidinal withdrawal meant the patient could not form a transference and therefore could not be treated by psychoanalysis. Although Freud developed his general ideas later and elaborated his theory he did not replace it.",
@@ -2638,11 +2659,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.13",
     "page": 279,
+    "gravity": 3,
     "title": "Summary of structural brain changes in schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Brain imaging",
           "Decreased brain volume",
@@ -2670,11 +2692,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.14",
     "page": 282,
+    "gravity": 3,
     "title": "Evidence for glutamatergic involvement in schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Evidence",
           "NMDA-receptor antagonists induce or exacerbate schizophrenia symptoms",
@@ -2692,11 +2715,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.15",
     "page": 283,
+    "gravity": 3,
     "title": "Findings that support the neurodevelopmental hypothesis of schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Findings",
           "Structural brain changes present at or before illness onset",
@@ -2717,11 +2741,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.16",
     "page": 285,
+    "gravity": 3,
     "title": "Factors predicting a poor outcome in schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Demographic factors",
           "Male",
@@ -2753,11 +2778,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.17",
     "page": 287,
+    "gravity": 3,
     "title": "Key points in the pharmacological treatment of schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Acute episode",
           "Initiate antipsychotic medication at lower end of the licensed dose range.",
@@ -2788,11 +2814,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.18",
     "page": 290,
+    "gravity": 3,
     "title": "Psychosocial interventions for schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Interventions",
           "Family therapy (psychoeducation)",
@@ -2814,11 +2841,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.19",
     "page": 290,
+    "gravity": 3,
     "title": "Elements of family intervention in schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Elements",
           "Education about schizophrenia",
@@ -2839,11 +2867,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.20",
     "page": 292,
+    "gravity": 3,
     "title": "Components and principles of the management of schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Components and principles",
           "Therapeutic partnership with patient and carers",
@@ -2870,11 +2899,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.21",
     "page": 294,
+    "gravity": 3,
     "title": "Use of antipsychotic depot preparations",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "For a number of reasons, some patients do not take their drugs reliably, and in these circumstances one of the intramuscular depot preparations may be useful. At the start of treatment a small test dose is given to find out whether serious side effects are likely to occur with the full dose, although this is not considered necessary with atypical antipsychotic preparations (Taylor et al., 2015). The appropriate maintenance dose is then established by observation and careful follow-up. Since depot preparations have long half-lives, it may take several weeks for maximum plasma concentrations to be reached (see Table 25.4). This has implications for the rate at which dose increases and decreases should be made, and also for the tapering of doses of oral antipsychotic medication once depot treatment has started. It should be noted that treatment with olanzapine pamoate has been associated acutely with excessive sedation, confusion, and sometimes coma. Although these reactions are not common (they affect about 2% of patients) and full recovery occurs within 24–72 hours, all patients receiving this preparation require medical observation for at least 3 hours post injection."
         ]
@@ -2889,11 +2919,12 @@ export const oxfordBoxes = [
     "chapter": 11,
     "boxNumber": "11.22",
     "page": 295,
+    "gravity": 3,
     "title": "Assessment of treatment-resistant schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Assessment",
           "Review diagnosis (e.g. possibility of organic psychosis)",
@@ -2916,11 +2947,12 @@ export const oxfordBoxes = [
     "chapter": 12,
     "boxNumber": "12.1",
     "page": 300,
+    "gravity": 2,
     "title": "Some paranoid symptoms",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Ideas of reference",
           "Ideas of reference are held by people who are unduly self-conscious. The subject cannot help feeling that people take notice of him in buses, restaurants, or other public places, and that they observe things about him that he would prefer not to be seen. He realizes that this feeling originates within himself and that he is no more noticed than other people, but all the same he cannot help the feeling, which is quite out of proportion to any possible cause.",
@@ -2943,11 +2975,12 @@ export const oxfordBoxes = [
     "chapter": 12,
     "boxNumber": "12.2",
     "page": 302,
+    "gravity": 0,
     "title": "Historical background: paranoia and paraphrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The terms paranoia and paraphrenia have played a prominent part in psychiatric thought. Although the classic studies are now several decades old, much can still be learned from reviewing the issues and the conceptual difficulties involved.",
           "The term paranoia, from which the adjective paranoid is derived, has a long and chequered history. It has probably given rise to more controversy and confusion of thought than any other term used in psychiatry. A comprehensive review of the large body of literature, which is mostly German and from the period before the 1970s, has been provided by Lewis (1970) (see also Box 1.4). The word is derived from the Greek para (beside) and nous (mind). It was used in ancient Greek literature to mean ‘out of mind’ (i.e. of unsound mind or insane). This broad usage was revived in the eighteenth century, but when it came into prominence in the second half of the nineteenth century, in German psychiatry, it became particularly associated with conditions characterized by delusions of persecution and grandeur. The German term Verrucktheit was often applied to these conditions, but was eventually superseded by paranoia. There were many different conceptions of these disorders. The main issues, most of which remain today, can be summarized as follows.",
@@ -2970,11 +3003,12 @@ export const oxfordBoxes = [
     "chapter": 12,
     "boxNumber": "12.3",
     "page": 305,
+    "gravity": 3,
     "title": "DSM-5 criteria for delusional disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Criteria",
           "A. One or more delusions, of at least 1 month’s duration.",
@@ -2995,11 +3029,12 @@ export const oxfordBoxes = [
     "chapter": 12,
     "boxNumber": "12.4",
     "page": 306,
+    "gravity": 3,
     "title": "Types of delusional disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Type — synonymous with, or includes",
           "Jealous — Morbid jealousy, pathological jealousy, erotic jealousy, sexual jealousy, Othello syndrome",
@@ -3020,11 +3055,12 @@ export const oxfordBoxes = [
     "chapter": 12,
     "boxNumber": "12.5",
     "page": 307,
+    "gravity": 2,
     "title": "Disorders associated with pathological jealousy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Disorders",
           "Schizophrenia",
@@ -3044,11 +3080,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.1",
     "page": 316,
+    "gravity": 3,
     "title": "Main physical features of anorexia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Physical symptoms",
           "Heightened sensitivity to cold",
@@ -3105,11 +3142,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.2",
     "page": 318,
+    "gravity": 3,
     "title": "Assessment of eating",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Questions",
           "What is a typical day’s eating? What are the mealtime arrangements at home and at school/work?",
@@ -3138,11 +3176,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.3",
     "page": 318,
+    "gravity": 3,
     "title": "Assessment of psychological issues",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Questions",
           "What does the patient feel about her body and her weight?",
@@ -3169,11 +3208,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.4",
     "page": 319,
+    "gravity": 3,
     "title": "Abnormalities requiring urgent follow-up or intervention in anorexia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "General",
           "BMI <14 kg/m2",
@@ -3202,11 +3242,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.5",
     "page": 319,
+    "gravity": 3,
     "title": "Differential diagnosis of anorexia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Medical disorders",
           "Neoplasia (e.g. gastrointestinal, hypothalamic, lymphoma, cachexia)",
@@ -3234,11 +3275,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.6",
     "page": 320,
+    "gravity": 3,
     "title": "NICE (2004) guidelines for anorexia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Guidelines",
           "Most people with anorexia nervosa should be managed on an outpatient basis, with psychological treatment and monitoring of their physical condition.",
@@ -3259,11 +3301,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.7",
     "page": 322,
+    "gravity": 3,
     "title": "Physical complications of bulimia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "General",
           "Menstrual irregularities",
@@ -3297,11 +3340,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.8",
     "page": 325,
+    "gravity": 2,
     "title": "Classification of sleep–wake disorders in DSM-5",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Disorders",
           "Insomnia disorder",
@@ -3327,11 +3371,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.9",
     "page": 325,
+    "gravity": 3,
     "title": "Classification of sleep disorders in ICD-10",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Non-organic sleep disorders (F51)",
           "Non-organic insomnia",
@@ -3362,11 +3407,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.10",
     "page": 326,
+    "gravity": 3,
     "title": "Assessment of sleep disturbance",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Screening questions",
           "Do you sleep well enough and long enough?",
@@ -3398,11 +3444,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.11",
     "page": 326,
+    "gravity": 3,
     "title": "Treatments for insomnia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Cognitive and behavioural interventions",
           "Sleep hygiene",
@@ -3427,11 +3474,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.12",
     "page": 326,
+    "gravity": 2,
     "title": "Principles of sleep education (sleep hygiene)",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Sleep environment",
           "Familiar and comfortable",
@@ -3463,11 +3511,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.13",
     "page": 327,
+    "gravity": 2,
     "title": "Causes of excessive daytime sleepiness",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Causes",
           "Insufficient sleep",
@@ -3489,11 +3538,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.14",
     "page": 333,
+    "gravity": 2,
     "title": "Medical conditions and surgical procedures commonly associated with sexual dysfunction",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Medical conditions — Endocrine",
           "Diabetes, hyperthyroidism",
@@ -3526,11 +3576,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.15",
     "page": 333,
+    "gravity": 2,
     "title": "Some drugs that may impair sexual function",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Therapeutic agents",
           "Diuretics and antihypertensive agents — β-blockers, calcium channel blockers, spironolactone",
@@ -3553,11 +3604,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.16",
     "page": 334,
+    "gravity": 3,
     "title": "Assessment of sexual dysfunction",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Assessment",
           "Define the problem (ask both partners)",
@@ -3586,11 +3638,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.17",
     "page": 334,
+    "gravity": 3,
     "title": "Physical examination of male patients presenting with sexual dysfunction",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "General examination (directed especially to evidence of diabetes mellitus, thyroid disorder, and adrenal disorder)",
           "Hair distribution",
@@ -3616,11 +3669,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.18",
     "page": 335,
+    "gravity": 3,
     "title": "Treatments for sexual dysfunction",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Treatments",
           "Advice, information, and reassurance",
@@ -3649,11 +3703,12 @@ export const oxfordBoxes = [
     "chapter": 13,
     "boxNumber": "13.19",
     "page": 340,
+    "gravity": 2,
     "title": "Some terms used relevant to gender dysphoria",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Terms",
           "Transgender: an umbrella term for people whose gender (identity, expression, general sense of self) is different from the sex they were assigned at birth",
@@ -3675,11 +3730,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.1",
     "page": 352,
+    "gravity": 3,
     "title": "Delirium: predisposing and precipitating factors",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Predisposing factors",
           "Dementia",
@@ -3727,11 +3783,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.2",
     "page": 352,
+    "gravity": 3,
     "title": "Clinical features of delirium",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Clouding of consciousness",
@@ -3764,11 +3821,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.3",
     "page": 353,
+    "gravity": 3,
     "title": "Investigations for delirium",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Blood tests",
           "Full blood count",
@@ -3800,11 +3858,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.4",
     "page": 354,
+    "gravity": 2,
     "title": "Causes of amnesia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Transient",
           "Transient global amnesia",
@@ -3832,11 +3891,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.5",
     "page": 356,
+    "gravity": 3,
     "title": "Differential diagnosis of transient amnesia and other paroxysmal neuropsychiatric symptoms",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Organic",
           "Syncope (cardiogenic, vasovagal, reflex)",
@@ -3871,11 +3931,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.6",
     "page": 357,
+    "gravity": 3,
     "title": "Causes of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Primary neurodegenerative disorders",
           "Alzheimer’s disease*, dementia with Lewy bodies, frontotemporal dementias*, Parkinson’s disease*, prion diseases*, Huntington’s disease*",
@@ -3915,11 +3976,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.7",
     "page": 360,
+    "gravity": 3,
     "title": "Examples of cortical, subcortical, and mixed causes of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Cortical",
           "Alzheimer’s disease",
@@ -3945,11 +4007,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.8",
     "page": 361,
+    "gravity": 3,
     "title": "Screening tests for dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Cognitive function",
           "Mini-Mental State Examination (MMSE)",
@@ -3987,11 +4050,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.9",
     "page": 361,
+    "gravity": 3,
     "title": "Investigations for establishing the cause of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In primary care",
           "Full blood count",
@@ -4026,11 +4090,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.10",
     "page": 363,
+    "gravity": 2,
     "title": "Key clinical features of Alzheimer’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Core features",
           "Memory impairment (amnesia), with gradual onset and continuing decline",
@@ -4056,11 +4121,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.11",
     "page": 365,
+    "gravity": 2,
     "title": "Discovery of APP gene mutations in familial Alzheimer’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In 1984, the protein that accumulates in senile plaques, cerebral vasculature, and meninges in Alzheimer’s disease was discovered to be the β-amyloid peptide. Knowledge of its amino acid sequence allowed the encoding gene, called amyloid precursor protein (APP), to be identified and localized to chromosome 21. It was already known that there was a relationship between Alzheimer’s disease and Down’s syndrome (trisomy 21), suggesting that APP was a ‘candidate gene’ for Alzheimer’s disease. Researchers collected DNA from families with autosomal dominant Alzheimer’s disease to test this hypothesis. The work culminated in the landmark discovery in 1991 of an APP mutation (a point mutation changing valine to isoleucine at position 717), which caused Alzheimer’s disease (Goate et al., 1991). Since then, different APP mutations have been found in other families. Any doubt that the APP mutations are causative for the disease was removed by the demonstration that transgenic mice containing a mutated APP gene become cognitively impaired and deposit β-amyloid (Games et al., 1995). APP mutations are pathogenic primarily because they affect metabolism of APP, promoting the formation of β-amyloid. The other two genes causing familial Alzheimer’s disease are the presenilins (PSEN1 and PSEN2). They provide the catalytic subunit for the enzyme that cleaves APP, called γ-secretase, and hence all three genes share a common influence on APP processing. APP and PSEN mutations explain most cases of familial Alzheimer’s disease, but only a tiny fraction (<0.1%) of all cases of Alzheimer’s disease. However, mis-metabolism of APP and β-amyloid, caused by a range of other factors, is involved in all forms of Alzheimer’s disease, as described in the text."
         ]
@@ -4075,11 +4141,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.12",
     "page": 366,
+    "gravity": 3,
     "title": "Risk factors for non-familial Alzheimer’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Demographic factors",
           "Increasing age",
@@ -4115,11 +4182,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.13",
     "page": 367,
+    "gravity": 3,
     "title": "Subtypes of vascular dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Subtypes",
           "Multi-infarct dementia (cortical vascular dementia)",
@@ -4139,11 +4207,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.14",
     "page": 368,
+    "gravity": 3,
     "title": "Risk factors for vascular dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Risk factors",
           "History of stroke—risk related to number, location, and size",
@@ -4167,11 +4236,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.15",
     "page": 368,
+    "gravity": 3,
     "title": "Terminology of dementia involving Lewy bodies",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Terms",
           "Dementia with Lewy bodies. Dementia occurring before or concurrently with, or within a year of the onset of, parkinsonism. However, not all patients develop parkinsonism",
@@ -4191,11 +4261,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.16",
     "page": 369,
+    "gravity": 3,
     "title": "Abbreviated clinical criteria for dementia with Lewy bodies",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Key features",
           "Progressive cognitive decline, especially in attention and visuospatial ability",
@@ -4224,11 +4295,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.17",
     "page": 369,
+    "gravity": 3,
     "title": "Diagnostic categories subsumed within frontotemporal dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Categories",
           "Pick’s disease",
@@ -4256,11 +4328,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.18",
     "page": 370,
+    "gravity": 3,
     "title": "Clinical features of frontotemporal dementias",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Behavioural features",
           "Insidious onset, slow progression",
@@ -4296,11 +4369,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.19",
     "page": 370,
+    "gravity": 3,
     "title": "Features characteristic of the three clinical subtypes of frontotemporal dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Behavioural-variant",
           "Personality change",
@@ -4337,11 +4411,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.20",
     "page": 374,
+    "gravity": 2,
     "title": "Psychiatric manifestations in Parkinson’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Manifestations",
           "Delirium, stupor (especially due to drugs, or intercurrent infection)",
@@ -4364,11 +4439,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.21",
     "page": 375,
+    "gravity": 3,
     "title": "Risk factors for Parkinson’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Genetic",
           "Autosomal dominant: SCNA; LRRK2; VIP35; EIF4G1; DNAJC13; CHCHD2",
@@ -4400,11 +4476,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.22",
     "page": 375,
+    "gravity": 2,
     "title": "Features of Huntington’s disease",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Motor abnormalities",
           "Involuntary movements",
@@ -4440,11 +4517,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.23",
     "page": 380,
+    "gravity": 2,
     "title": "Simplified classification of seizures",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Seizures beginning focally",
           "Simple motor or sensory (without impaired consciousness)",
@@ -4468,11 +4546,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.24",
     "page": 383,
+    "gravity": 2,
     "title": "Associations between epilepsy and psychological disturbance",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Associations",
           "Psychiatric and cognitive disorders associated with the underlying cause",
@@ -4501,11 +4580,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.25",
     "page": 384,
+    "gravity": 3,
     "title": "Risk factors for depression in epilepsy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Biological",
           "Family history of mood disorder",
@@ -4532,11 +4612,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.26",
     "page": 386,
+    "gravity": 2,
     "title": "Some causes of cognitive impairment in patients with cancer",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Mass effects",
           "Primary and metastatic brain tumours",
@@ -4573,11 +4654,12 @@ export const oxfordBoxes = [
     "chapter": 14,
     "boxNumber": "14.27",
     "page": 387,
+    "gravity": 2,
     "title": "Psychiatric features of multiple sclerosis",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Common",
           "Fatigue",
@@ -4601,11 +4683,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.1",
     "page": 399,
+    "gravity": 3,
     "title": "Features of paranoid personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Suspicious",
@@ -4627,11 +4710,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.2",
     "page": 399,
+    "gravity": 3,
     "title": "Features of schizoid personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Emotionally cold",
@@ -4651,11 +4735,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.3",
     "page": 400,
+    "gravity": 3,
     "title": "Features of antisocial personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Callous",
@@ -4676,11 +4761,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.4",
     "page": 402,
+    "gravity": 3,
     "title": "Features of histrionic personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Self-dramatization",
@@ -4704,11 +4790,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.5",
     "page": 402,
+    "gravity": 3,
     "title": "Features of narcissistic personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Grandiose sense of self-importance",
@@ -4732,11 +4819,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.6",
     "page": 402,
+    "gravity": 3,
     "title": "Features of avoidant (anxious) personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Feels socially inferior",
@@ -4758,11 +4846,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.7",
     "page": 403,
+    "gravity": 3,
     "title": "Features of dependent personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Allows others to take responsibility",
@@ -4787,11 +4876,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.8",
     "page": 403,
+    "gravity": 3,
     "title": "Features of obsessive–compulsive (anankastic) personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Preoccupied with details, rules, etc.",
@@ -4815,11 +4905,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.9",
     "page": 412,
+    "gravity": 3,
     "title": "Five common characteristics of evidence-based treatments for borderline personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Characteristics",
           "1. Structured (manual-directed) approaches to prototypic borderline personality disorder problems",
@@ -4839,11 +4930,12 @@ export const oxfordBoxes = [
     "chapter": 15,
     "boxNumber": "15.10",
     "page": 412,
+    "gravity": 3,
     "title": "Proposed characteristics for a generalist approach to treating borderline personality disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Characteristics",
           "1. Treatment providers have previous experience with borderline personality disorder",
@@ -4864,11 +4956,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.1",
     "page": 424,
+    "gravity": 2,
     "title": "Interpreting the results of genetic studies of childhood psychiatric disorders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Phenotype and genotype.",
           "Although standard diagnostic criteria are valuable in research, the results of this research show that diagnostic categories generally do not map closely onto the genetic factors in aetiology. For example, the phenotype of autism spectrum disorders includes some kinds of developmental language disorder, while the phenotype of Gilles de la Tourette syndrome (Chapter 14) seems to extend to obsessional thinking and behaviour.",
@@ -4892,11 +4985,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.2",
     "page": 432,
+    "gravity": 2,
     "title": "Topics to be addressed in a court report about a child",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Topics",
           "The qualifications of the writer",
@@ -4922,11 +5016,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.3",
     "page": 445,
+    "gravity": 3,
     "title": "Clinical clues for autistic spectrum disorders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In preschool children:",
           "delay or absence of spoken language",
@@ -4966,11 +5061,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.4",
     "page": 447,
+    "gravity": 3,
     "title": "Genetic architecture of autism spectrum disorders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In terms of inheritance pattern",
           "Complex—additive risk from multiple genes",
@@ -4996,11 +5092,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.5",
     "page": 456,
+    "gravity": 2,
     "title": "Factors that predict poor outcome in children with conduct disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In the young person",
           "Early onset (before age 8 years)",
@@ -5030,11 +5127,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.6",
     "page": 458,
+    "gravity": 3,
     "title": "Assessment of young offenders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The offence",
           "Nature and seriousness",
@@ -5062,11 +5160,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.7",
     "page": 459,
+    "gravity": 2,
     "title": "Interventions for youth offending",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Primary prevention",
           "Parenting programmes",
@@ -5101,11 +5200,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.8",
     "page": 477,
+    "gravity": 3,
     "title": "Risk factors for child maltreatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The parent(s)",
           "Young age",
@@ -5139,11 +5239,12 @@ export const oxfordBoxes = [
     "chapter": 16,
     "boxNumber": "16.9",
     "page": 481,
+    "gravity": 3,
     "title": "Steps in the assessment and management of child sexual abuse",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Steps",
           "1. Suspicion and recognition; referral to child protection services (often social services and police).",
@@ -5168,11 +5269,12 @@ export const oxfordBoxes = [
     "chapter": 17,
     "boxNumber": "17.1",
     "page": 492,
+    "gravity": 2,
     "title": "Causes of behaviour that challenges",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Causes",
           "Physical: pain, discomfort, malaise",
@@ -5195,11 +5297,12 @@ export const oxfordBoxes = [
     "chapter": 17,
     "boxNumber": "17.2",
     "page": 497,
+    "gravity": 3,
     "title": "The genetic basis of intellectual disability",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Introduction",
           "Genetic factors of various kinds underlie intellectual disability. (See also page 102 for an introduction to relevant genetic concepts and terminology.)",
@@ -5226,11 +5329,12 @@ export const oxfordBoxes = [
     "chapter": 17,
     "boxNumber": "17.3",
     "page": 501,
+    "gravity": 2,
     "title": "Features of Down’s syndrome",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "Moderate or severe intellectual disability",
@@ -5263,11 +5367,12 @@ export const oxfordBoxes = [
     "chapter": 17,
     "boxNumber": "17.4",
     "page": 503,
+    "gravity": 2,
     "title": "Features of fragile X syndrome",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Features",
           "More common in males",
@@ -5300,11 +5405,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.1",
     "page": 514,
+    "gravity": 2,
     "title": "Ethical issues in forensic psychiatry",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The principal ethical issues relate to ‘boundary problems’. The psychiatrist and others involved need to be clear about accountability to legal authorities, etc., rather than to the individual who is being assessed and treated. This applies to a variety of activities:",
           "Activities",
@@ -5323,11 +5429,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.2",
     "page": 516,
+    "gravity": 3,
     "title": "Psychosocial risk factors for offending",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Individual and family factors",
           "Prenatal and perinatal influences—birth complications, maternal rejection, fetal neurological maldevelopment, maternal nicotine and alcohol consumption",
@@ -5356,11 +5463,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.3",
     "page": 518,
+    "gravity": 2,
     "title": "Psychiatric disorder and offending",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "People with psychotic disorders are more likely than members of the general public to acquire convictions for violent or other crimes (by factors of approximately 4 and 10, respectively).",
           "This increased likelihood is altered in strength by local factors such as crime rate and sociodemographic variables.",
@@ -5380,11 +5488,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.4",
     "page": 522,
+    "gravity": 2,
     "title": "Ethical and legal issues: domestic violence",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Confidentiality is especially important because of the risk of retaliation by the abuser.",
           "Careful records are essential, including documentation of the injuries. Written consent should be obtained for photographs.",
@@ -5402,11 +5511,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.5",
     "page": 523,
+    "gravity": 2,
     "title": "Some factors associated with increased risk of reoffending in sex offenders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Previous criminal history",
           "Higher number of sexual offences and more than one type of sexual offence",
@@ -5431,11 +5541,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.6",
     "page": 525,
+    "gravity": 2,
     "title": "Sexual assault of women: findings from the British Crime Survey of 2000",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "About 1% of women said that they had been subject to some form of sexual victimization in the past year.",
           "In total, 0.4% of women (leading to an estimate of 61,000 victims in the UK) said that they had been raped in the previous year.",
@@ -5454,11 +5565,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.7",
     "page": 531,
+    "gravity": 2,
     "title": "Reasons for hospital transfer of prisoners with psychiatric disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Psychosis",
           "Failure to improve with medical treatment in prison",
@@ -5477,11 +5589,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.8",
     "page": 534,
+    "gravity": 2,
     "title": "De-escalation techniques used to prevent violence",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "If a service user becomes agitated or angry, one staff member should take the primary role in communicating with them. That staff member should assess the situation for safety, seek clarification with the service user, and negotiate to resolve the situation in a non-confrontational manner.",
           "Use emotional regulation and self-management techniques to control verbal and non-verbal expressions of anxiety or frustration (for example, body posture and eye contact) when carrying out de-escalation.",
@@ -5499,11 +5612,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.9",
     "page": 535,
+    "gravity": 2,
     "title": "Factors associated with dangerousness",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Male gender",
           "History",
@@ -5541,11 +5655,12 @@ export const oxfordBoxes = [
     "chapter": 18,
     "boxNumber": "18.10",
     "page": 536,
+    "gravity": 2,
     "title": "Some headings for a court report",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A statement of the psychiatrist’s full name, qualifications, and present appointment (and, in England and Wales, whether they are approved under Section 12 of the Mental Health Act).",
           "Where and when the interview was conducted and whether any third person was present.",
@@ -5566,11 +5681,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.1",
     "page": 547,
+    "gravity": 3,
     "title": "Support for carers of elderly patients with dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Early identification of dementia",
           "Comprehensive medical and social assessment of identified cases",
@@ -5594,11 +5710,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.2",
     "page": 550,
+    "gravity": 2,
     "title": "Ethical and legal issues in the elderly",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Confidentiality in relation to information from carers",
           "Confidentiality of information about financial circumstances",
@@ -5625,11 +5742,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.3",
     "page": 554,
+    "gravity": 3,
     "title": "Features characteristic of late-onset compared with early-onset schizophrenia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Symptoms that are more common",
           "Visual, tactile, and olfactory hallucinations",
@@ -5658,11 +5776,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.4",
     "page": 556,
+    "gravity": 3,
     "title": "Behavioural and psychological symptoms of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Behaviours",
           "Agitation",
@@ -5693,11 +5812,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.5",
     "page": 557,
+    "gravity": 3,
     "title": "Non-pharmacological interventions for behavioural and psychological symptoms of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Sensory stimulation",
           "Music therapy",
@@ -5730,11 +5850,12 @@ export const oxfordBoxes = [
     "chapter": 19,
     "boxNumber": "19.6",
     "page": 558,
+    "gravity": 3,
     "title": "Daily doses of drugs used to treat behavioural and psychological symptoms of dementia",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "For mild agitation",
           "Trazodone 50–100 mg",
@@ -5765,11 +5886,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.1",
     "page": 565,
+    "gravity": 3,
     "title": "Substance use disorder in DSM-5",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "DSM-5 captures all the symptoms associated with harmful use and dependence in ICD-10. However, there is no separate category for ‘dependence’ in DSM-5 and the extent of the substance use disorder is decided by the number of symptoms endorsed out of a total of 11 (mild, 2–3 symptoms; moderate, 4–5 symptoms; severe, 6 or more symptoms). The symptoms cover the following areas:",
           "Use of the substance in greater amounts and for longer than was initially intended, with concomitant problems in cutting down use, often associated with craving.",
@@ -5789,11 +5911,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.2",
     "page": 571,
+    "gravity": 3,
     "title": "Symptoms and signs of acute alcohol withdrawal",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Anxiety, agitation, and insomnia",
           "Tachycardia and sweating",
@@ -5814,11 +5937,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.3",
     "page": 574,
+    "gravity": 2,
     "title": "Medical and social consequences of excessive alcohol consumption in the UK",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Annual alcohol-related costs of crime and public disorder are £7.3 billion, workplace costs are £6.4 billion, and health costs are £1.7 billion.",
           "Up to one-third of all accident and emergency attendances involve alcohol.",
@@ -5838,11 +5962,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.4",
     "page": 578,
+    "gravity": 2,
     "title": "AUDIT questionnaire: screen for alcohol misuse",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "1. How often do you have a drink containing alcohol?",
           "Never",
@@ -5913,11 +6038,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.5",
     "page": 579,
+    "gravity": 3,
     "title": "Alcohol use history",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Describe a typical day’s drinking. What time is the first drink of the day?",
           "When did daily drinking start?",
@@ -5937,11 +6063,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.6",
     "page": 579,
+    "gravity": 2,
     "title": "Laboratory tests for alcohol dependence",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Gamma-glutamyl-transpeptidase (GGT) Estimations of GGT in blood provide a useful screening test. The level is raised in about 70% of alcohol misusers, both men and women, whether or not there is demonstrable liver damage. The heavier the drinking, the greater is the rise in GGT.",
           "Mean corpuscular volume (MCV) MCV is raised above the normal value in about 60% of alcohol misusers, and more commonly in women than in men. If other causes are excluded, a raised MCV is a strong indicator of excessive drinking. Moreover, it takes several weeks to return to normal after abstinence.",
@@ -5959,11 +6086,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.7",
     "page": 580,
+    "gravity": 3,
     "title": "Approach to treatment of alcohol misuse",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Raise awareness of problem",
           "Increase motivation to change",
@@ -5984,11 +6112,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.8",
     "page": 580,
+    "gravity": 2,
     "title": "Motivational interviewing",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Express empathy",
           "Avoid arguing; don’t be judgemental",
@@ -6007,11 +6136,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.9",
     "page": 581,
+    "gravity": 2,
     "title": "Considerations before alcohol detoxification",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "What are the medical risks?",
           "What setting is appropriate?",
@@ -6029,11 +6159,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.10",
     "page": 581,
+    "gravity": 3,
     "title": "General management of alcohol detoxification",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Explanation of the process to the patient and their family",
           "The patient should stay off work and rest. They should not drive",
@@ -6053,11 +6184,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.11",
     "page": 583,
+    "gravity": 3,
     "title": "High-intensity psychological therapies for alcohol-focused specialist treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Community reinforcement approach. A broad range of treatments, with the overall aim of changing the drinker’s social environment so that sobriety is rewarded. Components include training in communication skills, problem-solving, and assertive drink refusal. Relationship therapy and promotion of relapse prevention are also offered. Disulfiram with monitored compliance is frequently used.",
           "Social behaviour and network therapy. Use of the drinker’s social network to help to modify their drinking and maintain change. Facilitation of communication within the network and the agreement of common goals with the drinker. Use of pleasant social activities as an alternative to drinking.",
@@ -6079,11 +6211,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.12",
     "page": 584,
+    "gravity": 3,
     "title": "National Institute for Health and Clinical Excellence (NICE) guidance on the management of harmful drinking and alcohol dependence",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "For harmful drinking and mild dependence offer a high-intensity psychological treatment (see Box 20.9).",
           "For those drinking over 15 units of alcohol a day and/or scoring 15–30 or more on the SADQ* test, offer community-based assisted withdrawal, or inpatient treatment if there are safety concerns.",
@@ -6102,11 +6235,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.13",
     "page": 586,
+    "gravity": 2,
     "title": "Some recommendations by the Academy of Medical Sciences (2004) for decreasing alcohol-related harm in the UK",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Increase taxes on alcohol to restore its affordability relative to income to that obtaining in the early 1970s",
           "Reduce the duty-free allowance of alcohol for travellers",
@@ -6126,11 +6260,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.14",
     "page": 587,
+    "gravity": 2,
     "title": "Illicit drug use in England in the past year",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Cannabis 7.5%",
           "Cocaine 2.5%",
@@ -6157,11 +6292,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.15",
     "page": 589,
+    "gravity": 2,
     "title": "Some consequences of intravenous drug misuse",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Local",
           "Vein thrombosis",
@@ -6184,11 +6320,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.16",
     "page": 591,
+    "gravity": 2,
     "title": "Social costs of drug misuse in the UK",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Users: premature death, physical and mental illness, low educational achievement, unemployment",
           "Families: adverse effect on children, poverty, and deprivation",
@@ -6208,11 +6345,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.17",
     "page": 591,
+    "gravity": 3,
     "title": "Drug-using history",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Typical drug-using day or week",
           "Types and quantities of drugs taken (including alcohol and nicotine)",
@@ -6235,11 +6373,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.18",
     "page": 593,
+    "gravity": 2,
     "title": "Stages of change model",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Pre-contemplation",
           "Misuser does not believe that there is a problem, although others recognize it",
@@ -6265,11 +6404,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.19",
     "page": 596,
+    "gravity": 3,
     "title": "Pharmacological management of opioid withdrawal",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "If short-term, non-opiate treatment is desired, use an α2-adrenoceptor agonist such as lofexidine",
           "Buprenorphine can be used for short-term opioid withdrawal",
@@ -6287,11 +6427,12 @@ export const oxfordBoxes = [
     "chapter": 20,
     "boxNumber": "20.20",
     "page": 601,
+    "gravity": 2,
     "title": "Some complications of amphetamine and cocaine misuse",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Medical",
           "Cardiovascular—hypertension, stroke, arrhythmias, myocardial infarction",
@@ -6312,11 +6453,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.1",
     "page": 611,
+    "gravity": 3,
     "title": "Risk factors for suicide",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Distal",
           "Genetic loading",
@@ -6343,11 +6485,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.2",
     "page": 617,
+    "gravity": 2,
     "title": "Care of the potentially suicidal patient in the community",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Full assessment of patient and proposed carers",
           "Organization of adequate social support",
@@ -6368,11 +6511,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.3",
     "page": 618,
+    "gravity": 2,
     "title": "Care of the suicidal patient in hospital",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "General requirements",
           "Safe ward environment",
@@ -6407,11 +6551,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.4",
     "page": 619,
+    "gravity": 3,
     "title": "Suicide prevention",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Better and more accessible psychiatric services",
           "Restriction of the means of suicide",
@@ -6431,11 +6576,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.5",
     "page": 621,
+    "gravity": 2,
     "title": "Terms for non-fatal self-inflicted harm",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Attempted suicide",
           "Used widely (especially in North America) for episodes where there was at least some suicidal intent, or sometimes without reference to intent. Repetitive bodily harm may be excluded.",
@@ -6462,11 +6608,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.6",
     "page": 624,
+    "gravity": 2,
     "title": "Reasons given for deliberate self-harm",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "To die",
           "To escape from unbearable anguish",
@@ -6489,11 +6636,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.7",
     "page": 624,
+    "gravity": 3,
     "title": "Factors associated with risk of repetition of attempted suicide",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Previous attempt(s)",
           "Personality disorder",
@@ -6518,11 +6666,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.8",
     "page": 625,
+    "gravity": 3,
     "title": "Risk factors for suicide after self-harm",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Older age",
           "Male sex",
@@ -6549,11 +6698,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.9",
     "page": 628,
+    "gravity": 2,
     "title": "Factors that suggest high suicidal intent",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Act carried out in isolation",
           "Act timed so that intervention is unlikely",
@@ -6578,11 +6728,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.10",
     "page": 629,
+    "gravity": 3,
     "title": "Patients who harm themselves and refuse treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Note that there are international differences in laws and practices.",
           "The most senior experienced doctor available should see the patient and discuss the proposed treatment, the alternatives, and the patient’s concerns. It is often helpful to involve the patient’s relatives or close friends. Sympathetic, patient discussion of the person’s concerns is often followed by consent.",
@@ -6601,11 +6752,12 @@ export const oxfordBoxes = [
     "chapter": 21,
     "boxNumber": "21.11",
     "page": 630,
+    "gravity": 2,
     "title": "General principles of care after self-harm",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Monitor patient for further suicidal or self-harm thoughts",
           "Identify support available in a crisis",
@@ -6626,11 +6778,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.1",
     "page": 634,
+    "gravity": 3,
     "title": "The biopsychosocial formulation",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Biological factors",
           "Disease",
@@ -6655,11 +6808,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.2",
     "page": 635,
+    "gravity": 2,
     "title": "Psychiatric disorders that are common in the medically ill",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Adjustment disorder",
           "Major depression",
@@ -6684,11 +6838,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.3",
     "page": 636,
+    "gravity": 3,
     "title": "Medical conditions that may cause psychiatric disorder directly",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Depression",
           "Carcinoma",
@@ -6715,11 +6870,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.4",
     "page": 639,
+    "gravity": 3,
     "title": "Physiological sources affecting bodily sensations",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Sinus tachycardia and benign arrhythmias",
           "Effects of fatigue",
@@ -6740,11 +6896,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.5",
     "page": 639,
+    "gravity": 3,
     "title": "Experiences that may affect the interpretation of bodily sensations",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Childhood illness, with encounters with medical services, and absence from school",
           "During childhood, illness of close family members",
@@ -6764,11 +6921,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.6",
     "page": 640,
+    "gravity": 2,
     "title": "Basic approaches to medically unexplained symptoms",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Emphasize that the symptoms are real and familiar to the clinician.",
           "Explain the role of psychosocial factors in all medical conditions.",
@@ -6791,11 +6949,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.7",
     "page": 642,
+    "gravity": 2,
     "title": "Case definition of chronic fatigue syndrome",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Inclusion criteria",
           "Clinically evaluated, medically unexplained, fatigue of at least 6 months’ duration that is:",
@@ -6833,11 +6992,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.8",
     "page": 645,
+    "gravity": 2,
     "title": "Health care workers with factitious disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Highly publicized cases of serious physical harm to patients caused by a small number of health care workers with factitious disorder, or by those producing factitious disorder by proxy, have aroused great public concern. It is essential, therefore, in the management of these patients to consider the risk to others if the patient continues to work in health care.",
           "These infrequent cases can present difficult medicolegal problems. If the diagnosis is in doubt, it may be judged necessary to seek additional evidence by searching the patient’s belongings for items (such as needles or medication) that could have been used to simulate symptoms. In general, it is unethical to search patients’ belongings without first explaining the reason and obtaining permission. If the patient refuses to be searched, and there is a serious risk to others should the diagnosis be missed, it is usually appropriate to obtain advice from one or more experienced professionals, including a medicolegal opinion. Advice may be needed also when judging whether the patient should continue to work in health care."
@@ -6853,11 +7013,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.9",
     "page": 646,
+    "gravity": 2,
     "title": "Some definitions",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Somatoform disorders",
           "A generic term used in DSM-IV for a group of disorders characterized by physical symptoms that are not explained by organic factors.",
@@ -6883,11 +7044,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.10",
     "page": 649,
+    "gravity": 3,
     "title": "A brief history of hysteria",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "There are descriptions of hysteria in ancient Greek medical texts. The disorder was thought to result from abnormalities of position or function of the uterus, hence the name. This view persisted until the seventeenth century. Gradually, the idea became accepted that hysteria is a disorder of the brain and, by the nineteenth century, the importance of predisposing constitutional and organic causes was recognized. It was accepted also that the usual provoking cause was strong emotion.",
           "In the later years of the nineteenth century, the studies of hysteria by Charcot, a French neurologist working at the Salpêtrière Hospital in Paris, were particularly influential. Charcot believed at first that the symptoms of hysteria were caused by a functional disorder of the brain, and that this disorder also rendered patients susceptible to hypnosis. As a result of his susceptibility, new symptoms could be induced in these patients by suggestion, and existing ones could be modified. Later, Charcot became interested in the idea of his former pupil, Janet, that the basic disorder in hysteria is not suggestibility but a tendency to dissociation. By this Janet meant that the patients had lost the normal integration between various parts of mental functioning, and that it did not require a prior organic lesion—anyone could be hypnotized. Janet believed that this dissociation led to a loss of awareness of certain aspects of psychological functioning that would otherwise be within awareness. Janet’s ideas were influential for a while but never had the impact of those of Freud.",
@@ -6904,11 +7066,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.11",
     "page": 650,
+    "gravity": 3,
     "title": "Treatment of acute conversion disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Obtain medical and psychiatric history from patient and informants",
           "Carry out appropriate medical and psychiatric examination and arrange investigations for physical causes",
@@ -6927,11 +7090,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.12",
     "page": 654,
+    "gravity": 3,
     "title": "A brief history of dissociation",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The term dissociation is associated particularly with the French philosopher and psychiatrist, Janet (1859–1947), who worked for a time with Charcot at the Salpêtrière in Paris (see Box 22.10). Janet studied aspects of sensory perception and mental integration in hysteria and other neuroses, and used the term ‘désagregation psychologique’ (translated as dissociation) to describe the breakdown of this integration. For a while Janet’s ideas were influential; however, his theories were overshadowed by those of Freud.",
           "In the 1970s interest in dissociation revived as a result of studies of the effects of psychological trauma, especially among Vietnam war veterans. These studies documented symptoms occurring in response to traumatic events, and suggested a common origin in the mechanism of dissociation, a new name of dissociative symptoms (see Table 22.5), and a new diagnostic category of dissociative disorders."
@@ -6947,11 +7111,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.13",
     "page": 655,
+    "gravity": 2,
     "title": "DSM-5 diagnostic criteria for dissociative identity disorder",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "A Disruption of identity by two or more distinct personality states. Involves a marked discontinuity in sense of self and agency, plus alterations in behaviour affect, cognition, which may be observed by others or reported by the individual.",
           "B Recurrent gaps in recall of everyday events, personal information, or traumatic events.",
@@ -6972,11 +7137,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.14",
     "page": 661,
+    "gravity": 3,
     "title": "Medicolegal and ethical issues: patients who refuse to accept advice about emergency treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "In life-threatening emergencies where it is not possible to obtain the patient’s consent (consciousness is impaired, or there is evidence of psychiatric disorder which cannot be immediately assessed), opinions should be obtained from medical and nursing colleagues, and, if possible, from the patient’s relatives. Detailed records should be kept of the reasons for the decision. It is essential for all doctors to know the law about these matters in the country in which they are practising.",
           "If a patient has a mental disorder that impairs the ability to give informed consent, it may be appropriate to use legal powers of compulsory assessment and treatment of the mental disorder. In the UK, the powers for compulsory treatment of a mental disorder do not give the doctor a right to treat concurrent physical illness against the patient’s wishes. However, after successful treatment of the psychiatric disorder, the patient may decide to give informed consent for the treatment of the physical illness.",
@@ -6993,11 +7159,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.15",
     "page": 664,
+    "gravity": 3,
     "title": "Psychiatric aspects of other endocrine disorders and steroid therapy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Hyperthyroidism (thyrotoxicosis)",
           "May present with psychiatric symptoms such as anxiety, irritability, emotional lability, and difficulty in concentrating. These, together with hyperactivity, fatigue, and tremor, may make differential diagnosis from anxiety disorder difficult. Treatment of thyroid dysfunction usually results in improvement of the psychiatric symptoms.",
@@ -7021,11 +7188,12 @@ export const oxfordBoxes = [
     "chapter": 22,
     "boxNumber": "22.16",
     "page": 668,
+    "gravity": 3,
     "title": "Depression in pregnancy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Offer all pregnant women information about depression, its significance for her and her baby, and the recommended treatment options",
           "Women with a history of recurrent depression of moderate to severe intensity who are successfully maintained on antidepressant treatment may be advised to continue treatment",
@@ -7044,11 +7212,12 @@ export const oxfordBoxes = [
     "chapter": 23,
     "boxNumber": "23.1",
     "page": 676,
+    "gravity": 2,
     "title": "Areas relevant to global psychiatry discussed in other chapters",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Classification (Chapter 2)",
           "Diagnosis in different cultural contexts (page 32)",
@@ -7087,11 +7256,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.1",
     "page": 684,
+    "gravity": 2,
     "title": "Common factors in psychotherapy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "The therapeutic relationship",
           "The most important of the common factors in psychotherapy but can become too intense.",
@@ -7121,11 +7291,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.2",
     "page": 687,
+    "gravity": 2,
     "title": "Crisis intervention",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Treatment is immediate, brief, and collaborative",
           "Stage 1",
@@ -7150,11 +7321,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.3",
     "page": 687,
+    "gravity": 3,
     "title": "Basic procedures of supportive treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Develop a therapeutic relationship",
           "Listen to the patient’s concerns",
@@ -7175,11 +7347,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.4",
     "page": 688,
+    "gravity": 2,
     "title": "Examples of illogical thinking",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Overgeneralization",
           "Drawing general conclusions from single instances (e.g. ‘He does not love me, so no one will ever love me’).",
@@ -7201,11 +7374,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.5",
     "page": 689,
+    "gravity": 2,
     "title": "An agoraphobic patient’s record of a behavioural experiment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Situation",
           "Shopping in a crowded supermarket.",
@@ -7231,11 +7405,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.6",
     "page": 689,
+    "gravity": 3,
     "title": "Topics to be considered during assessment for cognitive behaviour therapy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "1. A description of each problem, including behaviour, thoughts, and emotions associated with it",
           "Where it occurs most often",
@@ -7261,11 +7436,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.7",
     "page": 693,
+    "gravity": 2,
     "title": "Useful questions for challenging beliefs",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "What is your evidence for this belief?",
           "Is there an alternative way of looking at the situation?",
@@ -7292,11 +7468,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.8",
     "page": 694,
+    "gravity": 2,
     "title": "Logical errors in depressive disorders",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Arbitrary inference",
           "Drawing a conclusion when there is no evidence, or even evidence to the contrary.",
@@ -7322,11 +7499,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.9",
     "page": 696,
+    "gravity": 3,
     "title": "Self-help for bulimia nervosa",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Stage 1",
           "Keeping a diary of food intake, binge eating, vomiting, and laxative use",
@@ -7351,11 +7529,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.10",
     "page": 701,
+    "gravity": 2,
     "title": "Therapeutic factors in group therapy",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Universality (shared experience)",
           "This helps the patient to realize that they are not alone and that others have similar experiences and problems. Hearing about others’ experiences is often more convincing and helpful than reassurance from a therapist.",
@@ -7383,11 +7562,12 @@ export const oxfordBoxes = [
     "chapter": 24,
     "boxNumber": "24.11",
     "page": 703,
+    "gravity": 2,
     "title": "Principal features of a therapeutic community",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Informality",
           "There are few rules, and staff dress and behave informally.",
@@ -7413,11 +7593,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.1",
     "page": 711,
+    "gravity": 3,
     "title": "Introduction of some physical treatments in psychiatry",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "1934 Insulin coma treatment (Sakel)",
           "1936 Frontal leucotomy (Moniz)",
@@ -7448,11 +7629,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.2",
     "page": 715,
+    "gravity": 2,
     "title": "Pharmacogenetics in psychiatry",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Potential applications",
           "Prediction of therapeutic response",
@@ -7475,11 +7657,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.3",
     "page": 725,
+    "gravity": 3,
     "title": "Half-lives of some drugs that act at the GABA-benzodiazepine-receptor complex",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Short",
           "Zolpidem",
@@ -7508,11 +7691,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.4",
     "page": 731,
+    "gravity": 3,
     "title": "A list of antipsychotic drugs",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "First-generation antipsychotic drugs",
           "Chlorpromazine",
@@ -7547,11 +7731,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.5",
     "page": 733,
+    "gravity": 3,
     "title": "Some unwanted effects of antipsychotic drugs",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Antidopaminergic",
           "Parkinsonism",
@@ -7588,11 +7773,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.6",
     "page": 735,
+    "gravity": 3,
     "title": "Metabolic monitoring and interventions for patients taking antipsychotic drugs",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Monitoring",
           "Weight/body mass index",
@@ -7618,11 +7804,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.7",
     "page": 751,
+    "gravity": 3,
     "title": "Adverse effects of MAOIs",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Postural hypotension",
           "Dry mouth",
@@ -7645,11 +7832,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.8",
     "page": 752,
+    "gravity": 2,
     "title": "Foods to be avoided during MAOI use",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Mature cheese",
           "Yeast extracts",
@@ -7671,11 +7859,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.9",
     "page": 753,
+    "gravity": 3,
     "title": "Clinical features of the serotonin syndrome",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Mental state changes",
           "Agitation",
@@ -7705,11 +7894,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.10",
     "page": 758,
+    "gravity": 3,
     "title": "Lithium, renal function, and estimated glomerular filtration rate",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Monitor renal function during lithium treatment.",
           "Use plasma creatinine together with estimated glomerular filtration rate (e-GFR).",
@@ -7727,11 +7917,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.11",
     "page": 759,
+    "gravity": 3,
     "title": "Some drug interactions of lithium",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Increase lithium concentration",
           "Thiazide diuretics",
@@ -7753,11 +7944,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.12",
     "page": 764,
+    "gravity": 3,
     "title": "Indications for ECT (National Institute for Clinical Excellence, 2003)",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Severe depressive illness",
           "Catatonia",
@@ -7775,11 +7967,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.13",
     "page": 765,
+    "gravity": 3,
     "title": "Indications for ECT (Royal College of Psychiatrists, 2005)",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Depression",
           "Severe depressive illness with psychotic symptoms",
@@ -7806,11 +7999,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.14",
     "page": 767,
+    "gravity": 3,
     "title": "Efficacy of ECT in depression in relation to antidepressant treatment and different stimulus parameters",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "ECT is more effective than simulated ECT.",
           "ECT is more effective than antidepressant medication in the short term.",
@@ -7828,11 +8022,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.15",
     "page": 771,
+    "gravity": 2,
     "title": "Stereotactic procedures used in psychosurgery",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Anterior capsulotomy",
           "Anterior cingulotomy",
@@ -7850,11 +8045,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.16",
     "page": 771,
+    "gravity": 0,
     "title": "Outcome of psychosurgery in the UK, 1961-1997",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Depression (n = 727)",
           "Marked improvement: 63%",
@@ -7879,11 +8075,12 @@ export const oxfordBoxes = [
     "chapter": 25,
     "boxNumber": "25.17",
     "page": 772,
+    "gravity": 3,
     "title": "Adverse effects of stereotactic psychosurgery",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Acute effects",
           "Operative mortality (less than 0.1%)",
@@ -7906,11 +8103,12 @@ export const oxfordBoxes = [
     "chapter": 26,
     "boxNumber": "26.1",
     "page": 785,
+    "gravity": 3,
     "title": "Core components of assertive community treatment",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Assertive follow-up",
           "Small caseloads (1:10-1:15)",
@@ -7933,11 +8131,12 @@ export const oxfordBoxes = [
     "chapter": 26,
     "boxNumber": "26.2",
     "page": 787,
+    "gravity": 3,
     "title": "Remit of UK crisis resolution/home treatment teams",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Commonly adults (16- to 65-years-old) with severe mental illness (schizophrenia, manic depressive disorders, severe depressive disorder) with an acute psychiatric crisis of such severity that, without the involvement of the CR/HT team, hospitalization would be necessary.",
           "The service is not usually appropriate for individuals with",
@@ -7960,11 +8159,12 @@ export const oxfordBoxes = [
     "chapter": 26,
     "boxNumber": "26.3",
     "page": 787,
+    "gravity": 2,
     "title": "Components of early intervention teams",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Case management—ongoing care of identified patients",
           "Early identification—awareness-raising campaigns for psychoses",
@@ -7981,11 +8181,12 @@ export const oxfordBoxes = [
     "chapter": 26,
     "boxNumber": "26.4",
     "page": 797,
+    "gravity": 2,
     "title": "Patient characteristics that indicate need for rehabilitation",
     "content": [
       {
         "type": "section",
-        "heading": "Content",
+        
         "items": [
           "Severe and persistent mental disorder",
           "Continuing disability despite standard treatment",
