@@ -10,21 +10,17 @@ import mcqMatchingSets from "./data/mcqMatching.js";
 import dsm5trSelfExamChapters, { dsm5trSelfExamQuestions } from "./data/dsm5trSelfExamQuestions.js";
 import { oxfordBoxes } from "./data/oxfordBoxes.js";
 import { crashCourseBoxes } from "./data/crashCourseBoxes.js";
+import {
+  buildMcqQualitySignals,
+  getMcqQualityPreference,
+  rankQuestionsWithQuality,
+  selectAdaptiveQuestionOrder,
+  selectWrittenExamByTopic,
+} from "./mcqSelection.mjs";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
 // ═══════════════════════════════════════════════════════════════
-
-function selectRandomQuestions(count) {
-  const arr = [...QUESTIONS];
-
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  return arr.slice(0, Math.min(count, arr.length));
-}
 
 function shuffleItems(items) {
   const arr = [...items];
@@ -1518,12 +1514,14 @@ function scoreQuestionForDailyWrongPriority(question, progress, now = new Date()
   return score + Math.random() * 6;
 }
 
-function selectDailyWrongQuestions(progress, count, usedIds, now = new Date()) {
+function selectDailyWrongQuestions(progress, count, usedIds, now = new Date(), qualitySignals = {}) {
   return selectUniqueQuestions(
     QUESTIONS
       .map(question => ({
         question,
-        score: scoreQuestionForDailyWrongPriority(question, progress, now),
+        score:
+          scoreQuestionForDailyWrongPriority(question, progress, now) +
+          getMcqQualityPreference(question, qualitySignals),
         reason: "repeated_wrong",
       }))
       .filter(item => Number.isFinite(item.score))
@@ -1533,14 +1531,14 @@ function selectDailyWrongQuestions(progress, count, usedIds, now = new Date()) {
   );
 }
 
-function selectDailyReviewQuestions(progress, count, usedIds, now = new Date()) {
+function selectDailyReviewQuestions(progress, count, usedIds, now = new Date(), qualitySignals = {}) {
   const records = progress.questions || {};
   const dueMastered = QUESTIONS
     .filter(question => isQuestionMastered(records[question.id]) && isDue(records[question.id], now))
-    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "mastered_due" }))
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now) + getMcqQualityPreference(question, qualitySignals), reason: "mastered_due" }))
     .sort((a, b) => b.score - a.score);
   const dueReview = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now), reason: "normal_due" }))
+    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress, now) + getMcqQualityPreference(question, qualitySignals), reason: "normal_due" }))
     .filter(item => {
       const record = records[item.question.id];
       const mastery = getMasteryLevel(record);
@@ -1548,13 +1546,21 @@ function selectDailyReviewQuestions(progress, count, usedIds, now = new Date()) 
     })
     .sort((a, b) => b.score - a.score);
   const weakReview = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress, now), reason: "normal_due" }))
+    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress, now) + getMcqQualityPreference(question, qualitySignals), reason: "normal_due" }))
     .filter(item => isWeaknessCandidate(item.question, progress))
     .sort((a, b) => b.score - a.score);
-  const novelty = shuffleItems(QUESTIONS)
-    .filter(question => !hasSeenQuestion(records[question.id]))
+  const novelty = rankQuestionsWithQuality(
+    QUESTIONS.filter(question => !hasSeenQuestion(records[question.id])),
+    () => 0,
+    qualitySignals
+  )
     .map(question => ({ question, reason: "unseen_or_random" }));
-  const fallback = shuffleItems(QUESTIONS)
+  const fallback = rankQuestionsWithQuality(
+    QUESTIONS,
+    question => scoreQuestionForStudyPriority(question, progress, now),
+    qualitySignals,
+    { jitter: 8 }
+  )
     .map(question => ({ question, reason: "fallback_random" }));
 
   return selectUniqueQuestions(
@@ -1578,75 +1584,50 @@ function selectUniqueQuestions(candidates, count, usedIds = new Set()) {
   return selected;
 }
 
-function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE) {
-  const scored = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForWeakness(question, progress) }))
-    .filter(item => isWeaknessCandidate(item.question, progress) && item.score >= 25)
-    .sort((a, b) => b.score - a.score);
-
-  return selectUniqueQuestions(scored, count).map(item => item.question);
+function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE, qualitySignals = {}) {
+  return rankQuestionsWithQuality(
+    QUESTIONS.filter(question => isWeaknessCandidate(question, progress) && scoreQuestionForWeakness(question, progress) >= 25),
+    question => scoreQuestionForWeakness(question, progress),
+    qualitySignals,
+    { jitter: 4 }
+  ).slice(0, count);
 }
 
-function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE) {
+function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE, qualitySignals = {}) {
   const records = progress.questions || {};
-  const shuffled = selectRandomQuestions(QUESTIONS.length);
-  const unseen = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
-  const lightlySeen = shuffled.filter(question => {
-    const record = records[question.id];
-    return hasSeenQuestion(record) && getSeenCount(record) <= 1;
+  return selectAdaptiveQuestionOrder({
+    questions: QUESTIONS,
+    count,
+    records,
+    qualitySignals,
+    hasSeen: hasSeenQuestion,
+    getSeenCount,
+    isMastered: isQuestionMastered,
+    isDue,
+    scoreStudy: question => scoreQuestionForStudyPriority(question, progress),
+    scoreReview: question => scoreQuestionForRandomReview(question, progress),
   });
-  const weakOrDue = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForStudyPriority(question, progress) }))
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.question);
-  const fallback = shuffled.filter(question => !isQuestionMastered(records[question.id]) || isDue(records[question.id]));
-
-  return selectUniqueQuestions([...unseen, ...lightlySeen, ...weakOrDue, ...fallback, ...shuffled], count);
 }
 
-function selectRandomPracticeQuestions(progress) {
+function selectRandomPracticeQuestions(progress, qualitySignals = {}, questions = QUESTIONS) {
   const now = new Date();
   const records = progress.questions || {};
-  const shuffled = selectRandomQuestions(QUESTIONS.length);
-  const usedIds = new Set();
-  const unseenQueue = shuffled.filter(question => !hasSeenQuestion(records[question.id]));
-  const lightlySeenQueue = shuffled.filter(question => {
-    const record = records[question.id];
-    return hasSeenQuestion(record) && getSeenCount(record) <= 1 && !isQuestionMastered(record);
+  return selectAdaptiveQuestionOrder({
+    questions,
+    count: questions.length,
+    records,
+    qualitySignals,
+    hasSeen: hasSeenQuestion,
+    getSeenCount,
+    isMastered: isQuestionMastered,
+    isDue: record => isDue(record, now),
+    scoreStudy: question => scoreQuestionForStudyPriority(question, progress, now),
+    scoreReview: question => scoreQuestionForRandomReview(question, progress, now),
   });
-  const fallbackQueue = shuffled.filter(question => !isQuestionMastered(records[question.id]) || isDue(records[question.id], now));
-  const reviewCandidates = QUESTIONS
-    .map(question => ({ question, score: scoreQuestionForRandomReview(question, progress, now) }))
-    .filter(item => Number.isFinite(item.score))
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.question);
-  const randomQueue = [...unseenQueue, ...lightlySeenQueue, ...fallbackQueue, ...shuffled];
-  const reviewQueue = [...reviewCandidates];
-  const selected = [];
+}
 
-  for (let index = 0; index < QUESTIONS.length; index += 1) {
-    const shouldUseReviewSlot = (index + 1) % 7 === 0;
-    const queue = shouldUseReviewSlot ? reviewQueue : randomQueue;
-    let next = null;
-
-    while (queue.length && !next) {
-      const candidate = queue.shift();
-      if (!usedIds.has(candidate.id)) next = candidate;
-    }
-
-    if (!next) {
-      while (randomQueue.length && !next) {
-        const candidate = randomQueue.shift();
-        if (!usedIds.has(candidate.id)) next = candidate;
-      }
-    }
-
-    if (!next) break;
-    usedIds.add(next.id);
-    selected.push(next);
-  }
-
-  return selected;
+function selectTopicPracticeQuestions(questions, progress, qualitySignals = {}) {
+  return selectRandomPracticeQuestions(progress, qualitySignals, questions);
 }
 
 function normalizeQuestionText(value) {
@@ -1790,45 +1771,52 @@ function getLatestQuestionAttempt(progress, questionId, mode = null) {
   ) || null;
 }
 
-function scoreQuestionForWrittenExam(question, progress, now = new Date()) {
+async function loadMcqQualitySignals() {
+  if (!ONLINE_PROFILES_ENABLED) return {};
+
+  const pageSize = 1000;
+  const rows = [];
+
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await supabaseTableRequest("mcq_feedback", {
+      select: "question_id,feedback_type,question_text_snapshot",
+      feedback_type: "in.(quality_up,quality_down)",
+      order: "created_at.asc",
+      limit: String(pageSize),
+      offset: String(offset),
+    });
+    rows.push(...(page || []));
+    if (!page || page.length < pageSize) break;
+  }
+
+  return buildMcqQualitySignals(rows, QUESTIONS, getMcqStem);
+}
+
+function getRecentWrittenExamQuestionIds(progress, sessionCount = 2) {
+  return new Set(
+    getWrittenExamSessions(progress)
+      .slice(0, sessionCount)
+      .flatMap(session => Array.isArray(session.questionIds) ? session.questionIds : [])
+      .map(String)
+  );
+}
+
+function scoreQuestionForWrittenExam(question, progress, qualitySignals = {}, now = new Date()) {
   const record = getQuestionProgress(progress, question.id);
-  const attempts = getAttemptsCount(record);
-  const wrongCount = getWrongCount(record);
-  const mastery = getMasteryLevel(record);
-  const accuracy = getAccuracy(record);
-  const seen = hasSeenQuestion(record);
-  const mastered = isQuestionMastered(record);
   const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
   const latestWrittenAttempt = getLatestQuestionAttempt(progress, question.id, "written");
   const daysSinceWritten = getDaysSince(latestWrittenAttempt?.attemptedAt, now);
-  let score = Math.random() * 8;
+  let score = getMcqQualityPreference(question, qualitySignals, "written") + Math.random() * 8;
 
-  if (!seen) score += 70;
-  if (isWeaknessCandidate(question, progress)) score += Math.min(90, scoreQuestionForWeakness(question, progress, now));
-  if (wrongCount > 0) score += Math.min(wrongCount, 5) * 16;
-  if ((record.consecutiveWrong || 0) > 0) score += Math.min(record.consecutiveWrong, 3) * 22;
-  if ((record.confidentWrongCount || 0) > 0) score += Math.min(record.confidentWrongCount, 4) * 14;
-  if (attempts >= 3 && accuracy !== null && accuracy < 0.7) score += 28;
-  if (isDue(record, now)) score += mastered ? 26 : 42;
-  if (mastery > 0 && mastery < 3) score += 32;
-  else if (mastery >= 3 && mastery < 5) score += 18;
-  if (daysSinceAnswer === null) score += 12;
-  else if (daysSinceAnswer >= 60) score += 24;
-  else if (daysSinceAnswer >= 30) score += 16;
-  else if (daysSinceAnswer >= 14) score += 8;
-
-  if (mastered) {
-    score -= 26;
-    if (daysSinceAnswer !== null && daysSinceAnswer >= 30) score += 18;
-  }
+  if (daysSinceAnswer !== null && daysSinceAnswer <= 3) score -= 18;
+  else if (daysSinceAnswer !== null && daysSinceAnswer <= 7) score -= 8;
 
   if (daysSinceWritten !== null) {
-    if (daysSinceWritten <= 3) score -= 90;
-    else if (daysSinceWritten <= 14) score -= 45;
-    else if (daysSinceWritten <= 30) score -= 18;
+    if (daysSinceWritten <= 7) score -= 120;
+    else if (daysSinceWritten <= 21) score -= 70;
+    else if (daysSinceWritten <= 45) score -= 28;
   }
 
-  score -= Math.max(0, getSeenCount(record) - 3) * 3;
   return score;
 }
 
@@ -1882,7 +1870,7 @@ function buildWrittenTopicQuotas(eligible, targetCount) {
   return new Map(quotaRows.filter(row => row.quota > 0).map(row => [row.topic, row.quota]));
 }
 
-function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
+function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, qualitySignals = {}) {
   const eligible = QUESTIONS.filter(question =>
     Array.isArray(question.options) &&
     question.options.length === 5 &&
@@ -1892,12 +1880,12 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
   );
   const targetCount = Math.min(count, eligible.length);
   const now = new Date();
-  const records = progress.questions || {};
   const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount);
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
   const conceptCounts = new Map();
+  const recentWrittenIds = getRecentWrittenExamQuestionIds(progress, 2);
 
   const canUseQuestion = (question, { respectConceptCaps = true } = {}) => {
     if (!question || usedIds.has(question.id)) return false;
@@ -1926,116 +1914,42 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE) {
     return true;
   };
 
-  const rank = (questions) => questions
-    .map(question => ({ question, score: scoreQuestionForWrittenExam(question, progress, now) }))
-    .sort((a, b) => b.score - a.score);
-
-  const pickFrom = (candidates, target, limitCount = targetCount) => {
-    const take = Math.max(0, Math.min(target, limitCount - selected.length, targetCount - selected.length));
-    if (!take) return;
-
-    let picked = 0;
-    for (const item of candidates) {
-      if (picked >= take || selected.length >= targetCount || selected.length >= limitCount) break;
-      if (pushQuestion(item.question || item)) picked += 1;
-    }
-  };
-
-  for (const [topic, quota] of topicQuotas) {
-    const topicLimit = selected.length + quota;
-    const topicQuestions = eligible.filter(question => getQuestionTopic(question) === topic);
-    const topicUnseen = rank(topicQuestions.filter(question => !hasSeenQuestion(records[question.id])));
-    const topicWeak = rank(topicQuestions.filter(question => isWeaknessCandidate(question, progress)));
-    const topicDue = rank(topicQuestions.filter(question => {
-      const record = records[question.id];
-      return hasSeenQuestion(record) && !isQuestionMastered(record) && isDue(record, now);
-    }));
-    const topicMastered = rank(topicQuestions.filter(question => {
-      const record = records[question.id];
-      const daysSinceAnswer = getDaysSince(record?.lastAnsweredAt || record?.seenAt, now);
-      return isQuestionMastered(record) && (isDue(record, now) || daysSinceAnswer === null || daysSinceAnswer >= 30);
-    }));
-    const topicLearning = rank(topicQuestions.filter(question => {
-      const record = records[question.id];
-      return hasSeenQuestion(record) && !isQuestionMastered(record);
-    }));
-    const topicBroad = rank(topicQuestions);
-
-    pickFrom(topicUnseen, Math.ceil(quota * 0.75), topicLimit);
-    pickFrom(topicWeak, Math.max(quota >= 6 ? 1 : 0, Math.round(quota * 0.15)), topicLimit);
-    pickFrom(topicDue, Math.max(quota >= 10 ? 1 : 0, Math.round(quota * 0.08)), topicLimit);
-    pickFrom(topicMastered, quota >= 10 ? 1 : 0, topicLimit);
-    pickFrom(topicLearning, topicLimit - selected.length, topicLimit);
-    pickFrom(topicBroad, topicLimit - selected.length, topicLimit);
-  }
-
-  let unseenSelected = selected.filter(question => !hasSeenQuestion(records[question.id])).length;
-  const unseenMinimum = Math.min(
-    eligible.filter(question => !hasSeenQuestion(records[question.id])).length,
-    Math.floor(targetCount * 0.70) + 1
-  );
-  if (unseenSelected < unseenMinimum) {
-    const unseenTopUp = rank(eligible.filter(question => !hasSeenQuestion(records[question.id])));
-    for (const item of unseenTopUp) {
-      if (unseenSelected >= unseenMinimum) break;
-      const candidate = item.question;
-      const candidateSignature = getQuestionSignature(candidate);
-      if (!canUseQuestion(candidate)) continue;
-
-      const replaceIndex = selected.findLastIndex(question => {
-        const record = records[question.id];
-        return hasSeenQuestion(record) &&
-          !isWeaknessCandidate(question, progress) &&
-          !isDue(record, now);
-      });
-      if (replaceIndex < 0) break;
-
-      const removed = selected[replaceIndex];
-      usedIds.delete(removed.id);
-      usedSignatures.delete(getQuestionSignature(removed));
-      getQuestionConceptTags(removed).forEach(tag => {
-        conceptCounts.set(tag, Math.max(0, (conceptCounts.get(tag) || 0) - 1));
-      });
-      selected[replaceIndex] = candidate;
-      usedIds.add(candidate.id);
-      usedSignatures.add(candidateSignature);
-      getQuestionConceptTags(candidate).forEach(tag => {
-        conceptCounts.set(tag, (conceptCounts.get(tag) || 0) + 1);
-      });
-      unseenSelected += 1;
-    }
-  }
-
-  const broadCandidates = rank(eligible);
-  pickFrom(broadCandidates, targetCount - selected.length);
-  if (selected.length < targetCount) {
-    for (const item of broadCandidates) {
-      if (selected.length >= targetCount) break;
-      pushQuestion(item.question, { respectConceptCaps: false });
-    }
-  }
-
-  return shuffleItems(selected);
+  return selectWrittenExamByTopic({
+    eligible,
+    targetCount,
+    topicQuotas,
+    getTopic: getQuestionTopic,
+    scoreQuestion: question => scoreQuestionForWrittenExam(question, progress, qualitySignals, now),
+    isRecent: question => recentWrittenIds.has(String(question.id)),
+    trySelect: pushQuestion,
+    getSelected: () => selected,
+    shuffle: shuffleItems,
+  });
 }
 
 function getDailyChallenge(progress, dateKey = getLocalDateKey()) {
   return progress.dailyChallenges?.[dateKey] || null;
 }
 
-function createDailyChallenge(progress, dateKey = getLocalDateKey()) {
+function createDailyChallenge(progress, dateKey = getLocalDateKey(), qualitySignals = {}) {
   const existing = getDailyChallenge(progress, dateKey);
   if (existing?.questionIds?.length) return existing;
 
   const now = new Date();
   const usedIds = new Set();
   const wrongTarget = Math.min(DAILY_CHALLENGE_SIZE, Math.round(DAILY_CHALLENGE_SIZE * 0.8));
-  const repeatedWrong = selectDailyWrongQuestions(progress, wrongTarget, usedIds, now);
+  const repeatedWrong = selectDailyWrongQuestions(progress, wrongTarget, usedIds, now, qualitySignals);
   const reviewTarget = DAILY_CHALLENGE_SIZE - repeatedWrong.length;
-  const reviewQuestions = selectDailyReviewQuestions(progress, reviewTarget, usedIds, now);
+  const reviewQuestions = selectDailyReviewQuestions(progress, reviewTarget, usedIds, now, qualitySignals);
   const remaining = DAILY_CHALLENGE_SIZE - repeatedWrong.length - reviewQuestions.length;
   const fallback = remaining > 0
     ? selectUniqueQuestions(
-        shuffleItems(QUESTIONS).map(question => ({ question, reason: "fallback_random" })),
+        rankQuestionsWithQuality(
+          QUESTIONS,
+          question => scoreQuestionForStudyPriority(question, progress, now),
+          qualitySignals,
+          { jitter: 8 }
+        ).map(question => ({ question, reason: "fallback_random" })),
         remaining,
         usedIds
       )
@@ -2055,8 +1969,8 @@ function createDailyChallenge(progress, dateKey = getLocalDateKey()) {
   };
 }
 
-function ensureDailyChallenge(progress, dateKey = getLocalDateKey()) {
-  const challenge = createDailyChallenge(progress, dateKey);
+function ensureDailyChallenge(progress, dateKey = getLocalDateKey(), qualitySignals = {}) {
+  const challenge = createDailyChallenge(progress, dateKey, qualitySignals);
 
   return {
     progress: {
@@ -2071,16 +1985,16 @@ function ensureDailyChallenge(progress, dateKey = getLocalDateKey()) {
   };
 }
 
-function getSessionQuestions(mode, progress) {
+function getSessionQuestions(mode, progress, qualitySignals = {}) {
   if (mode === "daily") {
-    return createDailyChallenge(progress).questionIds
+    return createDailyChallenge(progress, getLocalDateKey(), qualitySignals).questionIds
       .map(id => QUESTIONS.find(question => question.id === id))
       .filter(Boolean);
   }
-  if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE);
-  if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE);
-  if (mode === "written") return selectWrittenExamQuestions(progress, WRITTEN_EXAM_SIZE);
-  return selectRandomPracticeQuestions(progress);
+  if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE, qualitySignals);
+  if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE, qualitySignals);
+  if (mode === "written") return selectWrittenExamQuestions(progress, WRITTEN_EXAM_SIZE, qualitySignals);
+  return selectRandomPracticeQuestions(progress, qualitySignals);
 }
 
 function makeWrittenExamSessionId() {
@@ -6893,13 +6807,13 @@ function McqMatchingMode({ onBack, onHome }) {
   );
 }
 
-function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null }) {
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null }) {
   const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
   const initialSessionQuestionsRef = useRef(
     initialWrittenQuestionsRef.current?.length
       ? initialWrittenQuestionsRef.current
-      : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress))
+      : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress, qualitySignals))
   );
   const sessionIdRef = useRef(initialWrittenDraftRef.current?.sessionId || `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
@@ -7023,8 +6937,8 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
 
   useEffect(() => {
     if (mode !== "daily") return;
-    onProgressChange(prev => ensureDailyChallenge(prev).progress);
-  }, [mode, onProgressChange]);
+    onProgressChange(prev => ensureDailyChallenge(prev, getLocalDateKey(), qualitySignals).progress);
+  }, [mode, onProgressChange, qualitySignals]);
 
   useEffect(() => {
     setOptionOrders(currentOrders => createOptionOrders(questions, currentOrders));
@@ -7331,7 +7245,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
   }, [answers, mode, onProgressChange, progress, questions, writtenResult]);
 
   const startNewWrittenExam = useCallback(() => {
-    const nextQuestions = getSessionQuestions("written", progress);
+    const nextQuestions = getSessionQuestions("written", progress, qualitySignals);
     const nextSessionId = makeWrittenExamSessionId();
     const nextOptionOrders = createOptionOrders(nextQuestions);
     const nextDraft = createWrittenExamDraft(nextQuestions, {
@@ -7371,7 +7285,7 @@ function McqTest({ mode, progress, onProgressChange, onBack, onHome, sessionQues
     if (nextDraft) {
       onProgressChange(prev => saveWrittenExamDraft(clearWrittenExamDraft(prev), nextDraft));
     }
-  }, [onProgressChange, progress]);
+  }, [onProgressChange, progress, qualitySignals]);
 
   const continueWrittenExam = useCallback(() => {
     setWrittenDraftChoice("active");
@@ -9023,6 +8937,7 @@ export default function App() {
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
+  const [mcqQualitySignals, setMcqQualitySignals] = useState({});
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
@@ -9036,8 +8951,10 @@ export default function App() {
   const mcqProgressSummary = useMemo(() => summarizeMcqProgress(mcqProgress), [mcqProgress]);
   const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
   const selectedMcqTopicQuestions = useMemo(
-    () => selectedMcqTopic ? shuffleItems(getQuestionsForMcqTopic(selectedMcqTopic)) : [],
-    [selectedMcqTopic]
+    () => selectedMcqTopic
+      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals)
+      : [],
+    [selectedMcqTopic, mcqProgress, mcqQualitySignals]
   );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Local profiles only. Add Supabase environment variables for online sync.";
@@ -9050,6 +8967,23 @@ export default function App() {
   useEffect(() => {
     saveProfileStore(profileStore);
   }, [profileStore]);
+
+  useEffect(() => {
+    if (!ONLINE_PROFILES_ENABLED) return;
+    let cancelled = false;
+
+    loadMcqQualitySignals()
+      .then(signals => {
+        if (!cancelled) setMcqQualitySignals(signals);
+      })
+      .catch(error => {
+        console.error("MCQ quality signals could not be loaded", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!ONLINE_PROFILES_ENABLED) {
@@ -9483,6 +9417,7 @@ export default function App() {
           <McqTest
             mode={testMode}
             progress={mcqProgress}
+            qualitySignals={mcqQualitySignals}
             onProgressChange={updateMcqProgress}
             sessionQuestions={testMode === 'category' ? selectedMcqTopicQuestions : null}
             sessionTitle={testMode === 'category' ? selectedMcqTopic : null}
