@@ -7,11 +7,6 @@ import oralCoreQuestions from "./data/oralCore.js";
 import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
 import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
 import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
-import mcqVignettes from "./data/mcqVignettes.js";
-import mcqMatchingSets from "./data/mcqMatching.js";
-import dsm5trSelfExamChapters, { dsm5trSelfExamQuestions } from "./data/dsm5trSelfExamQuestions.js";
-import { oxfordBoxes } from "./data/oxfordBoxes.js";
-import { crashCourseBoxes } from "./data/crashCourseBoxes.js";
 import {
   buildMcqQualitySignals,
   getMcqQualityPreference,
@@ -110,8 +105,10 @@ function getBoxSourceKey(box) {
   return String(box?.source || "").toLowerCase().includes("crash") ? "crash" : "oxford";
 }
 
-function getBoxesForSource(sourceKey) {
-  const boxes = sourceKey === "crash" ? crashCourseBoxes : oxfordBoxes;
+function getBoxesForSource(sourceKey, referenceSources) {
+  const boxes = sourceKey === "crash"
+    ? referenceSources?.crashCourseBoxes || []
+    : referenceSources?.oxfordBoxes || [];
   return [...boxes].sort((a, b) => {
     if (sourceKey === "crash") return (Number(a.order) || 0) - (Number(b.order) || 0);
     const chapterDiff = (Number(a.chapter) || 0) - (Number(b.chapter) || 0);
@@ -1352,10 +1349,10 @@ function isQuestionMastered(record = {}) {
 }
 
 function getQuestionStatus(record) {
-  if (isQuestionMastered(record)) return "Mastered";
-  if (getAttemptsCount(record) > 0) return "Review";
-  if (hasSeenQuestion(record)) return "Seen";
-  return "New";
+  if (isQuestionMastered(record)) return "Κατακτημένη";
+  if (getAttemptsCount(record) > 0) return "Επανάληψη";
+  if (hasSeenQuestion(record)) return "Προβλήθηκε";
+  return "Νέα";
 }
 
 function getMasteryLevel(record = {}) {
@@ -2897,7 +2894,7 @@ const STYLES = `
     padding: 12px 14px;
     font-family: inherit;
     font-size: 15px;
-    outline: none;
+    outline-offset: 3px;
   }
 
   .profile-input:focus {
@@ -2994,7 +2991,7 @@ const STYLES = `
     font-size: 20px;
     letter-spacing: 0.3em;
     text-align: center;
-    outline: none;
+    outline-offset: 3px;
   }
 
   .admin-pin-input:focus {
@@ -3747,7 +3744,7 @@ const STYLES = `
     font-family: inherit;
     font-size: 13px;
     line-height: 1.45;
-    outline: none;
+    outline-offset: 3px;
   }
 
   .mcq-feedback-comment textarea:focus {
@@ -5012,7 +5009,7 @@ const STYLES = `
   }
 
   .oral-answer-notes:focus {
-    outline: none;
+    outline-offset: 3px;
     border-color: var(--border-active);
     box-shadow: 0 0 0 3px rgba(99,102,241,0.16);
   }
@@ -5608,7 +5605,7 @@ const STYLES = `
     padding: 0 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    outline: none;
+    outline-offset: 3px;
     background: var(--bg-surface);
     color: var(--text);
     font-family: inherit;
@@ -6024,7 +6021,7 @@ const STYLES = `
     padding: 14px 16px;
     font-family: inherit;
     font-size: 15px;
-    outline: none;
+    outline-offset: 3px;
   }
 
   .pinakakia-search:focus {
@@ -6528,9 +6525,9 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                     {isAdminProfile(profile) && <span className="admin-badge">Admin</span>}
                   </span>
                   <small>
-                    <span>MCQ {summary.mastered} mastered</span>
-                    <span>{summary.review} review</span>
-                    <span>Oral {oralSummary.mastered}/{oralSummary.total}</span>
+                    <span>MCQ: {summary.mastered} κατακτημένες</span>
+                    <span>{summary.review} για επανάληψη</span>
+                    <span>Προφορικά: {oralSummary.mastered}/{oralSummary.total}</span>
                   </small>
                 </button>
               );
@@ -6541,7 +6538,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
       </div>
 
       {pendingAdminProfile && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Admin profile verification">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Επαλήθευση προφίλ διαχειριστή" onKeyDown={event => { if (event.key === "Escape") closeAdminUnlock(); }}>
           <form className="modal admin-unlock-modal" onSubmit={handleAdminUnlock}>
             <h3>Admin profile</h3>
             <p>Enter the password to open {pendingAdminProfile.name}.</p>
@@ -6575,7 +6572,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
             </div>
             {adminError && <div className="admin-pin-error" role="alert">{adminError}</div>}
             <div className="modal-actions">
-              <button className="results-btn" type="button" onClick={closeAdminUnlock} disabled={isVerifyingAdmin}>Cancel</button>
+              <button className="results-btn" type="button" onClick={closeAdminUnlock} disabled={isVerifyingAdmin}>Ακύρωση</button>
               <button className="results-btn primary" type="submit" disabled={!adminPassword || isVerifyingAdmin}>
                 {isVerifyingAdmin ? "Checking..." : "Unlock"}
               </button>
@@ -6683,7 +6680,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateM
         <div className="profile-bar">
           <span>{profileName}</span>
           {isAdmin && <span className="admin-badge">Admin</span>}
-          <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
+          <button className="profile-switch" onClick={onSwitchProfile}>Αλλαγή προφίλ</button>
         </div>
       </div>
       <div className="grid">
@@ -6704,10 +6701,10 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
     <div className="mcq-select fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Back
+          <Icons.ChevronLeft /> Πίσω
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+          <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>Πολλαπλής Επιλογής</h2>
@@ -6715,15 +6712,15 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       <div className="mcq-memory" aria-label="MCQ progress">
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.mastered}</span>
-          <span className="mcq-memory-label">Mastered</span>
+          <span className="mcq-memory-label">Κατακτημένες</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.review}</span>
-          <span className="mcq-memory-label">Review</span>
+          <span className="mcq-memory-label">Επανάληψη</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.unseen}</span>
-          <span className="mcq-memory-label">Unseen</span>
+          <span className="mcq-memory-label">Νέες</span>
         </div>
       </div>
 
@@ -6798,10 +6795,10 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic }) {
     <div className="mcq-select fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> MCQ Menu
+          <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+            <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>Ερωτήσεις ανά Κατηγορία</h2>
@@ -6845,12 +6842,12 @@ function getVignetteLabel(vignette) {
   return match ? `Vignette ${Number(match[1])}` : "Vignette";
 }
 
-function getAvailableMatchingSets() {
-  return mcqMatchingSets.filter(set => set?.items?.length && set?.choices?.length);
+function getAvailableMatchingSets(matchingSets = []) {
+  return matchingSets.filter(set => set?.items?.length && set?.choices?.length);
 }
 
-function pickRandomMatchingSet(excludeId = null) {
-  const sets = getAvailableMatchingSets();
+function pickRandomMatchingSet(matchingSets, excludeId = null) {
+  const sets = getAvailableMatchingSets(matchingSets);
   if (!sets.length) return null;
   const pool = sets.length > 1
     ? sets.filter(set => set.id !== excludeId)
@@ -6893,7 +6890,7 @@ function normalizeDSM5CorrectIndex(question) {
   return -1;
 }
 
-function buildDSM5Session(sourceType, chapter = null) {
+function buildDSM5Session(sourceType, chapter = null, dsm5trSelfExamQuestions = []) {
   const sourceQuestions = sourceType === "random"
     ? dsm5trSelfExamQuestions
     : getDSM5ChapterQuestions(chapter);
@@ -6902,7 +6899,7 @@ function buildDSM5Session(sourceType, chapter = null) {
   return sourceType === "random" ? shuffleItems(eligibleQuestions) : eligibleQuestions;
 }
 
-function DSM5McqMode({ onBack, onHome }) {
+function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questionBank: dsm5trSelfExamQuestions }) {
   const totalDSM5Questions = dsm5trSelfExamQuestions.length;
   const [sessionLabel, setSessionLabel] = useState("");
   const [questions, setQuestions] = useState([]);
@@ -6927,7 +6924,7 @@ function DSM5McqMode({ onBack, onHome }) {
   const wrongRows = answeredRows.filter(row => row.answered && !row.correct);
 
   const startSession = (sourceType, chapter = null) => {
-    const nextQuestions = buildDSM5Session(sourceType, chapter);
+    const nextQuestions = buildDSM5Session(sourceType, chapter, dsm5trSelfExamQuestions);
     setSessionLabel(sourceType === "random" ? "Random" : `Chapter ${chapter.chapter}: ${chapter.title}`);
     setQuestions(nextQuestions);
     setCurrentIdx(0);
@@ -7021,12 +7018,12 @@ function DSM5McqMode({ onBack, onHome }) {
             <Icons.ChevronLeft /> Results
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
-        <h2>Wrong Answer Review</h2>
+        <h2>Επανάληψη λανθασμένων απαντήσεων</h2>
         {wrongRows.length === 0 ? (
-          <div className="structured-card DSM5-empty-note">No wrong answers in this session.</div>
+          <div className="structured-card DSM5-empty-note">Δεν υπήρξαν λανθασμένες απαντήσεις σε αυτή τη συνεδρία.</div>
         ) : (
           <div className="DSM5-review-list">
             {wrongRows.map((row, index) => (
@@ -7037,8 +7034,8 @@ function DSM5McqMode({ onBack, onHome }) {
           </div>
         )}
         <div className="structured-actions">
-          <button className="nav-btn" onClick={() => setReviewWrong(false)}>Back to results</button>
-          <button className="nav-btn primary" onClick={backToDSM5Home}>DSM5 menu</button>
+          <button className="nav-btn" onClick={() => setReviewWrong(false)}>Πίσω στα αποτελέσματα</button>
+          <button className="nav-btn primary" onClick={backToDSM5Home}>Μενού DSM5</button>
         </div>
       </div>
     );
@@ -7049,20 +7046,20 @@ function DSM5McqMode({ onBack, onHome }) {
       <div className="structured-mcq fade-in">
         <div className="structured-top">
           <button className="back-link" onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>DSM5</h2>
         <div className="structured-card compact DSM5-empty-note">
-          DSM5 Self-Exam bank: {totalDSM5Questions} questions loaded.
+          Τράπεζα αυτοεξέτασης DSM5: {totalDSM5Questions} διαθέσιμες ερωτήσεις.
         </div>
         <div className="DSM5-chapter-list">
           <button className="DSM5-chapter-row featured" disabled={!totalDSM5Questions} onClick={() => startSession("random")}>
-            <span className="DSM5-chapter-title">Random</span>
-            <span>{totalDSM5Questions} questions</span>
+            <span className="DSM5-chapter-title">Τυχαία επιλογή</span>
+            <span>{totalDSM5Questions} ερωτήσεις</span>
           </button>
           {dsm5trSelfExamChapters.map(chapter => {
             const count = getDSM5ChapterQuestions(chapter).length;
@@ -7074,7 +7071,7 @@ function DSM5McqMode({ onBack, onHome }) {
                 onClick={() => startSession("chapter", chapter)}
               >
                 <span className="DSM5-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
-                <span>{count} questions</span>
+                <span>{count} ερωτήσεις</span>
               </button>
             );
           })}
@@ -7090,41 +7087,41 @@ function DSM5McqMode({ onBack, onHome }) {
           <Icons.ChevronLeft /> DSM5 Menu
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+            <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>{sessionLabel}</h2>
       <div className="DSM5-session-header">
-        <span>{questions.length} total</span>
-        <span>{answeredCount} answered</span>
-        <span>{correctCount} correct</span>
-        <span>{Math.max(0, answeredCount - correctCount)} incorrect</span>
+        <span>{questions.length} σύνολο</span>
+        <span>{answeredCount} απαντημένες</span>
+        <span>{correctCount} σωστές</span>
+        <span>{Math.max(0, answeredCount - correctCount)} λάθη</span>
       </div>
       {renderQuestion()}
       <div className="structured-actions DSM5-nav-row">
-        <button className="nav-btn" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
+        <button className="nav-btn" aria-label="Προηγούμενη ερώτηση" disabled={currentIdx === 0} onClick={() => setCurrentIdx(index => Math.max(0, index - 1))}>
           <Icons.ChevronLeft />
         </button>
         <button className="nav-btn primary" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
-          <Icons.Lock /> Lock
+          <Icons.Lock /> Καταχώριση
         </button>
-        <button className="nav-btn" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
+        <button className="nav-btn" aria-label="Επόμενη ερώτηση" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
           <Icons.ChevronRight />
         </button>
       </div>
 
       {result && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Αποτελέσματα συνεδρίας DSM5">
           <div className="modal DSM5-result-modal">
-            <h3>Session complete</h3>
+            <h3>Η συνεδρία ολοκληρώθηκε</h3>
             <div className="DSM5-session-stats">
               <span>{result.correct}/{result.total}</span>
               <span>{Math.round((result.correct / Math.max(1, result.total)) * 100)}%</span>
-              <span>{result.wrong} wrong</span>
+              <span>{result.wrong} λάθη</span>
             </div>
             <div className="modal-actions">
-              <button className="results-btn" onClick={() => setReviewWrong(true)}>Review wrong answers</button>
-              <button className="results-btn primary" onClick={backToDSM5Home}>DSM5 menu</button>
+              <button className="results-btn" autoFocus onClick={() => setReviewWrong(true)}>Επανάληψη λανθασμένων απαντήσεων</button>
+              <button className="results-btn primary" onClick={backToDSM5Home}>Μενού DSM5</button>
             </div>
           </div>
         </div>
@@ -7133,7 +7130,7 @@ function DSM5McqMode({ onBack, onHome }) {
   );
 }
 
-function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
+function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes: mcqVignettes }) {
   const [selectedVignetteId, setSelectedVignetteId] = useState(null);
   const availableVignettes = useMemo(() => mcqVignettes.filter(Boolean), []);
   const vignette = useMemo(
@@ -7246,10 +7243,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Vignettes</h2>
@@ -7273,7 +7270,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
                   className={`vignette-complete-toggle ${completed ? "active" : ""}`}
                   onClick={() => setVignetteCompleted(item.id, !completed)}
                 >
-                  {completed ? "Completed" : "Mark completed"}
+                  {completed ? "Ολοκληρώθηκε" : "Σήμανση ολοκλήρωσης"}
                 </button>
               </div>
             );
@@ -7284,11 +7281,11 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
   }
 
   const renderVignetteModal = () => showVignette && (
-    <div className="modal-overlay" role="dialog" aria-modal="true" onClick={() => setShowVignette(false)}>
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Κλινικό σενάριο" onKeyDown={event => { if (event.key === "Escape") setShowVignette(false); }} onClick={() => setShowVignette(false)}>
       <div className="modal vignette-modal" onClick={event => event.stopPropagation()}>
         <div className="vignette-modal-close">
-          <button className="nav-btn" type="button" onClick={() => setShowVignette(false)}>
-            <Icons.X /> Close
+          <button className="nav-btn" type="button" autoFocus onClick={() => setShowVignette(false)}>
+            <Icons.X /> Κλείσιμο
           </button>
         </div>
         <div className="structured-card">
@@ -7347,7 +7344,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
             <Icons.ChevronLeft /> Results
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         {renderReviewedQuestion(row, reviewIdx)}
@@ -7369,10 +7366,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
       <div className="results written-results fade-in">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <div className={`results-score ${getPercentageColorClass(percent)}`}>{percent}%</div>
@@ -7392,7 +7389,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
           </div>
           <div className="written-result-stat">
             <strong>{result.unanswered}</strong>
-            <span>Unanswered</span>
+            <span>Αναπάντητες</span>
           </div>
         </div>
         <div className="results-actions">
@@ -7415,10 +7412,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Vignettes</h2>
@@ -7441,10 +7438,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
     <div className="structured-mcq fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+            <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -7492,7 +7489,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
             )}
             {!isLocked && (
               <button className="nav-btn primary" onClick={lockCurrentQuestion} disabled={selected.length === 0}>
-                <Icons.Lock /> Lock
+                <Icons.Lock /> Καταχώριση
               </button>
             )}
             {currentIdx === vignette.questions.length - 1 && hasDeferredAnswers && (
@@ -7512,8 +7509,8 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome }) {
   );
 }
 
-function McqMatchingMode({ onBack, onHome }) {
-  const availableSets = useMemo(() => getAvailableMatchingSets(), []);
+function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
+  const availableSets = useMemo(() => getAvailableMatchingSets(mcqMatchingSets), [mcqMatchingSets]);
   const [matchingSet, setMatchingSet] = useState(null);
   const displayChoices = useMemo(() => shuffleItems(matchingSet?.choices || []), [matchingSet?.id]);
   const [showSetMenu, setShowSetMenu] = useState(true);
@@ -7539,7 +7536,7 @@ function McqMatchingMode({ onBack, onHome }) {
   };
 
   const goToRandomMatchingSet = () => {
-    startMatchingSet(pickRandomMatchingSet(matchingSet?.id));
+    startMatchingSet(pickRandomMatchingSet(mcqMatchingSets, matchingSet?.id));
   };
 
   const openSetMenu = () => {
@@ -7560,10 +7557,10 @@ function McqMatchingMode({ onBack, onHome }) {
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Αντιστοίχηση</h2>
@@ -7603,12 +7600,12 @@ function McqMatchingMode({ onBack, onHome }) {
       <div className="structured-mcq fade-in">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
-          <button className="nav-btn" type="button" onClick={() => startMatchingSet(pickRandomMatchingSet())}>
+          <button className="nav-btn" type="button" onClick={() => startMatchingSet(pickRandomMatchingSet(mcqMatchingSets))}>
             Νέο σετ
           </button>
         </div>
@@ -7643,10 +7640,10 @@ function McqMatchingMode({ onBack, onHome }) {
     <div className="structured-mcq fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+            <Icons.Home /> Αρχική
         </button>
         <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
           Νέο σετ
@@ -7683,7 +7680,7 @@ function McqMatchingMode({ onBack, onHome }) {
           <div className="structured-actions-group">
             {!isLocked && (
               <button className="nav-btn primary" onClick={() => setLocked(prev => ({ ...prev, [item.id]: true }))} disabled={selected.length === 0}>
-                <Icons.Lock /> Lock
+                <Icons.Lock /> Καταχώριση
               </button>
             )}
             <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(matchingSet.items.length - 1, index + 1))} disabled={currentIdx >= matchingSet.items.length - 1}>
@@ -8062,7 +8059,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className="written-full-question">
         <div className="written-full-question-head">
           <div>
-            <div className="question-num">Question {question.id}</div>
+            <div className="question-num">Ερώτηση {question.id}</div>
           </div>
           {renderMcqFeedbackControls(question)}
         </div>
@@ -8207,47 +8204,47 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className="test-container fade-in">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
 
         <div className="oral-choice">
           <h2>Προσομοίωση με 100 Πολλαπλής</h2>
-          <p>There is an unfinished written exam saved for this profile.</p>
+          <p>Υπάρχει αποθηκευμένη ημιτελής γραπτή προσομοίωση για αυτό το προφίλ.</p>
           <div className="game-hud">
             <div className="hud-stat">
               <span className="hud-value">{currentIdx + 1}</span>
-              <span className="hud-label">Current</span>
+              <span className="hud-label">Τρέχουσα</span>
             </div>
             <div className="hud-stat">
               <span className="hud-value">{writtenAnsweredCount}</span>
-              <span className="hud-label">Answered</span>
+              <span className="hud-label">Απαντημένες</span>
             </div>
             <div className="hud-stat">
               <span className="hud-value">{writtenUnansweredCount}</span>
-              <span className="hud-label">Unanswered</span>
+              <span className="hud-label">Αναπάντητες</span>
             </div>
             <div className="hud-stat">
               <span className="hud-value">{totalQ}</span>
-              <span className="hud-label">Total</span>
+              <span className="hud-label">Σύνολο</span>
             </div>
           </div>
           {draftUpdatedAt && (
             <div className="explanation-box">
-              <strong>Saved draft</strong>
-              Last updated: {draftUpdatedAt}
+              <strong>Αποθηκευμένη πρόοδος</strong>
+              Τελευταία ενημέρωση: {draftUpdatedAt}
             </div>
           )}
           <button className="mode-btn featured" onClick={continueWrittenExam}>
-            Continue saved exam
-            <small>Resume from question {currentIdx + 1} with your saved selected answers.</small>
+            Συνέχεια αποθηκευμένης εξέτασης
+            <small>Συνέχισε από την ερώτηση {currentIdx + 1} με τις αποθηκευμένες επιλογές.</small>
           </button>
           <button className="mode-btn" onClick={startNewWrittenExam}>
-            Start new exam
-            <small>Discard the saved written simulation for this profile and draw a new exam.</small>
+            Νέα εξέταση
+            <small>Διέγραψε την αποθηκευμένη προσομοίωση αυτού του προφίλ και δημιούργησε νέα.</small>
           </button>
         </div>
       </div>
@@ -8275,7 +8272,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <Icons.ChevronLeft /> Αποτελέσματα
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Όλες οι απαντήσεις</h2>
@@ -8330,7 +8327,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <Icons.ChevronLeft /> Wrong answer review
             </button>
             <button className="home-btn" onClick={onHome}>
-              <Icons.Home /> Home
+            <Icons.Home /> Αρχική
             </button>
           </div>
           {renderLockedWrittenQuestion(writtenWrongFullItem)}
@@ -8345,13 +8342,13 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <Icons.ChevronLeft /> Results
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
-        <h2>Wrong Answer Review</h2>
+        <h2>Επανάληψη λανθασμένων απαντήσεων</h2>
         {writtenResult.wrongItems.length === 0 ? (
           <div className="explanation-box">
-            <strong>No wrong answers</strong>
+            <strong>Δεν υπήρξαν λανθασμένες απαντήσεις</strong>
             This written simulation had no answered questions marked incorrect.
           </div>
         ) : (
@@ -8363,7 +8360,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               return (
                 <div className="wrong-answer-card" key={question.id}>
                   <div className="wrong-answer-topline">
-                    <span>Question {index + 1}</span>
+                    <span>Ερώτηση {index + 1}</span>
                     <span>Bank ID {question.id}</span>
                     <button
                       type="button"
@@ -8416,10 +8413,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className="results written-results fade-in">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
 
@@ -8443,7 +8440,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
           <div className="written-result-stat">
             <strong>{writtenResult.unanswered}</strong>
-            <span>Unanswered</span>
+            <span>Αναπάντητες</span>
           </div>
         </div>
 
@@ -8505,7 +8502,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             Restart simulation
           </button>
           <button className="results-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
       </div>
@@ -8517,10 +8514,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className="test-container fade-in">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Home
+            <Icons.Home /> Αρχική
           </button>
         </div>
         <div className="explanation-box">
@@ -8535,10 +8532,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     <div className="test-container fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
         <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-          <Icons.ChevronLeft /> MCQ Menu
+            <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Home
+            <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -8546,19 +8543,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="game-hud">
           <div className="hud-stat">
             <span className="hud-value">{currentIdx + 1}</span>
-            <span className="hud-label">Current</span>
+            <span className="hud-label">Τρέχουσα</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{writtenAnsweredCount}</span>
-            <span className="hud-label">Answered</span>
+            <span className="hud-label">Απαντημένες</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{writtenUnansweredCount}</span>
-            <span className="hud-label">Unanswered</span>
+            <span className="hud-label">Αναπάντητες</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{totalQ}</span>
-            <span className="hud-label">Total</span>
+            <span className="hud-label">Σύνολο</span>
           </div>
         </div>
       ) : (
@@ -8750,7 +8747,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <span className="point-pill">Correct +{displayedBreakdown.base}</span>
               {mode === "sprint" && <span className="point-pill">Speed +{displayedBreakdown.speed}</span>}
               <span className="point-pill">Streak +{displayedBreakdown.streak}</span>
-              <span className="point-pill total">Total +{displayedBreakdown.total}</span>
+              <span className="point-pill total">Σύνολο +{displayedBreakdown.total}</span>
             </div>
           )}
         </div>
@@ -8792,21 +8789,21 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       )}
 
       {showWrittenSubmitWarning && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Written exam submit confirmation">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Επιβεβαίωση υποβολής γραπτής εξέτασης" onKeyDown={event => { if (event.key === "Escape") setShowWrittenSubmitWarning(false); }}>
           <div className="modal">
-            <h3>Submit written exam?</h3>
+            <h3>Υποβολή γραπτής εξέτασης;</h3>
             <p>
-              You have answered {writtenAnsweredCount} out of {totalQ} questions.
+              Έχεις απαντήσει {writtenAnsweredCount} από {totalQ} ερωτήσεις.
               {writtenUnansweredCount > 0
-                ? ` ${writtenUnansweredCount} question${writtenUnansweredCount === 1 ? "" : "s"} will remain unanswered and count as not correct.`
-                : " No questions are unanswered."}
+                ? ` ${writtenUnansweredCount} θα παραμείνουν αναπάντητες και θα υπολογιστούν ως μη σωστές.`
+                : " Δεν υπάρχουν αναπάντητες ερωτήσεις."}
             </p>
             <div className="modal-actions">
               <button className="results-btn primary" onClick={() => submitWrittenExam(true)}>
-                Confirm and see results
+                Υποβολή και αποτελέσματα
               </button>
-              <button className="results-btn" onClick={() => setShowWrittenSubmitWarning(false)}>
-                Continue exam
+              <button className="results-btn" autoFocus onClick={() => setShowWrittenSubmitWarning(false)}>
+                Συνέχεια εξέτασης
               </button>
             </div>
           </div>
@@ -9545,7 +9542,7 @@ function OralTable({ rows, onBack, onHome }) {
   );
 }
 
-function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate }) {
+function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate, referenceSources }) {
   const [screen, setLocalScreen] = useState(routeScreen);
   const [sourceKey, setSourceKey] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(routeChapter);
@@ -9571,10 +9568,15 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     }
   }, [onNavigate, routeScreen, viewer]);
 
+  const boxesForSource = useCallback(
+    source => getBoxesForSource(source, referenceSources),
+    [referenceSources]
+  );
+
   const allBoxes = useMemo(() => ([
-    ...getBoxesForSource("oxford").map(box => ({ ...box, sourceKey: "oxford" })),
-    ...getBoxesForSource("crash").map(box => ({ ...box, sourceKey: "crash" })),
-  ]), []);
+    ...boxesForSource("oxford").map(box => ({ ...box, sourceKey: "oxford" })),
+    ...boxesForSource("crash").map(box => ({ ...box, sourceKey: "crash" })),
+  ]), [boxesForSource]);
 
   const searchResults = useMemo(() => {
     const normalized = normalizeGreekSearch(query);
@@ -9584,13 +9586,13 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
   const oxfordChapterGroups = useMemo(() => {
     const groups = new Map();
-    getBoxesForSource("oxford").forEach(box => {
+    boxesForSource("oxford").forEach(box => {
       const chapter = Number(box.chapter) || 0;
       if (!groups.has(chapter)) groups.set(chapter, []);
       groups.get(chapter).push(box);
     });
     return [...groups.entries()].sort((a, b) => a[0] - b[0]);
-  }, []);
+  }, [boxesForSource]);
 
   const sourceLabel = sourceKey === "crash" ? "Crash Course" : "Oxford";
 
@@ -9612,7 +9614,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   };
 
   const openRandom = (nextSourceKey, backScreen = null) => {
-    const boxes = getBoxesForSource(nextSourceKey);
+    const boxes = boxesForSource(nextSourceKey);
     const index = getRandomBoxIndex(boxes);
     openViewer(nextSourceKey, boxes, index, {
       randomMode: true,
@@ -9659,7 +9661,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
   const openSearchResult = (box) => {
     const nextSourceKey = box.sourceKey || getBoxSourceKey(box);
-    const boxes = getBoxesForSource(nextSourceKey);
+    const boxes = boxesForSource(nextSourceKey);
     const index = boxes.findIndex(item => item.id === box.id);
     openViewer(nextSourceKey, boxes, index, { backScreen: screen, backChapter: selectedChapter });
     setQuery("");
@@ -9681,7 +9683,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
   const goViewerRandom = () => {
     if (!viewer) return;
-    const boxes = getBoxesForSource(viewer.sourceKey);
+    const boxes = boxesForSource(viewer.sourceKey);
     const index = getRandomBoxIndex(boxes, viewer.index);
     const history = [...(viewer.history || []).slice(0, viewer.historyIndex + 1), index];
     setViewer({
@@ -9774,7 +9776,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   }
 
   if (screen === "oxford-modes") {
-    const boxes = getBoxesForSource("oxford");
+    const boxes = boxesForSource("oxford");
     return renderShell(
       <>
         <h2 className="pinakakia-section-title">Oxford</h2>
@@ -9815,7 +9817,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   }
 
   if (screen === "oxford-boxes") {
-    const boxes = getBoxesForSource("oxford").filter(box => Number(box.chapter) === Number(selectedChapter));
+    const boxes = boxesForSource("oxford").filter(box => Number(box.chapter) === Number(selectedChapter));
     return renderShell(
       <>
         <h2 className="pinakakia-section-title">Κεφάλαιο {selectedChapter}</h2>
@@ -9836,7 +9838,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   }
 
   if (screen === "crash-modes") {
-    const boxes = getBoxesForSource("crash");
+    const boxes = boxesForSource("crash");
     return renderShell(
       <>
         <h2 className="pinakakia-section-title">Crash Course</h2>
@@ -9854,7 +9856,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   }
 
   if (screen === "crash-list") {
-    const boxes = getBoxesForSource("crash");
+    const boxes = boxesForSource("crash");
     return renderShell(
       <>
         <h2 className="pinakakia-section-title">Crash Course — Με σειρά</h2>
@@ -10124,6 +10126,25 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   );
 }
 
+function StudyModuleLoading({ error, onRetry, onBack, onHome }) {
+  return (
+    <div className="mcq-select fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Πίσω
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+      <div className="pinakakia-empty" role={error ? "alert" : "status"} aria-live="polite">
+        <p>{error || "Φόρτωση υλικού μελέτης…"}</p>
+        {error && <button className="results-btn" type="button" onClick={onRetry}>Νέα προσπάθεια</button>}
+      </div>
+    </div>
+  );
+}
+
 function PlaceholderPage({ title, description, icon, onBack, onHome }) {
   return (
     <div className="placeholder-page fade-in">
@@ -10174,6 +10195,10 @@ export default function App() {
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
   const [crucialQuestionViewerData, setCrucialQuestionViewerData] = useState(null);
+  const [referenceSources, setReferenceSources] = useState(null);
+  const [referenceLoadError, setReferenceLoadError] = useState(null);
+  const [mcqFeatureData, setMcqFeatureData] = useState({});
+  const [mcqFeatureLoadError, setMcqFeatureLoadError] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
@@ -10214,6 +10239,55 @@ export default function App() {
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  useEffect(() => {
+    if (screen !== "pinakakia" || referenceSources || referenceLoadError) return undefined;
+    let cancelled = false;
+    Promise.all([
+      import("./data/oxfordBoxes.js"),
+      import("./data/crashCourseBoxes.js"),
+    ])
+      .then(([oxfordModule, crashCourseModule]) => {
+        if (cancelled) return;
+        setReferenceSources({
+          oxfordBoxes: oxfordModule.oxfordBoxes,
+          crashCourseBoxes: crashCourseModule.crashCourseBoxes,
+        });
+      })
+      .catch(error => {
+        console.error("Reference material could not be loaded", error);
+        if (!cancelled) setReferenceLoadError("Το υλικό αναφοράς δεν μπόρεσε να φορτωθεί.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [referenceLoadError, referenceSources, screen]);
+
+  useEffect(() => {
+    if (screen !== "mcq" || !["vignettes", "matching", "DSM5"].includes(testMode)) return undefined;
+    if (mcqFeatureData[testMode] || mcqFeatureLoadError?.mode === testMode) return undefined;
+    let cancelled = false;
+    const loader = testMode === "vignettes"
+      ? import("./data/mcqVignettes.js").then(module => ({ vignettes: module.default }))
+      : testMode === "matching"
+        ? import("./data/mcqMatching.js").then(module => ({ matchingSets: module.default }))
+        : import("./data/dsm5trSelfExamQuestions.js").then(module => ({
+            chapters: module.default,
+            questionBank: module.dsm5trSelfExamQuestions,
+          }));
+
+    loader
+      .then(data => {
+        if (!cancelled) setMcqFeatureData(previous => ({ ...previous, [testMode]: data }));
+      })
+      .catch(error => {
+        console.error(`${testMode} material could not be loaded`, error);
+        if (!cancelled) setMcqFeatureLoadError({ mode: testMode, message: "Το υλικό δεν μπόρεσε να φορτωθεί." });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mcqFeatureData, mcqFeatureLoadError, screen, testMode]);
 
   useEffect(() => {
     if (selectedMcqTopic && !MCQ_TOPIC_CATEGORIES.includes(selectedMcqTopic)) {
@@ -10655,12 +10729,35 @@ export default function App() {
             oralProgressSummary={oralProgressSummary}
           />
         )}
-        {activeProfile && screen === 'pinakakia' && (
+        {activeProfile && screen === 'pinakakia' && !referenceSources && (
+          <div className="pinakakia-screen fade-in">
+            <div className="pinakakia-topbar">
+              <button className="back-link" onClick={() => setScreen('home')}>
+                <Icons.ChevronLeft /> Πίσω
+              </button>
+              <button className="home-btn" onClick={() => setScreen('home')}>
+                <Icons.Home /> Αρχική
+              </button>
+            </div>
+            {referenceLoadError ? (
+              <div className="pinakakia-empty" role="alert">
+                <p>{referenceLoadError}</p>
+                <button className="results-btn" type="button" onClick={() => setReferenceLoadError(null)}>
+                  Νέα προσπάθεια
+                </button>
+              </div>
+            ) : (
+              <div className="pinakakia-empty" role="status" aria-live="polite">Φόρτωση υλικού αναφοράς…</div>
+            )}
+          </div>
+        )}
+        {activeProfile && screen === 'pinakakia' && referenceSources && (
           <PinakakiaModule
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
             routeScreen={route.tableScreen}
             routeChapter={route.tableChapter}
+            referenceSources={referenceSources}
             onNavigate={(nextScreen, chapter, options = {}) => navigate(
               pathForTableScreen(nextScreen, chapter),
               { ...options, state: nextScreen === "viewer" ? { tableViewer: true } : null }
@@ -10690,22 +10787,34 @@ export default function App() {
             onSelectTopic={(topic) => setSelectedMcqTopic(topic)}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'vignettes' && (
+        {activeProfile && screen === 'mcq' && ['vignettes', 'matching', 'DSM5'].includes(testMode) && !mcqFeatureData[testMode] && (
+          <StudyModuleLoading
+            error={mcqFeatureLoadError?.mode === testMode ? mcqFeatureLoadError.message : null}
+            onRetry={() => setMcqFeatureLoadError(null)}
+            onBack={() => setTestMode(null)}
+            onHome={() => { setTestMode(null); setScreen('home'); }}
+          />
+        )}
+        {activeProfile && screen === 'mcq' && testMode === 'vignettes' && mcqFeatureData.vignettes && (
           <McqVignetteMode
+            vignettes={mcqFeatureData.vignettes.vignettes}
             progress={mcqProgress}
             onProgressChange={updateMcqProgress}
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'matching' && (
+        {activeProfile && screen === 'mcq' && testMode === 'matching' && mcqFeatureData.matching && (
           <McqMatchingMode
+            matchingSets={mcqFeatureData.matching.matchingSets}
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'DSM5' && (
+        {activeProfile && screen === 'mcq' && testMode === 'DSM5' && mcqFeatureData.DSM5 && (
           <DSM5McqMode
+            chapters={mcqFeatureData.DSM5.chapters}
+            questionBank={mcqFeatureData.DSM5.questionBank}
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
@@ -10847,7 +10956,7 @@ export default function App() {
           />
         )}
         {activeProfile && screen === 'home' && showOpeningRequest && (
-          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Μικρό request">
+          <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Ενημερωτικό μήνυμα" onKeyDown={event => { if (event.key === "Escape") setShowOpeningRequest(false); }}>
             <div className="modal">
               <h3>Ένα μικρό request 🙂</h3>
               <p>
@@ -10855,7 +10964,7 @@ export default function App() {
                 Θα ήταν κρίμα ένα εργαλείο που φτιάχτηκε για να βοηθήσει στην προετοιμασία να οδηγήσει τελικά σε αλλαγές στη διαδικασία των εξετάσεων.
               </p>
               <div className="modal-actions">
-                <button className="results-btn primary" onClick={() => setShowOpeningRequest(false)}>
+                <button className="results-btn primary" autoFocus onClick={() => setShowOpeningRequest(false)}>
                   Το κατάλαβα
                 </button>
               </div>
