@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
+import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
 import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
 import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 import mcqVignettes from "./data/mcqVignettes.js";
@@ -407,6 +408,25 @@ function summarizeOralProgress(oralProgress, questions = null) {
     mastered: countMasteredOralQuestions(targetQuestions, oralProgress),
     total: targetQuestions.length,
   };
+}
+
+let crucialQuestionsPromise;
+let crucialQuestionMapPromise;
+
+function loadCrucialQuestions() {
+  if (!crucialQuestionsPromise) {
+    crucialQuestionsPromise = import("./data/crucialQuestionsContent.js")
+      .then(module => module.default);
+  }
+  return crucialQuestionsPromise;
+}
+
+function loadCrucialQuestionMap() {
+  if (!crucialQuestionMapPromise) {
+    crucialQuestionMapPromise = loadCrucialQuestions()
+      .then(questions => new Map(questions.map(question => [question.id, question])));
+  }
+  return crucialQuestionMapPromise;
 }
 
 function getOralQuestionRole(question) {
@@ -4985,7 +5005,7 @@ const STYLES = `
   /* ── Oral Question Viewer ─────────────────────────── */
 
   .oral-viewer {
-    max-width: 720px;
+    max-width: 860px;
     margin: 0 auto;
     padding: 20px;
   }
@@ -5076,6 +5096,471 @@ const STYLES = `
     margin-top: -20px;
     margin-bottom: 24px;
     font-style: italic;
+  }
+
+  .oral-answer-reveal {
+    width: 100%;
+    min-height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    border: 1px dashed rgba(99,102,241,0.5);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, rgba(99,102,241,0.08), rgba(59,130,246,0.03));
+    color: var(--text-dim);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.18s;
+  }
+
+  .oral-answer-reveal:hover {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    transform: translateY(-1px);
+  }
+
+  .oral-answer-reveal:focus-visible,
+  .oral-answer-modes button:focus-visible,
+  .oral-answer-hide:focus-visible,
+  .oral-source-chapter summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .oral-answer-reveal .answer-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .oral-answer-reveal .answer-placeholder .icon {
+    width: 26px;
+    height: 26px;
+    color: var(--accent-light);
+  }
+
+  .oral-answer-reveal .answer-placeholder small {
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .oral-answer-panel {
+    overflow: clip;
+    border: 1px solid rgba(99,102,241,0.28);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.16);
+  }
+
+  .oral-answer-toolbar {
+    position: sticky;
+    top: 8px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17,24,39,0.96);
+    backdrop-filter: blur(14px);
+  }
+
+  .oral-answer-modes {
+    display: inline-flex;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-surface);
+  }
+
+  .oral-answer-modes button,
+  .oral-answer-hide {
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 8px 11px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .oral-answer-modes button:hover,
+  .oral-answer-hide:hover {
+    color: var(--text);
+    background: var(--bg-card-hover);
+  }
+
+  .oral-answer-modes button.active {
+    color: #dbeafe;
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--border-active);
+  }
+
+  .oral-answer-modes button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .oral-quick-answer,
+  .oral-full-answer {
+    padding: clamp(20px, 4vw, 34px);
+  }
+
+  .oral-quick-answer {
+    max-width: 72ch;
+    margin: 0 auto;
+  }
+
+  .oral-answer-kicker,
+  .oral-model-answer h4,
+  .oral-reference-section h4 {
+    margin: 0 0 12px;
+    color: var(--accent-light);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .oral-quick-answer > p,
+  .oral-model-answer p,
+  .oral-reference-section p {
+    margin: 0 0 1em;
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.82;
+  }
+
+  .oral-answer-source-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .oral-answer-source-line .icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    color: var(--accent-light);
+  }
+
+  .oral-legacy-source {
+    margin: 8px 0 0 24px;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .oral-full-answer-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .oral-full-answer-intro > span {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  .oral-full-answer-intro small {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .oral-source-chapter {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+  }
+
+  .oral-source-chapter + .oral-source-chapter {
+    margin-top: 12px;
+  }
+
+  .oral-source-chapter[open] {
+    border-color: rgba(99,102,241,0.3);
+  }
+
+  .oral-source-chapter summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 16px;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .oral-source-chapter summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .oral-source-badge {
+    padding: 4px 7px;
+    border-radius: 6px;
+    background: var(--accent-soft);
+    color: var(--accent-light);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .oral-source-title {
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.4;
+  }
+
+  .oral-source-chevron {
+    color: var(--text-dim);
+    transition: transform 0.18s;
+  }
+
+  .oral-source-chevron svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .oral-source-chapter[open] .oral-source-chevron {
+    transform: rotate(180deg);
+  }
+
+  .oral-source-body {
+    max-width: 72ch;
+    margin: 0 auto;
+    padding: 4px 22px 26px;
+  }
+
+  /* ── 100 Crucial Questions Index ───────────────────── */
+
+  .crucial-index {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 20px 92px;
+  }
+
+  .crucial-index-header {
+    max-width: 640px;
+    margin: 16px auto 28px;
+    text-align: center;
+  }
+
+  .crucial-index-header h2 {
+    margin: 0 0 8px;
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(30px, 6vw, 42px);
+    font-weight: 400;
+  }
+
+  .crucial-index-header p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .crucial-search {
+    position: sticky;
+    top: 8px;
+    z-index: 4;
+    margin-bottom: 16px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgba(17,24,39,0.94);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    backdrop-filter: blur(14px);
+  }
+
+  .crucial-search input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--bg-surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+  }
+
+  .crucial-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.16);
+  }
+
+  .crucial-index-count {
+    margin: 0 2px 10px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .crucial-index-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .crucial-index-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.16s, border-color 0.16s, background 0.16s;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 76px;
+  }
+
+  .crucial-index-item:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+  }
+
+  .crucial-index-item:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .crucial-index-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 32px;
+    padding: 0 7px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent-light);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .crucial-index-title {
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  .crucial-index-item svg {
+    color: var(--text-dim);
+  }
+
+  .crucial-empty,
+  .crucial-loading {
+    padding: 40px 20px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .crucial-viewer-heading {
+    max-width: 72ch;
+    margin: 14px auto 22px;
+  }
+
+  .crucial-viewer-heading h2 {
+    margin: 8px 0 0;
+    color: var(--text);
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(25px, 5vw, 36px);
+    font-weight: 400;
+    line-height: 1.22;
+  }
+
+  .crucial-viewer-content {
+    max-width: 72ch;
+    margin: 0 auto;
+  }
+
+  .oral-model-answer,
+  .oral-reference-section {
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(8,15,28,0.34);
+  }
+
+  .oral-model-answer {
+    padding: 20px;
+  }
+
+  .oral-model-answer p:last-child,
+  .oral-reference-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .oral-reference-section ul {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .oral-reference-section li {
+    padding-left: 3px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.62;
+  }
+
+  .oral-reference-section.recall {
+    border-color: rgba(59,130,246,0.25);
+    background: rgba(59,130,246,0.07);
+  }
+
+  .oral-reference-section.key-points {
+    border-color: rgba(34,197,94,0.22);
+    background: rgba(34,197,94,0.06);
+  }
+
+  .oral-reference-section.key-points h4 {
+    color: #86efac;
+  }
+
+  .oral-reference-section.traps {
+    border-color: rgba(245,158,11,0.25);
+    background: var(--gold-bg);
+  }
+
+  .oral-reference-section.traps h4 {
+    color: var(--gold);
+  }
+
+  .oral-reference-section.practice {
+    border-color: rgba(168,85,247,0.25);
+    background: rgba(168,85,247,0.07);
+  }
+
+  .oral-reference-section.practice h4 {
+    color: #c4b5fd;
   }
 
   /* ── Oral Reference Table ─────────────────────────── */
@@ -5615,6 +6100,25 @@ const STYLES = `
     .pinakakia-viewer { padding: 18px; }
     .pinakakia-viewer-nav { grid-template-columns: 1fr; }
     .pinakakia-content-text { font-size: 19px; }
+    .oral-viewer { padding: 16px; }
+    .oral-answer-toolbar { align-items: stretch; flex-direction: column; top: 4px; }
+    .oral-answer-modes { display: grid; grid-template-columns: 1fr 1fr; }
+    .oral-answer-modes button { min-height: 40px; }
+    .oral-answer-hide { align-self: flex-end; padding: 5px 8px; }
+    .oral-quick-answer,
+    .oral-full-answer { padding: 18px 14px; }
+    .oral-source-chapter summary { gap: 9px; padding: 13px 12px; }
+    .oral-source-title { font-size: 12px; }
+    .oral-source-body { padding: 2px 10px 16px; }
+    .crucial-index { padding: 16px 14px 88px; }
+    .crucial-index-list { grid-template-columns: 1fr; }
+    .crucial-search { top: 4px; }
+    .crucial-index-item { min-height: 70px; }
+    .oral-model-answer,
+    .oral-reference-section { padding: 15px; }
+    .oral-quick-answer > p,
+    .oral-model-answer p,
+    .oral-reference-section p { font-size: 14px; line-height: 1.72; }
   }
 `;
 
@@ -7911,7 +8415,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // ORAL EXAMINATION COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenSimulator }) {
+function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuestions, onOpenSimulator }) {
   return (
     <div className="oral-choice fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
@@ -7928,6 +8432,10 @@ function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenSimulator })
       <button className="mode-btn" onClick={onOpenPastTopics}>
         Προηγούμενα Θέματα
         <small>Εξάσκηση με τα υπάρχοντα προφορικά θέματα και ερωτήσεις της τράπεζας.</small>
+      </button>
+      <button className="mode-btn" onClick={onOpenCrucialQuestions}>
+        100 Καίριες Ερωτήσεις
+        <small>Ευρετήριο του βιβλίου με την πλήρη ερώτηση και απάντηση για κάθε καταχώριση.</small>
       </button>
       <button className="mode-btn featured" onClick={onOpenSimulator}>
         Προφορική Εξέταση
@@ -8068,20 +8576,226 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
   );
 }
 
+function OralReferenceList({ title, items, tone = "default" }) {
+  if (!items?.length) return null;
+
+  return (
+    <section className={`oral-reference-section ${tone}`}>
+      <h4>{title}</h4>
+      <ul>
+        {items.map((item, index) => <li key={`${title}-${index}`}>{item}</li>)}
+      </ul>
+    </section>
+  );
+}
+
+function CrucialQuestionContent({ source }) {
+  return (
+    <>
+      <OralReferenceList title="Άξονας ανάκλησης" items={source.recallAxis} tone="recall" />
+
+      <section className="oral-model-answer">
+        <h4>Πρότυπη προφορική απάντηση</h4>
+        {source.modelAnswer.map((paragraph, index) => (
+          <p key={`${source.id}-answer-${index}`}>{paragraph}</p>
+        ))}
+      </section>
+
+      <OralReferenceList title="Βασικά σημεία για τις εξετάσεις" items={source.keyPoints} tone="key-points" />
+      <OralReferenceList title="Συχνές παγίδες εξεταστή" items={source.examTraps} tone="traps" />
+
+      {source.examVsPractice?.length > 0 && (
+        <section className="oral-reference-section practice">
+          <h4>Απάντηση εξετάσεων vs σύγχρονη πρακτική</h4>
+          {source.examVsPractice.map((paragraph, index) => (
+            <p key={`${source.id}-practice-${index}`}>{paragraph}</p>
+          ))}
+        </section>
+      )}
+    </>
+  );
+}
+
+function OralCrucialQuestionAnswer({ source, initiallyOpen }) {
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
+
+  return (
+    <details
+      className="oral-source-chapter"
+      open={isOpen}
+      onToggle={event => setIsOpen(event.currentTarget.open)}
+    >
+      <summary>
+        <span className="oral-source-badge">{source.id}</span>
+        <span className="oral-source-title">{source.title}</span>
+        <span className="oral-source-chevron"><Icons.ChevronDown /></span>
+      </summary>
+      <div className="oral-source-body">
+        <CrucialQuestionContent source={source} />
+      </div>
+    </details>
+  );
+}
+
+function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
+  const [questions, setQuestions] = useState(null);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    let isActive = true;
+    loadCrucialQuestions().then(items => {
+      if (isActive) setQuestions(items);
+    });
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const visibleQuestions = useMemo(() => {
+    if (!questions) return [];
+    const normalizedQuery = normalizeGreekSearch(query);
+    if (!normalizedQuery) return questions;
+    return questions.filter(question => normalizeGreekSearch(
+      `${question.id} ${question.number} ${question.title}`
+    ).includes(normalizedQuery));
+  }, [questions, query]);
+
+  return (
+    <div className="crucial-index fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Πίσω
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+
+      <header className="crucial-index-header">
+        <h2>100 Καίριες Ερωτήσεις</h2>
+        <p>Επίλεξε μια ερώτηση για να ανοίξεις αυτούσια την πλήρη καταχώριση του βιβλίου.</p>
+      </header>
+
+      <div className="crucial-search">
+        <input
+          type="search"
+          value={query}
+          onChange={event => setQuery(event.target.value)}
+          placeholder="Αναζήτηση στις 100 ερωτήσεις…"
+          aria-label="Αναζήτηση στις 100 καίριες ερωτήσεις"
+        />
+      </div>
+
+      {!questions ? (
+        <div className="crucial-loading" role="status">Φόρτωση ευρετηρίου…</div>
+      ) : (
+        <>
+          <div className="crucial-index-count">
+            {visibleQuestions.length === questions.length
+              ? `${questions.length} ερωτήσεις`
+              : `${visibleQuestions.length} από ${questions.length} ερωτήσεις`}
+          </div>
+          {visibleQuestions.length > 0 ? (
+            <div className="crucial-index-list">
+              {visibleQuestions.map(question => (
+                <button
+                  key={question.id}
+                  className="crucial-index-item"
+                  onClick={() => onOpenQuestion(questions, questions.indexOf(question))}
+                >
+                  <span className="crucial-index-number">{question.id}</span>
+                  <span className="crucial-index-title">{question.title}</span>
+                  <Icons.ChevronRight />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="crucial-empty">Δεν βρέθηκε ερώτηση για «{query}».</div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
+  const [currentIdx, setCurrentIdx] = useState(initialIndex);
+  const source = questions[currentIdx];
+  const total = questions.length;
+
+  const navigate = (nextIndex) => {
+    if (nextIndex < 0 || nextIndex >= total) return;
+    setCurrentIdx(nextIndex);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <div className="oral-viewer fade-in">
+      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
+        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+          <Icons.ChevronLeft /> Ευρετήριο
+        </button>
+        <button className="home-btn" onClick={onHome}>
+          <Icons.Home /> Αρχική
+        </button>
+      </div>
+
+      <header className="crucial-viewer-heading">
+        <div className="oral-viewer-meta">
+          <span className="oral-source-badge">{source.id}</span>
+          <span className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</span>
+        </div>
+        <h2>{source.title}</h2>
+      </header>
+
+      <main className="crucial-viewer-content">
+        <CrucialQuestionContent source={source} />
+      </main>
+
+      <div style={{ height: 80 }} />
+      <div className="nav-bar">
+        <button className="nav-btn" onClick={() => navigate(currentIdx - 1)} disabled={currentIdx === 0}>
+          <Icons.ChevronLeft /> Προηγούμενη
+        </button>
+        <button className="nav-btn" onClick={() => navigate(currentIdx + 1)} disabled={currentIdx === total - 1}>
+          Επόμενη <Icons.ChevronRight />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered, onBack, onHome }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [answerMode, setAnswerMode] = useState("quick");
+  const [crucialQuestionMap, setCrucialQuestionMap] = useState(null);
 
   const q = questions[currentIdx];
   const total = questions.length;
+  const sourceIds = oralPreviousQuestionSources[q.id] || [];
+  const sourceQuestions = crucialQuestionMap
+    ? sourceIds.map(sourceId => crucialQuestionMap.get(sourceId)).filter(Boolean)
+    : [];
   const normalizedOralProgress = normalizeOralProgress(oralProgress);
   const sectionSummary = summarizeOralProgress(normalizedOralProgress, questions);
   const isMastered = Boolean(normalizedOralProgress.mastered[q.id]);
+
+  useEffect(() => {
+    let isActive = true;
+    loadCrucialQuestionMap().then(questionMap => {
+      if (isActive) setCrucialQuestionMap(questionMap);
+    });
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const goPrev = () => {
     if (currentIdx > 0) {
       setCurrentIdx(currentIdx - 1);
       setShowAnswer(false);
+      setAnswerMode("quick");
     }
   };
 
@@ -8089,6 +8803,7 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
     if (currentIdx < total - 1) {
       setCurrentIdx(currentIdx + 1);
       setShowAnswer(false);
+      setAnswerMode("quick");
     }
   };
 
@@ -8107,7 +8822,7 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
       <div className="oral-viewer-meta">
         <div className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</div>
         <span className={`oral-progress-pill ${sectionSummary.total > 0 && sectionSummary.mastered === sectionSummary.total ? "complete" : ""}`}>
-          {sectionSummary.mastered}/{sectionSummary.total} mastered
+          {sectionSummary.mastered}/{sectionSummary.total} κατακτημένες
         </span>
       </div>
 
@@ -8117,24 +8832,70 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
         onClick={() => onQuestionMastered(q.id, !isMastered)}
       >
         <Icons.Check />
-        {isMastered ? "Mastered" : "Mark as mastered"}
+        {isMastered ? "Κατακτήθηκε" : "Σήμανση ως κατακτημένη"}
       </button>
 
-      {q.source && <div className="oral-source">{q.source}</div>}
-
-      <div
-        className={`answer-box ${showAnswer ? 'revealed' : ''}`}
-        onClick={() => setShowAnswer(!showAnswer)}
-      >
-        {!showAnswer ? (
-          <div className="answer-placeholder">
+      {!showAnswer ? (
+        <button className="oral-answer-reveal" onClick={() => setShowAnswer(true)}>
+          <span className="answer-placeholder">
             <Icons.Eye />
-            <div style={{marginTop:8}}>Πατήστε για να δείτε την απάντηση</div>
+            <span>Εμφάνιση απάντησης</span>
+            <small>Πρώτα δοκίμασε να απαντήσεις προφορικά.</small>
+          </span>
+        </button>
+      ) : (
+        <section className="oral-answer-panel">
+          <div className="oral-answer-toolbar">
+            <div className="oral-answer-modes" role="group" aria-label="Επίπεδο ανάπτυξης απάντησης">
+              <button
+                className={answerMode === "quick" ? "active" : ""}
+                onClick={() => setAnswerMode("quick")}
+                aria-pressed={answerMode === "quick"}
+              >
+                Απάντηση 60″
+              </button>
+              <button
+                className={answerMode === "full" ? "active" : ""}
+                onClick={() => setAnswerMode("full")}
+                aria-pressed={answerMode === "full"}
+                disabled={!crucialQuestionMap || !sourceQuestions.length}
+              >
+                {crucialQuestionMap ? "Πλήρης ανάπτυξη" : "Φόρτωση…"}
+              </button>
+            </div>
+            <button className="oral-answer-hide" onClick={() => setShowAnswer(false)}>Απόκρυψη</button>
           </div>
-        ) : (
-          <div className="answer-content">{q.answer}</div>
-        )}
-      </div>
+
+          {answerMode === "quick" ? (
+            <div className="oral-quick-answer">
+              <div className="oral-answer-kicker">Συνοπτική εξεταστική απάντηση</div>
+              <p>{q.answer}</p>
+              <div className="oral-answer-source-line">
+                <Icons.BookOpen />
+                <span>
+                  Βασισμένο στις 100 Καίριες Ερωτήσεις
+                  {sourceIds.length > 0 && ` · ${sourceIds.join(" + ")}`}
+                </span>
+              </div>
+              {q.source && <div className="oral-legacy-source">Συμπληρωματική πηγή: {q.source}</div>}
+            </div>
+          ) : (
+            <div className="oral-full-answer">
+              <div className="oral-full-answer-intro">
+                <span>Πλήρης ανάπτυξη από το βιβλίο</span>
+                <small>Άνοιξε μόνο τα κεφάλαια που χρειάζεσαι για αυτή την ερώτηση.</small>
+              </div>
+              {sourceQuestions.map((source, index) => (
+                <OralCrucialQuestionAnswer
+                  key={`${q.id}-${source.id}`}
+                  source={source}
+                  initiallyOpen={index === 0}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <div style={{ height: 80 }} />
 
@@ -8932,6 +9693,7 @@ export default function App() {
   const [selectedMcqTopic, setSelectedMcqTopic] = useState(null);
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
+  const [crucialQuestionViewerData, setCrucialQuestionViewerData] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
@@ -9444,7 +10206,29 @@ export default function App() {
               setOralTableData(null);
               setScreen('oral-past');
             }}
+            onOpenCrucialQuestions={() => {
+              setCrucialQuestionViewerData(null);
+              setScreen('oral-crucial-index');
+            }}
             onOpenSimulator={() => setScreen('oral-simulator')}
+          />
+        )}
+        {activeProfile && screen === 'oral-crucial-index' && (
+          <CrucialQuestionsIndex
+            onBack={() => setScreen('oral')}
+            onHome={() => setScreen('home')}
+            onOpenQuestion={(questions, initialIndex) => {
+              setCrucialQuestionViewerData({ questions, initialIndex });
+              setScreen('oral-crucial-viewer');
+            }}
+          />
+        )}
+        {activeProfile && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
+          <CrucialQuestionViewer
+            questions={crucialQuestionViewerData.questions}
+            initialIndex={crucialQuestionViewerData.initialIndex}
+            onBack={() => setScreen('oral-crucial-index')}
+            onHome={() => { setCrucialQuestionViewerData(null); setScreen('home'); }}
           />
         )}
         {activeProfile && screen === 'oral-past' && (
