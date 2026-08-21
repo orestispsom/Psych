@@ -4,8 +4,6 @@ import { useLocation, useNavigate } from "react-router";
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
 import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
-import { sosNumbers, sosCriticalTopics, sosDifferentialDiagnosis } from "./data/sos.js";
-import { highYieldPsychiatryTables } from "./data/highYieldPsychiatryTables.js";
 import {
   buildMcqQualitySignals,
   getMcqQualityPreference,
@@ -22,6 +20,7 @@ import {
 
 let QUESTIONS = [];
 let questionBankPromise = null;
+let sosStudyDataPromise = null;
 
 function loadQuestionBank() {
   if (!questionBankPromise) {
@@ -37,6 +36,27 @@ function loadQuestionBank() {
   }
 
   return questionBankPromise;
+}
+
+function loadSosStudyData() {
+  if (!sosStudyDataPromise) {
+    sosStudyDataPromise = Promise.all([
+      import("./data/sos.js"),
+      import("./data/highYieldPsychiatryTables.js"),
+    ])
+      .then(([sosModule, highYieldModule]) => ({
+        numbers: sosModule.sosNumbers,
+        criticalTopics: sosModule.sosCriticalTopics,
+        differentialDiagnosis: sosModule.sosDifferentialDiagnosis,
+        highYieldTables: highYieldModule.highYieldPsychiatryTables,
+      }))
+      .catch(error => {
+        sosStudyDataPromise = null;
+        throw error;
+      });
+  }
+
+  return sosStudyDataPromise;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -10006,7 +10026,7 @@ function SosHome({ onBack, onHome, onOpenSection }) {
   );
 }
 
-function SosHighYieldTables({ onBack, onHome }) {
+function SosHighYieldTables({ tables, onBack, onHome }) {
   const [flippedIds, setFlippedIds] = useState(() => new Set());
 
   const toggleCard = (entryId) => {
@@ -10030,7 +10050,7 @@ function SosHighYieldTables({ onBack, onHome }) {
       </div>
       <h2>Γρήγορα SOS</h2>
       <div className="sos-flip-list">
-        {highYieldPsychiatryTables.map(entry => {
+        {tables.map(entry => {
           const isFlipped = flippedIds.has(entry.id);
           return (
             <button
@@ -10050,7 +10070,7 @@ function SosHighYieldTables({ onBack, onHome }) {
   );
 }
 
-function SosNumbersList({ onBack, onHome }) {
+function SosNumbersList({ entries, onBack, onHome }) {
   return (
     <div className="sos-screen fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
@@ -10063,7 +10083,7 @@ function SosNumbersList({ onBack, onHome }) {
       </div>
       <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
       <div className="sos-number-list">
-        {sosNumbers.map(entry => (
+        {entries.map(entry => (
           <div key={entry.id} className="sos-number-entry">
             {renderSosNumberText(getSosNumberFact(entry))}
           </div>
@@ -10242,6 +10262,8 @@ export default function App() {
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
   const [mcqFeatureLoadError, setMcqFeatureLoadError] = useState(null);
+  const [sosStudyData, setSosStudyData] = useState(null);
+  const [sosStudyLoadError, setSosStudyLoadError] = useState(null);
   const [questionBankStatus, setQuestionBankStatus] = useState("idle");
   const [questionBankError, setQuestionBankError] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
@@ -10326,6 +10348,24 @@ export default function App() {
       cancelled = true;
     };
   }, [referenceLoadError, referenceSources, screen]);
+
+  useEffect(() => {
+    if (!screen.startsWith("sos") || sosStudyData || sosStudyLoadError) return undefined;
+    let cancelled = false;
+
+    loadSosStudyData()
+      .then(data => {
+        if (!cancelled) setSosStudyData(data);
+      })
+      .catch(error => {
+        console.error("SOS study material could not be loaded", error);
+        if (!cancelled) setSosStudyLoadError("Το υλικό SOS δεν μπόρεσε να φορτωθεί.");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [screen, sosStudyData, sosStudyLoadError]);
 
   useEffect(() => {
     if (screen !== "mcq" || !["vignettes", "matching", "DSM5"].includes(testMode)) return undefined;
@@ -11003,34 +11043,44 @@ export default function App() {
             onOpenSection={(sectionId) => setScreen(`sos-${sectionId}`)}
           />
         )}
-        {activeProfile && screen === 'sos-numbers' && (
+        {activeProfile && screen.startsWith('sos-') && !sosStudyData && (
+          <StudyModuleLoading
+            error={sosStudyLoadError}
+            onRetry={() => setSosStudyLoadError(null)}
+            onBack={() => setScreen('sos')}
+            onHome={() => setScreen('home')}
+          />
+        )}
+        {activeProfile && screen === 'sos-numbers' && sosStudyData && (
           <SosNumbersList
+            entries={sosStudyData.numbers}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
         )}
-        {activeProfile && screen === 'sos-highyield' && (
+        {activeProfile && screen === 'sos-highyield' && sosStudyData && (
           <SosHighYieldTables
+            tables={sosStudyData.highYieldTables}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
         )}
-        {activeProfile && screen === 'sos-critical' && (
+        {activeProfile && screen === 'sos-critical' && sosStudyData && (
           <SosEntrySection
             title="Κρίσιμα Θέματα"
             section="critical_topics"
-            entries={sosCriticalTopics}
+            entries={sosStudyData.criticalTopics}
             sosProgress={sosProgress}
             onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
         )}
-        {activeProfile && screen === 'sos-differential' && (
+        {activeProfile && screen === 'sos-differential' && sosStudyData && (
           <SosEntrySection
             title="Διαφοροδιάγνωση"
             section="differential_diagnosis"
-            entries={sosDifferentialDiagnosis}
+            entries={sosStudyData.differentialDiagnosis}
             sosProgress={sosProgress}
             onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
