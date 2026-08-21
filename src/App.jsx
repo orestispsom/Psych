@@ -2603,27 +2603,31 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
 
   :root {
-    --bg: #0a0e17;
-    --bg-card: #111827;
-    --bg-card-hover: #1a2332;
-    --bg-surface: #151d2e;
-    --text: #e8ecf4;
-    --text-dim: #7a8ba8;
-    --text-muted: #4a5a75;
-    --accent: #3b82f6;
-    --accent-glow: rgba(59, 130, 246, 0.15);
-    --accent-soft: #1e3a5f;
-    --green: #22c55e;
+    color-scheme: dark;
+    --bg: #0c1212;
+    --bg-card: #121b1a;
+    --bg-card-hover: #192523;
+    --bg-surface: #172120;
+    --text: #eef2ed;
+    --text-dim: #a3b0aa;
+    --text-muted: #71817a;
+    --accent: #6fa99e;
+    --accent-glow: rgba(111, 169, 158, 0.18);
+    --accent-soft: #1d3a35;
+    --green: #70c590;
     --green-bg: rgba(34, 197, 94, 0.12);
-    --red: #ef4444;
+    --red: #f08080;
     --red-bg: rgba(239, 68, 68, 0.12);
-    --gold: #f59e0b;
+    --gold: #e6b86b;
     --gold-bg: rgba(245, 158, 11, 0.12);
-    --border: rgba(255,255,255,0.06);
-    --border-active: rgba(59, 130, 246, 0.4);
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --border: rgba(224, 235, 228, 0.11);
+    --border-active: rgba(111, 169, 158, 0.72);
+    --focus: #f0c77b;
+    --radius: 10px;
+    --radius-sm: 7px;
+    --shadow: 0 14px 42px rgba(0,0,0,0.28);
+    --content-reading: 72ch;
+    --content-wide: 1080px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2634,6 +2638,46 @@ const STYLES = `
     font-family: 'DM Sans', sans-serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  button,
+  input,
+  textarea,
+  select { font: inherit; }
+
+  button { touch-action: manipulation; }
+
+  .skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--text);
+    color: var(--bg);
+    transform: translateY(-160%);
+    transition: transform 0.16s ease-out;
+  }
+
+  .skip-link:focus { transform: translateY(0); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  :where(button, a, input, textarea, select, summary):focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
   }
 
   .icon { width: 28px; height: 28px; }
@@ -2646,37 +2690,43 @@ const STYLES = `
 
   /* ─── HOME SCREEN ─── */
   .home {
-    max-width: 720px;
+    max-width: var(--content-wide);
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: clamp(28px, 5vw, 64px) 24px 80px;
   }
 
   .home-header {
-    text-align: center;
-    margin-bottom: 56px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 18px;
+    text-align: left;
+    margin-bottom: clamp(28px, 4vw, 46px);
   }
 
   .home-logo {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--accent), #8b5cf6);
-    border-radius: 18px;
+    grid-row: 1 / span 2;
+    width: 52px;
+    height: 52px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border-active);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 24px;
-    box-shadow: 0 8px 32px rgba(59,130,246,0.25);
+    margin: 0;
+    box-shadow: none;
   }
 
-  .home-logo .icon { color: white; width: 32px; height: 32px; }
+  .home-logo .icon { color: #cce7e0; width: 28px; height: 28px; }
 
   .home-title {
     font-family: 'Instrument Serif', serif;
-    font-size: 42px;
+    font-size: clamp(34px, 5vw, 46px);
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1.1;
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
 
   .home-subtitle {
@@ -2689,12 +2739,14 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin: 2px auto 14px;
-    padding: 8px 12px;
-    border: 1px solid rgba(59,130,246,0.28);
+    grid-column: 2 / -1;
+    justify-self: start;
+    margin: 0;
+    padding: 5px 0;
+    border: 0;
     border-radius: var(--radius-sm);
-    background: rgba(59,130,246,0.1);
-    color: #bfdbfe;
+    background: transparent;
+    color: var(--text-dim);
     font-size: 13px;
     line-height: 1.4;
     font-family: inherit;
@@ -2702,7 +2754,7 @@ const STYLES = `
   }
 
   .home-update-note strong {
-    color: #dbeafe;
+    color: var(--accent);
     font-weight: 700;
   }
 
@@ -2743,10 +2795,12 @@ const STYLES = `
 
   .profile-bar {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     gap: 10px;
-    margin-top: 18px;
+    margin-top: 0;
+    grid-column: 3;
+    grid-row: 1;
     color: var(--text-dim);
     font-size: 13px;
   }
@@ -2985,18 +3039,23 @@ const STYLES = `
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
   }
 
   .card {
+    width: 100%;
+    min-height: 176px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 28px 24px;
+    padding: 22px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
     position: relative;
     overflow: hidden;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
   }
 
   .card::before {
@@ -3004,7 +3063,7 @@ const STYLES = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    background: var(--accent);
     opacity: 0;
     transition: opacity 0.25s;
   }
@@ -3012,14 +3071,14 @@ const STYLES = `
   .card:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-active);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 26px rgba(0,0,0,0.2);
   }
 
   .card:hover::before { opacity: 1; }
 
   .card.full-width {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .card.disabled {
@@ -3029,9 +3088,9 @@ const STYLES = `
   }
 
   .card-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3039,8 +3098,8 @@ const STYLES = `
     color: white;
   }
 
-  .card-icon-lg { width: 72px; height: 72px; border-radius: 18px; margin-bottom: 20px; }
-  .card-icon-lg .icon { width: 36px; height: 36px; }
+  .card-icon-lg { width: 42px; height: 42px; border-radius: 10px; margin-bottom: 18px; }
+  .card-icon-lg .icon { width: 22px; height: 22px; }
 
   .card-icon.blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
   .card-icon.purple { background: rgba(139,92,246,0.15); color: #a78bfa; }
@@ -3050,15 +3109,43 @@ const STYLES = `
   .card-icon.cyan { background: rgba(6,182,212,0.15); color: #22d3ee; }
 
   .card-title {
+    display: block;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 18px;
     margin-bottom: 6px;
   }
 
   .card-desc {
+    display: block;
     color: var(--text-dim);
     font-size: 13px;
     line-height: 1.5;
+  }
+
+  .card-status {
+    display: block;
+    margin-top: 16px;
+    color: #c8d7d1;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .home-section-heading {
+    grid-column: 1 / -1;
+    margin: 0 0 8px;
+  }
+
+  .home-section-heading h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 27px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .home-section-heading p {
+    margin-top: 3px;
+    color: var(--text-dim);
+    font-size: 13px;
   }
 
   .home-sharing-note {
@@ -3264,17 +3351,21 @@ const STYLES = `
   .game-hud {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 0 0 18px;
+    gap: 0;
+    margin: 12px 0 16px;
+    border-block: 1px solid var(--border);
   }
 
   .hud-stat {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    padding: 8px 10px;
     text-align: center;
   }
+
+  .hud-stat:last-child { border-right: 0; }
 
   .hud-value {
     display: block;
@@ -3456,7 +3547,7 @@ const STYLES = `
 
   /* ─── MCQ TEST ─── */
   .test-container {
-    max-width: 720px;
+    max-width: 860px;
     margin: 0 auto;
     padding: 24px 24px 120px;
   }
@@ -3465,7 +3556,7 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 22px;
     gap: 16px;
   }
 
@@ -3717,10 +3808,12 @@ const STYLES = `
 
   .question-stem {
     font-family: 'DM Sans', Arial, sans-serif;
-    font-size: 17px;
-    line-height: 1.65;
-    margin-bottom: 28px;
-    font-weight: 400;
+    max-width: var(--content-reading);
+    font-size: clamp(18px, 2.2vw, 21px);
+    line-height: 1.58;
+    margin-bottom: 24px;
+    font-weight: 560;
+    text-wrap: pretty;
   }
 
   .options-list {
@@ -3805,12 +3898,13 @@ const STYLES = `
   .explanation-box {
     margin-top: 20px;
     padding: 18px 20px;
-    background: var(--bg-surface);
+    max-width: var(--content-reading);
+    background: #14201d;
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--accent);
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.72;
+    color: #c1cdc7;
     animation: fadeIn 0.3s ease;
   }
 
@@ -4208,10 +4302,10 @@ const STYLES = `
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(17, 24, 39, 0.95);
+    background: rgba(12, 18, 18, 0.96);
     backdrop-filter: blur(12px);
     border-top: 1px solid var(--border);
-    padding: 14px 24px;
+    padding: 12px max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom));
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -4228,7 +4322,7 @@ const STYLES = `
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
     border: 1px solid var(--border);
     background: var(--bg-card);
     color: var(--text);
@@ -4240,10 +4334,10 @@ const STYLES = `
   .nav-btn.primary {
     background: var(--accent);
     border-color: var(--accent);
-    color: white;
+    color: #08110f;
   }
 
-  .nav-btn.primary:hover { background: #2563eb; }
+  .nav-btn.primary:hover { background: #8abbb2; }
 
   .nav-btn.danger {
     background: rgba(239,68,68,0.15);
@@ -4987,7 +5081,11 @@ const STYLES = `
     border-radius: var(--radius-sm);
     margin-bottom: 6px;
     cursor: pointer;
-    transition: all 0.2s;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
     user-select: none;
   }
   .gravity-bar:hover { background: var(--bg-card-hover); }
@@ -5030,7 +5128,11 @@ const STYLES = `
     border-radius: var(--radius-sm);
     margin-bottom: 4px;
     cursor: pointer;
-    transition: all 0.2s;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
     user-select: none;
   }
   .topic-row:hover { background: var(--bg-card-hover); }
@@ -5041,11 +5143,13 @@ const STYLES = `
     min-width: 20px;
   }
   .topic-row .topic-title {
+    display: block;
     font-size: 14px;
     color: var(--text);
     flex: 1;
   }
   .topic-row .topic-desc {
+    display: block;
     font-size: 11px;
     color: var(--text-dim);
   }
@@ -5080,7 +5184,11 @@ const STYLES = `
     border-radius: var(--radius-sm);
     margin-bottom: 3px;
     cursor: pointer;
-    transition: all 0.2s;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
   }
   .subtopic-row:hover { background: var(--bg-card); }
   .subtopic-row .sub-letter {
@@ -5160,13 +5268,17 @@ const STYLES = `
   }
 
   .answer-box {
+    width: 100%;
     min-height: 180px;
     background: var(--bg-surface);
     border: 2px dashed var(--border);
     border-radius: var(--radius);
     padding: 24px;
     cursor: pointer;
-    transition: all 0.3s;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -5192,6 +5304,42 @@ const STYLES = `
     white-space: pre-wrap;
   }
 
+  .oral-self-assessment {
+    margin: 4px 0 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .oral-self-assessment > span {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .oral-self-assessment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .oral-self-assessment-actions button {
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .oral-self-assessment-actions button[aria-pressed="true"] {
+    border-color: var(--border-active);
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
   .oral-source {
     font-size: 12px;
     color: var(--text-dim);
@@ -5205,7 +5353,7 @@ const STYLES = `
     min-height: 190px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     padding: 28px;
     border: 1px dashed rgba(99,102,241,0.5);
     border-radius: var(--radius);
@@ -5235,7 +5383,8 @@ const STYLES = `
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    font-size: 15px;
+    min-height: 56px;
+    font-size: 15.5px;
     font-weight: 700;
   }
 
@@ -5444,7 +5593,7 @@ const STYLES = `
     position: sticky;
     top: 8px;
     z-index: 4;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     padding: 8px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -5690,7 +5839,7 @@ const STYLES = `
     font-family: inherit;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
   }
 
   .sos-option-card {
@@ -5889,6 +6038,19 @@ const STYLES = `
     gap: 12px;
   }
 
+  .pinakakia-results {
+    max-height: min(68vh, 680px);
+    overflow-y: auto;
+    padding-right: 5px;
+    overscroll-behavior: contain;
+  }
+
+  .pinakakia-search-summary {
+    margin: -12px 0 12px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
   .pinakakia-section-title {
     margin: 0 0 18px;
     font-size: 25px;
@@ -5932,8 +6094,8 @@ const STYLES = `
 
   .pinakakia-row-title {
     display: block;
-    font-size: 21px;
-    font-weight: 800;
+    font-size: 16px;
+    font-weight: 700;
     margin-bottom: 5px;
   }
 
@@ -5943,7 +6105,7 @@ const STYLES = `
     flex-wrap: wrap;
     gap: 8px;
     color: var(--text-dim);
-    font-size: 16px;
+    font-size: 13px;
     line-height: 1.4;
   }
 
@@ -6146,18 +6308,38 @@ const STYLES = `
 
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
+    .home { padding: 24px 16px 64px; }
+    .home-header {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 8px 14px;
+      margin-bottom: 28px;
+    }
+    .home-logo { grid-row: 1; width: 44px; height: 44px; }
+    .home-title { align-self: center; }
+    .home-update-note { grid-column: 1 / -1; }
+    .profile-bar { grid-column: 1 / -1; grid-row: auto; justify-content: flex-start; }
+    .card { min-height: 0; padding: 18px; }
+    .card-icon-lg { float: left; margin: 0 14px 14px 0; }
     .home-title { font-size: 32px; }
     .profile-form { flex-direction: column; }
-    .mcq-memory { grid-template-columns: 1fr; }
-    .game-hud { grid-template-columns: repeat(2, 1fr); }
+    .mcq-memory { grid-template-columns: repeat(3, 1fr); }
+    .game-hud { grid-template-columns: repeat(4, 1fr); }
+    .hud-stat { padding-inline: 4px; }
+    .hud-value { font-size: 16px; }
+    .hud-label { font-size: 8px; }
+    .test-container { padding: 16px 14px 112px; }
+    .test-header { gap: 8px; }
+    .progress-text { font-size: 11px; }
+    .question-num { align-items: flex-start; }
+    .mcq-feedback-controls { width: 100%; margin-top: 2px; margin-left: 0; }
     .written-result-grid,
     .written-breakdown-grid { grid-template-columns: 1fr; }
     .topic-performance-row { grid-template-columns: 1fr; }
     .topic-performance-stats { grid-template-columns: 1fr; }
     .breakdown-row { flex-direction: column; gap: 4px; }
     .breakdown-row strong { white-space: normal; }
-    .nav-bar { gap: 6px; padding: 12px 16px; }
-    .nav-btn { padding: 8px 12px; font-size: 16px; }
+    .nav-bar { gap: 4px; padding: 10px 8px max(10px, env(safe-area-inset-bottom)); }
+    .nav-btn { min-height: 44px; padding: 8px 9px; font-size: 12px; gap: 5px; }
     .sprint-auto-toggle { right: 12px; bottom: 68px; }
     .vignette-row { grid-template-columns: 1fr; }
     .vignette-complete-toggle { min-height: 44px; }
@@ -6167,6 +6349,14 @@ const STYLES = `
     .pinakakia-viewer-nav { grid-template-columns: 1fr; }
     .pinakakia-content-text { font-size: 19px; }
     .oral-viewer { padding: 16px; }
+    .oral-container,
+    .oral-choice,
+    .oral-simulator,
+    .pinakakia-screen { padding-inline: 14px; }
+    .gravity-bar { align-items: flex-start; flex-wrap: wrap; padding: 14px; }
+    .gravity-bar .bar-tagline { width: 100%; order: 4; padding-left: 40px; }
+    .topic-list { padding-left: 10px; margin-left: 4px; }
+    .topic-row { padding: 12px; }
     .oral-answer-toolbar { align-items: stretch; flex-direction: column; top: 4px; }
     .oral-answer-modes { display: grid; grid-template-columns: 1fr 1fr; }
     .oral-answer-modes button { min-height: 40px; }
@@ -6185,6 +6375,15 @@ const STYLES = `
     .oral-quick-answer > p,
     .oral-model-answer p,
     .oral-reference-section p { font-size: 14px; line-height: 1.72; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 `;
 
@@ -6284,32 +6483,37 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
     <>
       <div className="profile-screen fade-in">
         <div className="profile-panel">
-        <h1>Choose Profile</h1>
-        <p>Create or select a study profile. When online sync is configured, progress follows this username across browsers.</p>
-        <div className={`sync-status ${syncStatus}`}>
+        <h1>Επιλογή προφίλ</h1>
+        <p>Δημιούργησε ή επίλεξε προφίλ μελέτης. Όταν είναι ενεργός ο συγχρονισμός, η πρόοδος ακολουθεί το όνομα χρήστη.</p>
+        <div className={`sync-status ${syncStatus}`} role="status">
           {syncMessage}
         </div>
 
         <form className="profile-form" onSubmit={handleSubmit}>
+          <label className="sr-only" htmlFor="profile-username">Όνομα προφίλ</label>
           <input
+            id="profile-username"
+            name="profile-username"
             className="profile-input"
             value={username}
             onChange={event => {
               setUsername(event.target.value);
               setError("");
             }}
-            placeholder="Username"
+            placeholder="Όνομα προφίλ"
+            autoComplete="off"
+            spellCheck={false}
             autoFocus
           />
           <button className="results-btn primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Continue"}
+            {isSubmitting ? "Αποθήκευση…" : "Συνέχεια"}
           </button>
         </form>
-        {error && <div className="profile-error">{error}</div>}
+        {error && <div className="profile-error" role="alert">{error}</div>}
 
         {profiles.length > 0 && (
           <div className="profile-list">
-            <div className="profile-list-title">Existing profiles</div>
+            <div className="profile-list-title">Υπάρχοντα προφίλ</div>
             {profiles.map(profile => {
               const summary = summarizeMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
               const oralSummary = summarizeOralProgress(profile.oralProgress || createEmptyOralProgress());
@@ -6369,7 +6573,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                 Delete
               </button>
             </div>
-            {adminError && <div className="admin-pin-error">{adminError}</div>}
+            {adminError && <div className="admin-pin-error" role="alert">{adminError}</div>}
             <div className="modal-actions">
               <button className="results-btn" type="button" onClick={closeAdminUnlock} disabled={isVerifyingAdmin}>Cancel</button>
               <button className="results-btn primary" type="submit" disabled={!adminPassword || isVerifyingAdmin}>
@@ -6383,17 +6587,34 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
   );
 }
 
-function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage }) {
+function StudyModeCard({ section, onOpen }) {
+  return (
+    <button
+      type="button"
+      className={`card ${!section.active ? 'disabled' : ''}`}
+      onClick={() => onOpen(section.id)}
+      disabled={!section.active}
+    >
+      <span className={`card-icon ${section.iconClass} card-icon-lg`} aria-hidden="true">{section.icon}</span>
+      <span className="card-title">{section.title}</span>
+      <span className="card-desc">{section.desc}</span>
+      {section.status && <span className="card-status">{section.status}</span>}
+      {!section.active && <span className="card-badge">Σύντομα</span>}
+    </button>
+  );
+}
+
+function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Εξάσκηση με ερωτήσεις πολλαπλής επιλογής και αποθηκευμένη πρόοδο', active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Προηγούμενα θέματα και προσομοίωση προφορικής εξέτασης', active: true },
-    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, πίνακες, κρίσιμα θέματα και διαφοροδιάγνωση', active: true },
-    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', desc: 'High-yield boxes από Oxford και Crash Course', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Στοχευμένη εξάσκηση, προσομοίωση και επανάληψη λαθών.', status: `${mcqProgressSummary.review} για επανάληψη · ${mcqProgressSummary.mastered} κατακτημένες`, active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Ενεργή ανάκληση με προηγούμενα θέματα και προσομοίωση εξέτασης.', status: `${oralProgressSummary.mastered}/${oralProgressSummary.total} κατακτημένες`, active: true },
+    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, κρίσιμα θέματα και διαφοροδιάγνωση για γρήγορη επανάληψη.', status: 'Γρήγορη αναφορά', active: true },
+    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', desc: 'Αναζήτηση και ανάκληση high-yield υλικού από Oxford και Crash Course.', status: 'Αναζήτηση σε πηγές', active: true },
   ];
 
   useEffect(() => {
@@ -6466,18 +6687,11 @@ function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateM
         </div>
       </div>
       <div className="grid">
-        {sections.map(s => (
-          <div
-            key={s.id}
-            className={`card full-width ${!s.active ? 'disabled' : ''}`}
-            onClick={() => s.active && onNavigate(s.id)}
-          >
-            <div className={`card-icon ${s.iconClass} card-icon-lg`}>{s.icon}</div>
-            <div className="card-title" style={{fontSize:19}}>{s.title}</div>
-            <div className="card-desc">{s.desc}</div>
-            {!s.active && <span className="card-badge">Soon</span>}
-          </div>
-        ))}
+        <div className="home-section-heading">
+          <h2>Τι θα μελετήσεις τώρα;</h2>
+          <p>Μπες γρήγορα στη λειτουργία που ταιριάζει στον στόχο της συνεδρίας.</p>
+        </div>
+        {sections.map(section => <StudyModeCard key={section.id} section={section} onOpen={onNavigate} />)}
       </div>
     </div>
   );
@@ -7495,6 +7709,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
   const startedAtRef = useRef(Date.now());
   const questionViewEffectKeyRef = useRef(null);
+  const explanationRef = useRef(null);
   const [questions, setQuestions] = useState(() => initialSessionQuestionsRef.current);
   const [optionOrders, setOptionOrders] = useState(() => createOptionOrders(
     initialSessionQuestionsRef.current,
@@ -7642,6 +7857,18 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     }
     onProgressChange(prev => markQuestionSeen(prev, q.id));
   }, [q?.id, mode, writtenDraftChoice, buildCurrentWrittenDraft, currentIdx, onProgressChange]);
+
+  useEffect(() => {
+    if (!isLocked || mode === "written") return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      explanationRef.current?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "nearest",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [isLocked, mode, q?.id]);
 
   const goToNextQuestion = useCallback(() => {
     setCurrentIdx(nextIdx);
@@ -8338,19 +8565,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="game-hud">
           <div className="hud-stat">
             <span className="hud-value">{mode === "sprint" ? currentIdx + 1 : sessionStats.currentStreak}</span>
-            <span className="hud-label">{mode === "sprint" ? "Current" : "Streak"}</span>
+            <span className="hud-label">{mode === "sprint" ? "Τρέχουσα" : "Σερί"}</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{sessionStats.correct}</span>
-            <span className="hud-label">Correct</span>
+            <span className="hud-label">Σωστές</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{sessionStats.incorrect}</span>
-            <span className="hud-label">Incorrect</span>
+            <span className="hud-label">Λάθη</span>
           </div>
           <div className="hud-stat">
             <span className="hud-value">{sessionStats.total}</span>
-            <span className="hud-label">Answered</span>
+            <span className="hud-label">Απαντήσεις</span>
           </div>
         </div>
       )}
@@ -8476,7 +8703,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         </div>
       </div>
       {feedbackStatus && (
-        <div className={`mcq-feedback-message ${feedbackStatus.type}`}>
+        <div className={`mcq-feedback-message ${feedbackStatus.type}`} role="status" aria-live="polite">
           {feedbackStatus.message}
         </div>
       )}
@@ -8485,7 +8712,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           {writtenSubmitError}
         </div>
       )}
-      <div className="question-stem">{getMcqStem(q)}</div>
+      <div className="question-stem" id="mcq-question-stem">{getMcqStem(q)}</div>
 
       <div className="options-list">
         {displayedOptions.map((option, i) => {
@@ -8498,7 +8725,13 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             else if (originalIndex === selected && originalIndex !== q.correct) cls += ' incorrect';
           } else if (originalIndex === selected) cls += ' selected';
           return (
-            <button key={originalIndex} className={cls} onClick={() => selectOption(originalIndex)}>
+            <button
+              key={originalIndex}
+              className={cls}
+              onClick={() => selectOption(originalIndex)}
+              aria-pressed={originalIndex === selected}
+              aria-describedby="mcq-question-stem"
+            >
               <span className="option-letter">
                 {isLocked && originalIndex === q.correct ? <Icons.Check /> :
                  isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : letter}
@@ -8510,8 +8743,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       </div>
 
       {isLocked && mode !== "written" && (
-        <div className="explanation-box">
-          <strong>Explanation</strong>{q.explanation}
+        <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
+          <strong>Επεξήγηση</strong>{q.explanation}
           {displayedBreakdown && (
             <div className={`point-breakdown ${pointTier}`}>
               <span className="point-pill">Correct +{displayedBreakdown.base}</span>
@@ -8527,11 +8760,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       {mode === "written" ? (
         <div className="nav-bar">
-          <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0}>
-            <Icons.ChevronLeft />
+          <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+            <Icons.ChevronLeft /> Προηγούμενη
           </button>
-          <button className="nav-btn" onClick={() => goToWrittenIndex(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ}>
-            <Icons.ChevronRight />
+          <button className="nav-btn" onClick={() => goToWrittenIndex(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ} aria-label="Επόμενη ερώτηση">
+            Επόμενη <Icons.ChevronRight />
           </button>
           <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
             Submit exam
@@ -8539,20 +8772,21 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         </div>
       ) : (
         <div className="nav-bar">
-          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0}>
-            <Icons.ChevronLeft />
+          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+            <Icons.ChevronLeft /> Προηγούμενη
           </button>
           {!isLocked && (
             <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-              <Icons.Lock /> Lock
+              <Icons.Lock /> Καταχώριση
             </button>
           )}
           <button
             className="nav-btn"
             onClick={goToNextQuestion}
             disabled={nextIdx < 0 || nextIdx >= totalQ}
+            aria-label="Επόμενη ερώτηση"
           >
-            <Icons.ChevronRight />
+            Επόμενη <Icons.ChevronRight />
           </button>
         </div>
       )}
@@ -8667,9 +8901,11 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
 
       {oralData.map(gravity => (
         <div key={gravity.id}>
-          <div
+          <button
+            type="button"
             className="gravity-bar"
             style={{'--bar-color': gravity.color}}
+            aria-expanded={gravity.isTable ? undefined : Boolean(expandedGravity[gravity.id])}
             onClick={() => {
               if (gravity.isTable) {
                 onNavigateToTable(gravity.rows);
@@ -8690,15 +8926,17 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
             {gravity.isTable && (
               <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
             )}
-          </div>
+          </button>
 
           {expandedGravity[gravity.id] && gravity.topics && (
             <div className="topic-list" style={{'--bar-color': gravity.color}}>
               {gravity.topics.map(topic => (
                 <div key={topic.id}>
-                  <div
+                  <button
+                    type="button"
                     className="topic-row"
                     style={{'--bar-color': gravity.color}}
+                    aria-expanded={topic.subtopics ? Boolean(expandedTopic[topic.id]) : undefined}
                     onClick={() => {
                       if (topic.subtopics) {
                         toggleTopic(topic.id);
@@ -8708,10 +8946,10 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                     }}
                   >
                     <span className="topic-letter">{topic.letter}.</span>
-                    <div style={{flex:1}}>
-                      <div className="topic-title">{topic.title}</div>
-                      {topic.description && <div className="topic-desc">{topic.description}</div>}
-                    </div>
+                    <span style={{flex:1}}>
+                      <span className="topic-title">{topic.title}</span>
+                      {topic.description && <span className="topic-desc">{topic.description}</span>}
+                    </span>
                     {renderProgressPill(getOralQuestionsFromTopic(topic))}
                     {topic.subtopics ? (
                       <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}>
@@ -8720,12 +8958,13 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                     ) : (
                       <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
                     )}
-                  </div>
+                  </button>
 
                   {topic.subtopics && expandedTopic[topic.id] && (
                     <div className="subtopic-list" style={{'--bar-color': gravity.color}}>
                       {topic.subtopics.map(sub => (
-                        <div
+                        <button
+                          type="button"
                           key={sub.id}
                           className="subtopic-row"
                           style={{'--bar-color': gravity.color}}
@@ -8735,7 +8974,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                           <span className="sub-title">{sub.title}</span>
                           {renderProgressPill(sub.questions)}
                           <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -8921,9 +9160,9 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
         <h2>{source.title}</h2>
       </header>
 
-      <main className="crucial-viewer-content">
+      <section className="crucial-viewer-content">
         <CrucialQuestionContent source={source} />
-      </main>
+      </section>
 
       <div style={{ height: 80 }} />
       <div className="nav-bar">
@@ -9079,12 +9318,15 @@ function OralExamSimulator({ onBack, onHome }) {
   const [examinerIndex, setExaminerIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [selfAssessments, setSelfAssessments] = useState({});
 
   const currentExaminer = session[examinerIndex];
   const currentQuestions = currentExaminer
     ? [currentExaminer.anchor, ...currentExaminer.followUps]
     : [];
   const currentQuestion = currentQuestions[questionIndex];
+  const currentAssessmentKey = currentQuestion ? `${currentQuestion.id}-${examinerIndex}-${questionIndex}` : "";
+  const currentAssessment = selfAssessments[currentAssessmentKey] || "";
   const askedQuestions = session.flatMap(item => [item.anchor, ...item.followUps]);
   const isAnchorQuestion = currentQuestion?.id === currentExaminer?.anchor?.id;
   const isLastQuestionForExaminer = questionIndex >= currentQuestions.length - 1;
@@ -9097,6 +9339,7 @@ function OralExamSimulator({ onBack, onHome }) {
     setExaminerIndex(0);
     setQuestionIndex(0);
     setShowAnswer(false);
+    setSelfAssessments({});
     setPhase("session");
   };
 
@@ -9225,9 +9468,12 @@ function OralExamSimulator({ onBack, onHome }) {
 
       <div className="oral-q-text">{getOralExamQuestionText(currentQuestion)}</div>
 
-      <div
+      <button
+        type="button"
         className={`answer-box ${showAnswer ? 'revealed' : ''}`}
         onClick={() => setShowAnswer(!showAnswer)}
+        aria-expanded={showAnswer}
+        aria-label={showAnswer ? "Απόκρυψη ενδεικτικής απάντησης" : "Εμφάνιση ενδεικτικής απάντησης"}
       >
         {!showAnswer ? (
           <div className="answer-placeholder">
@@ -9237,7 +9483,29 @@ function OralExamSimulator({ onBack, onHome }) {
         ) : (
           <div className="answer-content">{getOralExamQuestionAnswer(currentQuestion)}</div>
         )}
-      </div>
+      </button>
+
+      {showAnswer && (
+        <div className="oral-self-assessment">
+          <span id="oral-self-assessment-label">Πώς πήγε η ανάκληση;</span>
+          <div className="oral-self-assessment-actions" role="group" aria-labelledby="oral-self-assessment-label">
+            {[
+              ["review", "Χρειάζεται επανάληψη"],
+              ["partial", "Μερικώς"],
+              ["ready", "Επαρκώς"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={currentAssessment === value}
+                onClick={() => setSelfAssessments(previous => ({ ...previous, [currentAssessmentKey]: value }))}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ height: 80 }} />
 
@@ -9394,6 +9662,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = getBoxesForSource(nextSourceKey);
     const index = boxes.findIndex(item => item.id === box.id);
     openViewer(nextSourceKey, boxes, index, { backScreen: screen, backChapter: selectedChapter });
+    setQuery("");
   };
 
   const goViewerPrev = () => {
@@ -9437,7 +9706,9 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     setRevealed(false);
   };
 
-  const renderShell = (children) => (
+  const renderShell = (children) => {
+    const hasQuery = Boolean(normalizeGreekSearch(query));
+    return (
     <div className="pinakakia-screen fade-in">
       <div className="pinakakia-topbar">
         <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
@@ -9448,14 +9719,24 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
         </button>
       </div>
       <div className="pinakakia-search-wrap">
+        <label className="sr-only" htmlFor="pinakakia-search">Αναζήτηση σε πινακάκια</label>
         <input
+          id="pinakakia-search"
+          name="pinakakia-search"
+          type="search"
           className="pinakakia-search"
           value={query}
           onChange={event => setQuery(event.target.value)}
-          placeholder="Αναζήτηση σε πινακάκια..."
+          placeholder="Αναζήτηση σε πινακάκια…"
+          autoComplete="off"
         />
       </div>
-      {normalizeGreekSearch(query) && (
+      {hasQuery && (
+        <div className="pinakakia-search-summary" role="status" aria-live="polite">
+          {searchResults.length ? `${searchResults.length} αποτελέσματα` : "Χωρίς αποτελέσματα"}
+        </div>
+      )}
+      {hasQuery && (
         <div className="pinakakia-results" style={{ marginBottom: 28 }}>
           {searchResults.length ? searchResults.map(box => (
             <button key={`${box.sourceKey}-${box.id}`} className="pinakakia-row" onClick={() => openSearchResult(box)}>
@@ -9471,9 +9752,10 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           )}
         </div>
       )}
-      {children}
+      {!hasQuery && children}
     </div>
-  );
+    );
+  };
 
   if (screen === "sources") {
     return renderShell(
@@ -9874,6 +10156,10 @@ export default function App() {
   const screen = route.screen;
   const testMode = route.testMode || null;
   const selectedMcqTopic = route.mcqTopic || null;
+
+  useEffect(() => {
+    document.getElementById("main-content")?.focus({ preventScroll: true });
+  }, [location.pathname]);
   const setScreen = useCallback((nextScreen, options) => {
     navigate(pathForScreen(nextScreen), options);
   }, [navigate]);
@@ -10345,6 +10631,8 @@ export default function App() {
     <>
       <style>{STYLES}</style>
       <div className="app">
+        <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
+        <main id="main-content" tabIndex={-1}>
         {!activeProfile && (
           <ProfileScreen
             profileStore={profileStore}
@@ -10363,6 +10651,8 @@ export default function App() {
             updateMessage={updateMessage}
             updateMessageStatus={updateMessageStatus}
             onSaveUpdateMessage={handleSaveUpdateMessage}
+            mcqProgressSummary={mcqProgressSummary}
+            oralProgressSummary={oralProgressSummary}
           />
         )}
         {activeProfile && screen === 'pinakakia' && (
@@ -10572,6 +10862,7 @@ export default function App() {
             </div>
           </div>
         )}
+        </main>
       </div>
     </>
   );
