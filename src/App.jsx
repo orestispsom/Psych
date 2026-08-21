@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
@@ -18,6 +19,12 @@ import {
   selectAdaptiveQuestionOrder,
   selectWrittenExamByTopic,
 } from "./mcqSelection.mjs";
+import {
+  parseAppPath,
+  pathForMcqMode,
+  pathForScreen,
+  pathForTableScreen,
+} from "./appRoutes.js";
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -9270,13 +9277,31 @@ function OralTable({ rows, onBack, onHome }) {
   );
 }
 
-function PinakakiaModule({ onBack, onHome }) {
-  const [screen, setScreen] = useState("sources");
+function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate }) {
+  const [screen, setLocalScreen] = useState(routeScreen);
   const [sourceKey, setSourceKey] = useState(null);
-  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(routeChapter);
   const [query, setQuery] = useState("");
   const [viewer, setViewer] = useState(null);
   const [revealed, setRevealed] = useState(false);
+
+  const setScreen = useCallback((nextScreen, nextChapter = selectedChapter) => {
+    setLocalScreen(nextScreen);
+    onNavigate(nextScreen, nextChapter);
+  }, [onNavigate, selectedChapter]);
+
+  useEffect(() => {
+    setLocalScreen(routeScreen);
+    if (routeChapter !== null && routeChapter !== undefined) {
+      setSelectedChapter(routeChapter);
+    }
+  }, [routeChapter, routeScreen]);
+
+  useEffect(() => {
+    if (routeScreen === "viewer" && !viewer) {
+      onNavigate("sources", null, { replace: true });
+    }
+  }, [onNavigate, routeScreen, viewer]);
 
   const allBoxes = useMemo(() => ([
     ...getBoxesForSource("oxford").map(box => ({ ...box, sourceKey: "oxford" })),
@@ -9495,7 +9520,7 @@ function PinakakiaModule({ onBack, onHome }) {
               className="pinakakia-row"
               onClick={() => {
                 setSelectedChapter(chapter);
-                setScreen("oxford-boxes");
+                setScreen("oxford-boxes", chapter);
               }}
             >
               <span className="pinakakia-row-title">Κεφάλαιο {chapter} — {boxes.length} πινακάκια</span>
@@ -9843,9 +9868,23 @@ function PlaceholderPage({ title, description, icon, onBack, onHome }) {
 // ═══════════════════════════════════════════════════════════════
 
 export default function App() {
-  const [screen, setScreen] = useState('home');
-  const [testMode, setTestMode] = useState(null);
-  const [selectedMcqTopic, setSelectedMcqTopic] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const route = useMemo(() => parseAppPath(location.pathname), [location.pathname]);
+  const screen = route.screen;
+  const testMode = route.testMode || null;
+  const selectedMcqTopic = route.mcqTopic || null;
+  const setScreen = useCallback((nextScreen, options) => {
+    navigate(pathForScreen(nextScreen), options);
+  }, [navigate]);
+  const setTestMode = useCallback((nextMode, options) => {
+    if (nextMode || screen === "mcq") navigate(pathForMcqMode(nextMode), options);
+  }, [navigate, screen]);
+  const setSelectedMcqTopic = useCallback((nextTopic, options) => {
+    if (nextTopic || (screen === "mcq" && testMode === "category")) {
+      navigate(pathForMcqMode("category", nextTopic), options);
+    }
+  }, [navigate, screen, testMode]);
   const [oralViewerData, setOralViewerData] = useState(null);
   const [oralTableData, setOralTableData] = useState(null);
   const [crucialQuestionViewerData, setCrucialQuestionViewerData] = useState(null);
@@ -9885,6 +9924,44 @@ export default function App() {
     if (syncStatus === "offline") return "Online sync is unavailable. Changes are cached locally.";
     return "Online profiles enabled";
   }, [syncStatus]);
+
+  useEffect(() => {
+    if (!route.valid) navigate("/", { replace: true });
+  }, [navigate, route.valid]);
+
+  useEffect(() => {
+    if (selectedMcqTopic && !MCQ_TOPIC_CATEGORIES.includes(selectedMcqTopic)) {
+      navigate("/mcq/category", { replace: true });
+    }
+  }, [navigate, selectedMcqTopic]);
+
+  useEffect(() => {
+    if (!activeProfile) return;
+    if ((screen === "oral-crucial-index" || screen === "oral-crucial-viewer") && !hasAdminAccess) {
+      navigate("/oral", { replace: true });
+      return;
+    }
+    if (screen === "oral-crucial-viewer" && !crucialQuestionViewerData) {
+      navigate("/oral/crucial", { replace: true });
+      return;
+    }
+    if (screen === "oral-viewer" && !oralViewerData) {
+      navigate("/oral/past", { replace: true });
+      return;
+    }
+    if (screen === "oral-table" && !oralTableData) {
+      navigate("/oral/past", { replace: true });
+      return;
+    }
+  }, [
+    activeProfile,
+    crucialQuestionViewerData,
+    hasAdminAccess,
+    navigate,
+    oralTableData,
+    oralViewerData,
+    screen,
+  ]);
 
   useEffect(() => {
     saveProfileStore(profileStore);
@@ -10045,9 +10122,6 @@ export default function App() {
       setAdminUnlocked(false);
     }
 
-    setScreen('home');
-    setTestMode(null);
-    setSelectedMcqTopic(null);
     setProfileStore(prev => ({
       ...prev,
       activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
@@ -10076,9 +10150,6 @@ export default function App() {
       hasLegacyProgress ? legacyProgress : createEmptyMcqProgress()
     );
 
-    setScreen('home');
-    setTestMode(null);
-    setSelectedMcqTopic(null);
     setProfileStore(prev => ({
       ...prev,
       activeProfileId: profileId,
@@ -10262,15 +10333,13 @@ export default function App() {
   const switchProfile = useCallback(() => {
     setAdminUnlocked(false);
     setScreen('home');
-    setTestMode(null);
-    setSelectedMcqTopic(null);
     setProfileStore(prev => ({ ...prev, activeProfileId: null }));
-  }, []);
+  }, [setScreen]);
 
   const startMcqMode = useCallback((mode) => {
     if (mode !== "category") setSelectedMcqTopic(null);
     setTestMode(mode);
-  }, []);
+  }, [setSelectedMcqTopic, setTestMode]);
 
   return (
     <>
@@ -10300,6 +10369,12 @@ export default function App() {
           <PinakakiaModule
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
+            routeScreen={route.tableScreen}
+            routeChapter={route.tableChapter}
+            onNavigate={(nextScreen, chapter, options = {}) => navigate(
+              pathForTableScreen(nextScreen, chapter),
+              { ...options, state: nextScreen === "viewer" ? { tableViewer: true } : null }
+            )}
           />
         )}
         {activeProfile && screen === 'mcq' && !testMode && (
