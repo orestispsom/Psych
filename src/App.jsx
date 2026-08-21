@@ -5240,46 +5240,10 @@ const STYLES = `
     line-height: 1.82;
   }
 
-  .oral-answer-source-line {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-
-  .oral-answer-source-line .icon {
-    width: 16px;
-    height: 16px;
-    flex: 0 0 auto;
-    color: var(--accent-light);
-  }
-
   .oral-legacy-source {
     margin: 8px 0 0 24px;
     color: var(--text-muted);
     font-size: 11px;
-  }
-
-  .oral-full-answer-intro {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
-  }
-
-  .oral-full-answer-intro > span {
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 750;
-  }
-
-  .oral-full-answer-intro small {
-    color: var(--text-dim);
-    font-size: 12px;
   }
 
   .oral-source-chapter {
@@ -8870,21 +8834,10 @@ function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered
             <div className="oral-quick-answer">
               <div className="oral-answer-kicker">Συνοπτική εξεταστική απάντηση</div>
               <p>{q.answer}</p>
-              <div className="oral-answer-source-line">
-                <Icons.BookOpen />
-                <span>
-                  Βασισμένο στις 100 Καίριες Ερωτήσεις
-                  {sourceIds.length > 0 && ` · ${sourceIds.join(" + ")}`}
-                </span>
-              </div>
               {q.source && <div className="oral-legacy-source">Συμπληρωματική πηγή: {q.source}</div>}
             </div>
           ) : (
             <div className="oral-full-answer">
-              <div className="oral-full-answer-intro">
-                <span>Πλήρης ανάπτυξη από το βιβλίο</span>
-                <small>Άνοιξε μόνο τα κεφάλαια που χρειάζεσαι για αυτή την ερώτηση.</small>
-              </div>
               {sourceQuestions.map((source, index) => (
                 <OralCrucialQuestionAnswer
                   key={`${q.id}-${source.id}`}
