@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 
-import QUESTIONS from "./data/questions.js";
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
 import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
@@ -20,6 +19,25 @@ import {
   pathForScreen,
   pathForTableScreen,
 } from "./appRoutes.js";
+
+let QUESTIONS = [];
+let questionBankPromise = null;
+
+function loadQuestionBank() {
+  if (!questionBankPromise) {
+    questionBankPromise = import("./data/questions.js")
+      .then(module => {
+        QUESTIONS = module.default;
+        return QUESTIONS;
+      })
+      .catch(error => {
+        questionBankPromise = null;
+        throw error;
+      });
+  }
+
+  return questionBankPromise;
+}
 
 // ═══════════════════════════════════════════════════════════════
 // RANDOM QUESTION SELECTION
@@ -1631,6 +1649,17 @@ function selectWeaknessQuestions(progress, count = WEAKNESS_SESSION_SIZE, qualit
     qualitySignals,
     { jitter: 4 }
   ).slice(0, count);
+}
+
+function summarizeStoredMcqProgress(progress) {
+  const records = Object.values(progress.questions || {});
+  const attempted = records.filter(record => getAttemptsCount(record) > 0).length;
+  const mastered = records.filter(record => isQuestionMastered(record)).length;
+
+  return {
+    mastered,
+    review: Math.max(0, attempted - mastered),
+  };
 }
 
 function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE, qualitySignals = {}) {
@@ -6512,7 +6541,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
           <div className="profile-list">
             <div className="profile-list-title">Υπάρχοντα προφίλ</div>
             {profiles.map(profile => {
-              const summary = summarizeMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
+              const summary = summarizeStoredMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
               const oralSummary = summarizeOralProgress(profile.oralProgress || createEmptyOralProgress());
               return (
                 <button
@@ -10145,6 +10174,20 @@ function StudyModuleLoading({ error, onRetry, onBack, onHome }) {
   );
 }
 
+function QuestionBankLoading({ error, onRetry, onSwitchProfile }) {
+  return (
+    <div className="mcq-select fade-in">
+      <div className="pinakakia-empty" role={error ? "alert" : "status"} aria-live="polite">
+        <p>{error || "Προετοιμασία της τράπεζας ερωτήσεων…"}</p>
+        <div className="modal-actions">
+          {error && <button className="results-btn primary" type="button" onClick={onRetry}>Νέα προσπάθεια</button>}
+          <button className="results-btn" type="button" onClick={onSwitchProfile}>Αλλαγή προφίλ</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PlaceholderPage({ title, description, icon, onBack, onHome }) {
   return (
     <div className="placeholder-page fade-in">
@@ -10199,6 +10242,8 @@ export default function App() {
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
   const [mcqFeatureLoadError, setMcqFeatureLoadError] = useState(null);
+  const [questionBankStatus, setQuestionBankStatus] = useState("idle");
+  const [questionBankError, setQuestionBankError] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
@@ -10220,13 +10265,16 @@ export default function App() {
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
   const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
   const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
-  const mcqProgressSummary = useMemo(() => summarizeMcqProgress(mcqProgress), [mcqProgress]);
+  const mcqProgressSummary = useMemo(
+    () => summarizeMcqProgress(mcqProgress),
+    [mcqProgress, questionBankStatus]
+  );
   const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
   const selectedMcqTopicQuestions = useMemo(
     () => selectedMcqTopic
       ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals)
       : [],
-    [selectedMcqTopic, mcqProgress, mcqQualitySignals]
+    [selectedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Local profiles only. Add Supabase environment variables for online sync.";
@@ -10239,6 +10287,22 @@ export default function App() {
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  useEffect(() => {
+    if (!activeProfile || questionBankStatus !== "idle") return undefined;
+
+    setQuestionBankStatus("loading");
+    setQuestionBankError(null);
+    loadQuestionBank()
+      .then(() => {
+        setQuestionBankStatus("ready");
+      })
+      .catch(error => {
+        console.error("Question bank could not be loaded", error);
+        setQuestionBankError("Η τράπεζα ερωτήσεων δεν μπόρεσε να φορτωθεί.");
+        setQuestionBankStatus("error");
+      });
+  }, [activeProfile, questionBankStatus]);
 
   useEffect(() => {
     if (screen !== "pinakakia" || referenceSources || referenceLoadError) return undefined;
@@ -10328,7 +10392,7 @@ export default function App() {
   }, [profileStore]);
 
   useEffect(() => {
-    if (!ONLINE_PROFILES_ENABLED) return;
+    if (!ONLINE_PROFILES_ENABLED || questionBankStatus !== "ready") return;
     let cancelled = false;
 
     loadMcqQualitySignals()
@@ -10342,7 +10406,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [questionBankStatus]);
 
   useEffect(() => {
     if (!ONLINE_PROFILES_ENABLED) {
@@ -10700,6 +10764,24 @@ export default function App() {
     if (mode !== "category") setSelectedMcqTopic(null);
     setTestMode(mode);
   }, [setSelectedMcqTopic, setTestMode]);
+
+  if (activeProfile && questionBankStatus !== "ready") {
+    return (
+      <>
+        <style>{STYLES}</style>
+        <div className="app">
+          <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
+          <main id="main-content" tabIndex={-1}>
+            <QuestionBankLoading
+              error={questionBankError}
+              onRetry={() => setQuestionBankStatus("idle")}
+              onSwitchProfile={switchProfile}
+            />
+          </main>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
