@@ -298,6 +298,7 @@ function isBoxHeadingLine(line, sourceKey = "") {
 
 const MCQ_PROGRESS_STORAGE_KEY = "psychiatry-mcq-progress-v1";
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
+const ADMIN_REMEMBER_STORAGE_KEY = "psychiatry-admin-remember-v1";
 const SUPABASE_URL = import.meta.env?.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env?.VITE_SUPABASE_ANON_KEY || "";
 const ONLINE_PROFILES_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -691,6 +692,28 @@ async function verifyAdminPassword(password) {
   const digest = await globalThis.crypto.subtle.digest("SHA-256", value);
   const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
   return hash === ADMIN_PASSWORD_HASH;
+}
+
+function loadRememberedAdminAccess() {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(ADMIN_REMEMBER_STORAGE_KEY) === ADMIN_PROFILE_ID;
+  } catch {
+    return false;
+  }
+}
+
+function saveRememberedAdminAccess(remembered) {
+  if (typeof window === "undefined") return;
+  try {
+    if (remembered) {
+      window.localStorage.setItem(ADMIN_REMEMBER_STORAGE_KEY, ADMIN_PROFILE_ID);
+    } else {
+      window.localStorage.removeItem(ADMIN_REMEMBER_STORAGE_KEY);
+    }
+  } catch {
+    // Private browsing or storage policies may prevent device persistence.
+  }
 }
 
 function createStudyProfile(
@@ -2866,6 +2889,29 @@ const STYLES = `
   .profile-switch:hover {
     background: var(--bg-card-hover);
     border-color: var(--border-active);
+  }
+
+  .profile-remember {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+
+  .profile-remember:hover {
+    color: var(--text);
+    border-color: var(--border-active);
+  }
+
+  .profile-remember[aria-pressed="true"] {
+    border-color: rgba(245,158,11,0.45);
+    background: var(--gold-bg);
+    color: var(--gold);
   }
 
   .profile-screen {
@@ -6363,7 +6409,7 @@ const STYLES = `
     .home-logo { grid-row: 1; width: 44px; height: 44px; }
     .home-title { align-self: center; }
     .home-update-note { grid-column: 1 / -1; }
-    .profile-bar { grid-column: 1 / -1; grid-row: auto; justify-content: flex-start; }
+    .profile-bar { grid-column: 1 / -1; grid-row: auto; justify-content: flex-start; flex-wrap: wrap; }
     .card { min-height: 0; padding: 18px; }
     .card-icon-lg { float: left; margin: 0 14px 14px 0; }
     .home-title { font-size: 32px; }
@@ -6437,7 +6483,7 @@ const STYLES = `
 // COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile, onCreateProfile }) {
+function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminAccess, onSelectProfile, onCreateProfile }) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -6451,6 +6497,11 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
   const requestProfileSelection = (profile) => {
     if (!isAdminProfile(profile)) {
       onSelectProfile(profile.id);
+      return;
+    }
+
+    if (rememberedAdminAccess) {
+      onSelectProfile(profile.id, "", { useRememberedAccess: true });
       return;
     }
 
@@ -6650,7 +6701,7 @@ function StudyModeCard({ section, onOpen }) {
   );
 }
 
-function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary }) {
+function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
@@ -6729,6 +6780,17 @@ function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateM
         <div className="profile-bar">
           <span>{profileName}</span>
           {isAdmin && <span className="admin-badge">Admin</span>}
+          {isAdmin && (
+            <button
+              className="profile-remember"
+              type="button"
+              aria-pressed={rememberAdmin}
+              title="Η επιλογή αποθηκεύεται μόνο σε αυτόν τον browser. Μην την ενεργοποιείς σε κοινόχρηστη συσκευή."
+              onClick={() => onToggleRememberAdmin(!rememberAdmin)}
+            >
+              {rememberAdmin ? "Απομνημόνευση ενεργή" : "Να με θυμάται"}
+            </button>
+          )}
           <button className="profile-switch" onClick={onSwitchProfile}>Αλλαγή προφίλ</button>
         </div>
       </div>
@@ -10272,7 +10334,10 @@ export default function App() {
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [mcqQualitySignals, setMcqQualitySignals] = useState({});
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [rememberAdmin, setRememberAdmin] = useState(() => loadRememberedAdminAccess());
+  const [adminUnlocked, setAdminUnlocked] = useState(
+    () => isAdminProfile(profileStore.activeProfileId) && loadRememberedAdminAccess()
+  );
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
@@ -10309,6 +10374,10 @@ export default function App() {
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  useEffect(() => {
+    if (rememberAdmin && isAdminProfile(selectedProfile)) setAdminUnlocked(true);
+  }, [rememberAdmin, selectedProfile]);
 
   useEffect(() => {
     if (!activeProfile || questionBankStatus !== "idle") return undefined;
@@ -10576,11 +10645,14 @@ export default function App() {
     }, 500);
   }, []);
 
-  const selectProfile = useCallback(async (profileId, password = "") => {
+  const selectProfile = useCallback(async (profileId, password = "", options = {}) => {
     const profile = profileStore.profiles[profileId];
     if (isAdminProfile(profileId)) {
-      const passwordMatches = await verifyAdminPassword(password);
-      if (!passwordMatches) throw new Error("Incorrect password.");
+      const useRememberedAccess = options.useRememberedAccess && rememberAdmin;
+      if (!useRememberedAccess) {
+        const passwordMatches = await verifyAdminPassword(password);
+        if (!passwordMatches) throw new Error("Incorrect password.");
+      }
       setAdminUnlocked(true);
     } else {
       setAdminUnlocked(false);
@@ -10600,7 +10672,12 @@ export default function App() {
         setSyncStatus("offline");
       }
     }
-  }, [profileStore.profiles]);
+  }, [profileStore.profiles, rememberAdmin]);
+
+  const toggleRememberAdmin = useCallback((remembered) => {
+    saveRememberedAdminAccess(remembered);
+    setRememberAdmin(remembered);
+  }, []);
 
   const createOrSelectProfile = useCallback(async (name) => {
     const profileId = getProfileId(name);
@@ -10834,6 +10911,7 @@ export default function App() {
             profileStore={profileStore}
             syncStatus={syncStatus}
             syncMessage={syncMessage}
+            rememberedAdminAccess={rememberAdmin}
             onSelectProfile={selectProfile}
             onCreateProfile={createOrSelectProfile}
           />
@@ -10843,6 +10921,8 @@ export default function App() {
             onNavigate={(id) => setScreen(id)}
             profileName={activeProfile.name}
             isAdmin={hasAdminAccess}
+            rememberAdmin={rememberAdmin}
+            onToggleRememberAdmin={toggleRememberAdmin}
             onSwitchProfile={switchProfile}
             updateMessage={updateMessage}
             updateMessageStatus={updateMessageStatus}
