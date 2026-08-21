@@ -6398,6 +6398,52 @@ const STYLES = `
     gap: 10px;
   }
 
+  /* Compact navigation cards and content-first study indexes */
+  .card { min-height: 126px; padding: 18px; }
+  .card-heading { display: flex; align-items: center; gap: 13px; }
+  .card-heading .card-icon-lg, .card-heading .card-title { margin-bottom: 0; }
+  .card-status { margin-top: 14px; }
+  .mcq-select { max-width: 760px; }
+  .mcq-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .mcq-mode-grid .mode-btn { min-height: 104px; margin-bottom: 0; }
+  .oral-container { max-width: 920px; }
+  .oral-index-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .oral-index-tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); }
+  .oral-index-tab, .oral-expand-all { min-height: 40px; border: 0; border-radius: 8px; background: transparent; color: var(--text-dim); padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .oral-index-tab[aria-pressed="true"] { background: var(--bg-card-hover); color: var(--text); }
+  .oral-expand-all { border: 1px solid var(--border); background: var(--bg-card); }
+  .oral-search { position: sticky; top: 8px; z-index: 4; margin-bottom: 10px; }
+  .oral-search input { width: 100%; min-height: 48px; padding: 12px 15px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(15,23,42,.96); color: var(--text); font: inherit; }
+  .oral-index-count { margin: 0 0 10px; color: var(--text-dim); font-size: 12px; }
+  .oral-question-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+  .oral-question-row { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 12px; min-height: 62px; padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); text-align: left; font: inherit; cursor: pointer; }
+  .oral-question-row:hover { background: var(--bg-card-hover); border-color: var(--border-active); }
+  .oral-question-number { color: var(--accent); font-size: 12px; font-weight: 800; }
+  .oral-question-copy { min-width: 0; }
+  .oral-question-text { display: block; font-size: 14px; line-height: 1.4; }
+  .oral-question-context { display: block; margin-top: 3px; color: var(--text-dim); font-size: 11px; }
+  .oral-question-state { color: var(--text-muted); }
+  .oral-question-state.mastered { color: var(--green); }
+  .oral-topic-questions { margin: 5px 0 9px 18px; }
+  .subtopic-disclosure { margin-bottom: 4px; }
+  .sos-screen { max-width: 920px; }
+  .sos-option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sos-option-card { min-height: 138px; padding: 20px; display: grid; grid-template-columns: 1fr auto; align-content: space-between; }
+  .sos-option-title { align-self: start; }
+  .sos-option-meta { color: var(--text-dim); font-size: 12px; font-weight: 500; }
+  .sos-option-card > svg { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .sos-list { gap: 6px; }
+  .sos-list-entry { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; }
+  .sos-list-index { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .sos-list-title { line-height: 1.45; }
+  .sos-list-status { display: inline-flex; align-items: center; gap: 5px; color: var(--text-dim); font-size: 11px; }
+  .sos-number-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sos-number-entry { background: var(--bg-card); padding: 16px; }
+  .sos-card-kicker { display: block; margin-bottom: 6px; color: var(--text-dim); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .sos-flip-prompt { display: block; font-size: 15px; line-height: 1.45; }
+  .sos-flip-answer { display: block; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--text); font-size: 15px; line-height: 1.6; }
+  .sos-reveal-hint { display: block; margin-top: 9px; color: var(--text-muted); font-size: 11px; }
+
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
     .home { padding: 24px 16px 64px; }
@@ -6415,6 +6461,11 @@ const STYLES = `
     .home-title { font-size: 32px; }
     .profile-form { flex-direction: column; }
     .mcq-memory { grid-template-columns: repeat(3, 1fr); }
+    .mcq-mode-grid, .sos-option-grid, .sos-number-list { grid-template-columns: 1fr; }
+    .oral-index-controls { align-items: stretch; flex-direction: column; }
+    .oral-index-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+    .oral-question-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding-inline: 10px; }
+    .oral-question-context { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .game-hud { grid-template-columns: repeat(4, 1fr); }
     .hud-stat { padding-inline: 4px; }
     .hud-value { font-size: 16px; }
@@ -6692,9 +6743,10 @@ function StudyModeCard({ section, onOpen }) {
       onClick={() => onOpen(section.id)}
       disabled={!section.active}
     >
-      <span className={`card-icon ${section.iconClass} card-icon-lg`} aria-hidden="true">{section.icon}</span>
-      <span className="card-title">{section.title}</span>
-      <span className="card-desc">{section.desc}</span>
+      <span className="card-heading">
+        <span className={`card-icon ${section.iconClass} card-icon-lg`} aria-hidden="true">{section.icon}</span>
+        <span className="card-title">{section.title}</span>
+      </span>
       {section.status && <span className="card-status">{section.status}</span>}
       {!section.active && <span className="card-badge">Σύντομα</span>}
     </button>
@@ -6708,10 +6760,10 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', desc: 'Στοχευμένη εξάσκηση, προσομοίωση και επανάληψη λαθών.', status: `${mcqProgressSummary.review} για επανάληψη · ${mcqProgressSummary.mastered} κατακτημένες`, active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', desc: 'Ενεργή ανάκληση με προηγούμενα θέματα και προσομοίωση εξέτασης.', status: `${oralProgressSummary.mastered}/${oralProgressSummary.total} κατακτημένες`, active: true },
-    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', desc: 'Αριθμοί, κρίσιμα θέματα και διαφοροδιάγνωση για γρήγορη επανάληψη.', status: 'Γρήγορη αναφορά', active: true },
-    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', desc: 'Αναζήτηση και ανάκληση high-yield υλικού από Oxford και Crash Course.', status: 'Αναζήτηση σε πηγές', active: true },
+    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', status: `${mcqProgressSummary.review} για επανάληψη · ${mcqProgressSummary.mastered} κατακτημένες`, active: true },
+    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', status: `${oralProgressSummary.mastered}/${oralProgressSummary.total} κατακτημένες`, active: true },
+    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', status: 'Γρήγορη αναφορά', active: true },
+    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', status: 'Αναζήτηση σε πηγές', active: true },
   ];
 
   useEffect(() => {
@@ -6796,8 +6848,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       </div>
       <div className="grid">
         <div className="home-section-heading">
-          <h2>Τι θα μελετήσεις τώρα;</h2>
-          <p>Μπες γρήγορα στη λειτουργία που ταιριάζει στον στόχο της συνεδρίας.</p>
+          <h2>Ενότητες</h2>
         </div>
         {sections.map(section => <StudyModeCard key={section.id} section={section} onOpen={onNavigate} />)}
       </div>
@@ -6835,6 +6886,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         </div>
       </div>
 
+      <div className="mcq-mode-grid">
       <button className="mode-btn featured" onClick={() => onStart('sprint')}>
         Mini-test
         <small>10 ερωτήσεις</small>
@@ -6866,6 +6918,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       <button className="mode-btn" onClick={() => onStart('DSM5')}>
         DSM5
       </button>
+      </div>
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
@@ -8961,10 +9014,27 @@ function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuest
 }
 
 function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress }) {
+  const [view, setView] = useState("all");
+  const [query, setQuery] = useState("");
   const [expandedGravity, setExpandedGravity] = useState({});
   const [expandedTopic, setExpandedTopic] = useState({});
+  const [expandedSubtopic, setExpandedSubtopic] = useState({});
   const normalizedOralProgress = normalizeOralProgress(oralProgress);
   const overallSummary = summarizeOralProgress(normalizedOralProgress);
+
+  const allEntries = useMemo(() => oralData.flatMap(gravity =>
+    (gravity.topics || []).flatMap(topic => topic.subtopics
+      ? topic.subtopics.flatMap(subtopic => subtopic.questions.map(question => ({ question, gravity, topic, subtopic })))
+      : (topic.questions || []).map(question => ({ question, gravity, topic, subtopic: null })))
+  ), []);
+
+  const visibleEntries = useMemo(() => {
+    const normalizedQuery = normalizeGreekSearch(query);
+    if (!normalizedQuery) return allEntries;
+    return allEntries.filter(({ question, gravity, topic, subtopic }) => normalizeGreekSearch(
+      `${question.id} ${question.text} ${gravity.title} ${topic.title} ${subtopic?.title || ""}`
+    ).includes(normalizedQuery));
+  }, [allEntries, query]);
 
   const toggleGravity = (id) => {
     setExpandedGravity(prev => ({ ...prev, [id]: !prev[id] }));
@@ -8974,11 +9044,24 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
     setExpandedTopic(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const countQuestions = (topic) => {
-    if (topic.subtopics) {
-      return topic.subtopics.reduce((sum, st) => sum + st.questions.length, 0);
+  const toggleSubtopic = (id) => setExpandedSubtopic(prev => ({ ...prev, [id]: !prev[id] }));
+
+  const allExpanded = oralData.filter(gravity => !gravity.isTable).every(gravity =>
+    expandedGravity[gravity.id] && gravity.topics.every(topic =>
+      expandedTopic[topic.id] && (!topic.subtopics || topic.subtopics.every(subtopic => expandedSubtopic[subtopic.id]))
+    )
+  );
+
+  const toggleAll = () => {
+    if (allExpanded) {
+      setExpandedGravity({});
+      setExpandedTopic({});
+      setExpandedSubtopic({});
+      return;
     }
-    return topic.questions?.length || 0;
+    setExpandedGravity(Object.fromEntries(oralData.filter(gravity => !gravity.isTable).map(gravity => [gravity.id, true])));
+    setExpandedTopic(Object.fromEntries(oralData.flatMap(gravity => gravity.topics || []).map(topic => [topic.id, true])));
+    setExpandedSubtopic(Object.fromEntries(oralData.flatMap(gravity => gravity.topics || []).flatMap(topic => topic.subtopics || []).map(subtopic => [subtopic.id, true])));
   };
 
   const renderProgressPill = (questions) => {
@@ -8989,6 +9072,23 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
       </span>
     );
   };
+
+  const renderQuestionList = (questions, title, context) => (
+    <ol className="oral-question-list">
+      {questions.map((question, index) => {
+        const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
+        return (
+          <li key={question.id}>
+            <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(questions, title, index)}>
+              <span className="oral-question-number">{question.id}</span>
+              <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span>{context && <span className="oral-question-context">{context}</span>}</span>
+              <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Κατακτημένη" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
 
   return (
     <div className="oral-container fade-in">
@@ -9001,13 +9101,44 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
         </button>
       </div>
       <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Προηγούμενα Θέματα</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>Ερωτήσεις κατά βαρύτητα θέματος</p>
+      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>129 ερωτήσεις για γρήγορη επισκόπηση ή μελέτη ανά κατηγορία</p>
       <div className="oral-overview">
         <strong>{overallSummary.mastered}/{overallSummary.total}</strong>
         <span>κατακτημένες ερωτήσεις</span>
       </div>
 
-      {oralData.map(gravity => (
+      <div className="oral-index-controls">
+        <div className="oral-index-tabs" aria-label="Προβολή προηγούμενων θεμάτων">
+          <button className="oral-index-tab" type="button" aria-pressed={view === "all"} onClick={() => setView("all")}>Όλες ({allEntries.length})</button>
+          <button className="oral-index-tab" type="button" aria-pressed={view === "categories"} onClick={() => setView("categories")}>Ανά κατηγορία</button>
+        </div>
+        {view === "categories" && <button className="oral-expand-all" type="button" onClick={toggleAll}>{allExpanded ? "Κλείσιμο όλων" : "Άνοιγμα όλων"}</button>}
+      </div>
+
+      {view === "all" && (
+        <>
+          <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Αναζήτηση στις 129 ερωτήσεις…" aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
+          <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${allEntries.length} ερωτήσεις` : `${visibleEntries.length} από ${allEntries.length} ερωτήσεις`}</div>
+          <ol className="oral-question-list">
+            {visibleEntries.map((entry, index) => {
+              const { question, gravity, topic, subtopic } = entry;
+              const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
+              return (
+                <li key={question.id}>
+                  <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(allEntries.map(item => item.question), "Όλες οι προηγούμενες ερωτήσεις", allEntries.indexOf(entry))}>
+                    <span className="oral-question-number">{String(index + 1).padStart(3, "0")}</span>
+                    <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span><span className="oral-question-context">{gravity.label} · {topic.title}{subtopic ? ` · ${subtopic.title}` : ""}</span></span>
+                    <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Κατακτημένη" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          {visibleEntries.length === 0 && <div className="crucial-empty">Δεν βρέθηκε ερώτηση για «{query}».</div>}
+        </>
+      )}
+
+      {view === "categories" && oralData.map(gravity => (
         <div key={gravity.id}>
           <button
             type="button"
@@ -9044,14 +9175,8 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                     type="button"
                     className="topic-row"
                     style={{'--bar-color': gravity.color}}
-                    aria-expanded={topic.subtopics ? Boolean(expandedTopic[topic.id]) : undefined}
-                    onClick={() => {
-                      if (topic.subtopics) {
-                        toggleTopic(topic.id);
-                      } else {
-                        onNavigateToViewer(topic.questions, `${gravity.label} ${topic.letter}. ${topic.title}`);
-                      }
-                    }}
+                    aria-expanded={Boolean(expandedTopic[topic.id])}
+                    onClick={() => toggleTopic(topic.id)}
                   >
                     <span className="topic-letter">{topic.letter}.</span>
                     <span style={{flex:1}}>
@@ -9059,32 +9184,26 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                       {topic.description && <span className="topic-desc">{topic.description}</span>}
                     </span>
                     {renderProgressPill(getOralQuestionsFromTopic(topic))}
-                    {topic.subtopics ? (
-                      <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}>
-                        <Icons.ChevronDown />
-                      </span>
-                    ) : (
-                      <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
-                    )}
+                    <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}><Icons.ChevronDown /></span>
                   </button>
 
                   {topic.subtopics && expandedTopic[topic.id] && (
                     <div className="subtopic-list" style={{'--bar-color': gravity.color}}>
                       {topic.subtopics.map(sub => (
-                        <button
-                          type="button"
-                          key={sub.id}
-                          className="subtopic-row"
-                          style={{'--bar-color': gravity.color}}
-                          onClick={() => onNavigateToViewer(sub.questions, `${gravity.label} ${topic.letter}.${sub.letter}. ${sub.title}`)}
-                        >
-                          <span className="sub-letter">{sub.letter}.</span>
-                          <span className="sub-title">{sub.title}</span>
-                          {renderProgressPill(sub.questions)}
-                          <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
-                        </button>
+                        <div key={sub.id} className="subtopic-disclosure">
+                          <button type="button" className="subtopic-row" style={{'--bar-color': gravity.color}} aria-expanded={Boolean(expandedSubtopic[sub.id])} onClick={() => toggleSubtopic(sub.id)}>
+                            <span className="sub-letter">{sub.letter}.</span>
+                            <span className="sub-title">{sub.title}</span>
+                            {renderProgressPill(sub.questions)}
+                            <span className={`topic-chevron ${expandedSubtopic[sub.id] ? 'open' : ''}`}><Icons.ChevronDown /></span>
+                          </button>
+                          {expandedSubtopic[sub.id] && <div className="oral-topic-questions">{renderQuestionList(sub.questions, `${gravity.label} ${topic.letter}.${sub.letter}. ${sub.title}`, `${gravity.title} · ${topic.title}`)}</div>}
+                        </div>
                       ))}
                     </div>
+                  )}
+                  {expandedTopic[topic.id] && !topic.subtopics && (
+                    <div className="oral-topic-questions">{renderQuestionList(topic.questions || [], `${gravity.label} ${topic.letter}. ${topic.title}`, gravity.title)}</div>
                   )}
                 </div>
               ))}
@@ -9285,8 +9404,8 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
   );
 }
 
-function OralQuestionViewer({ questions, title, oralProgress, onQuestionMastered, onBack, onHome }) {
-  const [currentIdx, setCurrentIdx] = useState(0);
+function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, onQuestionMastered, onBack, onHome }) {
+  const [currentIdx, setCurrentIdx] = useState(() => Math.min(Math.max(0, initialIndex), questions.length - 1));
   const [showAnswer, setShowAnswer] = useState(false);
   const [answerMode, setAnswerMode] = useState("quick");
   const [crucialQuestionMap, setCrucialQuestionMap] = useState(null);
@@ -10053,12 +10172,12 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   return renderShell(<div className="pinakakia-empty">Δεν υπάρχει διαθέσιμο περιεχόμενο.</div>);
 }
 
-function SosHome({ onBack, onHome, onOpenSection }) {
+function SosHome({ data, onBack, onHome, onOpenSection }) {
   const sections = [
-    { id: "highyield", title: "Γρήγορα SOS" },
-    { id: "numbers", title: "Αριθμοί που πρέπει να θυμάμαι" },
-    { id: "critical", title: "Κρίσιμα Θέματα" },
-    { id: "differential", title: "Διαφοροδιάγνωση" },
+    { id: "highyield", title: "Γρήγορα SOS", meta: `${data?.highYieldTables?.length || 0} κάρτες ανάκλησης` },
+    { id: "numbers", title: "Αριθμοί", meta: `${data?.numbers?.length || 0} βασικά στοιχεία` },
+    { id: "critical", title: "Κρίσιμα Θέματα", meta: `${data?.criticalTopics?.length || 0} θέματα` },
+    { id: "differential", title: "Διαφοροδιάγνωση", meta: `${data?.differentialDiagnosis?.length || 0} συγκρίσεις` },
   ];
 
   return (
@@ -10079,7 +10198,8 @@ function SosHome({ onBack, onHome, onOpenSection }) {
             className="sos-option-card"
             onClick={() => onOpenSection(section.id)}
           >
-            {section.title}
+            <span className="sos-option-title">{section.title}</span>
+            <span className="sos-option-meta">{section.meta}</span>
             <Icons.ChevronRight />
           </button>
         ))}
@@ -10122,7 +10242,10 @@ function SosHighYieldTables({ tables, onBack, onHome }) {
               onClick={() => toggleCard(entry.id)}
             >
               <div className="sos-flip-text">
-                {isFlipped ? entry.answer : entry.prompt}
+                <span className="sos-card-kicker">{isFlipped ? "Απάντηση" : "Ερώτηση"}</span>
+                <strong className="sos-flip-prompt">{entry.prompt}</strong>
+                {isFlipped && <span className="sos-flip-answer">{entry.answer}</span>}
+                <span className="sos-reveal-hint">{isFlipped ? "Πάτησε για απόκρυψη" : "Πάτησε για απάντηση"}</span>
               </div>
             </button>
           );
@@ -10189,7 +10312,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
         >
           <Icons.Check />
-          Mastered
+          Κατακτημένο
         </button>
         <div className="sos-detail-answer">{selectedEntry.answer}</div>
         <div style={{ height: 80 }} />
@@ -10228,8 +10351,9 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             className={`sos-list-entry ${mastered[entry.id] ? "mastered" : ""}`}
             onClick={() => setSelectedIndex(index)}
           >
-            <span>{entry.title}</span>
-            {mastered[entry.id] && <Icons.Check />}
+            <span className="sos-list-index">{String(index + 1).padStart(2, "0")}</span>
+            <span className="sos-list-title">{entry.title}</span>
+            <span className="sos-list-status">{mastered[entry.id] ? <><Icons.Check /> Κατακτημένο</> : <Icons.ChevronRight />}</span>
           </button>
         ))}
       </div>
@@ -11082,8 +11206,8 @@ export default function App() {
           <OralAccordion
             onBack={() => setScreen('oral')}
             onHome={() => setScreen('home')}
-            onNavigateToViewer={(questions, title) => {
-              setOralViewerData({ questions, title });
+            onNavigateToViewer={(questions, title, initialIndex = 0) => {
+              setOralViewerData({ questions, title, initialIndex });
               setScreen('oral-viewer');
             }}
             onNavigateToTable={(rows) => {
@@ -11103,6 +11227,7 @@ export default function App() {
           <OralQuestionViewer
             questions={oralViewerData.questions}
             title={oralViewerData.title}
+            initialIndex={oralViewerData.initialIndex}
             oralProgress={oralProgress}
             onQuestionMastered={setOralQuestionMastered}
             onBack={() => setScreen('oral-past')}
@@ -11118,6 +11243,7 @@ export default function App() {
         )}
         {activeProfile && screen === 'sos' && (
           <SosHome
+            data={sosStudyData}
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
             onOpenSection={(sectionId) => setScreen(`sos-${sectionId}`)}
