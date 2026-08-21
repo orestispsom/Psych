@@ -263,6 +263,9 @@ const SUPABASE_PROFILE_TABLE = "study_profiles";
 const SUPABASE_APP_SETTINGS_TABLE = "app_settings";
 const UPDATE_MESSAGE_SETTING_KEY = "home_update_message";
 const DEFAULT_UPDATE_MESSAGE = "\u039c\u03bf\u03b9\u03c1\u03b1\u03c3\u03c4\u03b5\u03af\u03c4\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c6\u03b1\u03c1\u03bc\u03bf\u03b3\u03ae \u03c5\u03c0\u03b5\u03cd\u03b8\u03b7\u03bd\u03b1.";
+const ADMIN_PROFILE_ID = "orestis";
+const ADMIN_PASSWORD_SALT = "psych-admin-gate-v1";
+const ADMIN_PASSWORD_HASH = "6c257c22343abe14b00c4efcd7ce29b038157578ee4b18972efff8ff2b165ef1";
 const MASTERY_STREAK_TARGET = 3;
 const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
@@ -633,6 +636,19 @@ function normalizeProfileName(name) {
 
 function getProfileId(name) {
   return normalizeProfileName(name).toLocaleLowerCase();
+}
+
+function isAdminProfile(profileOrId) {
+  const profileId = typeof profileOrId === "string" ? profileOrId : profileOrId?.id;
+  return profileId === ADMIN_PROFILE_ID;
+}
+
+async function verifyAdminPassword(password) {
+  if (!globalThis.crypto?.subtle) return false;
+  const value = new TextEncoder().encode(`${ADMIN_PASSWORD_SALT}:${password}`);
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", value);
+  const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+  return hash === ADMIN_PASSWORD_HASH;
 }
 
 function createStudyProfile(
@@ -2878,6 +2894,85 @@ const STYLES = `
     gap: 4px 8px;
     color: var(--text-dim);
     font-size: 12px;
+  }
+
+  .profile-name-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(245,158,11,0.35);
+    border-radius: 999px;
+    background: var(--gold-bg);
+    color: var(--gold);
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .admin-unlock-modal {
+    max-width: 360px;
+  }
+
+  .admin-pin-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    padding: 13px 14px;
+    margin: 4px 0 14px;
+    font-family: inherit;
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    text-align: center;
+    outline: none;
+  }
+
+  .admin-pin-input:focus {
+    border-color: var(--border-active);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .admin-pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .admin-pin-key {
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+  }
+
+  .admin-pin-key:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-active);
+  }
+
+  .admin-pin-key.utility {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .admin-pin-error {
+    color: #fca5a5;
+    font-size: 12px;
+    margin: -4px 0 14px;
   }
 
   .grid {
@@ -6094,8 +6189,52 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingAdminProfile, setPendingAdminProfile] = useState(null);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminError, setAdminError] = useState("");
+  const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(false);
   const profiles = Object.values(profileStore.profiles)
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  const requestProfileSelection = (profile) => {
+    if (!isAdminProfile(profile)) {
+      onSelectProfile(profile.id);
+      return;
+    }
+
+    setPendingAdminProfile(profile);
+    setAdminPassword("");
+    setAdminError("");
+  };
+
+  const closeAdminUnlock = () => {
+    if (isVerifyingAdmin) return;
+    setPendingAdminProfile(null);
+    setAdminPassword("");
+    setAdminError("");
+  };
+
+  const handleAdminUnlock = async (event) => {
+    event.preventDefault();
+    if (!pendingAdminProfile || !adminPassword) return;
+
+    setIsVerifyingAdmin(true);
+    setAdminError("");
+    try {
+      await onSelectProfile(pendingAdminProfile.id, adminPassword);
+      setPendingAdminProfile(null);
+      setAdminPassword("");
+    } catch (err) {
+      setAdminError(err.message || "Could not unlock this profile.");
+    } finally {
+      setIsVerifyingAdmin(false);
+    }
+  };
+
+  const appendAdminDigit = (digit) => {
+    setAdminPassword(value => `${value}${digit}`.slice(0, 12));
+    setAdminError("");
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -6108,6 +6247,17 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
 
     if (name.length > 32) {
       setError("Please keep the username under 32 characters.");
+      return;
+    }
+
+    if (getProfileId(name) === ADMIN_PROFILE_ID) {
+      const adminProfile = profileStore.profiles[ADMIN_PROFILE_ID];
+      if (adminProfile) {
+        setUsername("");
+        requestProfileSelection(adminProfile);
+      } else {
+        setError("The admin profile is still loading. Please try again shortly.");
+      }
       return;
     }
 
@@ -6124,8 +6274,9 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
   };
 
   return (
-    <div className="profile-screen fade-in">
-      <div className="profile-panel">
+    <>
+      <div className="profile-screen fade-in">
+        <div className="profile-panel">
         <h1>Choose Profile</h1>
         <p>Create or select a study profile. When online sync is configured, progress follows this username across browsers.</p>
         <div className={`sync-status ${syncStatus}`}>
@@ -6159,9 +6310,12 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
                 <button
                   key={profile.id}
                   className="profile-btn"
-                  onClick={() => onSelectProfile(profile.id)}
+                  onClick={() => requestProfileSelection(profile)}
                 >
-                  <span>{profile.name}</span>
+                  <span className="profile-name-row">
+                    <span>{profile.name}</span>
+                    {isAdminProfile(profile) && <span className="admin-badge">Admin</span>}
+                  </span>
                   <small>
                     <span>MCQ {summary.mastered} mastered</span>
                     <span>{summary.review} review</span>
@@ -6172,12 +6326,57 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, onSelectProfile,
             })}
           </div>
         )}
+        </div>
       </div>
-    </div>
+
+      {pendingAdminProfile && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Admin profile verification">
+          <form className="modal admin-unlock-modal" onSubmit={handleAdminUnlock}>
+            <h3>Admin profile</h3>
+            <p>Enter the password to open {pendingAdminProfile.name}.</p>
+            <input
+              className="admin-pin-input"
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="current-password"
+              aria-label="Admin password"
+              value={adminPassword}
+              onChange={event => {
+                setAdminPassword(event.target.value.replace(/\D/g, "").slice(0, 12));
+                setAdminError("");
+              }}
+              autoFocus
+            />
+            <div className="admin-pin-pad" aria-label="Numeric keypad">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
+                <button className="admin-pin-key" type="button" key={digit} onClick={() => appendAdminDigit(digit)}>
+                  {digit}
+                </button>
+              ))}
+              <button className="admin-pin-key utility" type="button" onClick={() => { setAdminPassword(""); setAdminError(""); }}>
+                Clear
+              </button>
+              <button className="admin-pin-key" type="button" onClick={() => appendAdminDigit(0)}>0</button>
+              <button className="admin-pin-key utility" type="button" aria-label="Delete digit" onClick={() => { setAdminPassword(value => value.slice(0, -1)); setAdminError(""); }}>
+                Delete
+              </button>
+            </div>
+            {adminError && <div className="admin-pin-error">{adminError}</div>}
+            <div className="modal-actions">
+              <button className="results-btn" type="button" onClick={closeAdminUnlock} disabled={isVerifyingAdmin}>Cancel</button>
+              <button className="results-btn primary" type="submit" disabled={!adminPassword || isVerifyingAdmin}>
+                {isVerifyingAdmin ? "Checking..." : "Unlock"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
 
-function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage }) {
+function HomeScreen({ onNavigate, profileName, isAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
@@ -6255,6 +6454,7 @@ function HomeScreen({ onNavigate, profileName, onSwitchProfile, updateMessage, u
         )}
         <div className="profile-bar">
           <span>{profileName}</span>
+          {isAdmin && <span className="admin-badge">Admin</span>}
           <button className="profile-switch" onClick={onSwitchProfile}>Switch profile</button>
         </div>
       </div>
@@ -8379,7 +8579,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // ORAL EXAMINATION COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuestions, onOpenSimulator }) {
+function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuestions, onOpenSimulator, canAccessCrucialQuestions }) {
   return (
     <div className="oral-choice fade-in">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
@@ -8397,10 +8597,12 @@ function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuest
         Προηγούμενα Θέματα
         <small>Εξάσκηση με τα υπάρχοντα προφορικά θέματα και ερωτήσεις της τράπεζας.</small>
       </button>
-      <button className="mode-btn" onClick={onOpenCrucialQuestions}>
-        100 Καίριες Ερωτήσεις
-        <small>Ευρετήριο του βιβλίου με την πλήρη ερώτηση και απάντηση για κάθε καταχώριση.</small>
-      </button>
+      {canAccessCrucialQuestions && (
+        <button className="mode-btn" onClick={onOpenCrucialQuestions}>
+          100 Καίριες Ερωτήσεις
+          <small>Ευρετήριο του βιβλίου με την πλήρη ερώτηση και απάντηση για κάθε καταχώριση.</small>
+        </button>
+      )}
       <button className="mode-btn featured" onClick={onOpenSimulator}>
         Προφορική Εξέταση
         <small>Προσομοίωση προφορικής εξέτασης με βασικές και follow-up ερωτήσεις.</small>
@@ -9653,13 +9855,18 @@ export default function App() {
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [mcqQualitySignals, setMcqQualitySignals] = useState({});
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
   const pendingMcqRemoteSaveRef = useRef(null);
-  const activeProfile = profileStore.activeProfileId
+  const selectedProfile = profileStore.activeProfileId
     ? profileStore.profiles[profileStore.activeProfileId]
     : null;
+  const activeProfile = selectedProfile && (!isAdminProfile(selectedProfile) || adminUnlocked)
+    ? selectedProfile
+    : null;
+  const hasAdminAccess = Boolean(activeProfile && isAdminProfile(activeProfile) && adminUnlocked);
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
   const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
   const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
@@ -9828,8 +10035,16 @@ export default function App() {
     }, 500);
   }, []);
 
-  const selectProfile = useCallback(async (profileId) => {
+  const selectProfile = useCallback(async (profileId, password = "") => {
     const profile = profileStore.profiles[profileId];
+    if (isAdminProfile(profileId)) {
+      const passwordMatches = await verifyAdminPassword(password);
+      if (!passwordMatches) throw new Error("Incorrect password.");
+      setAdminUnlocked(true);
+    } else {
+      setAdminUnlocked(false);
+    }
+
     setScreen('home');
     setTestMode(null);
     setSelectedMcqTopic(null);
@@ -10045,6 +10260,7 @@ export default function App() {
   }, [profileStore.activeProfileId, updateMcqProgress]);
 
   const switchProfile = useCallback(() => {
+    setAdminUnlocked(false);
     setScreen('home');
     setTestMode(null);
     setSelectedMcqTopic(null);
@@ -10073,6 +10289,7 @@ export default function App() {
           <HomeScreen
             onNavigate={(id) => setScreen(id)}
             profileName={activeProfile.name}
+            isAdmin={hasAdminAccess}
             onSwitchProfile={switchProfile}
             updateMessage={updateMessage}
             updateMessageStatus={updateMessageStatus}
@@ -10154,6 +10371,7 @@ export default function App() {
           <OralChoiceScreen
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
+            canAccessCrucialQuestions={hasAdminAccess}
             onOpenPastTopics={() => {
               setOralViewerData(null);
               setOralTableData(null);
@@ -10166,7 +10384,7 @@ export default function App() {
             onOpenSimulator={() => setScreen('oral-simulator')}
           />
         )}
-        {activeProfile && screen === 'oral-crucial-index' && (
+        {hasAdminAccess && screen === 'oral-crucial-index' && (
           <CrucialQuestionsIndex
             onBack={() => setScreen('oral')}
             onHome={() => setScreen('home')}
@@ -10176,7 +10394,7 @@ export default function App() {
             }}
           />
         )}
-        {activeProfile && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
+        {hasAdminAccess && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
           <CrucialQuestionViewer
             questions={crucialQuestionViewerData.questions}
             initialIndex={crucialQuestionViewerData.initialIndex}
