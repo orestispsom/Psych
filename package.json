@@ -1,7 +1,7 @@
 {
-  "name": "claude-code-1",
+  "name": "psychiatry-specialty-exams",
   "version": "1.0.0",
-  "description": "",
+  "description": "Προετοιμασία για τις εξετάσεις ειδικότητας ψυχιατρικής — γραπτά, προφορικά, SOS υλικό και πινακάκια.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",

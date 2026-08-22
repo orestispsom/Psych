@@ -1,0 +1,641 @@
+/* ═══════════════════════════════════════════════════════════════
+   SURFACES — every study screen, on the instrument's grammar.
+   No cards. Content sits on the sheet, separated by rules.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══ PROFILE ═════════════════════════════════════════════════ */
+
+.profile-screen {
+  min-height: 100vh;
+  display: grid; align-content: center; justify-items: center;
+  padding: var(--s8) var(--s4);
+}
+.profile-panel {
+  width: min(440px, 100%);
+  display: grid; gap: var(--s5);
+}
+.profile-panel h1 { font-size: var(--t-section); }
+.profile-panel > p { font-size: var(--t-meta); color: var(--ink-2); }
+.profile-form { display: grid; gap: var(--s3); }
+.profile-input { composes: field; }
+.profile-input,
+.admin-pin-input {
+  width: 100%; min-height: 44px;
+  padding: var(--s2) var(--s3);
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  color: var(--ink); font-size: var(--t-body);
+}
+.profile-input::placeholder { color: var(--ink-3); }
+.profile-list { display: grid; gap: 1px; }
+.profile-list-title {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding-bottom: var(--s2);
+}
+.profile-btn {
+  display: flex; align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  min-height: 44px; padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink); font-size: var(--t-meta);
+}
+.profile-btn:hover { background: var(--raised); }
+.profile-error { font-size: var(--t-meta); color: var(--mark); }
+.profile-remember {
+  display: flex; align-items: center; gap: var(--s2);
+  font-size: var(--t-meta); color: var(--ink-2);
+  min-height: 44px;
+}
+.sync-status { font-size: var(--t-micro); color: var(--ink-3); }
+.profile-name-row { display: flex; align-items: center; gap: var(--s2); }
+.profile-switch, .profile-bar { display: flex; align-items: center; gap: var(--s2); }
+
+/* ═══ HOME ════════════════════════════════════════════════════ */
+
+.home { display: grid; gap: var(--s6); }
+
+.home-header { display: grid; gap: var(--s2); }
+.home-title { font-size: var(--t-title); }
+.home-logo { display: none; }
+
+.home-section-heading {
+  font-size: var(--t-label); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--ink-2);
+}
+
+/* Resume block — the primary action for a returning user */
+.resume {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s4);
+  padding: var(--s4) 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.resume-text { display: grid; gap: var(--s1); min-width: 0; }
+.resume-eyebrow {
+  font-size: var(--t-micro); color: var(--mark);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.resume-title { font-size: var(--t-item); font-weight: 600; }
+.resume-meta { font-size: var(--t-meta); color: var(--ink-2); }
+
+/* Today's figures — a printed scoring summary, not a metric hero */
+.figures {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  border-top: 1px solid var(--rule);
+}
+.figure {
+  padding: var(--s3) var(--s4) var(--s3) 0;
+  display: grid; gap: 2px;
+  border-right: 1px solid var(--rule);
+}
+.figure:last-child { border-right: none; }
+.figure-value {
+  font-family: var(--code); font-size: 22px; font-weight: 500;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.figure-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+}
+.figure-mark .figure-value { color: var(--mark); }
+.figure-due .figure-value { color: var(--due); }
+.figure-pass .figure-value { color: var(--pass); }
+
+/* Section index on home — rows, not cards */
+.home-sections { display: grid; }
+.home-update-note {
+  display: grid; gap: 2px; padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left; width: 100%;
+}
+.home-update-note .bar-label,
+.bar-label {
+  font-size: var(--t-micro); color: var(--mark);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.bar-tagline, .home-update-note .bar-tagline { font-size: var(--t-meta); color: var(--ink-2); }
+.home-update-editor { display: grid; gap: var(--s2); padding: var(--s3) 0; }
+.home-update-editor-actions { display: flex; gap: var(--s2); }
+.home-update-status { font-size: var(--t-micro); color: var(--ink-3); }
+.admin-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.11em;
+  color: var(--due); border: 1px solid currentColor; border-radius: var(--r-box);
+  padding: 1px 5px;
+}
+
+/* ═══ GENERIC NAV / TOPBARS (legacy classes, restyled) ════════ */
+
+.nav-bar, .pinakakia-topbar, .test-header, .oral-viewer-meta {
+  display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+}
+.back-link, .home-btn, .nav-btn {
+  display: inline-flex; align-items: center; gap: var(--s1);
+  min-height: 44px; padding: 0 var(--s3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+  color: var(--ink-2); font-size: var(--t-meta); font-weight: 500;
+}
+.back-link:hover, .home-btn:hover, .nav-btn:hover {
+  color: var(--ink); border-color: var(--rule-strong); background: var(--raised);
+}
+
+/* ═══ MCQ HUB ═════════════════════════════════════════════════ */
+
+.mcq-select { display: grid; gap: var(--s5); }
+.mcq-mode-grid, .choice-grid, .sos-option-grid, .grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1px; background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.mode-btn, .card, .sos-option-card, .oral-choice, .pinakakia-card {
+  display: grid; gap: var(--s1);
+  padding: var(--s4);
+  background: var(--ground);
+  text-align: left; width: 100%;
+  min-height: 76px;
+  align-content: center;
+  color: var(--ink);
+  transition: background 0.12s var(--ease);
+}
+.mode-btn:hover, .card:hover, .sos-option-card:hover,
+.oral-choice:hover, .pinakakia-card:hover { background: var(--raised); }
+.card-title, .sos-option-title, .card-heading {
+  font-size: var(--t-item); font-weight: 600;
+}
+.card-status, .sos-option-meta, .topic-desc, .sos-card-kicker {
+  font-size: var(--t-meta); color: var(--ink-2);
+}
+.card-icon, .card-icon-lg, .placeholder-icon { color: var(--ink-3); }
+.card-badge, .meta-pill {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.11em;
+  color: var(--ink-3); border: 1px solid currentColor;
+  border-radius: var(--r-box); padding: 1px 5px; justify-self: start;
+}
+.mode-btn.featured { box-shadow: inset 2px 0 0 var(--mark); }
+
+/* MCQ memory strip */
+.mcq-memory {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.mcq-memory-stat, .hud-stat, .written-result-stat, .results-detail {
+  padding: var(--s3) var(--s4) var(--s3) 0;
+  display: grid; gap: 2px;
+  border-right: 1px solid var(--rule);
+}
+.mcq-memory-stat:last-child, .hud-stat:last-child, .written-result-stat:last-child { border-right: none; }
+.mcq-memory-value, .hud-value, .results-score {
+  font-family: var(--code); font-size: 20px; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.mcq-memory-label, .hud-label, .results-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+}
+
+/* ═══ TOPIC LISTS ═════════════════════════════════════════════ */
+
+.topic-list, .subtopic-list, .oral-question-list, .sos-list,
+.sos-number-list, .vignette-list, .DSM5-chapter-list, .pinakakia-list,
+.crucial-index-list, .profile-list, .wrong-answer-list, .topic-performance-list {
+  display: grid;
+}
+
+.topic-row, .subtopic-row, .DSM5-chapter-row, .vignette-row,
+.pinakakia-row, .crucial-index-item, .sos-list-entry, .oral-question-row,
+.topic-performance-row, .written-history-row {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s3) var(--s2);
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  transition: background 0.1s var(--ease);
+}
+.topic-row:hover, .subtopic-row:hover, .DSM5-chapter-row:hover,
+.vignette-row:hover, .pinakakia-row:hover, .crucial-index-item:hover,
+.sos-list-entry:hover, .oral-question-row:hover {
+  background: var(--raised);
+}
+
+.topic-letter, .choice-id, .sub-letter, .oral-question-number,
+.crucial-index-number, .sos-list-index, .question-num, .DSM5-chapter-title::before {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.topic-title, .sub-title, .DSM5-chapter-title, .vignette-text,
+.pinakakia-row-title, .crucial-index-title, .sos-list-title,
+.oral-question-text, .topic-performance-main {
+  font-size: var(--t-item); line-height: 1.4;
+  max-width: var(--measure-item);
+}
+.pinakakia-row-meta, .crucial-index-count, .oral-question-context,
+.exam-lesson, .topic-performance-stats, .oral-legacy-source,
+.written-history-detail, .written-history-date {
+  font-size: var(--t-micro); color: var(--ink-3);
+}
+.topic-chevron, .oral-source-chevron, .bar-chevron { color: var(--ink-3); flex: none; }
+.oral-question-copy, .topic-performance-main { display: grid; gap: 2px; min-width: 0; }
+
+/* Progress rendered as the scale strip, never as a bar */
+.progress-bar, .gravity-bar, .topic-percent-bar, .progress-fill, .topic-percent-fill {
+  display: none;
+}
+.progress-text, .topic-percent-value, .oral-progress-pill, .oral-index-count {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.topic-percent-card { display: flex; align-items: center; gap: var(--s2); }
+
+/* ═══ MCQ TEST ════════════════════════════════════════════════ */
+
+.test-container { display: grid; gap: var(--s4); }
+
+.test-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s3) var(--s4);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.game-hud {
+  display: flex; flex-wrap: wrap; gap: var(--s4);
+  font-size: var(--t-micro);
+}
+
+.question-stem, .DSM5-question-stem, .structured-question,
+.wrong-question-stem, .written-full-question {
+  font-size: var(--t-read);
+  line-height: 1.55;
+  max-width: var(--measure-item);
+  color: var(--ink);
+}
+
+.question-status, .oral-q-counter, .structured-progress, .mcq-session-question {
+  font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.options-list, .DSM5-options, .structured-options, .sticky-choices {
+  display: grid; gap: var(--s1); margin-top: var(--s2);
+}
+
+/* An option row is a control, so it is contained — the one legitimate case. */
+.mode-btn.option, .options-list > button, .DSM5-options > button,
+.structured-option {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: start; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s3);
+  min-height: 48px;
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  color: var(--ink);
+  font-size: var(--t-item); line-height: 1.45;
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.options-list > button:hover:not(:disabled),
+.DSM5-options > button:hover:not(:disabled),
+.structured-option:hover:not(:disabled) {
+  border-color: var(--ink-3); background: var(--raised);
+}
+
+.option-letter, .structured-option-letter, .DSM5-option-text::before {
+  font-family: var(--code); font-size: var(--t-meta);
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+  padding-top: 1px;
+}
+
+/* Chosen but not yet submitted: the mark in the margin, as on a paper sheet. */
+.option-btn.selected {
+  border-color: var(--ink-3);
+  background: var(--raised);
+  box-shadow: inset 3px 0 0 var(--mark);
+}
+.option-btn.selected .option-letter { color: var(--ink); }
+
+.option-btn.locked { cursor: default; }
+.option-btn.locked:not(.correct):not(.incorrect) { opacity: 0.6; }
+
+/* Answer states — colour is never the only signal; a glyph rides along. */
+.options-list > button.correct, .DSM5-options > button.correct,
+.structured-option.correct {
+  border-color: var(--pass); background: var(--pass-quiet);
+}
+.options-list > button.correct .option-letter,
+.structured-option.correct .structured-option-letter { color: var(--pass); }
+
+.options-list > button.incorrect, .DSM5-options > button.incorrect,
+.structured-option.incorrect {
+  border-color: var(--mark); background: var(--mark-quiet);
+}
+.options-list > button.incorrect .option-letter,
+.structured-option.incorrect .structured-option-letter { color: var(--mark); }
+
+.options-list > button.seen { opacity: 0.72; }
+
+.answer-glyph { font-family: var(--code); font-size: var(--t-meta); flex: none; }
+
+/* Explanation */
+.explanation-box, .DSM5-explanation, .answer-box, .oral-model-answer,
+.sos-detail-answer, .oral-quick-answer, .oral-full-answer, .answer-content {
+  border-left: 1px solid var(--mark-rule);
+  padding: var(--s3) 0 var(--s3) var(--s4);
+  margin-top: var(--s4);
+  font-family: var(--read);
+  font-size: var(--t-read); line-height: 1.66;
+  max-width: var(--measure-read);
+  color: var(--ink);
+}
+.explanation-box p + p, .answer-content p + p { margin-top: 0.8em; }
+.answer-placeholder, .pinakakia-reveal-placeholder, .oral-answer-hide,
+.pinakakia-hide-note, .DSM5-empty-note {
+  font-size: var(--t-meta); color: var(--ink-3);
+}
+.oral-answer-kicker, .sos-card-kicker {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* Navigation row under a question */
+.DSM5-nav-row, .oral-answer-toolbar, .sos-focus-nav, .pinakakia-viewer-nav,
+.structured-actions, .oral-self-assessment-actions, .sos-focus-toolbar {
+  display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+}
+.structured-actions-group { display: flex; gap: var(--s2); flex-wrap: wrap; }
+
+/* Feedback control */
+.mcq-feedback { position: relative; display: flex; align-items: center; gap: var(--s1); }
+.mcq-feedback-controls { display: flex; align-items: center; gap: var(--s1); }
+.mcq-feedback-btn, .mcq-quality-btn, .vignette-open-btn, .sos-shuffle-btn,
+.oral-expand-all, .wrong-full-btn, .vignette-modal-close, .oral-answer-reveal,
+.pinakakia-reveal, .sos-focus-reveal, .oral-mastery-toggle, .vignette-complete-toggle,
+.sos-check-control, .results-btn, .admin-pin-key, .oral-answer-modes button {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 44px; padding: 0 var(--s4);
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  color: var(--ink-2); font-size: var(--t-meta); font-weight: 600;
+  transition: border-color 0.12s var(--ease), color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.mcq-feedback-btn:hover, .mcq-quality-btn:hover, .vignette-open-btn:hover,
+.sos-shuffle-btn:hover, .oral-expand-all:hover, .wrong-full-btn:hover,
+.oral-answer-reveal:hover, .pinakakia-reveal:hover, .sos-focus-reveal:hover,
+.results-btn:hover, .oral-mastery-toggle:hover {
+  color: var(--ink); border-color: var(--ink-3); background: var(--raised);
+}
+.results-btn.primary, .btn.primary {
+  background: var(--stock); color: var(--stock-ink); border-color: var(--stock);
+}
+.results-btn.primary:hover { background: var(--stock-hover); }
+
+.mcq-feedback-btn.up[aria-pressed="true"], .oral-mastery-toggle[aria-pressed="true"],
+.vignette-complete-toggle[aria-pressed="true"], .sos-check-control[aria-pressed="true"] {
+  color: var(--pass); border-color: var(--pass);
+}
+.mcq-feedback-btn.down[aria-pressed="true"] { color: var(--mark); border-color: var(--mark); }
+
+.mcq-feedback-btn.compact, .mcq-quality-btn.compact { min-height: 36px; padding: 0 var(--s2); }
+
+.mcq-feedback-menu {
+  position: absolute; right: 0; top: calc(100% + var(--s2)); z-index: 40;
+  background: var(--field); border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md); box-shadow: var(--lift);
+  display: grid; min-width: 220px; padding: var(--s1);
+}
+.mcq-feedback-option {
+  text-align: left; padding: var(--s2) var(--s3); min-height: 40px;
+  border-radius: var(--r-sm); font-size: var(--t-meta); color: var(--ink-2);
+}
+.mcq-feedback-option:hover { background: var(--raised); color: var(--ink); }
+.mcq-feedback-comment { display: grid; gap: var(--s2); padding: var(--s2); }
+.mcq-feedback-comment-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
+.mcq-feedback-message { font-size: var(--t-micro); color: var(--ink-3); }
+.mcq-feedback-comment textarea {
+  width: 100%; min-height: 68px; padding: var(--s2);
+  background: var(--ground); border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm); color: var(--ink); font-size: var(--t-meta);
+  resize: vertical;
+}
+
+/* Points */
+.point-breakdown { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.point-pill {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); border: 1px solid var(--rule);
+  border-radius: var(--r-box); padding: 1px 5px;
+}
+
+/* ═══ RESULTS ═════════════════════════════════════════════════ */
+
+.results, .written-results, .DSM5-result-modal, .oral-exam-summary {
+  display: grid; gap: var(--s5);
+}
+.written-result-grid, .DSM5-session-stats, .oral-exam-summary-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.results-actions { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.results-score.total { font-size: 30px; }
+
+.wrong-answer-card, .written-review, .written-topic-panel, .DSM5-review-item {
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--rule);
+  display: grid; gap: var(--s2);
+}
+.wrong-answer-topline, .written-answer-row, .written-meta-row {
+  display: flex; flex-wrap: wrap; gap: var(--s3);
+  font-size: var(--t-micro); color: var(--ink-3);
+}
+.written-full-question-head {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.DSM5-review-list { display: grid; }
+
+.written-history { display: grid; }
+.written-history-main { display: grid; gap: 2px; min-width: 0; }
+.written-history-score { font-family: var(--code); font-variant-numeric: tabular-nums; }
+.written-history-dot { display: none; }
+.percent-high { color: var(--pass); }
+.percent-mid { color: var(--due); }
+.percent-low { color: var(--mark); }
+
+/* ═══ ORAL ════════════════════════════════════════════════════ */
+
+.oral-container, .oral-viewer, .oral-simulator, .oral-overview, .crucial-index {
+  display: grid; gap: var(--s5);
+}
+.oral-index-controls { display: grid; gap: var(--s3); }
+.oral-index-tabs { display: flex; gap: var(--s1); flex-wrap: wrap; }
+.oral-index-tab {
+  min-height: 44px; padding: 0 var(--s4);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  font-size: var(--t-meta); color: var(--ink-3);
+}
+.oral-index-tab[aria-pressed="true"], .oral-index-tab.is-active {
+  color: var(--ink); border-color: var(--ink-3); background: var(--raised);
+}
+/* The search control is sometimes the wrapper and sometimes the input itself,
+   so both spellings are covered. */
+.oral-search, .crucial-search, .pinakakia-search-wrap { width: 100%; }
+
+.oral-search input,
+.crucial-search input,
+input.pinakakia-search,
+input.crucial-search,
+input.oral-search {
+  width: 100%;
+  min-height: 44px; padding: var(--s2) var(--s3);
+  background: var(--field); border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md); color: var(--ink); font-size: var(--t-body);
+}
+.oral-search input::placeholder,
+.crucial-search input::placeholder,
+input.pinakakia-search::placeholder,
+input.crucial-search::placeholder { color: var(--ink-3); }
+
+.oral-topic-questions, .subtopic-disclosure { display: grid; }
+.oral-q-text, .crucial-viewer-heading, .oral-exam-context {
+  font-size: var(--t-read); line-height: 1.5;
+  max-width: var(--measure-item);
+}
+.oral-question-state, .oral-source-badge, .oral-exam-meta {
+  font-size: var(--t-micro); color: var(--ink-3);
+}
+.oral-answer-panel, .crucial-viewer-content, .oral-reference-section,
+.oral-self-assessment, .oral-answer-modes {
+  display: grid; gap: var(--s3);
+}
+.oral-answer-modes { grid-auto-flow: column; justify-content: start; gap: var(--s2); }
+.oral-source-title { font-size: var(--t-item); font-weight: 600; }
+.oral-source-chapter, .oral-source-body { font-size: var(--t-meta); color: var(--ink-2); }
+.ref-table { width: 100%; border-collapse: collapse; }
+.ref-row { border-bottom: 1px solid var(--rule); }
+.ref-topic, .ref-value {
+  padding: var(--s2) var(--s3) var(--s2) 0;
+  font-size: var(--t-meta); text-align: left; vertical-align: top;
+}
+.ref-topic { color: var(--ink-2); width: 34%; }
+.crucial-empty, .crucial-loading, .pinakakia-empty, .sos-focus-empty {
+  padding: var(--s10) 0; color: var(--ink-3); font-size: var(--t-meta);
+}
+
+/* ═══ SOS ═════════════════════════════════════════════════════ */
+
+.sos-screen { display: grid; gap: var(--s5); }
+.sos-focus-card { display: grid; gap: var(--s4); }
+.sos-focus-prompt { font-size: var(--t-read); line-height: 1.5; max-width: var(--measure-item); }
+.sos-focus-meta { font-size: var(--t-micro); color: var(--ink-3); }
+.sos-focus-answer { font-family: var(--read); font-size: var(--t-read); line-height: 1.66; max-width: var(--measure-read); }
+.sos-focus-toggles { display: flex; gap: var(--s2); flex-wrap: wrap; }
+/* A "number" entry is a sentence with the figure marked inside it, not a row
+   with a gutter — the value must never be squeezed into the ordinal column. */
+.sos-number-entry {
+  padding: var(--s3) var(--s2);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-item);
+  line-height: 1.55;
+  max-width: var(--measure-item);
+}
+.sos-number-mark {
+  font-family: var(--code);
+  color: var(--mark);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sos-list-status { display: flex; align-items: center; gap: var(--s2); }
+
+/* ═══ ΠΙΝΑΚΑΚΙΑ ═══════════════════════════════════════════════ */
+
+.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s5); }
+.pinakakia-search-wrap { display: grid; gap: var(--s2); }
+.pinakakia-search-summary, .pinakakia-viewer-meta { font-size: var(--t-micro); color: var(--ink-3); }
+.pinakakia-section-title {
+  font-size: var(--t-label); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-2);
+}
+.pinakakia-book-box { display: grid; gap: var(--s3); }
+.pinakakia-book-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s3); padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.pinakakia-book-header-title { font-size: var(--t-section); font-weight: 600; }
+.pinakakia-book-header-page { font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3); }
+.pinakakia-book-body, .pinakakia-content-text {
+  font-family: var(--read); font-size: var(--t-read); line-height: 1.66;
+  max-width: var(--measure-read);
+}
+.pinakakia-content-text { display: grid; gap: var(--s2); }
+
+/* ═══ VIGNETTES / STRUCTURED ══════════════════════════════════ */
+
+.structured-mcq, .structured-card, .vignette-question-card,
+.DSM5-question-card, .mcq-session-primary { display: grid; gap: var(--s4); }
+.structured-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
+.structured-instruction, .mcq-session-secondary { font-size: var(--t-meta); color: var(--ink-2); }
+.vignette-open-card { display: grid; gap: var(--s3); }
+.vignette-modal { width: min(680px, 100%); }
+.DSM5-session-header { display: grid; gap: var(--s2); }
+
+/* ═══ PLACEHOLDER ═════════════════════════════════════════════ */
+
+.placeholder-page { display: grid; gap: var(--s3); padding: var(--s10) 0; max-width: 52ch; }
+
+/* ═══ ADMIN PIN ═══════════════════════════════════════════════ */
+
+.admin-unlock-modal { display: grid; gap: var(--s4); }
+.admin-pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
+.admin-pin-key { min-height: 52px; font-family: var(--code); font-size: var(--t-item); }
+.admin-pin-error { font-size: var(--t-meta); color: var(--mark); }
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════════ */
+
+@media (max-width: 899px) {
+  .topic-row, .subtopic-row, .DSM5-chapter-row, .vignette-row,
+  .pinakakia-row, .crucial-index-item, .sos-list-entry,
+  .oral-question-row, .written-history-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+  .topic-letter, .choice-id, .sub-letter, .oral-question-number,
+  .crucial-index-number, .sos-list-index {
+    grid-column: 1; grid-row: 1; margin-bottom: 2px;
+  }
+  .oral-question-copy, .topic-performance-main { grid-column: 1; grid-row: 2; }
+  .topic-chevron { display: none; }
+
+  .mcq-mode-grid, .choice-grid, .sos-option-grid, .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .explanation-box, .DSM5-explanation, .answer-box, .oral-model-answer,
+  .sos-detail-answer, .oral-quick-answer, .oral-full-answer, .answer-content {
+    padding-left: var(--s3);
+  }
+}
+
+@media (max-width: 599px) {
+  .figure, .mcq-memory-stat, .hud-stat, .written-result-stat {
+    border-right: none; border-bottom: 1px solid var(--rule);
+  }
+  .figures, .mcq-memory, .written-result-grid, .DSM5-session-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .resume { grid-template-columns: minmax(0, 1fr); }
+  .oral-answer-modes { grid-auto-flow: row; }
+}

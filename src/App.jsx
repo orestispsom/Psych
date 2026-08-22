@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 
+import { Icons } from "./components/Icons.jsx";
+import AppShell from "./components/AppShell.jsx";
+import CommandPalette from "./components/CommandPalette.jsx";
+import ScaleStrip from "./components/ScaleStrip.jsx";
+import ShortcutSheet from "./components/ShortcutSheet.jsx";
+import { useTheme } from "./lib/useTheme.js";
+import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
+
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
 import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
@@ -1000,22 +1008,22 @@ function getMcqFeedbackErrorMessage(error) {
   const detail = String(error?.message || "");
 
   if (/Online profiles are not configured/i.test(detail)) {
-    return "Could not save feedback. Supabase is not configured.";
+    return "Δεν αποθηκεύτηκε το σχόλιο: ο συγχρονισμός δεν είναι ρυθμισμένος.";
   }
 
   if (/feedback_comment|schema cache|PGRST204|record .* has no field/i.test(detail)) {
-    return "Could not save feedback. Add the feedback_comment column to mcq_feedback.";
+    return "Δεν αποθηκεύτηκε το σχόλιο. Λείπει η στήλη feedback_comment.";
   }
 
   if (/relation .*mcq_feedback.* does not exist|Could not find the table|PGRST205|mcq_feedback/i.test(detail)) {
-    return "Could not save feedback. Run the mcq_feedback SQL in Supabase.";
+    return "Δεν αποθηκεύτηκε το σχόλιο. Λείπει ο πίνακας σχολίων.";
   }
 
   if (/row-level security|permission denied|42501|violates row-level security/i.test(detail)) {
-    return "Could not save feedback. Check mcq_feedback RLS policies in Supabase.";
+    return "Δεν αποθηκεύτηκε το σχόλιο: δεν επιτρέπεται η εγγραφή.";
   }
 
-  return "Could not save feedback. Check the Supabase mcq_feedback table.";
+  return "Δεν αποθηκεύτηκε το σχόλιο. Δοκίμασε ξανά.";
 }
 
 async function getAllMcqFeedback() {
@@ -2251,11 +2259,11 @@ function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
 
 function getDailyReasonLabel(reason) {
   const labels = {
-    repeated_wrong: "Repeatedly wrong",
-    mastered_due: "Mastered review",
-    normal_due: "Due review",
-    unseen_or_random: "New item",
-    fallback_random: "Mixed review",
+    repeated_wrong: "Επανειλημμένα λάθος",
+    mastered_due: "Επανάληψη κατακτημένης",
+    normal_due: "Ώρα για επανάληψη",
+    unseen_or_random: "Νέα ερώτηση",
+    fallback_random: "Μεικτή επανάληψη",
   };
   return labels[reason] || null;
 }
@@ -2572,4004 +2580,38 @@ function getWrittenExamResult(questions, answers, progress = null) {
 // ICONS
 // ═══════════════════════════════════════════════════════════════
 
-const Icons = {
-  Brain: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <path d="M9.5 2a3.5 3.5 0 0 0-3.2 4.8A3.5 3.5 0 0 0 4 10.5a3.5 3.5 0 0 0 1.3 2.7A3.5 3.5 0 0 0 4 16a3.5 3.5 0 0 0 3.5 3.5h.5a2 2 0 0 0 4 0V5a3.5 3.5 0 0 0-2.5-3z"/>
-      <path d="M14.5 2a3.5 3.5 0 0 1 3.2 4.8A3.5 3.5 0 0 1 20 10.5a3.5 3.5 0 0 1-1.3 2.7A3.5 3.5 0 0 1 20 16a3.5 3.5 0 0 1-3.5 3.5h-.5a2 2 0 0 1-4 0V5a3.5 3.5 0 0 1 2.5-3z"/>
-    </svg>
-  ),
-  ClipboardCheck: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>
-    </svg>
-  ),
-  Mic: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/>
-    </svg>
-  ),
-  Pill: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/>
-    </svg>
-  ),
-  BookOpen: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-    </svg>
-  ),
-  FileText: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/>
-    </svg>
-  ),
-  Globe: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="icon">
-      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-    </svg>
-  ),
-  ChevronLeft: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:20,height:20}}>
-      <polyline points="15,18 9,12 15,6"/>
-    </svg>
-  ),
-  ChevronRight: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:20,height:20}}>
-      <polyline points="9,18 15,12 9,6"/>
-    </svg>
-  ),
-  Lock: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:18,height:18}}>
-      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    </svg>
-  ),
-  Skip: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:18,height:18}}>
-      <polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/>
-    </svg>
-  ),
-  Check: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
-      <polyline points="20,6 9,17 4,12"/>
-    </svg>
-  ),
-  X: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-  ),
-  Home: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:18,height:18}}>
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
-      <polyline points="9,21 9,13 15,13 15,21"/>
-    </svg>
-  ),
-  ChevronDown: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  ),
-  Eye: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{width:20,height:20}}>
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-    </svg>
-  ),
-  ThumbsUp: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
-      <path d="M7 10v11"/>
-      <path d="M15 5.9 14 10h5.8a2 2 0 0 1 2 2.3l-1.2 7a2 2 0 0 1-2 1.7H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.7-.9L15 3a2.6 2.6 0 0 1 0 2.9z"/>
-    </svg>
-  ),
-  ThumbsDown: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}>
-      <path d="M17 14V3"/>
-      <path d="M9 18.1 10 14H4.2a2 2 0 0 1-2-2.3l1.2-7a2 2 0 0 1 2-1.7H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.7.9L9 21a2.6 2.6 0 0 1 0-2.9z"/>
-    </svg>
-  ),
+// Icons live in ./components/Icons.jsx
+
+// Screen and mode names, shared by the shell, the resume block and the titles.
+const SCREEN_TITLES = {
+  home: "Εξετάσεις Ειδικότητας",
+  mcq: "Πολλαπλής Επιλογής",
+  oral: "Προφορικά",
+  "oral-past": "Προηγούμενα Θέματα",
+  "oral-viewer": "Προηγούμενα Θέματα",
+  "oral-table": "Πίνακας Θεμάτων",
+  "oral-crucial-index": "Κρίσιμες Ερωτήσεις",
+  "oral-crucial-viewer": "Κρίσιμες Ερωτήσεις",
+  "oral-simulator": "Προφορική Εξέταση",
+  sos: "SOS Ψυχιατρικής",
+  "sos-numbers": "Αριθμοί",
+  "sos-highyield": "Γρήγορα SOS",
+  "sos-critical": "Κρίσιμα Θέματα",
+  "sos-differential": "Διαφοροδιάγνωση",
+  pinakakia: "Πινακάκια",
 };
 
-// ═══════════════════════════════════════════════════════════════
-// STYLES
-// ═══════════════════════════════════════════════════════════════
-
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
-
-  :root {
-    color-scheme: dark;
-    --bg: #0c1212;
-    --bg-card: #121b1a;
-    --bg-card-hover: #192523;
-    --bg-surface: #172120;
-    --text: #eef2ed;
-    --text-dim: #a3b0aa;
-    --text-muted: #71817a;
-    --accent: #6fa99e;
-    --accent-glow: rgba(111, 169, 158, 0.18);
-    --accent-soft: #1d3a35;
-    --green: #70c590;
-    --green-bg: rgba(34, 197, 94, 0.12);
-    --red: #f08080;
-    --red-bg: rgba(239, 68, 68, 0.12);
-    --gold: #e6b86b;
-    --gold-bg: rgba(245, 158, 11, 0.12);
-    --border: rgba(224, 235, 228, 0.11);
-    --border-active: rgba(111, 169, 158, 0.72);
-    --focus: #f0c77b;
-    --radius: 10px;
-    --radius-sm: 7px;
-    --shadow: 0 14px 42px rgba(0,0,0,0.28);
-    --content-reading: 72ch;
-    --content-wide: 1080px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.5;
-  }
-
-  button,
-  input,
-  textarea,
-  select { font: inherit; }
-
-  button { touch-action: manipulation; }
-
-  .skip-link {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    padding: 10px 14px;
-    border-radius: var(--radius-sm);
-    background: var(--text);
-    color: var(--bg);
-    transform: translateY(-160%);
-    transition: transform 0.16s ease-out;
-  }
-
-  .skip-link:focus { transform: translateY(0); }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  :where(button, a, input, textarea, select, summary):focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
-  }
-
-  .icon { width: 28px; height: 28px; }
-
-  .app {
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  /* ─── HOME SCREEN ─── */
-  .home {
-    max-width: var(--content-wide);
-    margin: 0 auto;
-    padding: clamp(28px, 5vw, 64px) 24px 80px;
-  }
-
-  .home-header {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 10px 18px;
-    text-align: left;
-    margin-bottom: clamp(28px, 4vw, 46px);
-  }
-
-  .home-logo {
-    grid-row: 1 / span 2;
-    width: 52px;
-    height: 52px;
-    background: var(--accent-soft);
-    border: 1px solid var(--border-active);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    box-shadow: none;
-  }
-
-  .home-logo .icon { color: #cce7e0; width: 28px; height: 28px; }
-
-  .home-title {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(34px, 5vw, 46px);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 0;
-  }
-
-  .home-subtitle {
-    color: var(--text-dim);
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  .home-update-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    grid-column: 2 / -1;
-    justify-self: start;
-    margin: 0;
-    padding: 5px 0;
-    border: 0;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.4;
-    font-family: inherit;
-    cursor: pointer;
-  }
-
-  .home-update-note strong {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  .home-update-editor {
-    width: min(520px, calc(100vw - 48px));
-    margin: 0 auto 14px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-  }
-
-  .home-update-editor textarea {
-    width: 100%;
-    resize: vertical;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    padding: 10px 12px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-
-  .home-update-editor-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-  }
-
-  .home-update-status {
-    color: var(--text-dim);
-    font-size: 12px;
-    margin: -6px auto 12px;
-  }
-
-  .profile-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-    margin-top: 0;
-    grid-column: 3;
-    grid-row: 1;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-
-  .profile-switch {
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
-    transition: all 0.2s;
-  }
-
-  .profile-switch:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-  }
-
-  .profile-remember {
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-dim);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
-    transition: all 0.2s;
-  }
-
-  .profile-remember:hover {
-    color: var(--text);
-    border-color: var(--border-active);
-  }
-
-  .profile-remember[aria-pressed="true"] {
-    border-color: rgba(245,158,11,0.45);
-    background: var(--gold-bg);
-    color: var(--gold);
-  }
-
-  .profile-screen {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 56px 24px 80px;
-  }
-
-  .profile-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-  }
-
-  .profile-panel h1 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 34px;
-    font-weight: 400;
-    margin-bottom: 8px;
-  }
-
-  .profile-panel p {
-    color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 22px;
-  }
-
-  .sync-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-dim);
-    font-size: 12px;
-    padding: 5px 10px;
-    margin-bottom: 18px;
-  }
-
-  .sync-status.online {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-  }
-
-  .sync-status.saving,
-  .sync-status.loading {
-    background: rgba(59,130,246,0.12);
-    border-color: rgba(59,130,246,0.3);
-    color: #93c5fd;
-  }
-
-  .sync-status.offline,
-  .sync-status.local {
-    background: var(--gold-bg);
-    border-color: rgba(245,158,11,0.35);
-    color: var(--gold);
-  }
-
-  .profile-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-
-  .profile-input {
-    flex: 1;
-    min-width: 0;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    color: var(--text);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    font-family: inherit;
-    font-size: 15px;
-    outline-offset: 3px;
-  }
-
-  .profile-input:focus {
-    border-color: var(--border-active);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .profile-error {
-    color: #fca5a5;
-    font-size: 12px;
-    margin: -12px 0 18px;
-  }
-
-  .profile-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .profile-list-title {
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 2px;
-  }
-
-  .profile-btn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    color: var(--text);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: left;
-    transition: all 0.2s;
-  }
-
-  .profile-btn:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-  }
-
-  .profile-btn small {
-    display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-
-  .profile-name-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .admin-badge {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid rgba(245,158,11,0.35);
-    border-radius: 999px;
-    background: var(--gold-bg);
-    color: var(--gold);
-    padding: 2px 7px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    line-height: 1.4;
-    text-transform: uppercase;
-  }
-
-  .admin-unlock-modal {
-    max-width: 360px;
-  }
-
-  .admin-pin-input {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    padding: 13px 14px;
-    margin: 4px 0 14px;
-    font-family: inherit;
-    font-size: 20px;
-    letter-spacing: 0.3em;
-    text-align: center;
-    outline-offset: 3px;
-  }
-
-  .admin-pin-input:focus {
-    border-color: var(--border-active);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .admin-pin-pad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .admin-pin-key {
-    min-height: 44px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 16px;
-  }
-
-  .admin-pin-key:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-  }
-
-  .admin-pin-key.utility {
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-
-  .admin-pin-error {
-    color: #fca5a5;
-    font-size: 12px;
-    margin: -4px 0 14px;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .card {
-    width: 100%;
-    min-height: 176px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-    cursor: pointer;
-    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-    position: relative;
-    overflow: hidden;
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.25s;
-  }
-
-  .card:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 26px rgba(0,0,0,0.2);
-  }
-
-  .card:hover::before { opacity: 1; }
-
-  .card.full-width {
-    grid-column: auto;
-  }
-
-  .card.disabled {
-    opacity: 0.45;
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .card-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    color: white;
-  }
-
-  .card-icon-lg { width: 42px; height: 42px; border-radius: 10px; margin-bottom: 18px; }
-  .card-icon-lg .icon { width: 22px; height: 22px; }
-
-  .card-icon.blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
-  .card-icon.purple { background: rgba(139,92,246,0.15); color: #a78bfa; }
-  .card-icon.emerald { background: rgba(16,185,129,0.15); color: #34d399; }
-  .card-icon.amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
-  .card-icon.rose { background: rgba(244,63,94,0.15); color: #fb7185; }
-  .card-icon.cyan { background: rgba(6,182,212,0.15); color: #22d3ee; }
-
-  .card-title {
-    display: block;
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 6px;
-  }
-
-  .card-desc {
-    display: block;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.5;
-  }
-
-  .card-status {
-    display: block;
-    margin-top: 16px;
-    color: #c8d7d1;
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .home-section-heading {
-    grid-column: 1 / -1;
-    margin: 0 0 8px;
-  }
-
-  .home-section-heading h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 27px;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-
-  .home-section-heading p {
-    margin-top: 3px;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-
-  .home-sharing-note {
-    margin: 26px auto 0;
-    max-width: 520px;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.5;
-  }
-
-  .home-sharing-note small {
-    display: block;
-    margin-top: 4px;
-    color: var(--text-muted);
-    font-size: 11px;
-  }
-
-  .card-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 3px 8px;
-    border-radius: 4px;
-    margin-top: 12px;
-    background: rgba(245,158,11,0.12);
-    color: #fbbf24;
-  }
-
-  /* ─── MCQ SELECTION ─── */
-  .mcq-select {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    text-align: center;
-  }
-
-  .mcq-select h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 32px;
-    font-weight: 400;
-    margin-bottom: 8px;
-  }
-
-  .mcq-select p {
-    color: var(--text-dim);
-    margin-bottom: 40px;
-  }
-
-  .mode-btn {
-    display: block;
-    width: 100%;
-    padding: 20px 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s;
-    margin-bottom: 12px;
-    font-family: inherit;
-  }
-
-  .mode-btn:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-  }
-
-  .mode-btn.featured {
-    border-color: rgba(34,197,94,0.35);
-    background: rgba(34,197,94,0.08);
-  }
-
-  .mode-btn small {
-    display: block;
-    color: var(--text-dim);
-    font-size: 13px;
-    font-weight: 400;
-    margin-top: 4px;
-  }
-
-  .mcq-memory {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 18px;
-  }
-
-  .mcq-memory-stat {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 10px;
-    text-align: center;
-  }
-
-  .mcq-memory-value {
-    display: block;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .mcq-memory-label {
-    display: block;
-    color: var(--text-dim);
-    font-size: 11px;
-    margin-top: 2px;
-  }
-
-  .written-history {
-    margin-top: 18px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-  }
-
-  .written-history h3 {
-    font-size: 14px;
-    margin: 0 0 6px;
-    color: var(--text);
-  }
-
-  .written-history-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    align-items: center;
-    padding: 8px 0;
-    border-top: 1px solid var(--border);
-  }
-
-  .written-history-row:first-of-type {
-    border-top: none;
-  }
-
-  .written-history-main {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    color: var(--text-dim);
-    font-size: 12px;
-    line-height: 1.3;
-    flex-wrap: wrap;
-  }
-
-  .written-history-date {
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  .written-history-detail {
-    color: var(--text-dim);
-    font-size: 12px;
-    line-height: 1.3;
-    white-space: nowrap;
-  }
-
-  .written-history-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    flex: 0 0 auto;
-  }
-
-  .written-history-score {
-    align-self: center;
-    font-size: 22px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0;
-  }
-
-  .written-history-score.pink { color: #f472b6; }
-  .written-history-score.orange { color: var(--gold); }
-  .written-history-score.purple { color: #a855f7; }
-  .written-history-score.blue { color: var(--accent); }
-  .written-history-score.green { color: var(--green); }
-  .written-history-score.gray { color: var(--text-muted); }
-
-  @media (max-width: 520px) {
-    .written-history-row {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-
-    .written-history-score {
-      justify-self: start;
-    }
-  }
-
-  .game-hud {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    margin: 12px 0 16px;
-    border-block: 1px solid var(--border);
-  }
-
-  .hud-stat {
-    background: transparent;
-    border: 0;
-    border-right: 1px solid var(--border);
-    border-radius: 0;
-    padding: 8px 10px;
-    text-align: center;
-  }
-
-  .hud-stat:last-child { border-right: 0; }
-
-  .hud-value {
-    display: block;
-    color: var(--text);
-    font-size: 18px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .hud-label {
-    display: block;
-    color: var(--text-dim);
-    font-size: 10px;
-    margin-top: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .confidence-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin: -10px 0 22px;
-  }
-
-  .confidence-label {
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .confidence-btn {
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
-    transition: all 0.2s;
-  }
-
-  .confidence-btn.active {
-    background: var(--accent-soft);
-    border-color: var(--border-active);
-    color: var(--text);
-  }
-
-  .point-breakdown {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-    animation: point-pop 0.35s ease-out;
-  }
-
-  @keyframes point-pop {
-    0% {
-      opacity: 0;
-      transform: translateY(6px) scale(0.97);
-    }
-    70% {
-      transform: translateY(-2px) scale(1.02);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .point-pill {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-dim);
-    font-size: 12px;
-    padding: 5px 9px;
-  }
-
-  .point-pill.total {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-    font-weight: 700;
-  }
-
-  .point-breakdown.low .point-pill.total {
-    background: var(--red-bg);
-    border-color: rgba(239,68,68,0.35);
-    color: var(--red);
-  }
-
-  .point-breakdown.medium .point-pill.total {
-    background: var(--gold-bg);
-    border-color: rgba(245,158,11,0.35);
-    color: var(--gold);
-  }
-
-  .point-breakdown.high .point-pill.total {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-  }
-
-  .sprint-auto-toggle {
-    position: fixed;
-    right: 18px;
-    bottom: 78px;
-    z-index: 120;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    border-radius: var(--radius-sm);
-    padding: 9px 12px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: all 0.2s;
-  }
-
-  .sprint-auto-toggle.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-  }
-
-  .sprint-auto-toggle:hover {
-    transform: translateY(-1px);
-  }
-
-  .reset-progress-btn {
-    border: none;
-    background: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
-    margin-top: 10px;
-  }
-
-  .reset-progress-btn:hover { color: var(--red); }
-
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-dim);
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 32px;
-    background: none;
-    border: none;
-    font-family: inherit;
-    transition: color 0.2s;
-  }
-
-  .back-link:hover { color: var(--text); }
-
-  .home-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    color: var(--text-dim);
-    font-size: 13px;
-    cursor: pointer;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 7px 12px;
-    font-family: inherit;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .home-btn:hover { color: var(--text); background: var(--bg-card-hover); }
-
-  /* ─── MCQ TEST ─── */
-  .test-container {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 24px 24px 120px;
-  }
-
-  .test-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 22px;
-    gap: 16px;
-  }
-
-  .progress-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--bg-surface);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.4s ease;
-    border-radius: 2px;
-  }
-
-  .progress-text {
-    font-size: 13px;
-    color: var(--text-dim);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .question-num {
-    font-family: 'Instrument Serif', serif;
-    font-size: 14px;
-    color: var(--accent);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .question-status {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-dim);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-  }
-
-  .question-status.mastered {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-  }
-
-  .question-status.review {
-    background: var(--gold-bg);
-    border-color: rgba(245,158,11,0.35);
-    color: var(--gold);
-  }
-
-  .question-status.seen {
-    background: rgba(59,130,246,0.12);
-    border-color: rgba(59,130,246,0.3);
-    color: #93c5fd;
-  }
-
-  .mcq-feedback {
-    position: relative;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .mcq-feedback-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-  }
-
-  .mcq-feedback-btn {
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-
-  .mcq-feedback-btn:hover {
-    background: var(--bg-card-hover);
-    color: var(--text);
-  }
-
-  .mcq-feedback-btn:disabled {
-    opacity: 0.55;
-    cursor: default;
-  }
-
-  .mcq-quality-btn {
-    width: 31px;
-    height: 31px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-
-  .mcq-quality-btn.up {
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-  }
-
-  .mcq-quality-btn.down {
-    border-color: rgba(239,68,68,0.35);
-    color: var(--red);
-  }
-
-  .mcq-quality-btn.up:hover {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.65);
-  }
-
-  .mcq-quality-btn.down:hover {
-    background: var(--red-bg);
-    border-color: rgba(239,68,68,0.65);
-  }
-
-  .mcq-quality-btn:disabled {
-    opacity: 0.55;
-    cursor: default;
-  }
-
-  .mcq-feedback-menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    z-index: 140;
-    min-width: 250px;
-    overflow: hidden;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow);
-  }
-
-  .mcq-feedback-option {
-    display: block;
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
-    color: var(--text);
-    padding: 10px 12px;
-    font-family: inherit;
-    font-size: 13px;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .mcq-feedback-option:last-child {
-    border-bottom: 0;
-  }
-
-  .mcq-feedback-option:hover {
-    background: var(--bg-card-hover);
-  }
-
-  .mcq-feedback-comment {
-    border-top: 1px solid var(--border);
-    padding: 10px;
-  }
-
-  .mcq-feedback-comment textarea {
-    width: 100%;
-    min-height: 76px;
-    resize: vertical;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg);
-    color: var(--text);
-    padding: 9px 10px;
-    font-family: inherit;
-    font-size: 13px;
-    line-height: 1.45;
-    outline-offset: 3px;
-  }
-
-  .mcq-feedback-comment textarea:focus {
-    border-color: rgba(59,130,246,0.55);
-  }
-
-  .mcq-feedback-comment-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .mcq-feedback-comment-actions button {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card-hover);
-    color: var(--text-dim);
-    padding: 6px 9px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  .mcq-feedback-comment-actions button.primary {
-    background: var(--blue-bg);
-    border-color: rgba(59,130,246,0.45);
-    color: var(--blue);
-  }
-
-  .mcq-feedback-comment-actions button:disabled {
-    opacity: 0.55;
-    cursor: default;
-  }
-
-  .mcq-feedback-message {
-    display: inline-flex;
-    margin: -4px 0 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 6px 9px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .mcq-feedback-message.success {
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-    color: var(--green);
-  }
-
-  .mcq-feedback-message.error {
-    background: var(--red-bg);
-    border-color: rgba(239,68,68,0.35);
-    color: var(--red);
-  }
-
-  .question-stem {
-    font-family: 'DM Sans', Arial, sans-serif;
-    max-width: var(--content-reading);
-    font-size: clamp(18px, 2.2vw, 21px);
-    line-height: 1.58;
-    margin-bottom: 24px;
-    font-weight: 560;
-    text-wrap: pretty;
-  }
-
-  .options-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .option-btn {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 16px 18px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.5;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-    font-family: inherit;
-    width: 100%;
-  }
-
-  .option-btn:hover:not(.locked):not(.selected) {
-    background: var(--bg-card-hover);
-    border-color: rgba(255,255,255,0.1);
-  }
-
-  .option-btn.selected {
-    background: var(--accent-soft);
-    border-color: var(--border-active);
-  }
-
-  .option-btn.locked.correct {
-    background: var(--green-bg);
-    border-color: var(--green);
-  }
-
-  .option-btn.locked.incorrect {
-    background: var(--red-bg);
-    border-color: var(--red);
-  }
-
-  .option-btn.locked.was-correct {
-    background: var(--green-bg);
-    border-color: var(--green);
-    opacity: 0.7;
-  }
-
-  .option-letter {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--bg-surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
-  .option-btn.selected .option-letter {
-    background: var(--accent);
-    color: white;
-  }
-
-  .option-btn.locked.correct .option-letter {
-    background: var(--green);
-    color: white;
-  }
-
-  .option-btn.locked.incorrect .option-letter {
-    background: var(--red);
-    color: white;
-  }
-
-  .explanation-box {
-    margin-top: 20px;
-    padding: 18px 20px;
-    max-width: var(--content-reading);
-    background: #14201d;
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--accent);
-    font-size: 15px;
-    line-height: 1.72;
-    color: #c1cdc7;
-    animation: fadeIn 0.3s ease;
-  }
-
-  .explanation-box strong {
-    color: var(--text);
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  /* ─── NAVIGATION BAR ─── */
-  .structured-mcq {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 32px 24px 120px;
-  }
-
-  .structured-mcq h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 34px;
-    font-weight: 400;
-    margin-bottom: 16px;
-  }
-
-  .structured-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-    margin-bottom: 18px;
-  }
-
-  .structured-card.compact {
-    padding: 16px;
-  }
-
-  .vignette-text {
-    white-space: pre-line;
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.75;
-  }
-
-  .vignette-open-btn {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    padding: 14px 16px;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    margin-bottom: 18px;
-  }
-
-  .vignette-question-card {
-    min-height: 720px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .vignette-question-card .structured-options {
-    flex: 1;
-  }
-
-  .vignette-question-card .structured-option {
-    min-height: 78px;
-    align-items: center;
-  }
-
-  .vignette-question-card .structured-actions {
-    margin-top: auto;
-  }
-
-  .structured-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .structured-progress {
-    color: var(--text-dim);
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .structured-question {
-    color: var(--text);
-    font-size: 20px;
-    line-height: 1.55;
-    margin-bottom: 18px;
-  }
-
-  .structured-instruction {
-    color: var(--text-muted);
-    font-size: 13px;
-    margin-bottom: 14px;
-  }
-
-  .structured-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .structured-option {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text);
-    padding: 14px 16px;
-    font-family: inherit;
-    font-size: 15px;
-    line-height: 1.5;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .structured-option.selected {
-    border-color: var(--border-active);
-    background: var(--accent-soft);
-  }
-
-  .structured-option.correct {
-    border-color: var(--green);
-    background: var(--green-bg);
-  }
-
-  .structured-option.incorrect {
-    border-color: var(--red);
-    background: var(--red-bg);
-  }
-
-  .structured-option-letter,
-  .choice-id {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--bg-surface);
-    color: var(--text);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .structured-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 22px;
-  }
-
-  .structured-actions-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .DSM5-chapter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-top: 18px;
-  }
-
-  .DSM5-chapter-row {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .DSM5-chapter-row.featured {
-    border-color: var(--border-active);
-    background: var(--accent-soft);
-  }
-
-  .DSM5-chapter-row:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-
-  .DSM5-chapter-title {
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .DSM5-session-header,
-  .DSM5-session-stats {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
-
-  .DSM5-session-header span,
-  .DSM5-session-stats span {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--bg-surface);
-    color: var(--text-dim);
-    padding: 7px 11px;
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .DSM5-question-card {
-    padding: 26px;
-  }
-
-  .DSM5-question-stem {
-    font-size: 17px;
-    line-height: 1.65;
-  }
-
-  .DSM5-option {
-    min-height: 72px;
-    align-items: flex-start;
-  }
-
-  .DSM5-option-text {
-    white-space: pre-line;
-  }
-
-  .DSM5-explanation {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    white-space: pre-line;
-    line-height: 1.65;
-    text-align: left;
-  }
-
-  .DSM5-empty-note {
-    color: var(--text-dim);
-    line-height: 1.55;
-  }
-
-  .DSM5-review-list {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .DSM5-result-modal {
-    max-width: 520px;
-  }
-
-  .DSM5-nav-row {
-    justify-content: center;
-  }
-
-  .choice-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-  }
-
-  .choice-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text);
-    padding: 12px;
-    font-size: 14px;
-    line-height: 1.4;
-    font-family: inherit;
-    text-align: left;
-  }
-
-  .choice-card.selectable {
-    cursor: pointer;
-  }
-
-  .choice-card.selected {
-    border-color: var(--border-active);
-    background: var(--accent-soft);
-  }
-
-  .vignette-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .vignette-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .vignette-open-card,
-  .vignette-complete-toggle {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: inherit;
-    cursor: pointer;
-  }
-
-  .vignette-open-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    font-size: 15px;
-    text-align: left;
-  }
-
-  .vignette-complete-toggle {
-    min-width: 150px;
-    padding: 0 16px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-muted);
-  }
-
-  .vignette-complete-toggle.active {
-    border-color: var(--green);
-    background: var(--green-bg);
-    color: var(--green);
-  }
-
-  .choice-card.correct {
-    border-color: var(--green);
-    background: var(--green-bg);
-  }
-
-  .choice-card.incorrect {
-    border-color: var(--red);
-    background: var(--red-bg);
-  }
-
-  .sticky-choices {
-    position: sticky;
-    top: 8px;
-    z-index: 5;
-    background: rgba(15, 23, 42, 0.94);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-bottom: 18px;
-  }
-
-  .sticky-choices .choice-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-
-  .vignette-modal {
-    width: min(980px, calc(100vw - 48px));
-    max-width: 980px;
-    max-height: 88vh;
-    overflow-y: auto;
-    text-align: left;
-  }
-
-  .vignette-modal-close {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 12px;
-  }
-
-  .nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(12, 18, 18, 0.96);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
-    padding: 12px max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom));
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    z-index: 100;
-  }
-
-  .nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text);
-  }
-
-  .nav-btn:hover { background: var(--bg-card-hover); }
-  .nav-btn:disabled { opacity: 0.3; pointer-events: none; }
-
-  .nav-btn.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #08110f;
-  }
-
-  .nav-btn.primary:hover { background: #8abbb2; }
-
-  .nav-btn.danger {
-    background: rgba(239,68,68,0.15);
-    border-color: rgba(239,68,68,0.3);
-    color: #fca5a5;
-  }
-
-  /* ─── RESULTS ─── */
-  .results {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    text-align: center;
-  }
-
-  .results-score {
-    font-family: 'Instrument Serif', serif;
-    font-size: 72px;
-    font-weight: 400;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .results-score.pink { color: #f472b6; }
-  .results-score.orange { color: var(--gold); }
-  .results-score.purple { color: #a855f7; }
-  .results-score.blue { color: var(--accent); }
-  .results-score.green { color: var(--green); }
-  .results-score.gray { color: var(--text-muted); }
-
-  .results-label {
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .results-detail {
-    color: var(--text-dim);
-    font-size: 15px;
-    margin-bottom: 40px;
-  }
-
-  .results-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .results-btn {
-    padding: 12px 24px;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text);
-  }
-
-  .results-btn:hover { background: var(--bg-card-hover); }
-  .results-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
-  .results-btn.primary:hover { background: #2563eb; }
-
-  /* ─── MODAL ─── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    animation: fadeIn 0.2s ease;
-  }
-
-  .modal {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 32px;
-    max-width: 420px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    color: var(--text-dim);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .modal-close svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .DSM5-password-modal {
-    position: relative;
-  }
-
-  .DSM5-password-modal input {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    padding: 12px 14px;
-    margin: 10px 0 14px;
-    font-family: inherit;
-    font-size: 16px;
-  }
-
-  .modal h3 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 24px;
-    font-weight: 400;
-    margin-bottom: 12px;
-  }
-
-  .modal p {
-    color: var(--text-dim);
-    font-size: 14px;
-    margin-bottom: 24px;
-    line-height: 1.5;
-  }
-
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .sprint-results-modal {
-    max-width: 520px;
-  }
-
-  .sprint-score {
-    font-size: 56px;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1;
-    margin: 6px 0 18px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .sprint-result-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 16px 0;
-  }
-
-  .sprint-result-stat {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-  }
-
-  .sprint-result-stat strong {
-    display: block;
-    color: var(--text);
-    font-size: 18px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .sprint-result-stat span {
-    display: block;
-    color: var(--text-dim);
-    font-size: 11px;
-    margin-top: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .sprint-history {
-    margin: 18px 0 22px;
-    text-align: left;
-  }
-
-  .sprint-history-title {
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .sprint-history-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    border-top: 1px solid var(--border);
-    padding: 8px 0;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-
-  .sprint-history-row strong {
-    color: var(--text);
-  }
-
-  /* ─── PLACEHOLDER ─── */
-  .written-results {
-    max-width: 960px;
-    text-align: left;
-  }
-
-  .written-results .results-score,
-  .written-results .results-label,
-  .written-results .results-detail {
-    text-align: center;
-  }
-
-  .written-result-grid,
-  .written-breakdown-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 18px 0;
-  }
-
-  .written-breakdown-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-
-  .written-result-stat,
-  .written-breakdown,
-  .wrong-answer-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-  }
-
-  .written-result-stat {
-    text-align: center;
-  }
-
-  .written-result-stat strong {
-    display: block;
-    color: var(--text);
-    font-size: 26px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .written-result-stat span,
-  .wrong-answer-topline,
-  .written-breakdown h3 {
-    color: var(--text-dim);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .written-breakdown h3 {
-    margin-bottom: 12px;
-  }
-
-  .breakdown-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 14px;
-    border-top: 1px solid var(--border);
-    padding: 10px 0;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-
-  .breakdown-row strong {
-    color: var(--text);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .written-topic-panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    margin: 16px 0;
-  }
-
-  .written-topic-panel h3 {
-    color: var(--text);
-    font-size: 15px;
-    margin-bottom: 14px;
-  }
-
-  .topic-performance-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .topic-performance-row {
-    display: grid;
-    grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.25fr);
-    gap: 14px;
-    align-items: center;
-    border-top: 1px solid var(--border);
-    padding-top: 8px;
-  }
-
-  .topic-performance-row:first-child {
-    border-top: 0;
-    padding-top: 0;
-  }
-
-  .topic-performance-main strong {
-    display: block;
-    color: var(--text);
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
-
-  .topic-performance-main span {
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-
-  .topic-performance-stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .topic-percent-card {
-    background: rgba(15, 23, 42, 0.42);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: var(--radius-sm);
-    padding: 8px 10px;
-  }
-
-  .topic-percent-card span,
-  .topic-percent-card small {
-    display: block;
-    color: var(--text-dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .topic-percent-card small {
-    margin-top: 3px;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-
-  .topic-percent-value {
-    display: block;
-    font-size: 19px;
-    line-height: 1;
-    margin: 5px 0;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .topic-percent-value.pink { color: #f472b6; }
-  .topic-percent-value.orange { color: var(--gold); }
-  .topic-percent-value.purple { color: #a855f7; }
-  .topic-percent-value.blue { color: var(--accent); }
-  .topic-percent-value.green { color: var(--green); }
-  .topic-percent-value.gray,
-  .topic-percent-value.empty { color: var(--text-muted); }
-
-  .topic-percent-bar {
-    height: 4px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: rgba(148, 163, 184, 0.16);
-  }
-
-  .topic-percent-fill {
-    height: 100%;
-    min-width: 2px;
-    border-radius: inherit;
-  }
-
-  .topic-percent-fill.pink { background: #f472b6; }
-  .topic-percent-fill.orange { background: var(--gold); }
-  .topic-percent-fill.purple { background: #a855f7; }
-  .topic-percent-fill.blue { background: var(--accent); }
-  .topic-percent-fill.green { background: var(--green); }
-  .topic-percent-fill.gray,
-  .topic-percent-fill.empty { background: var(--text-muted); }
-
-  .written-review {
-    max-width: 900px;
-  }
-
-  .written-review h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 30px;
-    font-weight: 400;
-    margin-bottom: 18px;
-  }
-
-  .wrong-answer-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-bottom: 80px;
-  }
-
-  .wrong-answer-topline,
-  .written-meta-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .wrong-full-btn {
-    margin-left: auto;
-    border: 1px solid var(--border-active);
-    border-radius: var(--radius-sm);
-    background: var(--accent-soft);
-    color: var(--accent-light);
-    padding: 6px 10px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .wrong-full-btn:hover {
-    border-color: var(--accent);
-    background: rgba(59,130,246,0.16);
-  }
-
-  .written-full-question {
-    background: transparent;
-  }
-
-  .written-full-question-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .written-full-question .question-num {
-    margin-bottom: 0;
-  }
-
-  .wrong-question-stem {
-    color: var(--text);
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 14px;
-  }
-
-  .written-answer-row {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .written-answer-row strong {
-    display: block;
-    color: var(--text);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-  }
-
-  .written-answer-row.correct {
-    border-color: rgba(34,197,94,0.35);
-    background: var(--green-bg);
-  }
-
-  .written-answer-row.incorrect {
-    border-color: rgba(239,68,68,0.35);
-    background: var(--red-bg);
-  }
-
-  .meta-pill {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-dim);
-    font-size: 12px;
-    padding: 4px 8px;
-  }
-
-  .exam-lesson {
-    border-left-color: var(--gold);
-  }
-
-  .placeholder-page {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    text-align: center;
-  }
-
-  .placeholder-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
-    background: var(--bg-surface);
-  }
-
-  .placeholder-icon .icon { width: 36px; height: 36px; color: var(--text-muted); }
-
-  .placeholder-page h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 28px;
-    font-weight: 400;
-    margin-bottom: 12px;
-  }
-
-  .placeholder-page p {
-    color: var(--text-dim);
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 32px;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .fade-in { animation: fadeIn 0.35s ease; }
-
-  /* ─── REVIEW MODE ─── */
-  .review-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .review-dots {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 32px;
-  }
-
-  .review-dot {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
-    transition: all 0.15s;
-  }
-
-  .review-dot.correct { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-  .review-dot.incorrect { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-  .review-dot.current { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  /* ── Oral Accordion ─────────────────────────────── */
-
-  .oral-container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .oral-choice,
-  .oral-simulator {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 36px 20px;
-  }
-
-  .oral-choice h2,
-  .oral-simulator h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 32px;
-    font-weight: 400;
-    margin-bottom: 8px;
-    text-align: center;
-  }
-
-  .oral-choice p,
-  .oral-simulator p {
-    color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0 auto 28px;
-    max-width: 560px;
-    text-align: center;
-  }
-
-  .oral-simulator {
-    padding-bottom: 92px;
-  }
-
-  .oral-exam-meta,
-  .oral-exam-context {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    color: var(--text-dim);
-    font-size: 12px;
-    margin-bottom: 10px;
-  }
-
-  .oral-exam-meta span {
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    border-radius: 999px;
-    padding: 4px 9px;
-  }
-
-  .oral-exam-context {
-    justify-content: flex-start;
-    margin-bottom: 18px;
-  }
-
-  .oral-notes-label {
-    display: block;
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-
-  .oral-answer-notes {
-    width: 100%;
-    min-height: 96px;
-    resize: vertical;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    padding: 12px 14px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 18px;
-  }
-
-  .oral-answer-notes:focus {
-    outline-offset: 3px;
-    border-color: var(--border-active);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.16);
-  }
-
-  .oral-exam-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 24px 0;
-  }
-
-  .oral-exam-summary-row {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .oral-exam-summary-row small {
-    display: block;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-
-  .oral-overview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: -14px auto 24px;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-  .oral-overview strong {
-    color: var(--text);
-    font-size: 15px;
-  }
-
-  .oral-progress-pill {
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 2px 8px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .oral-progress-pill.complete {
-    color: var(--green);
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-  }
-
-  .gravity-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 18px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 5px solid var(--bar-color, var(--border));
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
-    cursor: pointer;
-    width: 100%;
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    transition: background-color 0.16s ease, border-color 0.16s ease;
-    user-select: none;
-  }
-  .gravity-bar:hover { background: var(--bg-card-hover); }
-  .gravity-bar .bar-label {
-    font-weight: 700;
-    font-size: 14px;
-    min-width: 28px;
-  }
-  .gravity-bar .bar-title {
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--text);
-    flex: 1;
-  }
-  .gravity-bar .bar-tagline {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-  .gravity-bar .bar-chevron {
-    transition: transform 0.25s;
-    color: var(--text-dim);
-    flex-shrink: 0;
-  }
-  .gravity-bar .bar-chevron.open { transform: rotate(180deg); }
-
-  .topic-list {
-    margin: 0 0 8px 0;
-    padding: 0 0 0 22px;
-    border-left: 3px solid var(--bar-color, var(--border));
-    margin-left: 10px;
-  }
-
-  .topic-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 4px;
-    cursor: pointer;
-    width: 100%;
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    transition: background-color 0.16s ease, border-color 0.16s ease;
-    user-select: none;
-  }
-  .topic-row:hover { background: var(--bg-card-hover); }
-  .topic-row .topic-letter {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--bar-color, var(--accent));
-    min-width: 20px;
-  }
-  .topic-row .topic-title {
-    display: block;
-    font-size: 14px;
-    color: var(--text);
-    flex: 1;
-  }
-  .topic-row .topic-desc {
-    display: block;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-  .topic-row .topic-chevron {
-    transition: transform 0.25s;
-    color: var(--text-dim);
-    flex-shrink: 0;
-  }
-  .topic-row .topic-chevron.open { transform: rotate(180deg); }
-  .topic-row .q-count {
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 2px 8px;
-    white-space: nowrap;
-  }
-
-  .subtopic-list {
-    padding: 0 0 0 20px;
-    margin: 0 0 4px 0;
-  }
-
-  .subtopic-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 3px;
-    cursor: pointer;
-    width: 100%;
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    transition: background-color 0.16s ease, border-color 0.16s ease;
-  }
-  .subtopic-row:hover { background: var(--bg-card); }
-  .subtopic-row .sub-letter {
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--bar-color, var(--accent));
-    min-width: 16px;
-  }
-  .subtopic-row .sub-title {
-    font-size: 13px;
-    color: var(--text);
-    flex: 1;
-  }
-  .subtopic-row .q-count {
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 2px 8px;
-    white-space: nowrap;
-  }
-
-  /* ── Oral Question Viewer ─────────────────────────── */
-
-  .oral-viewer {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .oral-q-counter {
-    font-size: 13px;
-    color: var(--text-dim);
-  }
-
-  .oral-viewer-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-
-  .oral-q-text {
-    font-size: 17px;
-    line-height: 1.7;
-    color: var(--text);
-    margin-bottom: 28px;
-    font-weight: 500;
-  }
-
-  .oral-mastery-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: -12px 0 24px;
-    padding: 9px 13px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .oral-mastery-toggle:hover {
-    background: var(--bg-card-hover);
-    color: var(--text);
-  }
-  .oral-mastery-toggle.mastered {
-    color: var(--green);
-    background: var(--green-bg);
-    border-color: rgba(34,197,94,0.35);
-  }
-
-  .answer-box {
-    width: 100%;
-    min-height: 180px;
-    background: var(--bg-surface);
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    cursor: pointer;
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    margin-bottom: 24px;
-  }
-  .answer-box .answer-placeholder {
-    color: var(--text-dim);
-    font-size: 14px;
-    text-align: center;
-  }
-  .answer-box.revealed {
-    border-style: solid;
-    border-color: rgba(99,102,241,0.3);
-    background: rgba(99,102,241,0.06);
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
-  .answer-box .answer-content {
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-  }
-
-  .oral-self-assessment {
-    margin: 4px 0 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .oral-self-assessment > span {
-    display: block;
-    margin-bottom: 9px;
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .oral-self-assessment-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .oral-self-assessment-actions button {
-    min-height: 40px;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text-dim);
-    cursor: pointer;
-  }
-
-  .oral-self-assessment-actions button[aria-pressed="true"] {
-    border-color: var(--border-active);
-    background: var(--accent-soft);
-    color: var(--text);
-  }
-
-  .oral-source {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: -20px;
-    margin-bottom: 24px;
-    font-style: italic;
-  }
-
-  .oral-answer-reveal {
-    width: 100%;
-    min-height: 190px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 28px;
-    border: 1px dashed rgba(99,102,241,0.5);
-    border-radius: var(--radius);
-    background: linear-gradient(145deg, rgba(99,102,241,0.08), rgba(59,130,246,0.03));
-    color: var(--text-dim);
-    font-family: inherit;
-    cursor: pointer;
-    transition: border-color 0.18s, background 0.18s, transform 0.18s;
-  }
-
-  .oral-answer-reveal:hover {
-    border-color: var(--accent);
-    background: rgba(59,130,246,0.1);
-    transform: translateY(-1px);
-  }
-
-  .oral-answer-reveal:focus-visible,
-  .oral-answer-modes button:focus-visible,
-  .oral-answer-hide:focus-visible,
-  .oral-source-chapter summary:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
-
-  .oral-answer-reveal .answer-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    min-height: 56px;
-    font-size: 15.5px;
-    font-weight: 700;
-  }
-
-  .oral-answer-reveal .answer-placeholder .icon {
-    width: 26px;
-    height: 26px;
-    color: var(--accent-light);
-  }
-
-  .oral-answer-reveal .answer-placeholder small {
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 400;
-  }
-
-  .oral-answer-panel {
-    overflow: clip;
-    border: 1px solid rgba(99,102,241,0.28);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    box-shadow: 0 18px 50px rgba(0,0,0,0.16);
-  }
-
-  .oral-answer-toolbar {
-    position: sticky;
-    top: 8px;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(17,24,39,0.96);
-    backdrop-filter: blur(14px);
-  }
-
-  .oral-answer-modes {
-    display: inline-flex;
-    gap: 3px;
-    padding: 3px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--bg-surface);
-  }
-
-  .oral-answer-modes button,
-  .oral-answer-hide {
-    border: 0;
-    border-radius: 7px;
-    background: transparent;
-    color: var(--text-dim);
-    padding: 8px 11px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .oral-answer-modes button:hover,
-  .oral-answer-hide:hover {
-    color: var(--text);
-    background: var(--bg-card-hover);
-  }
-
-  .oral-answer-modes button.active {
-    color: #dbeafe;
-    background: var(--accent-soft);
-    box-shadow: inset 0 0 0 1px var(--border-active);
-  }
-
-  .oral-answer-modes button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-
-  .oral-quick-answer,
-  .oral-full-answer {
-    padding: clamp(20px, 4vw, 34px);
-  }
-
-  .oral-quick-answer {
-    max-width: 72ch;
-    margin: 0 auto;
-  }
-
-  .oral-answer-kicker,
-  .oral-model-answer h4,
-  .oral-reference-section h4 {
-    margin: 0 0 12px;
-    color: var(--accent-light);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-  }
-
-  .oral-quick-answer > p,
-  .oral-model-answer p,
-  .oral-reference-section p {
-    margin: 0 0 1em;
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.82;
-  }
-
-  .oral-legacy-source {
-    margin: 8px 0 0 24px;
-    color: var(--text-muted);
-    font-size: 11px;
-  }
-
-  .oral-source-chapter {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-  }
-
-  .oral-source-chapter + .oral-source-chapter {
-    margin-top: 12px;
-  }
-
-  .oral-source-chapter[open] {
-    border-color: rgba(99,102,241,0.3);
-  }
-
-  .oral-source-chapter summary {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    padding: 15px 16px;
-    color: var(--text);
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .oral-source-chapter summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .oral-source-badge {
-    padding: 4px 7px;
-    border-radius: 6px;
-    background: var(--accent-soft);
-    color: var(--accent-light);
-    font-size: 11px;
-    font-weight: 800;
-  }
-
-  .oral-source-title {
-    font-size: 13px;
-    font-weight: 650;
-    line-height: 1.4;
-  }
-
-  .oral-source-chevron {
-    color: var(--text-dim);
-    transition: transform 0.18s;
-  }
-
-  .oral-source-chevron svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .oral-source-chapter[open] .oral-source-chevron {
-    transform: rotate(180deg);
-  }
-
-  .oral-source-body {
-    max-width: 72ch;
-    margin: 0 auto;
-    padding: 4px 22px 26px;
-  }
-
-  /* ── 100 Crucial Questions Index ───────────────────── */
-
-  .crucial-index {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 20px 20px 92px;
-  }
-
-  .crucial-index-header {
-    max-width: 640px;
-    margin: 16px auto 28px;
-    text-align: center;
-  }
-
-  .crucial-index-header h2 {
-    margin: 0 0 8px;
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(30px, 6vw, 42px);
-    font-weight: 400;
-  }
-
-  .crucial-index-header p {
-    margin: 0;
-    color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.65;
-  }
-
-  .crucial-search {
-    position: sticky;
-    top: 8px;
-    z-index: 4;
-    margin-bottom: 18px;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: rgba(17,24,39,0.94);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
-    backdrop-filter: blur(14px);
-  }
-
-  .crucial-search input {
-    width: 100%;
-    min-height: 46px;
-    padding: 0 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    outline-offset: 3px;
-    background: var(--bg-surface);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-  }
-
-  .crucial-search input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.16);
-  }
-
-  .crucial-index-count {
-    margin: 0 2px 10px;
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-
-  .crucial-index-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .crucial-index-item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    min-height: 76px;
-    padding: 13px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: transform 0.16s, border-color 0.16s, background 0.16s;
-    content-visibility: auto;
-    contain-intrinsic-size: auto 76px;
-  }
-
-  .crucial-index-item:hover {
-    transform: translateY(-1px);
-    border-color: var(--border-active);
-    background: var(--bg-card-hover);
-  }
-
-  .crucial-index-item:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .crucial-index-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    height: 32px;
-    padding: 0 7px;
-    border-radius: 8px;
-    background: var(--accent-soft);
-    color: var(--accent-light);
-    font-size: 12px;
-    font-weight: 800;
-  }
-
-  .crucial-index-title {
-    font-size: 13px;
-    font-weight: 650;
-    line-height: 1.45;
-  }
-
-  .crucial-index-item svg {
-    color: var(--text-dim);
-  }
-
-  .crucial-empty,
-  .crucial-loading {
-    padding: 40px 20px;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    color: var(--text-dim);
-    text-align: center;
-  }
-
-  .crucial-viewer-heading {
-    max-width: 72ch;
-    margin: 14px auto 22px;
-  }
-
-  .crucial-viewer-heading h2 {
-    margin: 8px 0 0;
-    color: var(--text);
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(25px, 5vw, 36px);
-    font-weight: 400;
-    line-height: 1.22;
-  }
-
-  .crucial-viewer-content {
-    max-width: 72ch;
-    margin: 0 auto;
-  }
-
-  .oral-model-answer,
-  .oral-reference-section {
-    margin-top: 18px;
-    padding: 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: rgba(8,15,28,0.34);
-  }
-
-  .oral-model-answer {
-    padding: 20px;
-  }
-
-  .oral-model-answer p:last-child,
-  .oral-reference-section p:last-child {
-    margin-bottom: 0;
-  }
-
-  .oral-reference-section ul {
-    display: grid;
-    gap: 9px;
-    margin: 0;
-    padding-left: 20px;
-  }
-
-  .oral-reference-section li {
-    padding-left: 3px;
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.62;
-  }
-
-  .oral-reference-section.recall {
-    border-color: rgba(59,130,246,0.25);
-    background: rgba(59,130,246,0.07);
-  }
-
-  .oral-reference-section.key-points {
-    border-color: rgba(34,197,94,0.22);
-    background: rgba(34,197,94,0.06);
-  }
-
-  .oral-reference-section.key-points h4 {
-    color: #86efac;
-  }
-
-  .oral-reference-section.traps {
-    border-color: rgba(245,158,11,0.25);
-    background: var(--gold-bg);
-  }
-
-  .oral-reference-section.traps h4 {
-    color: var(--gold);
-  }
-
-  .oral-reference-section.practice {
-    border-color: rgba(168,85,247,0.25);
-    background: rgba(168,85,247,0.07);
-  }
-
-  .oral-reference-section.practice h4 {
-    color: #c4b5fd;
-  }
-
-  /* ── Oral Reference Table ─────────────────────────── */
-
-  .ref-table {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .ref-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 4px;
-    background: var(--bg-card);
-  }
-  .ref-row:nth-child(even) { background: var(--bg-surface); }
-  .ref-row .ref-topic {
-    font-size: 14px;
-    color: var(--text);
-    flex: 1;
-    padding-right: 12px;
-  }
-  .ref-row .ref-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--accent);
-    white-space: nowrap;
-  }
-
-  /* SOS */
-
-  .sos-screen {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .sos-screen h2 {
-    font-size: 24px;
-    margin-bottom: 22px;
-  }
-
-  .sos-option-grid {
-    display: grid;
-    gap: 12px;
-  }
-
-  .sos-option-card,
-  .sos-list-entry,
-  .sos-accordion-entry {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
-  }
-
-  .sos-option-card {
-    min-height: 92px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .sos-option-card:hover,
-  .sos-list-entry:hover,
-  .sos-accordion-entry:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
-  }
-
-  .sos-list {
-    display: grid;
-    gap: 14px;
-  }
-
-  .sos-list-entry {
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .sos-list-entry.mastered {
-    border-color: rgba(34,197,94,0.35);
-    background: var(--green-bg);
-  }
-
-  .sos-list-entry.mastered svg {
-    color: var(--green);
-    flex-shrink: 0;
-  }
-
-  .sos-number-list {
-    display: grid;
-    gap: 13px;
-  }
-
-  .sos-number-entry {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: linear-gradient(135deg, rgba(17,24,39,0.94), rgba(21,29,46,0.86));
-    padding: 13px 15px;
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.5;
-    letter-spacing: 0.01em;
-    text-align: left;
-  }
-
-  .sos-number-entry:nth-child(3n + 1) .sos-number-mark {
-    color: var(--gold);
-  }
-
-  .sos-number-entry:nth-child(3n + 2) .sos-number-mark {
-    color: #60a5fa;
-  }
-
-  .sos-number-entry:nth-child(3n) .sos-number-mark {
-    color: #34d399;
-  }
-
-  .sos-number-mark {
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  .sos-accordion-entry {
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .sos-entry-title {
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .sos-accordion-entry.open .sos-entry-title svg {
-    transform: rotate(180deg);
-  }
-
-  .sos-answer-box {
-    margin: 0 16px 16px;
-    padding: 16px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .sos-detail-answer {
-    padding: 22px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-surface);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.75;
-    white-space: pre-wrap;
-  }
-
-  .sos-flip-list {
-    display: grid;
-    gap: 18px;
-  }
-
-  .sos-flip-card {
-    width: 100%;
-    min-height: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    padding: 15px 17px;
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.2s;
-  }
-
-  .sos-flip-card:hover {
-    border-color: var(--border-active);
-    background: var(--bg-card-hover);
-    transform: translateY(-1px);
-  }
-
-  .sos-flip-card.flipped {
-    background: linear-gradient(135deg, rgba(20,83,45,0.18), rgba(30,41,59,0.92));
-    border-color: rgba(34,197,94,0.32);
-  }
-
-  .sos-flip-text {
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.45;
-    font-weight: 620;
-  }
-
-  .pinakakia-screen {
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .pinakakia-topbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-  }
-
-  .pinakakia-search-wrap {
-    margin: 0 0 24px;
-  }
-
-  .pinakakia-search {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    padding: 14px 16px;
-    font-family: inherit;
-    font-size: 15px;
-    outline-offset: 3px;
-  }
-
-  .pinakakia-search:focus {
-    border-color: var(--border-active);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .pinakakia-results,
-  .pinakakia-list {
-    display: grid;
-    gap: 12px;
-  }
-
-  .pinakakia-results {
-    max-height: min(68vh, 680px);
-    overflow-y: auto;
-    padding-right: 5px;
-    overscroll-behavior: contain;
-  }
-
-  .pinakakia-search-summary {
-    margin: -12px 0 12px;
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-
-  .pinakakia-section-title {
-    margin: 0 0 18px;
-    font-size: 25px;
-    letter-spacing: 0;
-  }
-
-  .pinakakia-card,
-  .pinakakia-row {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.2s;
-  }
-
-  .pinakakia-card {
-    min-height: 96px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    font-size: 21px;
-    font-weight: 800;
-  }
-
-  .pinakakia-row {
-    padding: 16px 18px;
-  }
-
-  .pinakakia-card:hover,
-  .pinakakia-row:hover {
-    border-color: var(--border-active);
-    background: var(--bg-card-hover);
-    transform: translateY(-1px);
-  }
-
-  .pinakakia-row-title {
-    display: block;
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 5px;
-  }
-
-  .pinakakia-row-meta,
-  .pinakakia-viewer-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.4;
-  }
-
-  .pinakakia-empty {
-    padding: 24px;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    color: var(--text-dim);
-    background: rgba(17,24,39,0.55);
-  }
-
-  .pinakakia-viewer {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    padding: 26px;
-  }
-
-  .pinakakia-reveal {
-    width: 100%;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--text);
-    font-family: inherit;
-    cursor: pointer;
-    padding: 0;
-    text-align: left;
-  }
-
-  .pinakakia-reveal-placeholder {
-    min-height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fce7f3;
-    font-size: 22px;
-    font-weight: 800;
-    text-align: center;
-  }
-
-  .pinakakia-book-box {
-    overflow: hidden;
-    border: 1px solid rgba(244,114,182,0.35);
-    border-radius: var(--radius-sm);
-    background: rgba(244,114,182,0.12);
-  }
-
-  .pinakakia-book-header {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: baseline;
-    gap: 16px;
-    padding: 13px 16px 10px;
-    border-bottom: 1px solid rgba(244,114,182,0.45);
-    color: #f472b6;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-
-  .pinakakia-book-header-title {
-    color: #fce7f3;
-  }
-
-  .pinakakia-book-box.oxford {
-    max-width: 620px;
-    margin: 0 auto;
-    border: 2px solid #32a86d;
-    border-radius: 16px;
-    background: #f8fffb;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-book-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 14px 16px 0;
-    padding: 8px 14px;
-    border: 0;
-    border-radius: 9px;
-    background: linear-gradient(90deg, #2fa772, #7dc79d);
-    color: #d8f8e6;
-    font-size: 19px;
-    line-height: 1.15;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-book-header-title {
-    color: white;
-    text-transform: none;
-    font-size: 19px;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-book-body {
-    background: #f8fffb;
-    color: #111827;
-    padding: 13px 22px 16px;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-book-header-page {
-    margin-left: auto;
-    color: #e8fff1;
-    font-size: 16px;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-hide-note {
-    display: none;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-content-text {
-    color: #111827;
-    font-size: 19px;
-    line-height: 1.69;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-content-line {
-    margin: 0 0 4px;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-content-line.heading {
-    margin-top: 10px;
-    margin-bottom: 3px;
-    color: #111827;
-    font-weight: 800;
-  }
-
-  .pinakakia-content-line.subsection-heading {
-  font-weight: 600;
-  font-style: italic;
-  margin-top: 4px;
-  margin-bottom: 2px;
-}
-  
-  .pinakakia-book-box.oxford .pinakakia-content-line.heading:first-child {
-    margin-top: 0;
-  }
-
-  .pinakakia-book-box.oxford .pinakakia-content-line.item {
-    padding-left: 28px;
-  }
-
-  .pinakakia-book-header-page {
-    color: var(--text-dim);
-    font-size: 16px;
-    font-weight: 800;
-    text-transform: none;
-  }
-
-  .pinakakia-book-body {
-    padding: 18px 22px 24px;
-    background: rgba(244,114,182,0.08);
-  }
-
-  .pinakakia-content-text {
-    color: var(--text);
-    font-size: 19px;
-    line-height: 1.69;
-    white-space: normal;
-  }
-
-  .pinakakia-content-line {
-    margin: 0 0 8px;
-  }
-
-  .pinakakia-content-line.heading {
-    margin-top: 14px;
-    margin-bottom: 6px;
-    color: var(--text);
-    font-weight: 900;
-  }
-
-  .pinakakia-content-line.item {
-    padding-left: 24px;
-  }
-
-  .pinakakia-content-line:first-child {
-    margin-top: 0;
-  }
-
-  .pinakakia-content-line:last-child {
-    margin-bottom: 0;
-  }
-
-  .pinakakia-hide-note {
-    margin: 0 0 14px;
-    color: var(--accent);
-    font-size: 16px;
-    font-weight: 800;
-    text-align: center;
-  }
-
-  .pinakakia-viewer-nav {
-    margin-top: 22px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  /* Compact navigation cards and content-first study indexes */
-  .card { min-height: 126px; padding: 18px; }
-  .card-heading { display: flex; align-items: center; gap: 13px; }
-  .card-heading .card-icon-lg, .card-heading .card-title { margin-bottom: 0; }
-  .card-status { margin-top: 14px; }
-  .mcq-select { max-width: 760px; }
-  .mcq-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .mcq-mode-grid .mode-btn { min-height: 104px; margin-bottom: 0; }
-  .mcq-mode-grid .mode-btn { min-height: 64px; display: flex; align-items: center; padding: 16px 18px; }
-  .mcq-session-strip { display: grid; grid-template-columns: auto auto auto minmax(70px, 1fr) auto auto auto; align-items: center; gap: 8px 10px; margin: 4px 0 12px; padding: 7px 0; border-block: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 11px; }
-  .mcq-session-strip .progress-bar { min-width: 90px; }
-  .mcq-session-strip .mcq-feedback-controls { margin-left: 0; }
-  .mcq-session-strip .mcq-feedback-btn { min-height: 36px; padding: 6px 8px; font-size: 11px; }
-  .mcq-session-strip .mcq-quality-btn { width: 36px; height: 36px; }
-  .mcq-session-primary { color: var(--text); font-weight: 700; }
-  .mcq-session-question { color: var(--accent); font-family: 'Instrument Serif', serif; font-size: 14px; white-space: nowrap; }
-  .test-container { padding-top: 12px; }
-  .test-container > .question-stem { font-size: clamp(15px, 1.5vw, 17px); line-height: 1.38; margin-bottom: 12px; }
-  .test-container > .options-list { gap: 6px; }
-  .test-container > .options-list .option-btn { gap: 11px; padding: 10px 14px; font-size: 14px; line-height: 1.35; }
-  .test-container > .options-list .option-letter { width: 25px; height: 25px; }
-  .test-container > .explanation-box { margin-top: 10px; padding: 12px 15px; font-size: 14px; line-height: 1.45; }
-  .test-container > .explanation-box strong { margin-bottom: 3px; font-size: 11px; }
-  .oral-choice > p { display: none; }
-  .oral-choice > .mode-btn { min-height: 58px; margin-bottom: 9px; padding: 15px 18px; }
-  .oral-container { max-width: 920px; }
-  .oral-index-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-  .oral-index-tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); }
-  .oral-index-tab, .oral-expand-all { min-height: 40px; border: 0; border-radius: 8px; background: transparent; color: var(--text-dim); padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .oral-index-tab[aria-pressed="true"] { background: var(--bg-card-hover); color: var(--text); }
-  .oral-expand-all { border: 1px solid var(--border); background: var(--bg-card); }
-  .oral-search { position: sticky; top: 8px; z-index: 4; margin-bottom: 10px; }
-  .oral-search input { width: 100%; min-height: 48px; padding: 12px 15px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(15,23,42,.96); color: var(--text); font: inherit; }
-  .oral-index-count { margin: 0 0 10px; color: var(--text-dim); font-size: 12px; }
-  .oral-question-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
-  .oral-question-row { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 12px; min-height: 62px; padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); text-align: left; font: inherit; cursor: pointer; }
-  .oral-question-row:hover { background: var(--bg-card-hover); border-color: var(--border-active); }
-  .oral-question-number { color: var(--accent); font-size: 12px; font-weight: 800; }
-  .oral-question-copy { min-width: 0; }
-  .oral-question-text { display: block; font-size: 14px; line-height: 1.4; }
-  .oral-question-context { display: block; margin-top: 3px; color: var(--text-dim); font-size: 11px; }
-  .oral-question-state { color: var(--text-muted); }
-  .oral-question-state.mastered { color: var(--green); }
-  .oral-topic-questions { margin: 5px 0 9px 18px; }
-  .subtopic-disclosure { margin-bottom: 4px; }
-  .sos-screen { max-width: 920px; }
-  .sos-option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sos-option-card { min-height: 138px; padding: 20px; display: grid; grid-template-columns: 1fr auto; align-content: space-between; }
-  .sos-option-title { align-self: start; }
-  .sos-option-meta { color: var(--text-dim); font-size: 12px; font-weight: 500; }
-  .sos-option-card > svg { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
-  .sos-list { gap: 6px; }
-  .sos-list-entry { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; }
-  .sos-list-index { color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
-  .sos-list-title { line-height: 1.45; }
-  .sos-list-status { display: inline-flex; align-items: center; gap: 5px; color: var(--text-dim); font-size: 11px; }
-  .sos-number-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sos-number-entry { background: var(--bg-card); padding: 16px; }
-  .sos-card-kicker { display: block; margin-bottom: 6px; color: var(--text-dim); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-  .sos-flip-prompt { display: block; font-size: 15px; line-height: 1.45; }
-  .sos-flip-answer { display: block; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--text); font-size: 15px; line-height: 1.6; }
-  .sos-reveal-hint { display: block; margin-top: 9px; color: var(--text-muted); font-size: 11px; }
-  .sos-focus-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--text-dim); font-size: 12px; }
-  .sos-focus-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-  .sos-focus-toggles { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .sos-check-control { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: var(--text-dim); font-size: 13px; cursor: pointer; }
-  .sos-check-control input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-  .sos-check-control.mastered { color: var(--green); font-weight: 700; }
-  .sos-shuffle-btn { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .sos-focus-empty { padding: 36px 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); text-align: center; color: var(--text-dim); }
-  .sos-focus-empty strong { display: block; margin-bottom: 8px; color: var(--text); font-size: 18px; }
-  .sos-focus-card { min-height: 300px; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px, 5vw, 48px); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); }
-  .sos-focus-prompt { max-width: 680px; color: var(--text); font-size: clamp(20px, 3vw, 28px); line-height: 1.45; font-weight: 650; text-wrap: pretty; }
-  .sos-focus-answer { max-width: 680px; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--green); font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; font-weight: 700; }
-  .sos-focus-reveal { align-self: flex-start; margin-top: 28px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--border-active); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
-  .sos-focus-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-  .sos-focus-nav button { min-height: 48px; display: inline-flex; justify-content: center; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); font: inherit; cursor: pointer; }
-  .sos-focus-nav button:disabled { opacity: .35; cursor: default; }
-
-  @media (max-width: 560px) {
-    .grid { grid-template-columns: 1fr; }
-    .home { padding: 24px 16px 64px; }
-    .home-header {
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 8px 14px;
-      margin-bottom: 28px;
-    }
-    .home-logo { grid-row: 1; width: 44px; height: 44px; }
-    .home-title { align-self: center; }
-    .home-update-note { grid-column: 1 / -1; }
-    .profile-bar { grid-column: 1 / -1; grid-row: auto; justify-content: flex-start; flex-wrap: wrap; }
-    .card { min-height: 0; padding: 18px; }
-    .card-icon-lg { float: left; margin: 0 14px 14px 0; }
-    .home-title { font-size: 32px; }
-    .profile-form { flex-direction: column; }
-    .mcq-memory { grid-template-columns: repeat(3, 1fr); }
-    .mcq-mode-grid, .sos-option-grid, .sos-number-list { grid-template-columns: 1fr; }
-    .mcq-session-strip { grid-template-columns: auto auto 1fr auto; }
-    .mcq-session-secondary { display: none; }
-    .sos-focus-card { min-height: 260px; padding: 22px 18px; }
-    .oral-index-controls { align-items: stretch; flex-direction: column; }
-    .oral-index-tabs { display: grid; grid-template-columns: 1fr 1fr; }
-    .oral-question-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding-inline: 10px; }
-    .oral-question-context { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .game-hud { grid-template-columns: repeat(4, 1fr); }
-    .hud-stat { padding-inline: 4px; }
-    .hud-value { font-size: 16px; }
-    .hud-label { font-size: 8px; }
-    .test-container { padding: 16px 14px 112px; }
-    .test-header { gap: 8px; }
-    .progress-text { font-size: 11px; }
-    .question-num { align-items: flex-start; }
-    .mcq-feedback-controls { width: 100%; margin-top: 2px; margin-left: 0; }
-    .written-result-grid,
-    .written-breakdown-grid { grid-template-columns: 1fr; }
-    .topic-performance-row { grid-template-columns: 1fr; }
-    .topic-performance-stats { grid-template-columns: 1fr; }
-    .breakdown-row { flex-direction: column; gap: 4px; }
-    .breakdown-row strong { white-space: normal; }
-    .nav-bar { gap: 4px; padding: 10px 8px max(10px, env(safe-area-inset-bottom)); }
-    .nav-btn { min-height: 44px; padding: 8px 9px; font-size: 12px; gap: 5px; }
-    .sprint-auto-toggle { right: 12px; bottom: 68px; }
-    .vignette-row { grid-template-columns: 1fr; }
-    .vignette-complete-toggle { min-height: 44px; }
-    .vignette-question-card { min-height: 680px; }
-    .vignette-question-card .structured-option { min-height: 66px; }
-    .pinakakia-viewer { padding: 18px; }
-    .pinakakia-viewer-nav { grid-template-columns: 1fr; }
-    .pinakakia-content-text { font-size: 19px; }
-    .oral-viewer { padding: 16px; }
-    .oral-container,
-    .oral-choice,
-    .oral-simulator,
-    .pinakakia-screen { padding-inline: 14px; }
-    .gravity-bar { align-items: flex-start; flex-wrap: wrap; padding: 14px; }
-    .gravity-bar .bar-tagline { width: 100%; order: 4; padding-left: 40px; }
-    .topic-list { padding-left: 10px; margin-left: 4px; }
-    .topic-row { padding: 12px; }
-    .oral-answer-toolbar { align-items: stretch; flex-direction: column; top: 4px; }
-    .oral-answer-modes { display: grid; grid-template-columns: 1fr 1fr; }
-    .oral-answer-modes button { min-height: 40px; }
-    .oral-answer-hide { align-self: flex-end; padding: 5px 8px; }
-    .oral-quick-answer,
-    .oral-full-answer { padding: 18px 14px; }
-    .oral-source-chapter summary { gap: 9px; padding: 13px 12px; }
-    .oral-source-title { font-size: 12px; }
-    .oral-source-body { padding: 2px 10px 16px; }
-    .crucial-index { padding: 16px 14px 88px; }
-    .crucial-index-list { grid-template-columns: 1fr; }
-    .crucial-search { top: 4px; }
-    .crucial-index-item { min-height: 70px; }
-    .oral-model-answer,
-    .oral-reference-section { padding: 15px; }
-    .oral-quick-answer > p,
-    .oral-model-answer p,
-    .oral-reference-section p { font-size: 14px; line-height: 1.72; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-`;
+const MCQ_MODE_LABELS = {
+  sprint: "Mini-test",
+  random: "Τυχαία Θέματα",
+  daily: "Αδύναμα Θέματα",
+  weakness: "Αδυναμίες",
+  category: "Ερωτήσεις ανά Κατηγορία",
+  written: "Προσομοίωση 100 Πολλαπλής",
+  vignettes: "Vignettes",
+  matching: "Αντιστοίχηση",
+  DSM5: "DSM-5-TR",
+};
 
 // ═══════════════════════════════════════════════════════════════
 // COMPONENTS
@@ -6670,10 +2712,13 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
 
   return (
     <>
-      <div className="profile-screen fade-in">
+      <div className="profile-screen">
         <div className="profile-panel">
-        <h1>Επιλογή προφίλ</h1>
-        <p>Δημιούργησε ή επίλεξε προφίλ μελέτης. Όταν είναι ενεργός ο συγχρονισμός, η πρόοδος ακολουθεί το όνομα χρήστη.</p>
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Ψυχιατρική</span>
+          <h1>Εξετάσεις Ειδικότητας</h1>
+        </div>
+        <p>Διάλεξε ή δημιούργησε προφίλ μελέτης. Η πρόοδός σου κρατιέται ανά προφίλ.</p>
         <div className={`sync-status ${syncStatus}`} role="status">
           {syncMessage}
         </div>
@@ -6712,15 +2757,20 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                   className="profile-btn"
                   onClick={() => requestProfileSelection(profile)}
                 >
-                  <span className="profile-name-row">
-                    <span>{profile.name}</span>
-                    {isAdminProfile(profile) && <span className="admin-badge">Admin</span>}
+                  <span className="item-body">
+                    <span className="profile-name-row">
+                      <span style={{ fontWeight: 600 }}>{profile.name}</span>
+                      {isAdminProfile(profile) && <span className="admin-badge">admin</span>}
+                    </span>
+                    <span className="item-meta">
+                      <span>{summary.mastered} κατακτημένες</span>
+                      <span>{summary.review} για επανάληψη</span>
+                      <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
+                    </span>
                   </span>
-                  <small>
-                    <span>MCQ: {summary.mastered} κατακτημένες</span>
-                    <span>{summary.review} για επανάληψη</span>
-                    <span>Προφορικά: {oralSummary.mastered}/{oralSummary.total}</span>
-                  </small>
+                  <span style={{ marginLeft: "auto", color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
+                    <Icons.ChevronRight />
+                  </span>
                 </button>
               );
             })}
@@ -6732,15 +2782,15 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
       {pendingAdminProfile && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Επαλήθευση προφίλ διαχειριστή" onKeyDown={event => { if (event.key === "Escape") closeAdminUnlock(); }}>
           <form className="modal admin-unlock-modal" onSubmit={handleAdminUnlock}>
-            <h3>Admin profile</h3>
-            <p>Enter the password to open {pendingAdminProfile.name}.</p>
+            <h3>Προφίλ διαχειριστή</h3>
+            <p>Δώσε τον κωδικό για να ανοίξεις το προφίλ «{pendingAdminProfile.name}».</p>
             <input
               className="admin-pin-input"
               type="password"
               inputMode="numeric"
               pattern="[0-9]*"
               autoComplete="current-password"
-              aria-label="Admin password"
+              aria-label="Κωδικός διαχειριστή"
               value={adminPassword}
               onChange={event => {
                 setAdminPassword(event.target.value.replace(/\D/g, "").slice(0, 12));
@@ -6748,7 +2798,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
               }}
               autoFocus
             />
-            <div className="admin-pin-pad" aria-label="Numeric keypad">
+            <div className="admin-pin-pad" aria-label="Αριθμητικό πληκτρολόγιο">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
                 <button className="admin-pin-key" type="button" key={digit} onClick={() => appendAdminDigit(digit)}>
                   {digit}
@@ -6758,7 +2808,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                 Clear
               </button>
               <button className="admin-pin-key" type="button" onClick={() => appendAdminDigit(0)}>0</button>
-              <button className="admin-pin-key utility" type="button" aria-label="Delete digit" onClick={() => { setAdminPassword(value => value.slice(0, -1)); setAdminError(""); }}>
+              <button className="admin-pin-key utility" type="button" aria-label="Διαγραφή ψηφίου" onClick={() => { setAdminPassword(value => value.slice(0, -1)); setAdminError(""); }}>
                 Delete
               </button>
             </div>
@@ -6776,35 +2826,66 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
   );
 }
 
-function StudyModeCard({ section, onOpen }) {
+function SectionRow({ id, icon, title, detail, level, onOpen }) {
   return (
-    <button
-      type="button"
-      className={`card ${!section.active ? 'disabled' : ''}`}
-      onClick={() => onOpen(section.id)}
-      disabled={!section.active}
-    >
-      <span className="card-heading">
-        <span className={`card-icon ${section.iconClass} card-icon-lg`} aria-hidden="true">{section.icon}</span>
-        <span className="card-title">{section.title}</span>
+    <button type="button" className="item" onClick={() => onOpen(id)}>
+      <span className="item-num" aria-hidden="true" style={{ display: "flex", color: "var(--ink-3)" }}>
+        {icon}
       </span>
-      {section.status && <span className="card-status">{section.status}</span>}
-      {!section.active && <span className="card-badge">Σύντομα</span>}
+      <span className="item-body">
+        <span className="item-title" style={{ fontWeight: 600 }}>{title}</span>
+        <span className="item-meta"><span>{detail}</span></span>
+      </span>
+      <span className="item-side">
+        {typeof level === "number" ? <ScaleStrip level={level} label="Πρόοδος ενότητας" /> : null}
+        <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
+          <Icons.ChevronRight />
+        </span>
+      </span>
     </button>
   );
 }
 
-function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary }) {
+function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
+  const mcqLevel = mcqProgressSummary.total
+    ? Math.round((mcqProgressSummary.mastered / mcqProgressSummary.total) * 5)
+    : 0;
+  const oralLevel = oralProgressSummary.total
+    ? Math.round((oralProgressSummary.mastered / oralProgressSummary.total) * 5)
+    : 0;
+
   const sections = [
-    { id: 'mcq', icon: <Icons.ClipboardCheck />, iconClass: 'blue', title: 'Πολλαπλής Επιλογής', status: `${mcqProgressSummary.review} για επανάληψη · ${mcqProgressSummary.mastered} κατακτημένες`, active: true },
-    { id: 'oral', icon: <Icons.Mic />, iconClass: 'purple', title: 'Προφορικά', status: `${oralProgressSummary.mastered}/${oralProgressSummary.total} κατακτημένες`, active: true },
-    { id: 'sos', icon: <Icons.BookOpen />, iconClass: 'rose', title: 'SOS Ψυχιατρικής', status: 'Γρήγορη αναφορά', active: true },
-    { id: 'pinakakia', icon: <Icons.FileText />, iconClass: 'emerald', title: 'Πινακάκια', status: 'Αναζήτηση σε πηγές', active: true },
+    {
+      id: 'mcq',
+      icon: <Icons.ClipboardCheck />,
+      title: 'Πολλαπλής Επιλογής',
+      detail: `${mcqProgressSummary.total} ερωτήσεις · ${mcqProgressSummary.mastered} κατακτημένες`,
+      level: mcqLevel,
+    },
+    {
+      id: 'oral',
+      icon: <Icons.Mic />,
+      title: 'Προφορικά',
+      detail: `${oralProgressSummary.total} θέματα · ${oralProgressSummary.mastered} κατακτημένα`,
+      level: oralLevel,
+    },
+    {
+      id: 'sos',
+      icon: <Icons.Bolt />,
+      title: 'SOS Ψυχιατρικής',
+      detail: 'Γρήγορη ανάκληση: αριθμοί, κρίσιμα θέματα, διαφοροδιάγνωση',
+    },
+    {
+      id: 'pinakakia',
+      icon: <Icons.Table />,
+      title: 'Πινακάκια',
+      detail: 'Oxford και Crash Course, με αναζήτηση',
+    },
   ];
 
   useEffect(() => {
@@ -6829,26 +2910,72 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
     setUpdateEditorStatus(null);
     try {
       await onSaveUpdateMessage(updateDraft);
-      setUpdateEditorStatus('Saved.');
+      setUpdateEditorStatus('Αποθηκεύτηκε.');
       setIsUpdateEditorOpen(false);
     } catch {
-      setUpdateEditorStatus('Could not save update message.');
+      setUpdateEditorStatus('Δεν αποθηκεύτηκε το μήνυμα.');
     } finally {
       setIsSavingUpdate(false);
     }
   };
 
   return (
-    <div className="home fade-in">
+    <div className="home">
       <div className="home-header">
-        <div className="home-logo"><Icons.Brain /></div>
         <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
+        <p className="sheet-sub">
+          Ψυχιατρική — γραπτά και προφορικά. Πάτησε <span className="kbd">Ctrl K</span> για αναζήτηση σε όλο το υλικό.
+        </p>
+      </div>
+
+      {resumePosition && (
+        <div className="resume">
+          <div className="resume-text">
+            <span className="resume-eyebrow">Συνέχισε από εκεί που έμεινες</span>
+            <span className="resume-title">{resumePosition.title}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--s2)', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-primary" onClick={onResume}>
+              Συνέχεια <Icons.ArrowRight />
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet btn-icon"
+              onClick={onDismissResume}
+              aria-label="Καθαρισμός σημείου μελέτης"
+            >
+              <Icons.X />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="figures">
+        <div className="figure figure-due">
+          <span className="figure-value">{mcqProgressSummary.review}</span>
+          <span className="figure-label">Για επανάληψη</span>
+        </div>
+        <div className="figure figure-pass">
+          <span className="figure-value">{mcqProgressSummary.mastered}</span>
+          <span className="figure-label">Κατακτημένες</span>
+        </div>
+        <div className="figure">
+          <span className="figure-value">{mcqProgressSummary.unseen}</span>
+          <span className="figure-label">Νέες</span>
+        </div>
+        <div className="figure">
+          <span className="figure-value">{mcqProgressSummary.accuracy}%</span>
+          <span className="figure-label">Ευστοχία</span>
+        </div>
+      </div>
+
+      <div>
         <button className="home-update-note" type="button" onClick={handleUpdateNoteClick}>
-          <strong>Update:</strong>
-          <span>{updateMessage || DEFAULT_UPDATE_MESSAGE}</span>
+          <span className="bar-label">Update</span>
+          <span className="bar-tagline">{updateMessage || DEFAULT_UPDATE_MESSAGE}</span>
         </button>
         {updateMessageStatus === 'offline' && (
-          <div className="home-update-status">Local update message shown.</div>
+          <div className="home-update-status">Εμφανίζεται το τοπικό μήνυμα ενημέρωσης.</div>
         )}
         {isUpdateEditorOpen && (
           <form className="home-update-editor" onSubmit={handleSaveUpdateMessage}>
@@ -6860,39 +2987,45 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
               autoFocus
             />
             <div className="home-update-editor-actions">
-              <button className="nav-btn primary" type="submit" disabled={isSavingUpdate}>
-                {isSavingUpdate ? 'Saving...' : 'Save update'}
+              <button className="btn btn-primary btn-sm" type="submit" disabled={isSavingUpdate}>
+                {isSavingUpdate ? 'Αποθήκευση…' : 'Αποθήκευση'}
               </button>
-              <button className="nav-btn" type="button" onClick={() => setIsUpdateEditorOpen(false)}>
-                Cancel
+              <button className="btn btn-quiet btn-sm" type="button" onClick={() => setIsUpdateEditorOpen(false)}>
+                Άκυρο
               </button>
             </div>
             {updateEditorStatus && <div className="home-update-status">{updateEditorStatus}</div>}
           </form>
         )}
+      </div>
+
+      <div>
+        <div className="subscale">
+          <h2 className="subscale-title">Ενότητες</h2>
+          <span className="subscale-rule" />
+          <span />
+        </div>
+        <div className="items">
+          {sections.map(section => (
+            <SectionRow key={section.id} {...section} onOpen={onNavigate} />
+          ))}
+        </div>
+      </div>
+
+      {isAdmin && (
         <div className="profile-bar">
-          <span>{profileName}</span>
-          {isAdmin && <span className="admin-badge">Admin</span>}
-          {isAdmin && (
-            <button
-              className="profile-remember"
-              type="button"
-              aria-pressed={rememberAdmin}
-              title="Η επιλογή αποθηκεύεται μόνο σε αυτόν τον browser. Μην την ενεργοποιείς σε κοινόχρηστη συσκευή."
-              onClick={() => onToggleRememberAdmin(!rememberAdmin)}
-            >
-              {rememberAdmin ? "Απομνημόνευση ενεργή" : "Να με θυμάται"}
-            </button>
-          )}
-          <button className="profile-switch" onClick={onSwitchProfile}>Αλλαγή προφίλ</button>
+          <span className="admin-badge">admin</span>
+          <button
+            className="btn btn-quiet btn-sm"
+            type="button"
+            aria-pressed={rememberAdmin}
+            title="Η επιλογή αποθηκεύεται μόνο σε αυτόν τον browser. Μην την ενεργοποιείς σε κοινόχρηστη συσκευή."
+            onClick={() => onToggleRememberAdmin(!rememberAdmin)}
+          >
+            {rememberAdmin ? "Απομνημόνευση ενεργή" : "Να με θυμάται"}
+          </button>
         </div>
-      </div>
-      <div className="grid">
-        <div className="home-section-heading">
-          <h2>Ενότητες</h2>
-        </div>
-        {sections.map(section => <StudyModeCard key={section.id} section={section} onOpen={onNavigate} />)}
-      </div>
+      )}
     </div>
   );
 }
@@ -6900,63 +3033,92 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
-  return (
-    <div className="mcq-select fade-in">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
-      </div>
-      <h2>Πολλαπλής Επιλογής</h2>
+  const practiceModes = [
+    { id: 'sprint', title: 'Mini-test', detail: 'Σύντομο σετ με χρόνο και σκορ', featured: true },
+    { id: 'daily', title: 'Αδύναμα Θέματα', detail: 'Όσες έχεις λάθος ή είναι ώρα να επαναληφθούν' },
+    { id: 'random', title: 'Τυχαία Θέματα', detail: 'Ανακάτεμα από όλη την ύλη' },
+    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία', detail: 'Διάλεξε ένα από τα 21 θεματικά πεδία' },
+  ];
 
-      <div className="mcq-memory" aria-label="MCQ progress">
+  const examModes = [
+    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής', detail: 'Πλήρες γραπτό, με δυνατότητα συνέχισης' },
+    { id: 'vignettes', title: 'Vignettes', detail: 'Κλινικά σενάρια με διαδοχικά ερωτήματα' },
+    { id: 'matching', title: 'Αντιστοίχηση', detail: 'Σετ αντιστοίχισης εννοιών' },
+    { id: 'DSM5', title: 'DSM-5-TR', detail: 'Self-exam ανά κεφάλαιο' },
+  ];
+
+  const renderModes = modes => (
+    <div className="items">
+      {modes.map(mode => (
+        <button
+          key={mode.id}
+          className="item"
+          onClick={() => onStart(mode.id)}
+          style={mode.featured ? { boxShadow: 'inset 3px 0 0 var(--mark)' } : undefined}
+        >
+          <span className="item-num" aria-hidden="true" />
+          <span className="item-body">
+            <span className="item-title" style={{ fontWeight: 600 }}>{mode.title}</span>
+            <span className="item-meta"><span>{mode.detail}</span></span>
+          </span>
+          <span className="item-side" style={{ color: 'var(--ink-3)' }} aria-hidden="true">
+            <Icons.ChevronRight />
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="mcq-select">
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Ενότητα</span>
+          <h2>Πολλαπλής Επιλογής</h2>
+          <span className="sheet-sub">{progressSummary.total} ερωτήσεις σε 21 κατηγορίες</span>
+        </div>
+      </div>
+
+      <div className="mcq-memory">
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value">{progressSummary.mastered}</span>
+          <span className="mcq-memory-value" style={{ color: 'var(--pass)' }}>{progressSummary.mastered}</span>
           <span className="mcq-memory-label">Κατακτημένες</span>
         </div>
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value">{progressSummary.review}</span>
+          <span className="mcq-memory-value" style={{ color: 'var(--due)' }}>{progressSummary.review}</span>
           <span className="mcq-memory-label">Επανάληψη</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.unseen}</span>
           <span className="mcq-memory-label">Νέες</span>
         </div>
+        <div className="mcq-memory-stat">
+          <span className="mcq-memory-value">{progressSummary.accuracy}%</span>
+          <span className="mcq-memory-label">Ευστοχία</span>
+        </div>
       </div>
 
-      <div className="mcq-mode-grid">
-      <button className="mode-btn featured" onClick={() => onStart('sprint')}>
-        Mini-test
-      </button>
-      <button className="mode-btn" onClick={() => onStart('random')}>
-        Τυχαία Θέματα
-      </button>
-      <button className="mode-btn" onClick={() => onStart('daily')}>
-        Αδύναμα Θέματα
-      </button>
-      <button className="mode-btn" onClick={() => onStart('category')}>
-        {"\u0395\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03b1\u03bd\u03ac \u039a\u03b1\u03c4\u03b7\u03b3\u03bf\u03c1\u03af\u03b1"}
-      </button>
-      <button className="mode-btn" onClick={() => onStart('written')}>
-        {"\u03a0\u03c1\u03bf\u03c3\u03bf\u03bc\u03bf\u03af\u03c9\u03c3\u03b7 100 \u03a0\u03bf\u03bb\u03bb\u03b1\u03c0\u03bb\u03ae\u03c2"}
-      </button>
-      <button className="mode-btn" onClick={() => onStart('vignettes')}>
-        Vignettes
-      </button>
-      <button className="mode-btn" onClick={() => onStart('matching')}>
-        Αντιστοίχηση
-      </button>
-      <button className="mode-btn" onClick={() => onStart('DSM5')}>
-        DSM5
-      </button>
+      <div className="subscale">
+        <h3 className="subscale-title">Εξάσκηση</h3>
+        <span className="subscale-rule" />
+        <span />
       </div>
+      {renderModes(practiceModes)}
+
+      <div className="subscale">
+        <h3 className="subscale-title">Εξέταση και ειδικές μορφές</h3>
+        <span className="subscale-rule" />
+        <span />
+      </div>
+      {renderModes(examModes)}
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
-          <h3>Προηγούμενες Προσομοιώσεις</h3>
+          <div className="subscale">
+            <h3 className="subscale-title">Προηγούμενες προσομοιώσεις</h3>
+            <span className="subscale-rule" />
+            <span className="subscale-total">{recentWrittenExamSessions.length}</span>
+          </div>
           {recentWrittenExamSessions.map(session => (
             <div className="written-history-row" key={session.id}>
               <div className="written-history-main">
@@ -6986,33 +3148,65 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   );
 }
 
-function McqTopicSelect({ onBack, onHome, onSelectTopic }) {
+function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
   const topicCounts = useMemo(() => getMcqTopicCounts(), []);
 
+  // Per-topic mastery, so the trainee can see which categories are still weak
+  // before choosing one rather than after working through it.
+  const topicMastery = useMemo(() => {
+    const records = progress?.questions || {};
+    const map = new Map();
+    for (const question of QUESTIONS) {
+      const topic = getQuestionTopic(question);
+      const current = map.get(topic) || { mastered: 0, total: 0 };
+      current.total += 1;
+      if (isQuestionMastered(records[question.id])) current.mastered += 1;
+      map.set(topic, current);
+    }
+    return map;
+  }, [progress]);
+
   return (
-    <div className="mcq-select fade-in">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+    <div className="mcq-select">
+      <div className="nav-bar" style={{ marginBottom: "var(--s4)" }}>
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Μενού MCQ
         </button>
-        <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
-        </button>
       </div>
-      <h2>Ερωτήσεις ανά Κατηγορία</h2>
 
-      <div className="DSM5-chapter-list">
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Πολλαπλής Επιλογής</span>
+          <h2>Ερωτήσεις ανά Κατηγορία</h2>
+          <span className="sheet-sub">{MCQ_TOPIC_CATEGORIES.length} κατηγορίες</span>
+        </div>
+      </div>
+
+      <div className="items items-plain">
         {MCQ_TOPIC_CATEGORIES.map(topic => {
           const count = topicCounts.get(topic) || 0;
+          const mastery = topicMastery.get(topic) || { mastered: 0, total: 0 };
+          const level = mastery.total ? Math.round((mastery.mastered / mastery.total) * 5) : 0;
           return (
             <button
               key={topic}
-              className="DSM5-chapter-row"
+              className="item"
               disabled={!count}
               onClick={() => onSelectTopic(topic)}
             >
-              <span className="DSM5-chapter-title">{topic}</span>
-              <span>{count} ερωτήσεις</span>
+              <span className="item-body">
+                <span className="item-title">{topic}</span>
+                <span className="item-meta">
+                  <span>{count} ερωτήσεις</span>
+                  <span>{mastery.mastered} κατακτημένες</span>
+                </span>
+              </span>
+              <span className="item-side">
+                <ScaleStrip level={level} label={`Πρόοδος: ${topic}`} />
+                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
+                  <Icons.ChevronRight />
+                </span>
+              </span>
             </button>
           );
         })}
@@ -7210,13 +3404,10 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
 
   if (reviewWrong) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div className="structured-top">
           <button className="back-link" onClick={() => setReviewWrong(false)}>
             <Icons.ChevronLeft /> Results
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Επανάληψη λανθασμένων απαντήσεων</h2>
@@ -7241,13 +3432,10 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
 
   if (!questions.length) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div className="structured-top">
           <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>DSM5</h2>
@@ -7279,13 +3467,10 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
   }
 
   return (
-    <div className="structured-mcq fade-in">
+    <div className="structured-mcq">
       <div className="structured-top">
         <button className="back-link" onClick={backToDSM5Home}>
           <Icons.ChevronLeft /> DSM5 Menu
-        </button>
-        <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>{sessionLabel}</h2>
@@ -7438,13 +3623,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
 
   if (!selectedVignetteId) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Vignettes</h2>
@@ -7526,7 +3708,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
           })}
         </div>
         <div className="explanation-box">
-          <strong>Explanation</strong>
+          <strong>Επεξήγηση</strong>
           {reviewedQuestion.explanation}
         </div>
       </div>
@@ -7536,13 +3718,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   if (result && reviewIdx !== null) {
     const row = result.rows[reviewIdx];
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={() => setReviewIdx(null)}>
             <Icons.ChevronLeft /> Results
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         {renderReviewedQuestion(row, reviewIdx)}
@@ -7561,17 +3740,14 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   if (result) {
     const percent = result.total ? Math.round((result.correct / result.total) * 100) : 0;
     return (
-      <div className="results written-results fade-in">
+      <div className="results written-results">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
-          </button>
         </div>
         <div className={`results-score ${getPercentageColorClass(percent)}`}>{percent}%</div>
-        <div className="results-label">Vignette results</div>
+        <div className="results-label">Αποτελέσματα Vignettes</div>
         <div className="results-detail">
           {result.correct}/{result.total} correct, {result.wrong} wrong
           {result.unanswered > 0 ? ", " + result.unanswered + " unanswered" : ""}
@@ -7579,11 +3755,11 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         <div className="written-result-grid">
           <div className="written-result-stat">
             <strong>{result.correct}</strong>
-            <span>Correct</span>
+            <span>Σωστές</span>
           </div>
           <div className="written-result-stat">
             <strong>{result.wrong}</strong>
-            <span>Wrong</span>
+            <span>Λάθος</span>
           </div>
           <div className="written-result-stat">
             <strong>{result.unanswered}</strong>
@@ -7607,13 +3783,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
 
   if (!started) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Vignettes</h2>
@@ -7633,13 +3806,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   }
 
   return (
-    <div className="structured-mcq fade-in">
+    <div className="structured-mcq">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-        </button>
-        <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -7650,7 +3820,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
       <div className="structured-card vignette-question-card">
         <div className="structured-top">
           <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
-          {isChosen && !isLocked && <span className="structured-progress">Chosen</span>}
+          {isChosen && !isLocked && <span className="structured-progress">Επιλογή σου</span>}
         </div>
         <div className="structured-question">{question.stem}</div>
         <div className="structured-options">
@@ -7752,13 +3922,10 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
 
   if (!availableSets.length) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Αντιστοίχηση</h2>
@@ -7795,13 +3962,10 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
 
   if (showSetMenu) {
     return (
-      <div className="structured-mcq fade-in">
+      <div className="structured-mcq">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
           <button className="nav-btn" type="button" onClick={() => startMatchingSet(pickRandomMatchingSet(mcqMatchingSets))}>
             Νέο σετ
@@ -7835,13 +3999,10 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   }
 
   return (
-    <div className="structured-mcq fade-in">
+    <div className="structured-mcq">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-        </button>
-        <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
         </button>
         <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
           Νέο σετ
@@ -8119,6 +4280,61 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     }
   };
 
+  // Keyboard: answering thousands of MCQs should not require the mouse.
+  // 1–5 pick a displayed option, Enter submits then advances, arrows navigate.
+  useEffect(() => {
+    const onKeyDown = event => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (writtenResult || !q) return;
+
+      if (event.key >= "1" && event.key <= "9") {
+        const displayedIndex = Number(event.key) - 1;
+        const order = getStoredOptionOrder(q, optionOrders);
+        if (displayedIndex >= order.length) return;
+        event.preventDefault();
+        selectOption(order[displayedIndex]);
+        return;
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (!isLocked && selected !== undefined && selected !== null && mode !== "written") {
+          submitAnswer();
+        } else if (nextIdx >= 0 && nextIdx < totalQ) {
+          if (mode === "written") goToWrittenIndex(nextIdx);
+          else goToNextQuestion();
+        }
+        return;
+      }
+
+      if (event.key === "ArrowRight" && nextIdx >= 0 && nextIdx < totalQ) {
+        event.preventDefault();
+        if (mode === "written") goToWrittenIndex(nextIdx);
+        else goToNextQuestion();
+        return;
+      }
+
+      if (event.key === "ArrowLeft" && prevIdx >= 0) {
+        event.preventDefault();
+        if (mode === "written") goToWrittenIndex(prevIdx);
+        else setCurrentIdx(prevIdx);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
     if (!feedbackQuestion || feedbackSavingType) return;
     const normalizedComment = typeof feedbackComment === "string"
@@ -8138,7 +4354,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       setFeedbackMenuOpen(false);
       setFeedbackCommentOpen(false);
       setFeedbackCommentText("");
-      setFeedbackStatus({ type: "success", message: "Feedback saved." });
+      setFeedbackStatus({ type: "success", message: "Το σχόλιο αποθηκεύτηκε." });
     } catch (error) {
       console.error("MCQ feedback save failed", error);
       setFeedbackStatus({ type: "error", message: getMcqFeedbackErrorMessage(error) });
@@ -8286,7 +4502,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           })}
         </div>
         <div className="explanation-box">
-          <strong>Explanation</strong>{question.explanation}
+          <strong>Επεξήγηση</strong>{question.explanation}
         </div>
       </div>
     );
@@ -8418,13 +4634,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       : null;
 
     return (
-      <div className="test-container fade-in">
+      <div className="test-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
 
@@ -8473,7 +4686,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     const reviewItem = reviewItems[writtenReviewIndex] || reviewItems[0];
 
     return (
-      <div className="test-container written-review fade-in">
+      <div className="test-container written-review">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button
             className="back-link"
@@ -8487,9 +4700,6 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             }}
           >
             <Icons.ChevronLeft /> Αποτελέσματα
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Όλες οι απαντήσεις</h2>
@@ -8528,7 +4738,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   if (mode === "written" && writtenResult && reviewWrittenWrong) {
     if (writtenWrongFullItem) {
       return (
-        <div className="test-container written-review fade-in">
+        <div className="test-container written-review">
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
             <button
               className="back-link"
@@ -8543,9 +4753,6 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             >
               <Icons.ChevronLeft /> Wrong answer review
             </button>
-            <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
-            </button>
           </div>
           {renderLockedWrittenQuestion(writtenWrongFullItem)}
         </div>
@@ -8553,13 +4760,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     }
 
     return (
-      <div className="test-container written-review fade-in">
+      <div className="test-container written-review">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={() => setReviewWrittenWrong(false)}>
             <Icons.ChevronLeft /> Results
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Επανάληψη λανθασμένων απαντήσεων</h2>
@@ -8595,11 +4799,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                   </div>
                   <div className="wrong-question-stem">{getMcqStem(question)}</div>
                   <div className="written-answer-row incorrect">
-                    <strong>Your answer</strong>
+                    <strong>Η απάντησή σου</strong>
                     <span>{getDisplayedOptionLetter(question, item.selected, optionOrders)}. {question.options[item.selected]}</span>
                   </div>
                   <div className="written-answer-row correct">
-                    <strong>Correct answer</strong>
+                    <strong>Σωστή απάντηση</strong>
                     <span>{getDisplayedOptionLetter(question, question.correct, optionOrders)}. {question.options[question.correct]}</span>
                   </div>
                   <div className="written-meta-row">
@@ -8607,12 +4811,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                     {subtopic && <span className="meta-pill">{subtopic}</span>}
                   </div>
                   <div className="explanation-box">
-                    <strong>Explanation</strong>
+                    <strong>Επεξήγηση</strong>
                     {question.explanation}
                   </div>
                   {examLesson && (
                     <div className="explanation-box exam-lesson">
-                      <strong>Exam lesson</strong>
+                      <strong>Τι κρατάμε</strong>
                       {examLesson}
                     </div>
                   )}
@@ -8627,13 +4831,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   if (mode === "written" && writtenResult) {
     return (
-      <div className="results written-results fade-in">
+      <div className="results written-results">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
 
@@ -8649,11 +4850,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="written-result-grid">
           <div className="written-result-stat">
             <strong>{writtenResult.correct}</strong>
-            <span>Correct</span>
+            <span>Σωστές</span>
           </div>
           <div className="written-result-stat">
             <strong>{writtenResult.wrong}</strong>
-            <span>Wrong</span>
+            <span>Λάθος</span>
           </div>
           <div className="written-result-stat">
             <strong>{writtenResult.unanswered}</strong>
@@ -8716,7 +4917,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             Review all wrong answers
           </button>
           <button className="results-btn" onClick={restartWrittenExam}>
-            Restart simulation
+            Νέα προσομοίωση
           </button>
           <button className="results-btn" onClick={onHome}>
             <Icons.Home /> Αρχική
@@ -8728,31 +4929,25 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   if (!q) {
     return (
-      <div className="test-container fade-in">
+      <div className="test-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
           <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
-          </button>
         </div>
         <div className="explanation-box">
-          <strong>No questions in this mode yet</strong>
-          This profile does not have enough eligible questions for this mode yet.
+          <strong>Δεν υπάρχουν ακόμη ερωτήσεις σε αυτή τη λειτουργία</strong>
+          Δεν υπάρχουν αρκετές διαθέσιμες ερωτήσεις για αυτή τη λειτουργία σε αυτό το προφίλ.
         </div>
       </div>
     );
   }
 
   return (
-    <div className="test-container fade-in">
+    <div className="test-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
         <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
-        </button>
-        <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -8779,7 +4974,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       {mode === "written" && <div className="test-header">
         <span className="progress-text">
-          {mode === "written" ? `Answered ${writtenAnsweredCount}/${totalQ}` : `Mastered ${progressStats.mastered}/${progressStats.total}`}
+          {mode === "written" ? `Απαντημένες ${writtenAnsweredCount}/${totalQ}` : `Κατακτημένες ${progressStats.mastered}/${progressStats.total}`}
         </span>
         <div className="progress-bar">
           <div
@@ -8801,7 +4996,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         {mode !== "written" && <span className="mcq-session-secondary">{sessionStats.correct} σωστές · {sessionStats.incorrect} λάθη</span>}
         {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} κατακτημένες</span>}
         {mode !== "written" && <div className="progress-bar"><div className="progress-fill" style={{width: `${(progressStats.mastered / progressStats.total) * 100}%`}} /></div>}
-        <span className="mcq-session-question">{mode === "written" ? "Question" : "Ερ."} {q.id}</span>
+        <span className="mcq-session-question">Ερ. {q.id}</span>
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
         {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
         <div className="mcq-feedback-controls">
@@ -8946,19 +5141,17 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           <strong>Επεξήγηση</strong>{q.explanation}
           {displayedBreakdown && (
             <div className={`point-breakdown ${pointTier}`}>
-              <span className="point-pill">Correct +{displayedBreakdown.base}</span>
-              {mode === "sprint" && <span className="point-pill">Speed +{displayedBreakdown.speed}</span>}
-              <span className="point-pill">Streak +{displayedBreakdown.streak}</span>
+              <span className="point-pill">Σωστό +{displayedBreakdown.base}</span>
+              {mode === "sprint" && <span className="point-pill">Ταχύτητα +{displayedBreakdown.speed}</span>}
+              <span className="point-pill">Σερί +{displayedBreakdown.streak}</span>
               <span className="point-pill total">Σύνολο +{displayedBreakdown.total}</span>
             </div>
           )}
         </div>
       )}
 
-      <div style={{ height: 80 }} />
-
       {mode === "written" ? (
-        <div className="nav-bar">
+        <div className="nav-bar actionbar">
           <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
             <Icons.ChevronLeft /> Προηγούμενη
           </button>
@@ -8966,11 +5159,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             Επόμενη <Icons.ChevronRight />
           </button>
           <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
-            Submit exam
+            Υποβολή εξέτασης
           </button>
         </div>
       ) : mode === "sprint" && currentIdx === totalQ - 1 ? (
-        <div className="nav-bar">
+        <div className="nav-bar actionbar">
           <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
             <Icons.ChevronLeft /> Προηγούμενη
           </button>
@@ -8980,10 +5173,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             </button>
           )}
           <button className="nav-btn primary" type="button" onClick={startNewSprint}>Νέο mini-test</button>
-          <button className="nav-btn" type="button" onClick={onHome}><Icons.Home /> Αρχική</button>
         </div>
       ) : (
-        <div className="nav-bar">
+        <div className="nav-bar actionbar">
           <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
             <Icons.ChevronLeft /> Προηγούμενη
           </button>
@@ -9032,35 +5224,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // ORAL EXAMINATION COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuestions, onOpenSimulator, canAccessCrucialQuestions }) {
-  return (
-    <div className="oral-choice fade-in">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
-      </div>
-      <h2>Προφορικά</h2>
-
-      <button className="mode-btn" onClick={onOpenPastTopics}>
-        Προηγούμενα Θέματα
-      </button>
-      {canAccessCrucialQuestions && (
-        <button className="mode-btn" onClick={onOpenCrucialQuestions}>
-          100 Καίριες Ερωτήσεις
-        </button>
-      )}
-      <button className="mode-btn featured" onClick={onOpenSimulator}>
-        Προφορική Εξέταση
-      </button>
-    </div>
-  );
-}
-
-function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress }) {
+function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress, onOpenSimulator, onOpenCrucialQuestions, canAccessCrucialQuestions }) {
   const [view, setView] = useState("all");
   const [query, setQuery] = useState("");
   const [expandedGravity, setExpandedGravity] = useState({});
@@ -9138,21 +5302,57 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
   );
 
   return (
-    <div className="oral-container fade-in">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
+    <div className="oral-container">
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Προφορικά</span>
+          <h2>Προηγούμενα Θέματα</h2>
+          <span className="sheet-sub">
+            {allEntries.length} ερωτήσεις εξετάσεων, με τις απαντήσεις τους
+          </span>
+        </div>
+        <div className="sheet-head-actions">
+          <ScaleStrip
+            size="lg"
+            level={overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 5) : 0}
+            label="Πρόοδος προφορικών"
+          />
+          <span className="plate">{overallSummary.mastered}/{overallSummary.total}</span>
+        </div>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:22}}>Προηγούμενα Θέματα</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:28}}>129 ερωτήσεις για γρήγορη επισκόπηση ή μελέτη ανά κατηγορία</p>
-      <div className="oral-overview">
-        <strong>{overallSummary.mastered}/{overallSummary.total}</strong>
-        <span>κατακτημένες ερωτήσεις</span>
-      </div>
+
+      {(onOpenSimulator || canAccessCrucialQuestions) && (
+        <div className="items" style={{ marginBottom: "var(--s5)" }}>
+          {onOpenSimulator && (
+            <button type="button" className="item" onClick={onOpenSimulator}>
+              <span className="item-num" aria-hidden="true" style={{ display: "flex", color: "var(--mark)" }}>
+                <Icons.Mic />
+              </span>
+              <span className="item-body">
+                <span className="item-title" style={{ fontWeight: 600 }}>Προφορική Εξέταση</span>
+                <span className="item-meta"><span>Προσομοίωση με εξεταστή και follow-up ερωτήσεις</span></span>
+              </span>
+              <span className="item-side" style={{ color: "var(--ink-3)" }} aria-hidden="true">
+                <Icons.ChevronRight />
+              </span>
+            </button>
+          )}
+          {canAccessCrucialQuestions && onOpenCrucialQuestions && (
+            <button type="button" className="item" onClick={onOpenCrucialQuestions}>
+              <span className="item-num" aria-hidden="true" style={{ display: "flex", color: "var(--ink-3)" }}>
+                <Icons.BookOpen />
+              </span>
+              <span className="item-body">
+                <span className="item-title" style={{ fontWeight: 600 }}>100 Καίριες Ερωτήσεις</span>
+                <span className="item-meta"><span>Εκτενείς απαντήσεις με άξονες ανάκλησης</span></span>
+              </span>
+              <span className="item-side" style={{ color: "var(--ink-3)" }} aria-hidden="true">
+                <Icons.ChevronRight />
+              </span>
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="oral-index-controls">
         <div className="oral-index-tabs" aria-label="Προβολή προηγούμενων θεμάτων">
@@ -9210,7 +5410,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
               </span>
             )}
             {gravity.isTable && (
-              <span style={{color:'var(--text-dim)'}}><Icons.ChevronRight /></span>
+              <span style={{color:'var(--ink-2)'}}><Icons.ChevronRight /></span>
             )}
           </button>
 
@@ -9347,13 +5547,10 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
   }, [questions, query]);
 
   return (
-    <div className="crucial-index fade-in">
+    <div className="crucial-index">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -9416,13 +5613,10 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
   };
 
   return (
-    <div className="oral-viewer fade-in">
+    <div className="oral-viewer">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Ευρετήριο
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -9493,28 +5687,63 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
     }
   };
 
+  // Space reveals, arrows move. Recall practice works best hands-on-keyboard.
+  useEffect(() => {
+    const onKeyDown = event => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable ||
+          target.tagName === "BUTTON")
+      ) {
+        return;
+      }
+      if (event.key === " ") {
+        event.preventDefault();
+        setShowAnswer(shown => !shown);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goNext();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goPrev();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   return (
-    <div className="oral-viewer fade-in">
+    <div className="oral-viewer">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
       </div>
 
-      <p style={{fontSize:13, color:'var(--text-dim)', marginBottom:4}}>{title}</p>
-      <div className="oral-viewer-meta">
-        <div className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</div>
-        <span className={`oral-progress-pill ${sectionSummary.total > 0 && sectionSummary.mastered === sectionSummary.total ? "complete" : ""}`}>
-          {sectionSummary.mastered}/{sectionSummary.total} κατακτημένες
-        </span>
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">{title}</span>
+          <div className="oral-q-counter">
+            Ερώτηση {currentIdx + 1} / {total}
+          </div>
+        </div>
+        <div className="sheet-head-actions">
+          <ScaleStrip
+            level={sectionSummary.total ? Math.round((sectionSummary.mastered / sectionSummary.total) * 5) : 0}
+            label="Πρόοδος ενότητας"
+          />
+          <span className="plate">{sectionSummary.mastered}/{sectionSummary.total}</span>
+        </div>
       </div>
 
       <div className="oral-q-text">{q.text}</div>
       <button
         className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+        aria-pressed={isMastered}
         onClick={() => onQuestionMastered(q.id, !isMastered)}
       >
         <Icons.Check />
@@ -9649,13 +5878,10 @@ function OralExamSimulator({ onBack, onHome }) {
 
   if (phase === "result") {
     return (
-      <div className="oral-simulator fade-in">
+      <div className="oral-simulator">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Ολοκλήρωση Προφορικής Εξέτασης</h2>
@@ -9680,13 +5906,10 @@ function OralExamSimulator({ onBack, onHome }) {
 
   if (phase === "start") {
     return (
-      <div className="oral-simulator fade-in">
+      <div className="oral-simulator">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
             <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <h2>Προφορική Εξέταση</h2>
@@ -9703,7 +5926,7 @@ function OralExamSimulator({ onBack, onHome }) {
 
   if (!currentQuestion) {
     return (
-      <div className="oral-simulator fade-in">
+      <div className="oral-simulator">
         <div className="explanation-box">
           <strong>Δεν υπάρχουν διαθέσιμες ερωτήσεις</strong>
           Η προσομοίωση χρησιμοποιεί την υπάρχουσα τράπεζα προφορικών ερωτήσεων.
@@ -9722,13 +5945,10 @@ function OralExamSimulator({ onBack, onHome }) {
       : "Τέλος Εξέτασης";
 
   return (
-    <div className="oral-simulator fade-in">
+    <div className="oral-simulator">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
 
@@ -9797,17 +6017,19 @@ function OralExamSimulator({ onBack, onHome }) {
 
 function OralTable({ rows, onBack, onHome }) {
   return (
-    <div className="ref-table fade-in">
+    <div className="ref-table">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
       </div>
-      <h2 style={{textAlign:'center', marginBottom:6, fontSize:20}}>Γρήγορες Απαντήσεις</h2>
-      <p style={{textAlign:'center', color:'var(--text-dim)', fontSize:13, marginBottom:24}}>Αριθμοί που πρέπει να ξέρεις</p>
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Προφορικά</span>
+          <h2>Γρήγορες Απαντήσεις</h2>
+          <span className="sheet-sub">Αριθμοί που πρέπει να ξέρεις</span>
+        </div>
+      </div>
 
       {rows.map((row, i) => (
         <div key={i} className="ref-row">
@@ -9988,13 +6210,10 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   const renderShell = (children) => {
     const hasQuery = Boolean(normalizeGreekSearch(query));
     return (
-    <div className="pinakakia-screen fade-in">
+    <div className="pinakakia-screen">
       <div className="pinakakia-topbar">
         <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
           <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="pinakakia-search-wrap">
@@ -10219,37 +6438,54 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   return renderShell(<div className="pinakakia-empty">Δεν υπάρχει διαθέσιμο περιεχόμενο.</div>);
 }
 
-function SosHome({ data, onBack, onHome, onOpenSection }) {
+function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
   const sections = [
-    { id: "highyield", title: "Γρήγορα SOS", meta: `${data?.highYieldTables?.length || 0} κάρτες ανάκλησης` },
-    { id: "numbers", title: "Αριθμοί", meta: `${data?.numbers?.length || 0} βασικά στοιχεία` },
-    { id: "critical", title: "Κρίσιμα Θέματα", meta: `${data?.criticalTopics?.length || 0} θέματα` },
-    { id: "differential", title: "Διαφοροδιάγνωση", meta: `${data?.differentialDiagnosis?.length || 0} συγκρίσεις` },
+    { id: "highyield", title: "Γρήγορα SOS", meta: "Κάρτες ανάκλησης: ερώτημα και απάντηση", section: "high_yield", entries: data?.highYieldTables },
+    { id: "numbers", title: "Αριθμοί", meta: "Δόσεις, όρια, διάρκειες και κατώφλια", section: "numbers", entries: data?.numbers },
+    { id: "critical", title: "Κρίσιμα Θέματα", meta: "Καταστάσεις που πρέπει να αναγνωρίζονται αμέσως", section: "critical_topics", entries: data?.criticalTopics },
+    { id: "differential", title: "Διαφοροδιάγνωση", meta: "Ζεύγη που συγχέονται στις εξετάσεις", section: "differential_diagnosis", entries: data?.differentialDiagnosis },
   ];
 
   return (
-    <div className="sos-screen fade-in">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
-        </button>
+    <div className="sos-screen">
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Ενότητα</span>
+          <h2>SOS Ψυχιατρικής</h2>
+          <span className="sheet-sub">Γρήγορη ανάκληση λίγο πριν την εξέταση</span>
+        </div>
       </div>
-      <h2>SOS Ψυχιατρικής</h2>
-      <div className="sos-option-grid">
-        {sections.map(section => (
-          <button
-            key={section.id}
-            className="sos-option-card"
-            onClick={() => onOpenSection(section.id)}
-          >
-            <span className="sos-option-title">{section.title}</span>
-            <span className="sos-option-meta">{section.meta}</span>
-            <Icons.ChevronRight />
-          </button>
-        ))}
+
+      <div className="items items-plain">
+        {sections.map(section => {
+          const total = section.entries?.length || 0;
+          const summary = sosProgress
+            ? summarizeSosProgress(sosProgress, section.section, section.entries || [])
+            : null;
+          const mastered = summary?.mastered || 0;
+          const level = total ? Math.round((mastered / total) * 5) : 0;
+          return (
+            <button
+              key={section.id}
+              className="item"
+              onClick={() => onOpenSection(section.id)}
+            >
+              <span className="item-body">
+                <span className="item-title" style={{ fontWeight: 600 }}>{section.title}</span>
+                <span className="item-meta">
+                  <span>{section.meta}</span>
+                  <span>{total} καταχωρίσεις</span>
+                </span>
+              </span>
+              <span className="item-side">
+                <ScaleStrip level={level} label={`Πρόοδος: ${section.title}`} />
+                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
+                  <Icons.ChevronRight />
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -10292,13 +6528,10 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
   };
 
   return (
-    <div className="sos-screen fade-in">
+    <div className="sos-screen">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>Γρήγορα SOS</h2>
@@ -10346,13 +6579,10 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
 
 function SosNumbersList({ entries, onBack, onHome }) {
   return (
-    <div className="sos-screen fade-in">
+    <div className="sos-screen">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
@@ -10380,13 +6610,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   if (selectedEntry) {
     const isMastered = Boolean(mastered[selectedEntry.id]);
     return (
-      <div className="sos-screen fade-in">
+      <div className="sos-screen">
         <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
           <button className="back-link" style={{marginBottom:0}} onClick={() => setSelectedIndex(null)}>
             <Icons.ChevronLeft /> {title}
-          </button>
-          <button className="home-btn" onClick={onHome}>
-            <Icons.Home /> Αρχική
           </button>
         </div>
         <div className="oral-viewer-meta">
@@ -10418,13 +6645,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   }
 
   return (
-    <div className="sos-screen fade-in">
+    <div className="sos-screen">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="oral-viewer-meta">
@@ -10452,13 +6676,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
 
 function StudyModuleLoading({ error, onRetry, onBack, onHome }) {
   return (
-    <div className="mcq-select fade-in">
+    <div className="mcq-select">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="pinakakia-empty" role={error ? "alert" : "status"} aria-live="polite">
@@ -10471,7 +6692,7 @@ function StudyModuleLoading({ error, onRetry, onBack, onHome }) {
 
 function QuestionBankLoading({ error, onRetry, onSwitchProfile }) {
   return (
-    <div className="mcq-select fade-in">
+    <div className="mcq-select">
       <div className="pinakakia-empty" role={error ? "alert" : "status"} aria-live="polite">
         <p>{error || "Προετοιμασία της τράπεζας ερωτήσεων…"}</p>
         <div className="modal-actions">
@@ -10485,13 +6706,10 @@ function QuestionBankLoading({ error, onRetry, onSwitchProfile }) {
 
 function PlaceholderPage({ title, description, icon, onBack, onHome }) {
   return (
-    <div className="placeholder-page fade-in">
+    <div className="placeholder-page">
       <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
         <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
-        </button>
-        <button className="home-btn" onClick={onHome}>
-          <Icons.Home /> Αρχική
         </button>
       </div>
       <div className="placeholder-icon">{icon}</div>
@@ -10577,16 +6795,87 @@ export default function App() {
     [selectedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
   const syncMessage = useMemo(() => {
-    if (!ONLINE_PROFILES_ENABLED) return "Local profiles only. Add Supabase environment variables for online sync.";
-    if (syncStatus === "loading") return "Loading online profiles...";
-    if (syncStatus === "saving") return "Saving progress online...";
-    if (syncStatus === "offline") return "Online sync is unavailable. Changes are cached locally.";
-    return "Online profiles enabled";
+    if (!ONLINE_PROFILES_ENABLED) return "Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή.";
+    if (syncStatus === "loading") return "Φόρτωση προφίλ…";
+    if (syncStatus === "saving") return "Αποθήκευση προόδου…";
+    if (syncStatus === "offline") return "Ο συγχρονισμός δεν είναι διαθέσιμος. Η πρόοδος κρατιέται τοπικά.";
+    return "Ο συγχρονισμός είναι ενεργός.";
   }, [syncStatus]);
 
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  // ─── Shell: theme, global search, shortcut sheet ───
+  const { theme, toggleTheme } = useTheme();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = event => {
+      const target = event.target;
+      const typing =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setPaletteOpen(open => !open);
+        return;
+      }
+      if (typing) return;
+      if (event.key === "?" || (event.shiftKey && event.key === "/")) {
+        event.preventDefault();
+        setShortcutsOpen(open => !open);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // ─── Resume: remember where the trainee last was ───
+  const activeProfileId = profileStore.activeProfileId;
+  const [resumePosition, setResumePosition] = useState(null);
+
+  useEffect(() => {
+    setResumePosition(loadStudyPosition(activeProfileId));
+  }, [activeProfileId]);
+
+  useEffect(() => {
+    if (!activeProfileId || screen === "home") return;
+    const title = SCREEN_TITLES[screen] || "Μελέτη";
+    const label = testMode ? `${title} · ${MCQ_MODE_LABELS[testMode] || testMode}` : title;
+    saveStudyPosition(activeProfileId, {
+      path: location.pathname,
+      title: label,
+      screen,
+    });
+  }, [activeProfileId, screen, testMode, location.pathname]);
+
+  const shellTitle = useMemo(() => {
+    if (testMode) return MCQ_MODE_LABELS[testMode] || SCREEN_TITLES[screen] || "Μελέτη";
+    return SCREEN_TITLES[screen] || "Εξετάσεις Ειδικότητας";
+  }, [screen, testMode]);
+
+  const sectionCounts = useMemo(
+    () => ({
+      mcq: mcqProgressSummary?.review || null,
+      oral: null,
+      sos: null,
+      pinakakia: null,
+    }),
+    [mcqProgressSummary]
+  );
+
+  const handlePaletteNavigate = useCallback(
+    item => {
+      navigate(item.path, { state: item.state || null });
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     if (rememberAdmin && isAdminProfile(selectedProfile)) setAdminUnlocked(true);
@@ -10864,7 +7153,7 @@ export default function App() {
       const useRememberedAccess = options.useRememberedAccess && rememberAdmin;
       if (!useRememberedAccess) {
         const passwordMatches = await verifyAdminPassword(password);
-        if (!passwordMatches) throw new Error("Incorrect password.");
+        if (!passwordMatches) throw new Error("Λάθος κωδικός.");
       }
       setAdminUnlocked(true);
     } else {
@@ -11097,29 +7386,26 @@ export default function App() {
 
   if (activeProfile && questionBankStatus !== "ready") {
     return (
-      <>
-        <style>{STYLES}</style>
-        <div className="app">
-          <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
-          <main id="main-content" tabIndex={-1}>
+      <div className="app">
+        <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
+        <main id="main-content" tabIndex={-1}>
+          <div className="sheet">
             <QuestionBankLoading
               error={questionBankError}
               onRetry={() => setQuestionBankStatus("idle")}
               onSwitchProfile={switchProfile}
             />
-          </main>
-        </div>
-      </>
+          </div>
+        </main>
+      </div>
     );
   }
 
-  return (
-    <>
-      <style>{STYLES}</style>
+  if (!activeProfile) {
+    return (
       <div className="app">
         <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
         <main id="main-content" tabIndex={-1}>
-        {!activeProfile && (
           <ProfileScreen
             profileStore={profileStore}
             syncStatus={syncStatus}
@@ -11128,7 +7414,29 @@ export default function App() {
             onSelectProfile={selectProfile}
             onCreateProfile={createOrSelectProfile}
           />
-        )}
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
+      <AppShell
+        screen={screen}
+        title={shellTitle}
+        counts={sectionCounts}
+        profileName={activeProfile.name}
+        isAdmin={hasAdminAccess}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onNavigateSection={section => navigate(section.path)}
+        onOpenSearch={() => setPaletteOpen(true)}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
+        onSwitchProfile={switchProfile}
+        onHome={() => setScreen("home")}
+      >
+        <div className="sheet">
         {activeProfile && screen === 'home' && (
           <HomeScreen
             onNavigate={(id) => setScreen(id)}
@@ -11142,16 +7450,20 @@ export default function App() {
             onSaveUpdateMessage={handleSaveUpdateMessage}
             mcqProgressSummary={mcqProgressSummary}
             oralProgressSummary={oralProgressSummary}
+            resumePosition={resumePosition}
+            onResume={() => navigate(resumePosition.path)}
+            onDismissResume={() => {
+              clearStudyPosition(activeProfileId);
+              setResumePosition(null);
+            }}
+            onOpenSearch={() => setPaletteOpen(true)}
           />
         )}
         {activeProfile && screen === 'pinakakia' && !referenceSources && (
-          <div className="pinakakia-screen fade-in">
+          <div className="pinakakia-screen">
             <div className="pinakakia-topbar">
               <button className="back-link" onClick={() => setScreen('home')}>
                 <Icons.ChevronLeft /> Πίσω
-              </button>
-              <button className="home-btn" onClick={() => setScreen('home')}>
-                <Icons.Home /> Αρχική
               </button>
             </div>
             {referenceLoadError ? (
@@ -11200,6 +7512,7 @@ export default function App() {
               setScreen('home');
             }}
             onSelectTopic={(topic) => setSelectedMcqTopic(topic)}
+            progress={mcqProgress}
           />
         )}
         {activeProfile && screen === 'mcq' && ['vignettes', 'matching', 'DSM5'].includes(testMode) && !mcqFeatureData[testMode] && (
@@ -11256,16 +7569,20 @@ export default function App() {
             }}
           />
         )}
-        {activeProfile && screen === 'oral' && (
-          <OralChoiceScreen
+        {activeProfile && (screen === 'oral' || screen === 'oral-past') && (
+          <OralAccordion
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
-            canAccessCrucialQuestions={hasAdminAccess}
-            onOpenPastTopics={() => {
-              setOralViewerData(null);
-              setOralTableData(null);
-              setScreen('oral-past');
+            onNavigateToViewer={(questions, title, initialIndex = 0) => {
+              setOralViewerData({ questions, title, initialIndex });
+              setScreen('oral-viewer');
             }}
+            onNavigateToTable={(rows) => {
+              setOralTableData(rows);
+              setScreen('oral-table');
+            }}
+            oralProgress={oralProgress}
+            canAccessCrucialQuestions={hasAdminAccess}
             onOpenCrucialQuestions={() => {
               setCrucialQuestionViewerData(null);
               setScreen('oral-crucial-index');
@@ -11289,21 +7606,6 @@ export default function App() {
             initialIndex={crucialQuestionViewerData.initialIndex}
             onBack={() => setScreen('oral-crucial-index')}
             onHome={() => { setCrucialQuestionViewerData(null); setScreen('home'); }}
-          />
-        )}
-        {activeProfile && screen === 'oral-past' && (
-          <OralAccordion
-            onBack={() => setScreen('oral')}
-            onHome={() => setScreen('home')}
-            onNavigateToViewer={(questions, title, initialIndex = 0) => {
-              setOralViewerData({ questions, title, initialIndex });
-              setScreen('oral-viewer');
-            }}
-            onNavigateToTable={(rows) => {
-              setOralTableData(rows);
-              setScreen('oral-table');
-            }}
-            oralProgress={oralProgress}
           />
         )}
         {activeProfile && screen === 'oral-simulator' && (
@@ -11333,6 +7635,7 @@ export default function App() {
         {activeProfile && screen === 'sos' && (
           <SosHome
             data={sosStudyData}
+            sosProgress={sosProgress}
             onBack={() => setScreen('home')}
             onHome={() => setScreen('home')}
             onOpenSection={(sectionId) => setScreen(`sos-${sectionId}`)}
@@ -11400,8 +7703,15 @@ export default function App() {
             </div>
           </div>
         )}
-        </main>
-      </div>
-    </>
+        </div>
+      </AppShell>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onNavigate={handlePaletteNavigate}
+      />
+      <ShortcutSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+    </div>
   );
 }

@@ -1,0 +1,603 @@
+/* ═══════════════════════════════════════════════════════════════
+   SYSTEM — base, primitives, shell
+   ═══════════════════════════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button, input, textarea, select { font: inherit; color: inherit; }
+button { background: none; border: none; cursor: pointer; touch-action: manipulation; }
+ul, ol { list-style: none; }
+a { color: inherit; }
+
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.24; text-wrap: balance; }
+h1 { font-size: var(--t-title); letter-spacing: -0.01em; }
+h2 { font-size: var(--t-section); }
+h3 { font-size: var(--t-item); }
+
+/* Every number that sits in a column is tabular. */
+.num, .plate, .score, .hud-value, .oral-question-number,
+.crucial-index-number, .sos-list-index, .question-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* The ring is the second ink, never the stock: a stock-coloured ring is
+   invisible on the primary action, which is itself inverted stock. The 2px
+   offset puts the ring on the page ground, so it contrasts everywhere. */
+:where(button, a, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--mark);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: fixed; top: var(--s3); left: var(--s3); z-index: 200;
+  padding: var(--s3) var(--s4);
+  background: var(--stock); color: var(--stock-ink);
+  border-radius: var(--r-sm); font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.16s var(--ease);
+}
+.skip-link:focus { transform: translateY(0); }
+
+.icon { width: 20px; height: 20px; flex: none; }
+.icon-lg { width: 26px; height: 26px; }
+
+/* Safety net for the legacy markup: any control that carries no class of its
+   own still meets the quiet-button treatment and the 44px touch floor. */
+main button:not([class]) {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 44px; padding: 0 var(--s4);
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+  color: var(--ink-2); font-size: var(--t-meta); font-weight: 600;
+}
+main button:not([class]):not(:disabled):hover {
+  color: var(--ink); border-color: var(--ink-3); background: var(--raised);
+}
+main button:not([class]):disabled { opacity: 0.42; cursor: not-allowed; }
+
+input[type="checkbox"], input[type="radio"] {
+  width: 20px; height: 20px; flex: none;
+  accent-color: var(--mark);
+  cursor: pointer;
+}
+/* Give a bare checkbox a comfortable hit area without moving it visually. */
+label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; align-items: center; gap: var(--s2); }
+
+/* ═══ APP SHELL ═══════════════════════════════════════════════ */
+
+.app { min-height: 100vh; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+}
+
+/* ─── Thumb-index rail (desktop) ─── */
+.rail {
+  position: sticky; top: 0; align-self: start;
+  height: 100vh;
+  border-right: 1px solid var(--rule);
+  background: var(--sunken);
+  display: flex; flex-direction: column;
+  padding: var(--s5) 0 var(--s4);
+  overflow-y: auto;
+}
+
+.rail-mast {
+  padding: 0 var(--s5) var(--s5);
+  display: grid; gap: 2px;
+}
+.rail-mast-title {
+  font-size: var(--t-meta); font-weight: 600; letter-spacing: 0.02em;
+  min-height: 32px; display: flex; align-items: center;
+}
+.rail-mast-sub {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+}
+
+.rail-search {
+  margin: 0 var(--s4) var(--s5);
+  display: flex; align-items: center; gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  min-height: 38px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--field);
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  text-align: left;
+}
+.rail-search:hover { border-color: var(--rule-strong); color: var(--ink); }
+.rail-search .icon { width: 16px; height: 16px; }
+.rail-search-key {
+  margin-left: auto; font-family: var(--code); font-size: 10px;
+  color: var(--ink-3); border: 1px solid var(--rule);
+  border-radius: 3px; padding: 1px 5px;
+}
+
+.rail-group { padding: 0 var(--s3); display: grid; gap: 1px; }
+.rail-group + .rail-group { margin-top: var(--s5); }
+.rail-group-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0 var(--s3) var(--s2);
+}
+
+/* A tab is a thumb index: the active one bleeds to the rail's edge. */
+.tab {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s3);
+  min-height: 44px;
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+  font-size: var(--t-meta); font-weight: 500;
+  text-align: left;
+  position: relative;
+  transition: color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.tab:hover { background: var(--raised); color: var(--ink); }
+.tab[aria-current="page"] {
+  color: var(--ink); background: var(--field);
+  box-shadow: inset 2px 0 0 var(--mark);
+}
+.tab-count {
+  font-family: var(--code); font-size: 10px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.tab[aria-current="page"] .tab-count { color: var(--mark); }
+
+.rail-foot { margin-top: auto; padding: var(--s4) var(--s5) 0; display: grid; gap: var(--s2); }
+.rail-profile {
+  display: flex; align-items: center; gap: var(--s2);
+  font-size: var(--t-meta); color: var(--ink-2);
+  min-height: 36px;
+}
+.rail-profile-name {
+  font-weight: 600; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ─── Mobile bottom tab bar ─── */
+.tabbar { display: none; }
+
+/* ═══ SHEET ═══════════════════════════════════════════════════ */
+
+.sheet {
+  max-width: var(--sheet);
+  margin: 0 auto;
+  padding: var(--s8) var(--s6) var(--s16);
+}
+.sheet-narrow { max-width: 860px; }
+
+.sheet-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--s4);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: var(--s6);
+}
+.sheet-head-text { display: grid; gap: var(--s1); min-width: 0; }
+.sheet-eyebrow {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.sheet-sub { font-size: var(--t-meta); color: var(--ink-2); }
+.sheet-head-actions { display: flex; align-items: center; gap: var(--s2); flex: none; }
+
+/* ═══ SUBSCALE HEAD ═══════════════════════════════════════════
+   A heading, a rule that runs to the subtotal, and the subtotal.  */
+
+.subscale {
+  display: grid;
+  grid-template-columns: auto minmax(var(--s6), 1fr) auto;
+  align-items: baseline; gap: var(--s3);
+  margin: var(--s8) 0 var(--s3);
+}
+.subscale:first-child { margin-top: 0; }
+.subscale-title {
+  font-size: var(--t-label); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--ink-2);
+}
+.subscale-rule { height: 1px; background: var(--rule); transform: translateY(-3px); }
+.subscale-total {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+
+/* ═══ ITEM ROW — the core primitive that replaces cards ═══════ */
+
+.items { display: grid; }
+
+.item {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr) auto;
+  align-items: start; gap: var(--s3);
+  padding: var(--s3) var(--s2);
+  border-bottom: 1px solid var(--rule);
+  text-align: left; width: 100%;
+  color: inherit;
+  transition: background 0.1s var(--ease);
+}
+.item:hover { background: var(--raised); }
+.item:last-child { border-bottom: none; }
+
+.item-num {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+  padding-top: 3px; letter-spacing: 0.02em;
+}
+
+/* Lists whose order carries no information get no number gutter — an ordinal
+   nobody refers to is decoration, not structure. */
+.items-plain .item { grid-template-columns: minmax(0, 1fr) auto; }
+.items-plain .item > .item-num { display: none; }
+.items-plain .item.has-glyph { grid-template-columns: 24px minmax(0, 1fr) auto; }
+.items-plain .item.has-glyph > .item-num { display: flex; padding-top: 1px; }
+.item-body { display: grid; gap: var(--s1); min-width: 0; }
+.item-title {
+  font-size: var(--t-item); line-height: 1.4; color: var(--ink);
+  max-width: var(--measure-item);
+}
+.item-meta {
+  font-size: var(--t-micro); color: var(--ink-3);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2);
+}
+.item-meta > * + *::before {
+  content: "·"; margin-right: var(--s2); color: var(--rule-strong);
+}
+.item-side { display: flex; align-items: center; gap: var(--s3); padding-top: 2px; }
+
+/* ═══ SCALE STRIP — the signature ═════════════════════════════
+   Five boxes, marked left to right, exactly like an instrument's
+   anchored response row. Renders masteryLevel; is the control
+   where mastery is user-set.                                     */
+
+.scale {
+  display: inline-flex; align-items: center; gap: 3px;
+  flex: none;
+}
+.scale-box {
+  width: 11px; height: 15px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-box);
+  background: transparent;
+  position: relative;
+}
+.scale-box.is-marked {
+  background: var(--mark);
+  border-color: var(--mark);
+}
+.scale-box.is-full { background: var(--pass); border-color: var(--pass); }
+
+/* The one authored motion moment: the mark setting. */
+@keyframes mark-set {
+  0%   { transform: scaleY(0.2); opacity: 0.2; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+.scale-box.is-marked.just-marked {
+  animation: mark-set var(--mark-motion) var(--ease);
+  transform-origin: bottom center;
+}
+
+/* Interactive variant — the boxes are the control */
+button.scale-box { cursor: pointer; }
+button.scale-box:hover { border-color: var(--mark); }
+
+.scale-lg .scale-box { width: 15px; height: 20px; }
+
+/* ═══ STENCIL — a stencilled label, never a pill ══════════════ */
+
+.stencil {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.11em;
+  padding: 2px 5px;
+  border: 1px solid currentColor;
+  border-radius: var(--r-box);
+  color: var(--ink-3);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.stencil-mark { color: var(--mark); }
+.stencil-due { color: var(--due); }
+.stencil-pass { color: var(--pass); }
+
+/* ═══ BUTTONS ═════════════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--s2);
+  min-height: 44px; padding: 0 var(--s5);
+  border-radius: var(--r-md);
+  font-size: var(--t-meta); font-weight: 600;
+  border: 1px solid transparent;
+  transition: background 0.12s var(--ease), border-color 0.12s var(--ease), color 0.12s var(--ease);
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }
+
+/* Primary = inverted stock. There is no coloured CTA in this product. */
+.btn-primary { background: var(--stock); color: var(--stock-ink); }
+.btn-primary:not(:disabled):hover { background: var(--stock-hover); }
+
+.btn-quiet {
+  border-color: var(--rule-strong); color: var(--ink-2);
+  background: transparent;
+}
+.btn-quiet:not(:disabled):hover { border-color: var(--ink-3); color: var(--ink); background: var(--raised); }
+
+.btn-mark { border-color: var(--mark-rule); color: var(--mark); background: transparent; }
+.btn-mark:not(:disabled):hover { background: var(--mark-quiet); }
+
+.btn-sm { min-height: 36px; padding: 0 var(--s3); font-size: var(--t-micro); }
+.btn-icon { min-height: 44px; min-width: 44px; padding: 0; }
+
+/* ═══ FIELDS ══════════════════════════════════════════════════ */
+
+.field {
+  width: 100%; min-height: 44px;
+  padding: var(--s2) var(--s3);
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  color: var(--ink);
+  font-size: var(--t-body);
+}
+.field::placeholder { color: var(--ink-3); }
+.field:focus { border-color: var(--ink-3); outline-offset: 1px; }
+
+textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
+
+.field-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+  display: block; margin-bottom: var(--s2);
+}
+
+/* ═══ ANCHOR MICROTYPE ════════════════════════════════════════ */
+
+.anchor {
+  font-size: var(--t-micro); color: var(--ink-3);
+  line-height: 1.45;
+}
+
+.plate {
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--ink-3); letter-spacing: 0.02em;
+}
+
+/* ═══ READ SURFACES ═══════════════════════════════════════════ */
+
+.read {
+  font-family: var(--read);
+  font-size: var(--t-read);
+  line-height: 1.68;
+  max-width: var(--measure-read);
+  color: var(--ink);
+}
+.read p + p { margin-top: 0.85em; }
+.read strong { font-weight: 600; }
+.read em { font-style: italic; }
+
+/* ═══ STATES ══════════════════════════════════════════════════ */
+
+.state {
+  display: grid; gap: var(--s3); justify-items: start;
+  padding: var(--s10) 0;
+  max-width: 52ch;
+}
+.state-title { font-size: var(--t-item); font-weight: 600; }
+.state-body { font-size: var(--t-meta); color: var(--ink-2); }
+.state-center { justify-items: center; text-align: center; margin: 0 auto; }
+
+/* ═══ MODAL ═══════════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(6, 8, 11, 0.72);
+  display: grid; place-items: center;
+  padding: var(--s4);
+}
+.modal {
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-modal);
+  padding: var(--s6);
+  width: min(560px, 100%);
+  max-height: 86vh; overflow-y: auto;
+  display: grid; gap: var(--s4);
+}
+.modal h3 { font-size: var(--t-section); }
+.modal p { font-size: var(--t-body); color: var(--ink-2); max-width: 60ch; }
+.modal-actions { display: flex; gap: var(--s2); justify-content: flex-end; flex-wrap: wrap; }
+
+/* ═══ COMMAND PALETTE ═════════════════════════════════════════ */
+
+.palette-overlay {
+  position: fixed; inset: 0; z-index: 180;
+  background: rgba(6, 8, 11, 0.7);
+  display: grid; align-items: start; justify-items: center;
+  padding: clamp(var(--s4), 8vh, 96px) var(--s4) var(--s4);
+}
+.palette {
+  width: min(680px, 100%);
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-modal);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: min(560px, 78vh);
+  overflow: hidden;
+}
+.palette-input-row {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--rule);
+}
+.palette-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: var(--t-item); color: var(--ink); min-height: 32px;
+}
+.palette-input::placeholder { color: var(--ink-3); }
+.palette-scope {
+  display: flex; gap: var(--s1); padding: var(--s2) var(--s4);
+  border-bottom: 1px solid var(--rule); flex-wrap: wrap;
+}
+.palette-scope-btn {
+  font-size: var(--t-micro); padding: 3px var(--s2);
+  border: 1px solid var(--rule); border-radius: var(--r-sm);
+  color: var(--ink-3);
+}
+.palette-scope-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3); background: var(--raised); }
+
+.palette-results { overflow-y: auto; padding: var(--s2) 0; }
+.palette-empty { padding: var(--s8) var(--s4); text-align: center; color: var(--ink-3); font-size: var(--t-meta); }
+
+.palette-group-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: var(--s3) var(--s4) var(--s1);
+}
+.palette-item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s2) var(--s4); min-height: 44px;
+  color: var(--ink-2);
+}
+.palette-item[data-active="true"] { background: var(--raised); color: var(--ink); box-shadow: inset 2px 0 0 var(--mark); }
+.palette-item-title {
+  font-size: var(--t-meta); color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.palette-item-meta { font-size: var(--t-micro); color: var(--ink-3); }
+.palette-foot {
+  display: flex; gap: var(--s4); flex-wrap: wrap;
+  padding: var(--s2) var(--s4);
+  border-top: 1px solid var(--rule);
+  font-size: var(--t-micro); color: var(--ink-3);
+}
+.kbd {
+  font-family: var(--code); font-size: 10px;
+  border: 1px solid var(--rule); border-radius: 3px;
+  padding: 1px 4px; color: var(--ink-3);
+}
+
+/* ═══ MOBILE ACTION BAR ═══════════════════════════════════════ */
+
+.actionbar { display: none; }
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════════ */
+
+@media (max-width: 899px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .rail { display: none; }
+
+  /* Room for the tab bar plus a study surface's fixed action bar. */
+  .sheet {
+    padding: var(--s5) var(--s4) calc(var(--tabbar) + 96px);
+  }
+
+  /* Top bar replaces the rail's mast and search on small screens */
+  .topbar {
+    position: sticky; top: 0; z-index: 60;
+    display: flex; align-items: center; gap: var(--s2);
+    padding: var(--s2) var(--s4);
+    min-height: 52px;
+    background: var(--ground);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topbar-title {
+    font-size: var(--t-meta); font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1; min-width: 0;
+  }
+
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    background: var(--sunken);
+    border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .tabbar-btn {
+    display: grid; justify-items: center; align-content: center; gap: 2px;
+    min-height: var(--tabbar); padding: var(--s2) var(--s1);
+    color: var(--ink-3); font-size: 10px; font-weight: 500;
+  }
+  .tabbar-btn[aria-current="page"] { color: var(--ink); box-shadow: inset 0 2px 0 var(--mark); }
+  .tabbar-btn .icon { width: 20px; height: 20px; }
+
+  /* Study surfaces keep the primary action in the thumb zone */
+  .actionbar {
+    position: fixed; left: 0; right: 0; bottom: var(--tabbar); z-index: 90;
+    display: flex; align-items: center; gap: var(--s2);
+    padding: var(--s2) var(--s4);
+    background: var(--ground);
+    border-top: 1px solid var(--rule);
+    padding-bottom: calc(var(--s2) + env(safe-area-inset-bottom, 0));
+  }
+  /* One row, always: a wrapped action bar eats a third of a phone screen. */
+  .actionbar { flex-wrap: nowrap; }
+  .actionbar .btn,
+  .actionbar .nav-btn,
+  .actionbar button {
+    flex: 1 1 0; min-width: 0; justify-content: center;
+    padding: 0 var(--s2); font-size: var(--t-micro);
+    white-space: nowrap; overflow: hidden;
+  }
+  .actionbar .nav-btn .icon { width: 16px; height: 16px; }
+
+  .item { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }
+  .item-num {
+    grid-column: 1; grid-row: 1;
+    padding-top: 0; margin-bottom: 2px;
+  }
+  .item-body { grid-column: 1; grid-row: 2; }
+  .item-side { grid-column: 2; grid-row: 1 / span 2; align-items: center; }
+}
+
+@media (min-width: 900px) {
+  .topbar { display: none; }
+}
+
+@media (max-width: 599px) {
+  :root { --gutter: 34px; }
+  .sheet { padding-left: var(--s3); padding-right: var(--s3); }
+  .modal { padding: var(--s4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════════════════════
+   TOKENS — «Ψυχομετρικό φύλλο» / the clinical rating instrument
+   Ink on stock, one second ink, two semantic inks.
+   See DESIGN.md for the derivation of every value here.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: dark;
+
+  /* ─── Stock and ink ─── */
+  --ground: #0f1116;
+  --field: #14171e;
+  --raised: #1a1e27;
+  --sunken: #0b0d11;
+
+  --rule: rgba(233, 231, 226, 0.13);
+  --rule-strong: rgba(233, 231, 226, 0.26);
+
+  --ink: #e9e7e2;
+  --ink-2: #a9aeb8;
+  --ink-3: #7b818d;
+
+  /* ─── Second ink: marks, current position, warnings ─── */
+  --mark: #d2543a;
+  --mark-quiet: rgba(210, 84, 58, 0.16);
+  --mark-rule: rgba(210, 84, 58, 0.42);
+
+  /* ─── Semantic inks ─── */
+  --pass: #6e9e5e;
+  --pass-quiet: rgba(110, 158, 94, 0.15);
+  --due: #c08a3e;
+  --due-quiet: rgba(192, 138, 62, 0.15);
+
+  /* ─── Inverted stock: the primary action ─── */
+  --stock: #e9e7e2;
+  --stock-ink: #14171e;
+  --stock-hover: #ffffff;
+
+  /* ─── Type ─── */
+  --ui: "Fira Sans", "Helvetica Neue", Arial, sans-serif;
+  --read: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --code: "Fira Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --t-micro: 11px;
+  --t-label: 12px;
+  --t-meta: 13px;
+  --t-body: 15px;
+  --t-item: 16px;
+  --t-read: 17px;
+  --t-section: 20px;
+  --t-title: clamp(22px, 2.4vw, 28px);
+
+  /* ─── Grid: 4px base ─── */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+  --s16: 64px;
+
+  /* ─── Geometry ─── */
+  --gutter: 44px;          /* the instrument's numbered gutter */
+  --rail: 232px;           /* desktop thumb-index rail */
+  --tabbar: 60px;          /* mobile bottom tab bar */
+  --sheet: 1180px;
+  --measure-read: 68ch;
+  --measure-item: 78ch;
+
+  --r-box: 2px;            /* score boxes are square-ish, like printed boxes */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+
+  /* Shadows carry an offset and a soft blur — never a zero-offset halo. */
+  --lift: 0 6px 18px -6px rgba(0, 0, 0, 0.55), 0 2px 5px -2px rgba(0, 0, 0, 0.4);
+  --lift-modal: 0 24px 60px -18px rgba(0, 0, 0, 0.72), 0 8px 18px -8px rgba(0, 0, 0, 0.5);
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --mark-motion: 160ms;
+}
+
+/* ─── Light: the same instrument in positive, for daytime desk study ─── */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --ground: #f2f1ec;
+  --field: #ffffff;
+  --raised: #e9e8e2;
+  --sunken: #e4e3dc;
+
+  --rule: rgba(24, 26, 32, 0.14);
+  --rule-strong: rgba(24, 26, 32, 0.28);
+
+  --ink: #181a20;
+  --ink-2: #4e535e;
+  --ink-3: #62666e; /* holds ≥4.5:1 on both the light ground and the white field */
+
+  --mark: #b33c22;
+  --mark-quiet: rgba(179, 60, 34, 0.1);
+  --mark-rule: rgba(179, 60, 34, 0.4);
+
+  --pass: #3f6b32;
+  --pass-quiet: rgba(63, 107, 50, 0.12);
+  --due: #8a5d14;
+  --due-quiet: rgba(138, 93, 20, 0.12);
+
+  --stock: #181a20;
+  --stock-ink: #f2f1ec;
+  --stock-hover: #000000;
+
+  --lift: 0 6px 16px -8px rgba(24, 26, 32, 0.28), 0 2px 4px -2px rgba(24, 26, 32, 0.16);
+  --lift-modal: 0 24px 56px -20px rgba(24, 26, 32, 0.34), 0 8px 16px -8px rgba(24, 26, 32, 0.2);
+}
