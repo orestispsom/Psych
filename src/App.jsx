@@ -6407,14 +6407,20 @@ const STYLES = `
   .mcq-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .mcq-mode-grid .mode-btn { min-height: 104px; margin-bottom: 0; }
   .mcq-mode-grid .mode-btn { min-height: 64px; display: flex; align-items: center; padding: 16px 18px; }
-  .mcq-session-strip { display: grid; grid-template-columns: auto auto auto minmax(90px, 1fr) auto auto; align-items: center; gap: 10px 14px; margin: 8px 0 16px; padding: 9px 0; border-block: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 12px; }
+  .mcq-session-strip { display: grid; grid-template-columns: auto auto auto minmax(70px, 1fr) auto auto auto; align-items: center; gap: 8px 10px; margin: 4px 0 12px; padding: 7px 0; border-block: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 11px; }
   .mcq-session-strip .progress-bar { min-width: 90px; }
   .mcq-session-strip .mcq-feedback-controls { margin-left: 0; }
+  .mcq-session-strip .mcq-feedback-btn { min-height: 36px; padding: 6px 8px; font-size: 11px; }
+  .mcq-session-strip .mcq-quality-btn { width: 36px; height: 36px; }
   .mcq-session-primary { color: var(--text); font-weight: 700; }
   .mcq-session-question { color: var(--accent); font-family: 'Instrument Serif', serif; font-size: 14px; white-space: nowrap; }
-  .test-container > .question-stem { font-size: clamp(16px, 1.65vw, 18px); line-height: 1.42; margin-bottom: 16px; }
-  .test-container > .options-list { gap: 8px; }
-  .test-container > .options-list .option-btn { padding: 13px 16px; }
+  .test-container { padding-top: 12px; }
+  .test-container > .question-stem { font-size: clamp(15px, 1.5vw, 17px); line-height: 1.38; margin-bottom: 12px; }
+  .test-container > .options-list { gap: 6px; }
+  .test-container > .options-list .option-btn { gap: 11px; padding: 10px 14px; font-size: 14px; line-height: 1.35; }
+  .test-container > .options-list .option-letter { width: 25px; height: 25px; }
+  .test-container > .explanation-box { margin-top: 10px; padding: 12px 15px; font-size: 14px; line-height: 1.45; }
+  .test-container > .explanation-box strong { margin-bottom: 3px; font-size: 11px; }
   .oral-choice > p { display: none; }
   .oral-choice > .mode-btn { min-height: 58px; margin-bottom: 9px; padding: 15px 18px; }
   .oral-container { max-width: 920px; }
