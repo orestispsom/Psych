@@ -8380,6 +8380,25 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     startNewWrittenExam();
   };
 
+  const startNewSprint = () => {
+    const nextQuestions = getSessionQuestions("sprint", progress, qualitySignals);
+    sessionIdRef.current = `sprint-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    startedAtRef.current = Date.now();
+    questionViewEffectKeyRef.current = null;
+    setQuestions(nextQuestions);
+    setOptionOrders(createOptionOrders(nextQuestions));
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setLastBreakdown(null);
+    setSessionStats({ correct: 0, incorrect: 0, total: 0, currentStreak: 0, maxStreak: 0, points: 0 });
+    setFeedbackMenuOpen(false);
+    setFeedbackStatus(null);
+    setFeedbackCommentOpen(false);
+    setFeedbackCommentText("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (mode === "written" && writtenDraftChoice === "choice") {
     const draftUpdatedAt = initialWrittenDraftRef.current?.updatedAt
       ? new Date(initialWrittenDraftRef.current.updatedAt).toLocaleString("el-GR")
@@ -8936,6 +8955,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
             Submit exam
           </button>
+        </div>
+      ) : mode === "sprint" && currentIdx === totalQ - 1 ? (
+        <div className="nav-bar">
+          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+            <Icons.ChevronLeft /> Προηγούμενη
+          </button>
+          {!isLocked && (
+            <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+              <Icons.Lock /> Καταχώριση
+            </button>
+          )}
+          <button className="nav-btn primary" type="button" onClick={startNewSprint}>Νέο mini-test</button>
+          <button className="nav-btn" type="button" onClick={onHome}><Icons.Home /> Αρχική</button>
         </div>
       ) : (
         <div className="nav-bar">
