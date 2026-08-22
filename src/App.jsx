@@ -6406,6 +6406,17 @@ const STYLES = `
   .mcq-select { max-width: 760px; }
   .mcq-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .mcq-mode-grid .mode-btn { min-height: 104px; margin-bottom: 0; }
+  .mcq-mode-grid .mode-btn { min-height: 64px; display: flex; align-items: center; padding: 16px 18px; }
+  .mcq-session-strip { display: grid; grid-template-columns: auto auto auto minmax(90px, 1fr) auto auto; align-items: center; gap: 10px 14px; margin: 8px 0 16px; padding: 9px 0; border-block: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 12px; }
+  .mcq-session-strip .progress-bar { min-width: 90px; }
+  .mcq-session-strip .mcq-feedback-controls { margin-left: 0; }
+  .mcq-session-primary { color: var(--text); font-weight: 700; }
+  .mcq-session-question { color: var(--accent); font-family: 'Instrument Serif', serif; font-size: 14px; white-space: nowrap; }
+  .test-container > .question-stem { font-size: clamp(16px, 1.65vw, 18px); line-height: 1.42; margin-bottom: 16px; }
+  .test-container > .options-list { gap: 8px; }
+  .test-container > .options-list .option-btn { padding: 13px 16px; }
+  .oral-choice > p { display: none; }
+  .oral-choice > .mode-btn { min-height: 58px; margin-bottom: 9px; padding: 15px 18px; }
   .oral-container { max-width: 920px; }
   .oral-index-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
   .oral-index-tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); }
@@ -6443,6 +6454,14 @@ const STYLES = `
   .sos-flip-prompt { display: block; font-size: 15px; line-height: 1.45; }
   .sos-flip-answer { display: block; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--text); font-size: 15px; line-height: 1.6; }
   .sos-reveal-hint { display: block; margin-top: 9px; color: var(--text-muted); font-size: 11px; }
+  .sos-focus-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--text-dim); font-size: 12px; }
+  .sos-focus-card { min-height: 300px; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px, 5vw, 48px); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); }
+  .sos-focus-prompt { max-width: 680px; color: var(--text); font-size: clamp(20px, 3vw, 28px); line-height: 1.45; font-weight: 650; text-wrap: pretty; }
+  .sos-focus-answer { max-width: 680px; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--green); font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; font-weight: 700; }
+  .sos-focus-reveal { align-self: flex-start; margin-top: 28px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--border-active); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+  .sos-focus-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .sos-focus-nav button { min-height: 48px; display: inline-flex; justify-content: center; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); font: inherit; cursor: pointer; }
+  .sos-focus-nav button:disabled { opacity: .35; cursor: default; }
 
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
@@ -6462,6 +6481,9 @@ const STYLES = `
     .profile-form { flex-direction: column; }
     .mcq-memory { grid-template-columns: repeat(3, 1fr); }
     .mcq-mode-grid, .sos-option-grid, .sos-number-list { grid-template-columns: 1fr; }
+    .mcq-session-strip { grid-template-columns: auto auto 1fr auto; }
+    .mcq-session-secondary { display: none; }
+    .sos-focus-card { min-height: 260px; padding: 22px 18px; }
     .oral-index-controls { align-items: stretch; flex-direction: column; }
     .oral-index-tabs { display: grid; grid-template-columns: 1fr 1fr; }
     .oral-question-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding-inline: 10px; }
@@ -6889,31 +6911,24 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       <div className="mcq-mode-grid">
       <button className="mode-btn featured" onClick={() => onStart('sprint')}>
         Mini-test
-        <small>10 ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('random')}>
         Τυχαία Θέματα
-        <small>βαρύτητα σε unseen ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('daily')}>
         Αδύναμα Θέματα
-        <small>επανάληψη σε λάθος απαντήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('category')}>
         {"\u0395\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03b1\u03bd\u03ac \u039a\u03b1\u03c4\u03b7\u03b3\u03bf\u03c1\u03af\u03b1"}
-        <small>{"\u03b5\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03bf\u03c1\u03b3\u03b1\u03bd\u03c9\u03bc\u03ad\u03bd\u03b5\u03c2 \u03bc\u03b5 \u03b2\u03ac\u03c3\u03b7 \u03c4\u03bf \u03b8\u03ad\u03bc\u03b1"}</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('written')}>
         {"\u03a0\u03c1\u03bf\u03c3\u03bf\u03bc\u03bf\u03af\u03c9\u03c3\u03b7 100 \u03a0\u03bf\u03bb\u03bb\u03b1\u03c0\u03bb\u03ae\u03c2"}
-        <small>{"\u03b4\u03af\u03bd\u03b5\u03b9 \u03b1\u03c0\u03b1\u03bd\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03bc\u03cc\u03bd\u03bf \u03c3\u03c4\u03bf \u03c4\u03ad\u03bb\u03bf\u03c2"}</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('vignettes')}>
         Vignettes
-        <small>κλινικό σενάριο με πολλαπλές ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('matching')}>
         Αντιστοίχηση
-        <small>επιλογές που χρησιμοποιούνται σε πολλές ερωτήσεις</small>
       </button>
       <button className="mode-btn" onClick={() => onStart('DSM5')}>
         DSM5
@@ -8722,28 +8737,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <span className="hud-label">Σύνολο</span>
           </div>
         </div>
-      ) : (
-        <div className="game-hud">
-          <div className="hud-stat">
-            <span className="hud-value">{mode === "sprint" ? currentIdx + 1 : sessionStats.currentStreak}</span>
-            <span className="hud-label">{mode === "sprint" ? "Τρέχουσα" : "Σερί"}</span>
-          </div>
-          <div className="hud-stat">
-            <span className="hud-value">{sessionStats.correct}</span>
-            <span className="hud-label">Σωστές</span>
-          </div>
-          <div className="hud-stat">
-            <span className="hud-value">{sessionStats.incorrect}</span>
-            <span className="hud-label">Λάθη</span>
-          </div>
-          <div className="hud-stat">
-            <span className="hud-value">{sessionStats.total}</span>
-            <span className="hud-label">Απαντήσεις</span>
-          </div>
-        </div>
-      )}
+      ) : null}
 
-      <div className="test-header">
+      {mode === "written" && <div className="test-header">
         <span className="progress-text">
           {mode === "written" ? `Answered ${writtenAnsweredCount}/${totalQ}` : `Mastered ${progressStats.mastered}/${progressStats.total}`}
         </span>
@@ -8760,10 +8756,14 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <span className="progress-text">
           {modeTitle} {currentIdx + 1}/{totalQ}
         </span>
-      </div>
+      </div>}
 
-      <div className="question-num">
-        Question {q.id}
+      <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
+        {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
+        {mode !== "written" && <span className="mcq-session-secondary">{sessionStats.correct} σωστές · {sessionStats.incorrect} λάθη</span>}
+        {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} κατακτημένες</span>}
+        {mode !== "written" && <div className="progress-bar"><div className="progress-fill" style={{width: `${(progressStats.mastered / progressStats.total) * 100}%`}} /></div>}
+        <span className="mcq-session-question">{mode === "written" ? "Question" : "Ερ."} {q.id}</span>
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
         {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
         <div className="mcq-feedback-controls">
@@ -8993,21 +8993,17 @@ function OralChoiceScreen({ onBack, onHome, onOpenPastTopics, onOpenCrucialQuest
         </button>
       </div>
       <h2>Προφορικά</h2>
-      <p>Επιλέξτε τρόπο εξάσκησης για το προφορικό μέρος της εξέτασης.</p>
 
       <button className="mode-btn" onClick={onOpenPastTopics}>
         Προηγούμενα Θέματα
-        <small>Εξάσκηση με τα υπάρχοντα προφορικά θέματα και ερωτήσεις της τράπεζας.</small>
       </button>
       {canAccessCrucialQuestions && (
         <button className="mode-btn" onClick={onOpenCrucialQuestions}>
           100 Καίριες Ερωτήσεις
-          <small>Ευρετήριο του βιβλίου με την πλήρη ερώτηση και απάντηση για κάθε καταχώριση.</small>
         </button>
       )}
       <button className="mode-btn featured" onClick={onOpenSimulator}>
         Προφορική Εξέταση
-        <small>Προσομοίωση προφορικής εξέτασης με βασικές και follow-up ερωτήσεις.</small>
       </button>
     </div>
   );
@@ -10209,15 +10205,15 @@ function SosHome({ data, onBack, onHome, onOpenSection }) {
 }
 
 function SosHighYieldTables({ tables, onBack, onHome }) {
-  const [flippedIds, setFlippedIds] = useState(() => new Set());
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const entry = tables[currentIndex];
 
-  const toggleCard = (entryId) => {
-    setFlippedIds(current => {
-      const next = new Set(current);
-      if (next.has(entryId)) next.delete(entryId);
-      else next.add(entryId);
-      return next;
-    });
+  const navigate = (nextIndex) => {
+    if (nextIndex < 0 || nextIndex >= tables.length) return;
+    setCurrentIndex(nextIndex);
+    setShowAnswer(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -10231,25 +10227,22 @@ function SosHighYieldTables({ tables, onBack, onHome }) {
         </button>
       </div>
       <h2>Γρήγορα SOS</h2>
-      <div className="sos-flip-list">
-        {tables.map(entry => {
-          const isFlipped = flippedIds.has(entry.id);
-          return (
-            <button
-              key={entry.id}
-              type="button"
-              className={`sos-flip-card ${isFlipped ? "flipped" : ""}`}
-              onClick={() => toggleCard(entry.id)}
-            >
-              <div className="sos-flip-text">
-                <span className="sos-card-kicker">{isFlipped ? "Απάντηση" : "Ερώτηση"}</span>
-                <strong className="sos-flip-prompt">{entry.prompt}</strong>
-                {isFlipped && <span className="sos-flip-answer">{entry.answer}</span>}
-                <span className="sos-reveal-hint">{isFlipped ? "Πάτησε για απόκρυψη" : "Πάτησε για απάντηση"}</span>
-              </div>
-            </button>
-          );
-        })}
+      <div className="sos-focus-meta">
+        <span>Κάρτα {currentIndex + 1} / {tables.length}</span>
+        <span>{showAnswer ? "Απάντηση" : "Ερώτηση"}</span>
+      </div>
+      <section className="sos-focus-card" aria-live="polite">
+        <div className="sos-card-kicker">Ερώτηση</div>
+        <div className="sos-focus-prompt">{entry.prompt}</div>
+        {showAnswer ? (
+          <div className="sos-focus-answer">{entry.answer}</div>
+        ) : (
+          <button className="sos-focus-reveal" type="button" onClick={() => setShowAnswer(true)}>Εμφάνιση απάντησης</button>
+        )}
+      </section>
+      <div className="sos-focus-nav">
+        <button type="button" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
+        <button type="button" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === tables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
       </div>
     </div>
   );
