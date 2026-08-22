@@ -394,6 +394,7 @@ function createEmptySosProgress() {
   return {
     version: 1,
     mastered: {
+      high_yield: {},
       critical_topics: {},
       differential_diagnosis: {},
     },
@@ -414,6 +415,9 @@ function normalizeSosProgress(progress) {
     ...progress,
     version: 1,
     mastered: {
+      high_yield: Object.fromEntries(
+        Object.entries(mastered.high_yield || {}).filter(([, value]) => Boolean(value))
+      ),
       critical_topics: Object.fromEntries(
         Object.entries(mastered.critical_topics || {}).filter(([, value]) => Boolean(value))
       ),
@@ -1045,6 +1049,7 @@ function mergeSosMasteryRowsIntoProfile(profile, rows) {
 
   const progress = normalizeSosProgress(profile.sosProgress);
   const nextMastered = {
+    high_yield: { ...progress.mastered.high_yield },
     critical_topics: { ...progress.mastered.critical_topics },
     differential_diagnosis: { ...progress.mastered.differential_diagnosis },
   };
@@ -6461,6 +6466,14 @@ const STYLES = `
   .sos-flip-answer { display: block; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--text); font-size: 15px; line-height: 1.6; }
   .sos-reveal-hint { display: block; margin-top: 9px; color: var(--text-muted); font-size: 11px; }
   .sos-focus-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--text-dim); font-size: 12px; }
+  .sos-focus-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .sos-focus-toggles { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .sos-check-control { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: var(--text-dim); font-size: 13px; cursor: pointer; }
+  .sos-check-control input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .sos-check-control.mastered { color: var(--green); font-weight: 700; }
+  .sos-shuffle-btn { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .sos-focus-empty { padding: 36px 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); text-align: center; color: var(--text-dim); }
+  .sos-focus-empty strong { display: block; margin-bottom: 8px; color: var(--text); font-size: 18px; }
   .sos-focus-card { min-height: 300px; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px, 5vw, 48px); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); }
   .sos-focus-prompt { max-width: 680px; color: var(--text); font-size: clamp(20px, 3vw, 28px); line-height: 1.45; font-weight: 650; text-wrap: pretty; }
   .sos-focus-answer { max-width: 680px; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--green); font-size: clamp(18px, 2.4vw, 23px); line-height: 1.5; font-weight: 700; }
@@ -10242,16 +10255,40 @@ function SosHome({ data, onBack, onHome, onOpenSection }) {
   );
 }
 
-function SosHighYieldTables({ tables, onBack, onHome }) {
+function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHome }) {
+  const [shuffledTables, setShuffledTables] = useState(() => shuffleItems(tables));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const entry = tables[currentIndex];
+  const [showMastered, setShowMastered] = useState(false);
+  const mastered = normalizeSosProgress(sosProgress).mastered.high_yield || {};
+  const summary = summarizeSosProgress(sosProgress, "high_yield", tables);
+  const visibleTables = useMemo(
+    () => showMastered ? shuffledTables : shuffledTables.filter(item => !mastered[item.id]),
+    [mastered, showMastered, shuffledTables]
+  );
+  const entry = visibleTables[currentIndex];
+
+  useEffect(() => {
+    if (currentIndex >= visibleTables.length) setCurrentIndex(Math.max(0, visibleTables.length - 1));
+  }, [currentIndex, visibleTables.length]);
 
   const navigate = (nextIndex) => {
-    if (nextIndex < 0 || nextIndex >= tables.length) return;
+    if (nextIndex < 0 || nextIndex >= visibleTables.length) return;
     setCurrentIndex(nextIndex);
     setShowAnswer(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const reshuffle = () => {
+    setShuffledTables(current => shuffleItems(current));
+    setCurrentIndex(0);
+    setShowAnswer(false);
+  };
+
+  const toggleCurrentMastery = (nextMastered) => {
+    if (!entry) return;
+    onToggleMastery("high_yield", entry.id, nextMastered);
+    setShowAnswer(false);
   };
 
   return (
@@ -10265,8 +10302,24 @@ function SosHighYieldTables({ tables, onBack, onHome }) {
         </button>
       </div>
       <h2>Γρήγορα SOS</h2>
+      <div className="sos-focus-toolbar">
+        <div className="sos-focus-toggles">
+          <label className="sos-check-control">
+            <input type="checkbox" checked={showMastered} onChange={event => { setShowMastered(event.target.checked); setCurrentIndex(0); setShowAnswer(false); }} />
+            Εμφάνιση κατακτημένων
+          </label>
+          <span className="oral-progress-pill">{summary.mastered}/{summary.total} κατακτημένα</span>
+        </div>
+        <button className="sos-shuffle-btn" type="button" onClick={reshuffle}>Ανακάτεμα</button>
+      </div>
+      {!entry ? (
+        <div className="sos-focus-empty">
+          <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
+          <span>Ενεργοποίησε την εμφάνιση κατακτημένων για επανάληψη.</span>
+        </div>
+      ) : <>
       <div className="sos-focus-meta">
-        <span>Κάρτα {currentIndex + 1} / {tables.length}</span>
+        <span>Κάρτα {currentIndex + 1} / {visibleTables.length}</span>
         <span>{showAnswer ? "Απάντηση" : "Ερώτηση"}</span>
       </div>
       <section className="sos-focus-card" aria-live="polite">
@@ -10277,11 +10330,16 @@ function SosHighYieldTables({ tables, onBack, onHome }) {
         ) : (
           <button className="sos-focus-reveal" type="button" onClick={() => setShowAnswer(true)}>Εμφάνιση απάντησης</button>
         )}
+        <label className={`sos-check-control ${mastered[entry.id] ? "mastered" : ""}`}>
+          <input type="checkbox" checked={Boolean(mastered[entry.id])} onChange={event => toggleCurrentMastery(event.target.checked)} />
+          Κατακτημένο
+        </label>
       </section>
       <div className="sos-focus-nav">
         <button type="button" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
-        <button type="button" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === tables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
+        <button type="button" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === visibleTables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
       </div>
+      </>}
     </div>
   );
 }
@@ -11298,6 +11356,8 @@ export default function App() {
         {activeProfile && screen === 'sos-highyield' && sosStudyData && (
           <SosHighYieldTables
             tables={sosStudyData.highYieldTables}
+            sosProgress={sosProgress}
+            onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
           />
