@@ -251,25 +251,24 @@
   background: var(--accent-quiet, var(--raised));
 }
 
-@media (min-width: 1600px) {
-  .screen-topbar, .nav-bar, .pinakakia-topbar, .test-header, .oral-viewer-meta {
-    position: relative;
-    min-height: 48px;
+/* Global, not per-screen: one fixed position next to the rail, on every
+   screen that has one, rather than living inside that screen's own frame
+   and shifting with it. Below 900px there is no rail to sit beside, so it
+   falls back to sitting inline where it's rendered. */
+@media (min-width: 900px) {
+  .back-link {
+    position: fixed;
+    top: var(--s5);
+    z-index: 40;
   }
-  .screen-topbar > .back-link:first-child,
-  .nav-bar > .back-link:first-child,
-  .pinakakia-topbar > .back-link:first-child,
-  .test-header > .back-link:first-child,
-  .oral-viewer-meta > .back-link:first-child {
-    position: absolute;
-    top: 0;
-    left: calc(-1 * (48px + var(--s5)));
-  }
+  .app-shell:not(.rail-collapsed) .back-link { left: calc(var(--rail) + var(--s4)); }
+  .app-shell.rail-collapsed .back-link { left: calc(var(--rail-collapsed) + var(--s4)); }
 }
 
 /* ═══ MCQ HUB ═════════════════════════════════════════════════ */
 
 .mcq-select { display: grid; gap: var(--s5); }
+.admin-options { display: grid; gap: var(--s3); max-width: 480px; }
 
 /* Square clickable tiles, 2 per row, title only — no description line.
    Each tile is its own rounded, tinted plate with real air between them,
@@ -440,22 +439,6 @@
   color: var(--ink);
 }
 
-/* One session per row, but the score's grade fills the row's own width as a
-   bar instead of leaving the sheet's middle column empty. */
-.written-history-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(90px, 220px) auto;
-  align-items: center; gap: var(--s4);
-  width: 100%; text-align: left;
-  padding: var(--s3) var(--s2);
-  min-height: 52px;
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-}
-@media (max-width: 599px) {
-  .written-history-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .written-history-bar { display: none; }
-}
 
 /* No leading gutter number in the markup — one or two children (title,
    optional trailing meta), never three — so its own two-column grid
@@ -524,7 +507,7 @@
 }
 .pinakakia-row-meta, .crucial-index-count, .oral-question-context,
 .exam-lesson, .topic-performance-stats, .oral-legacy-source,
-.written-history-detail, .written-history-date {
+.written-history-date {
   font-size: var(--t-micro); color: var(--ink-3);
 }
 .topic-chevron, .oral-source-chevron, .bar-chevron { color: var(--ink-3); flex: none; }
@@ -567,29 +550,6 @@
   display: grid; gap: 10px; max-width: 760px; margin: 0 auto;
 }
 
-/* Floats above the question in the sheet's own top padding instead of
-   claiming a row of its own — the goal is fitting stem, options and the
-   explanation on one screen with no scroll. */
-.mcq-back-float {
-  position: absolute;
-  /* Fits inside the sheet's own 32px top padding (--s8) rather than
-     claiming a row of its own: 4px clearance above and below at every
-     desktop width, never clipped by the viewport, never overlapping the
-     stats strip that follows. */
-  top: -30px; left: -2px;
-  display: inline-flex; align-items: center; gap: 3px;
-  height: 26px; padding: 0 6px;
-  border-radius: var(--r-sm);
-  color: var(--ink-3);
-  font-size: 12px; font-weight: 600;
-}
-.mcq-back-float:hover { color: var(--ink); background: var(--raised); }
-.mcq-back-float .icon { width: 13px; height: 13px; }
-@media (max-width: 899px) {
-  .mcq-back-float { position: static; margin-bottom: var(--s2); height: 44px; font-size: var(--t-meta); }
-  .mcq-back-float .icon { width: 15px; height: 15px; }
-}
-
 .test-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -615,6 +575,10 @@
   font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
+/* Reserves room for a 4-digit id so the feedback controls after it don't
+   shift position as the trainee moves through questions of different id
+   lengths. */
+.mcq-session-question { display: inline-block; min-width: 4.5ch; }
 
 .options-list, .DSM5-options, .structured-options, .sticky-choices {
   display: grid; gap: var(--s2); margin-top: var(--s4);
@@ -855,28 +819,40 @@
 .DSM5-review-list { display: grid; }
 
 .written-history { display: grid; }
-.written-history-main { display: grid; gap: 2px; min-width: 0; }
-.written-history-score {
-  font-family: var(--code); font-size: 20px; font-weight: 600;
-  font-variant-numeric: tabular-nums; text-align: right;
+
+/* Dense, multi-column list: date and the graded score are the only two
+   facts that matter here, so the row is as thin as a table line. */
+.written-history-grid {
+  column-count: 3; column-gap: var(--s6);
+  max-width: 1040px;
 }
-.written-history-dot { display: none; }
+.written-history-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s3);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--rule);
+  break-inside: avoid;
+}
+.written-history-score {
+  font-family: var(--code); font-size: var(--t-meta); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .percent-high { color: var(--pass); }
 
 /* Score grade — a fixed band, not the section colour, so a written-exam
    result reads the same regardless of which section it's viewed from. */
-.written-history-bar {
-  height: 6px; border-radius: 999px;
-  background: var(--rule);
-  overflow: hidden;
+.written-history-score.gray { color: var(--ink-3); }
+.written-history-score.green { color: var(--pass); }
+.written-history-score.blue { color: var(--focus); }
+.written-history-score.purple { color: var(--grade-purple); }
+.written-history-score.orange { color: var(--due); }
+.written-history-score.pink { color: var(--grade-pink); }
+@media (max-width: 899px) {
+  .written-history-grid { column-count: 2; }
 }
-.written-history-bar-fill { display: block; height: 100%; border-radius: inherit; }
-.written-history-score.gray, .written-history-bar.gray .written-history-bar-fill { color: var(--ink-3); background: var(--ink-3); }
-.written-history-score.green, .written-history-bar.green .written-history-bar-fill { color: var(--pass); background: var(--pass); }
-.written-history-score.blue, .written-history-bar.blue .written-history-bar-fill { color: var(--focus); background: var(--focus); }
-.written-history-score.purple, .written-history-bar.purple .written-history-bar-fill { color: var(--grade-purple); background: var(--grade-purple); }
-.written-history-score.orange, .written-history-bar.orange .written-history-bar-fill { color: var(--due); background: var(--due); }
-.written-history-score.pink, .written-history-bar.pink .written-history-bar-fill { color: var(--grade-pink); background: var(--grade-pink); }
+@media (max-width: 599px) {
+  .written-history-grid { column-count: 1; }
+}
 .percent-mid { color: var(--due); }
 .percent-low { color: var(--mark); }
 
@@ -1073,15 +1049,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   }
   .resume { grid-template-columns: minmax(0, 1fr); }
   .oral-answer-modes { grid-auto-flow: row; }
-}
-
-/* ═══ RESET ZONE ══════════════════════════════════════════════ */
-
-.danger-zone {
-  margin-top: var(--s10);
-  padding-top: var(--s2);
-  display: grid; gap: var(--s3); justify-items: start;
-  max-width: 60ch;
 }
 
 /* SOS list row: the title opens the entry, the box marks it. */

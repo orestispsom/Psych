@@ -50,11 +50,7 @@ export default function AppShell({
   onOpenShortcuts,
   onSwitchProfile,
   onHome,
-  supportWidgetEnabled = true,
-  onToggleSupportWidget,
-  supportWidgetDelayMinutes,
-  onChangeSupportWidgetDelay,
-  supportWidgetSyncNote,
+  onOpenAdmin,
   children,
 }) {
   const current = sectionFor(screen);
@@ -82,28 +78,6 @@ export default function AppShell({
   return (
     <div className={`app-shell${collapsed ? " rail-collapsed" : ""}`} style={accentStyle}>
       <nav className="rail" aria-label="Κύρια πλοήγηση">
-        <div className="rail-mast">
-          <button
-            type="button"
-            className="rail-collapse-btn"
-            onClick={() => setCollapsed(value => !value)}
-            aria-label={collapsed ? "Ανάπτυξη πλαϊνής στήλης" : "Σύμπτυξη πλαϊνής στήλης"}
-            title={collapsed ? "Ανάπτυξη" : "Σύμπτυξη"}
-          >
-            <Icons.PanelLeft />
-          </button>
-          {!collapsed && (
-            <button
-              type="button"
-              className="rail-mast-title"
-              onClick={onHome}
-              style={{ textAlign: "left", padding: 0 }}
-            >
-              Επανάληψη Ψυχιατρικής
-            </button>
-          )}
-        </div>
-
         <button
           type="button"
           className="rail-search"
@@ -145,37 +119,20 @@ export default function AppShell({
           </ul>
         </div>
 
-        {isAdmin && !collapsed && onToggleSupportWidget && (
+        {isAdmin && onOpenAdmin && (
           <div className="rail-group rail-admin">
-            <span className="rail-group-label">Διαχείριση</span>
+            {!collapsed && <span className="rail-group-label">Διαχείριση</span>}
             <button
               type="button"
-              className="admin-toggle-row"
-              onClick={onToggleSupportWidget}
-              aria-pressed={supportWidgetEnabled}
+              className="tab"
+              aria-label={collapsed ? "Επιλογές διαχειριστή" : undefined}
+              title={collapsed ? "Επιλογές διαχειριστή" : undefined}
+              onClick={onOpenAdmin}
             >
-              <span>Buy Me a Coffee</span>
-              <span className={`admin-toggle-state ${supportWidgetEnabled ? "on" : "off"}`}>
-                {supportWidgetEnabled ? "Ενεργό" : "Ανενεργό"}
-              </span>
+              <Icons.Settings />
+              {!collapsed && <span>Επιλογές διαχειριστή</span>}
+              {!collapsed && <span />}
             </button>
-            {onChangeSupportWidgetDelay && (
-              <label className="admin-delay-row">
-                <span>Εμφάνιση μετά από</span>
-                <span className="admin-delay-input">
-                  <input
-                    type="number"
-                    min={1}
-                    max={180}
-                    step={5}
-                    value={supportWidgetDelayMinutes ?? 30}
-                    onChange={event => onChangeSupportWidgetDelay(Number(event.target.value))}
-                  />
-                  <span>λεπτά</span>
-                </span>
-              </label>
-            )}
-            {supportWidgetSyncNote && <span className="admin-toggle-note">{supportWidgetSyncNote}</span>}
           </div>
         )}
 
@@ -218,6 +175,16 @@ export default function AppShell({
               aria-label="Συντομεύσεις πληκτρολογίου"
             >
               <Icons.Keyboard />
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet btn-sm btn-icon"
+              style={collapsed ? undefined : { marginLeft: "auto" }}
+              onClick={() => setCollapsed(value => !value)}
+              aria-label={collapsed ? "Ανάπτυξη πλαϊνής στήλης" : "Σύμπτυξη πλαϊνής στήλης"}
+              title={collapsed ? "Ανάπτυξη" : "Σύμπτυξη"}
+            >
+              <Icons.PanelLeft />
             </button>
           </div>
         </div>

@@ -636,11 +636,6 @@ function createEmptyMcqProgress() {
   };
 }
 
-function createResetMcqProgress() {
-  const now = new Date().toISOString();
-  return { ...createEmptyMcqProgress(), resetAt: now, updatedAt: now };
-}
-
 function normalizeMcqProgress(progress) {
   const empty = createEmptyMcqProgress();
   if (!progress || typeof progress !== "object") return empty;
@@ -1452,26 +1447,6 @@ async function saveRemoteQuestionStates(profileId, progress, questionIds) {
       method: "POST",
       headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
       body: JSON.stringify(rows),
-    }
-  );
-}
-
-async function deleteRemoteQuestionBehavior(profileId) {
-  await supabaseTableRequest(
-    "question_attempts",
-    { profile_id: `eq.${profileId}` },
-    {
-      method: "DELETE",
-      headers: { Prefer: "return=minimal" },
-    }
-  );
-
-  await supabaseTableRequest(
-    "user_question_state",
-    { profile_id: `eq.${profileId}` },
-    {
-      method: "DELETE",
-      headers: { Prefer: "return=minimal" },
     }
   );
 }
@@ -2694,6 +2669,7 @@ function plural(count, one, many) {
 // Screen and mode names, shared by the shell, the resume block and the titles.
 const SCREEN_TITLES = {
   home: "Επανάληψη Ψυχιατρικής",
+  admin: "Επιλογές διαχειριστή",
   mcq: "Πολλαπλής Επιλογής",
   oral: "Προφορικά",
   "oral-past": "Προηγούμενα Θέματα",
@@ -3144,7 +3120,65 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   );
 }
 
-function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions, onResetProgress }) {
+function AdminOptionsScreen({
+  onBack,
+  supportWidgetEnabled,
+  onToggleSupportWidget,
+  supportWidgetDelayMinutes,
+  onChangeSupportWidgetDelay,
+  supportWidgetSyncNote,
+}) {
+  return (
+    <div className="admin-options">
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
+          <Icons.ChevronLeft /> Αρχική
+        </button>
+      </div>
+
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Διαχείριση</span>
+          <h2>Επιλογές διαχειριστή</h2>
+        </div>
+      </div>
+
+      <div className="subscale">
+        <h3 className="subscale-title">Buy Me a Coffee</h3>
+        <span className="subscale-rule" />
+        <span />
+      </div>
+      <button
+        type="button"
+        className="admin-toggle-row"
+        onClick={onToggleSupportWidget}
+        aria-pressed={supportWidgetEnabled}
+      >
+        <span>Εμφάνιση του widget</span>
+        <span className={`admin-toggle-state ${supportWidgetEnabled ? "on" : "off"}`}>
+          {supportWidgetEnabled ? "Ενεργό" : "Ανενεργό"}
+        </span>
+      </button>
+      <label className="admin-delay-row">
+        <span>Εμφάνιση μετά από</span>
+        <span className="admin-delay-input">
+          <input
+            type="number"
+            min={1}
+            max={180}
+            step={5}
+            value={supportWidgetDelayMinutes ?? 30}
+            onChange={event => onChangeSupportWidgetDelay(Number(event.target.value))}
+          />
+          <span>λεπτά</span>
+        </span>
+      </label>
+      {supportWidgetSyncNote && <span className="admin-toggle-note">{supportWidgetSyncNote}</span>}
+    </div>
+  );
+}
+
+function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
   const practiceModes = [
@@ -3225,52 +3259,21 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             <span className="subscale-rule" />
             <span className="subscale-total">{recentWrittenExamSessions.length}</span>
           </div>
-          {recentWrittenExamSessions.map(session => {
-            const gradeClass = getPercentageColorClass(session.scorePercent);
-            return (
-              <div className="written-history-row" key={session.id}>
-                <div className="written-history-main">
+          <div className="written-history-grid">
+            {recentWrittenExamSessions.map(session => {
+              const gradeClass = getPercentageColorClass(session.scorePercent);
+              return (
+                <div className="written-history-row" key={session.id}>
                   <span className="written-history-date">
                     {new Date(session.completedAt).toLocaleDateString("el-GR")}
                   </span>
-                  <span className="written-history-detail">
-                    {session.correct}/{session.total} σωστές
-                  </span>
-                  {session.unanswered > 0 && (
-                    <>
-                      <span className="written-history-dot" aria-hidden="true" />
-                      <span className="written-history-detail">{session.unanswered} αναπάντητες</span>
-                    </>
-                  )}
-                  <span className="written-history-dot" aria-hidden="true" />
-                  <span className="written-history-detail">{session.performanceLabel}</span>
+                  <strong className={`written-history-score ${gradeClass}`}>
+                    {session.correct}/{session.total}
+                  </strong>
                 </div>
-                <div className={`written-history-bar ${gradeClass}`} aria-hidden="true">
-                  <span className="written-history-bar-fill" style={{ width: `${session.scorePercent}%` }} />
-                </div>
-                <strong className={`written-history-score ${gradeClass}`}>
-                  {session.scorePercent}%
-                </strong>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {progressSummary.attempted > 0 && (
-        <div className="danger-zone">
-          <div className="subscale">
-            <h3 className="subscale-title">Μηδενισμός</h3>
-            <span className="subscale-rule" />
-            <span />
+              );
+            })}
           </div>
-          <p className="anchor">
-            Σβήνει τις mastered ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα
-            επανάληψης για αυτό το προφίλ. Το υλικό μελέτης δεν επηρεάζεται.
-          </p>
-          <button type="button" className="btn btn-mark btn-sm" onClick={onResetProgress}>
-            Μηδενισμός προόδου
-          </button>
         </div>
       )}
     </div>
@@ -4769,7 +4772,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
     return (
       <div className="test-container">
-        <button className="mcq-back-float" onClick={onBack}>
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Μενού MCQ
         </button>
 
@@ -5062,7 +5065,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   if (!q) {
     return (
       <div className="test-container">
-        <button className="mcq-back-float" onClick={onBack}>
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <div className="explanation-box">
@@ -5075,7 +5078,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   return (
     <div className="test-container">
-      <button className="mcq-back-float" onClick={onBack}>
+      <button className="back-link" onClick={onBack}>
         <Icons.ChevronLeft /> Μενού MCQ
       </button>
 
@@ -5122,9 +5125,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
         {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
         {mode !== "written" && <span className="mcq-session-secondary">{plural(sessionStats.correct, "σωστή", "σωστές")} · {plural(sessionStats.incorrect, "λάθος", "λάθη")}</span>}
-        {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} mastered</span>}
-        {mode !== "written" && <div className="progress-bar"><div className="progress-fill" style={{width: `${(progressStats.mastered / progressStats.total) * 100}%`}} /></div>}
-        <span className="mcq-session-question">Ερ. {q.id}</span>
+        <span className="mcq-session-question">#{q.id}</span>
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
         {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
         <div className="mcq-feedback-controls">
@@ -7712,25 +7713,6 @@ export default function App() {
     }
   }, [profileStore.activeProfileId, profileStore.profiles]);
 
-  const resetMcqProgress = useCallback(() => {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        "Μηδενισμός της προόδου στις ερωτήσεις πολλαπλής επιλογής για αυτό το προφίλ;\n\n" +
-          "Χάνονται οι mastered ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα επανάληψης. Δεν αναιρείται."
-      )
-    ) {
-      return;
-    }
-    const profileId = profileStore.activeProfileId;
-    updateMcqProgress(createResetMcqProgress());
-    if (ONLINE_PROFILES_ENABLED && profileId) {
-      deleteRemoteQuestionBehavior(profileId).catch(() => {
-        // The profile reset still wins because resetAt prevents older question-state rows from hydrating.
-      });
-    }
-  }, [profileStore.activeProfileId, updateMcqProgress]);
-
   const switchProfile = useCallback(() => {
     setAdminUnlocked(false);
     setScreen('home');
@@ -7793,13 +7775,19 @@ export default function App() {
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onSwitchProfile={switchProfile}
         onHome={() => setScreen("home")}
-        supportWidgetEnabled={supportWidgetEnabled}
-        onToggleSupportWidget={handleToggleSupportWidget}
-        supportWidgetDelayMinutes={supportWidgetDelayMinutes}
-        onChangeSupportWidgetDelay={handleChangeSupportWidgetDelay}
-        supportWidgetSyncNote={ONLINE_PROFILES_ENABLED ? null : "μόνο σε αυτή τη συσκευή"}
+        onOpenAdmin={hasAdminAccess ? () => setScreen("admin") : undefined}
       >
         <div className="sheet">
+        {activeProfile && screen === 'admin' && (
+          <AdminOptionsScreen
+            onBack={() => setScreen('home')}
+            supportWidgetEnabled={supportWidgetEnabled}
+            onToggleSupportWidget={handleToggleSupportWidget}
+            supportWidgetDelayMinutes={supportWidgetDelayMinutes}
+            onChangeSupportWidgetDelay={handleChangeSupportWidgetDelay}
+            supportWidgetSyncNote={ONLINE_PROFILES_ENABLED ? null : "μόνο σε αυτή τη συσκευή"}
+          />
+        )}
         {activeProfile && screen === 'home' && (
           <HomeScreen
             onNavigate={(id) => setScreen(id)}
@@ -7861,7 +7849,6 @@ export default function App() {
             onHome={() => setScreen('home')}
             progressSummary={mcqProgressSummary}
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
-            onResetProgress={resetMcqProgress}
           />
         )}
         {activeProfile && screen === 'mcq' && testMode === 'category' && !selectedMcqTopic && (
