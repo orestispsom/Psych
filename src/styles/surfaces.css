@@ -1339,11 +1339,29 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 /* ═══ SOS ═════════════════════════════════════════════════════ */
 
 .sos-screen { display: grid; gap: var(--s5); }
-.sos-focus-card { display: grid; gap: var(--s4); }
+.sos-focus-card { display: grid; gap: var(--s4); justify-items: start; }
 .sos-focus-prompt { font-size: var(--t-read); line-height: 1.5; max-width: var(--measure-item); }
-.sos-focus-meta { font-size: var(--t-micro); color: var(--ink-3); }
-.sos-focus-answer { font-family: var(--read); font-size: var(--t-read); line-height: 1.7; max-width: var(--measure-read); }
-.sos-focus-toggles { display: flex; gap: var(--s2); flex-wrap: wrap; }
+/* Two bare sibling spans, no separating whitespace in the markup. */
+.sos-focus-meta { display: flex; gap: var(--s3); font-size: var(--t-micro); color: var(--ink-3); }
+.sos-focus-answer {
+  font-family: var(--read); font-size: var(--t-read); line-height: 1.7;
+  max-width: var(--measure-read);
+  padding: var(--s4);
+  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+}
+.sos-focus-toggles { display: flex; gap: var(--s2); flex-wrap: wrap; align-items: center; }
+
+/* The reveal is the point of the card; the mastered checkbox is a small,
+   secondary control — neither should be a full-width grid-stretched bar. */
+.sos-focus-reveal {
+  width: auto; min-height: 52px; padding: 0 var(--s6);
+  border: 1px solid var(--accent, var(--rule-strong));
+  background: var(--accent-quiet, transparent);
+  font-size: var(--t-body); font-weight: 600;
+}
+.sos-focus-reveal:hover { background: var(--accent-quiet, var(--raised)); }
+.sos-check-control { width: auto; }
+.sos-check-control.mastered { color: var(--pass); border-color: var(--pass); }
 /* A "number" entry is a sentence with the figure marked inside it, not a row
    with a gutter — the value must never be squeezed into the ordinal column. */
 .sos-number-entry {
@@ -1372,6 +1390,18 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   display: flex; flex-wrap: wrap; gap: var(--s3);
   font-size: var(--t-micro); color: var(--ink-3);
 }
+/* The reveal wraps a whole reference card, not a short label, so it needs
+   the card's own padding and the section's accent border rather than the
+   generic pill button it shares a base rule with. */
+.pinakakia-reveal {
+  display: block; width: 100%; height: auto;
+  padding: var(--s5);
+  border: 1px solid var(--accent, var(--rule-strong));
+  border-radius: var(--r-lg);
+  background: var(--accent-quiet, transparent);
+  text-align: left;
+}
+.pinakakia-reveal:hover { background: var(--accent-quiet, var(--raised)); }
 .pinakakia-book-box { display: grid; gap: var(--s3); }
 .pinakakia-book-header {
   display: flex; align-items: baseline; justify-content: space-between;
@@ -1385,6 +1415,23 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   max-width: var(--measure-read);
 }
 .pinakakia-content-text { display: grid; gap: var(--s2); }
+/* Never styled before: a bare div per line with no rules of its own — worse,
+   the default variant carried the shared list-row class ".item" and
+   inherited its 44px numbered-gutter grid, wrapping every line to one word
+   per row. Real, distinct rules for headings vs body lines instead. */
+.pinakakia-content-line.heading {
+  font-family: var(--ui); font-size: var(--t-label); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--accent, var(--ink-2));
+  margin-top: var(--s3);
+}
+.pinakakia-content-line.heading:first-child { margin-top: 0; }
+.pinakakia-content-line.subsection-heading {
+  font-family: var(--ui); font-size: var(--t-meta); font-weight: 700;
+  color: var(--ink-2);
+  margin-top: var(--s2);
+}
+.pinakakia-content-line.entry { color: var(--ink); }
 
 /* ═══ VIGNETTES / STRUCTURED ══════════════════════════════════ */
 

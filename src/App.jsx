@@ -6776,7 +6776,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   let cls = "pinakakia-content-line";
   if (line.kind === "heading") cls += " heading";
   else if (line.kind === "subsection-heading") cls += " subsection-heading";
-  else cls += " item";
+  else cls += " entry";
   return (
     <div className={cls} style={style} key={`${box.id}-line-${index}`}>
   <span dangerouslySetInnerHTML={{ __html: line.text }} />
@@ -6811,11 +6811,45 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
 function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
   const sections = [
-    { id: "highyield", title: "Γρήγορα SOS", section: "high_yield", entries: data?.highYieldTables },
-    { id: "numbers", title: "Αριθμοί", section: "numbers", entries: data?.numbers },
-    { id: "critical", title: "Κρίσιμα Θέματα", section: "critical_topics", entries: data?.criticalTopics },
-    { id: "differential", title: "Διαφοροδιάγνωση", section: "differential_diagnosis", entries: data?.differentialDiagnosis },
+    {
+      id: "highyield",
+      icon: <Icons.Bolt />,
+      title: "Γρήγορα SOS",
+      section: "high_yield",
+      entries: data?.highYieldTables,
+      detail: "Κάρτες ερώτησης/απάντησης για ό,τι πρέπει να θυμάσαι πρώτο.",
+    },
+    {
+      id: "numbers",
+      icon: <Icons.FileText />,
+      title: "Αριθμοί",
+      section: "numbers",
+      entries: data?.numbers,
+      detail: "Κατώφλια, δόσεις και τιμές που ρωτάει η εξέταση κατά λέξη.",
+    },
+    {
+      id: "critical",
+      icon: <Icons.Brain />,
+      title: "Κρίσιμα Θέματα",
+      section: "critical_topics",
+      entries: data?.criticalTopics,
+      detail: "Θέματα που εμφανίζονται συχνά και δεν επιδέχονται λάθος.",
+    },
+    {
+      id: "differential",
+      icon: <Icons.Globe />,
+      title: "Διαφοροδιάγνωση",
+      section: "differential_diagnosis",
+      entries: data?.differentialDiagnosis,
+      detail: "Πίνακες σύγκρισης για καταστάσεις που μπερδεύονται εύκολα.",
+    },
   ];
+
+  const overallTotal = sections.reduce((sum, s) => sum + (s.entries?.length || 0), 0);
+  const overallMastered = sections.reduce((sum, s) => {
+    if (!sosProgress) return sum;
+    return sum + summarizeSosProgress(sosProgress, s.section, s.entries || []).mastered;
+  }, 0);
 
   return (
     <div className="sos-screen">
@@ -6825,32 +6859,27 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
           <h2>SOS Ψυχιατρικής</h2>
           <span className="sheet-sub">Γρήγορη ανάκληση λίγο πριν την εξέταση</span>
         </div>
+        <div className="sheet-head-actions">
+          <span className="plate">{overallMastered}/{overallTotal} mastered</span>
+        </div>
       </div>
 
-      <div className="items items-plain">
+      <div className="hub-row-grid">
         {sections.map(section => {
           const total = section.entries?.length || 0;
           const summary = sosProgress
             ? summarizeSosProgress(sosProgress, section.section, section.entries || [])
             : null;
           const mastered = summary?.mastered || 0;
-          const level = total ? Math.round((mastered / total) * 5) : 0;
           return (
-            <button
-              key={section.id}
-              className="item"
-              onClick={() => onOpenSection(section.id)}
-            >
-              <span className="item-body">
-                <span className="item-title" style={{ fontWeight: 600 }}>{section.title}</span>
-                <span className="item-meta"><span>{total} καταχωρήσεις</span></span>
+            <button key={section.id} className="hub-row" onClick={() => onOpenSection(section.id)}>
+              <span className="hub-row-icon" aria-hidden="true">{section.icon}</span>
+              <span className="hub-row-body">
+                <span className="hub-row-title">{section.title}</span>
+                <span className="hub-row-detail">{section.detail}</span>
+                <span className="hub-row-stat">{mastered}/{total} mastered</span>
               </span>
-              <span className="item-side">
-                <ScaleStrip level={level} label={`Πρόοδος: ${section.title}`} />
-                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
-                  <Icons.ChevronRight />
-                </span>
-              </span>
+              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
             </button>
           );
         })}
