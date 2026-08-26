@@ -43,9 +43,18 @@ SOS critical topics and differentials.
 attached to every study item in the product. Boxes fill left to right with the second ink as mastery level
 rises. It is the same object in the MCQ list, the oral index, and the SOS entries.
 
-It is not decoration: it renders the existing `masteryLevel` field, and where mastery is user-set (oral, SOS) the
-boxes are the control — you mark the box. It replaces every progress bar, ring, percentage badge, and
-"x/y κατακτημένες" string in the product with one recognisable object.
+It is not decoration. It comes in two forms, because the underlying data does:
+
+- **Graded (`max=5`)** where the model holds a level — MCQ topic mastery, section progress on home. Renders the
+  existing `masteryLevel` / mastered-ratio; read-only.
+- **Binary (`max=1`)** where mastery is a flag the trainee sets — oral questions, SOS entries, the oral
+  simulator's summary. Here the box **is** the control: you mark it, exactly as on the paper sheet.
+
+The binary form exists because oral and SOS mastery are genuinely boolean in the data model; inventing a 0–4
+scale there would change domain semantics to suit the graphic, which is the wrong way round.
+
+It replaces progress bars, rings and percentage badges throughout. Ratio strings ("x/y κατακτημένα") are kept
+alongside it as the accessible text equivalent and the precise count, not removed.
 
 ## Colour
 
@@ -66,10 +75,11 @@ positive.
 | Strong rule | `--rule-strong` | `rgba(233,231,226,.26)` | `rgba(24,26,32,.28)` |
 | Primary text | `--ink` | `#E9E7E2` | `#181A20` |
 | Secondary text | `--ink-2` | `#A9AEB8` | `#4E535E` |
-| Microtype / anchors | `--ink-3` | `#7B818D` | `#6B7079` |
-| Second ink (marks, position, wrong) | `--mark` | `#D2543A` | `#B33C22` |
+| Microtype / anchors | `--ink-3` | `#818793` | `#60646C` |
+| Second ink (marks, position, wrong) | `--mark` | `#DE6046` | `#B33C22` |
 | Mastered | `--pass` | `#6E9E5E` | `#3F6B32` |
-| Due / high-yield | `--due` | `#C08A3E` | `#8A5D14` |
+| Due / high-yield | `--due` | `#C08A3E` | `#885B12` |
+| Focus ring (non-text) | `--focus` | `#5AA9D6` | `#1F6F9C` |
 
 The primary action is **inverted stock** — paper block, ink text — because on a form the action is the field you
 write in. There is no coloured CTA anywhere in the product.
@@ -109,9 +119,11 @@ modal, the command palette, or a row that is itself a control. No cards. No nest
 
 - Persistent **thumb-index navigation**: a left edge rail on desktop (≥900px), a bottom tab bar on mobile.
   Replaces the per-screen «Πίσω / Αρχική» button pair, which is deleted.
-- **Command palette** (`Ctrl/⌘ K`) searching all ~3,300 items across every corpus, with Greek accent folding.
-- **Keyboard**: `1–5` / `Α–Ε` select option · `Enter` submit then advance · `←/→` previous/next ·
-  `Space` reveal · `Ctrl/⌘K` search · `?` shortcut sheet · `Esc` close.
+- **Command palette** (`Ctrl/⌘ K`) searching 2,540 indexed items across every lookup corpus, with Greek accent,
+  case and final-sigma folding. Practice-only banks (vignettes, matching, DSM-5 self-exam) are deliberately out.
+- **Keyboard**: `1–5` select the option in displayed order · `Enter` submit then advance · `←/→` previous/next ·
+  `Space` reveal · `Ctrl/⌘K` search · `?` shortcut sheet · `Esc` close. Options are lettered Α–Ε on screen but
+  the keys are digits; the shortcut sheet states this rather than implying the letters are live.
 - **Resume**: last position (mode, index, scroll) persisted per profile and offered as the primary action.
 - Mobile study surfaces carry a **fixed bottom action bar** so submit/next is always in the thumb zone.
 
@@ -129,6 +141,17 @@ collapses into the item's first line. Touch targets ≥44px throughout. Sheet ma
 
 ## Accessibility
 
-Body and microtype ≥4.5:1 against their own ground; the second ink is never the only signal — marks carry a
-glyph and a text equivalent. Visible focus ring in stock colour at 3px with 2px offset. Every icon-only control
-carries an accessible name. Scale strips expose `role="img"` with a Greek text label stating the level.
+Body and microtype ≥4.5:1 against **every** ground they render on — `--ground`, `--field`, `--sunken` and
+`--raised` — in both themes; verified numerically, not by eye. The second ink is never the only signal: a marked
+option keeps its letter, gains a glyph, and carries an `sr-only` verdict, with a `role="status"` line stating the
+outcome in words.
+
+Focus has its own ink (`--focus`), 3px with 2px offset. It is deliberately neither stock — invisible on the
+inverted primary action — nor `--mark`, which already means "wrong" and would make focus read as an error.
+As a non-text indicator it is held to 3:1.
+
+Every icon-only control carries an accessible name. Read-only scale strips expose `role="img"` with a Greek label
+stating the level; markable ones are a `role="group"` of labelled buttons.
+
+Keyboard shortcuts match on `event.code`, not `event.key`: the interface is Greek, so the user is normally in a
+Greek layout where Ctrl+K reports «κ».

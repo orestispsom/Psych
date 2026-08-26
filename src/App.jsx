@@ -8,6 +8,7 @@ import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
+import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
@@ -405,6 +406,7 @@ function createEmptySosProgress() {
       high_yield: {},
       critical_topics: {},
       differential_diagnosis: {},
+      numbers: {},
     },
     updatedAt: null,
   };
@@ -431,6 +433,9 @@ function normalizeSosProgress(progress) {
       ),
       differential_diagnosis: Object.fromEntries(
         Object.entries(mastered.differential_diagnosis || {}).filter(([, value]) => Boolean(value))
+      ),
+      numbers: Object.fromEntries(
+        Object.entries(mastered.numbers || {}).filter(([, value]) => Boolean(value))
       ),
     },
   };
@@ -1060,6 +1065,7 @@ function mergeSosMasteryRowsIntoProfile(profile, rows) {
     high_yield: { ...progress.mastered.high_yield },
     critical_topics: { ...progress.mastered.critical_topics },
     differential_diagnosis: { ...progress.mastered.differential_diagnosis },
+    numbers: { ...progress.mastered.numbers },
   };
 
   rows.forEach(row => {
@@ -2582,6 +2588,11 @@ function getWrittenExamResult(questions, answers, progress = null) {
 
 // Icons live in ./components/Icons.jsx
 
+/** Greek takes the singular at 1: «1 λάθος», never «1 λάθη». */
+function plural(count, one, many) {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
 // Screen and mode names, shared by the shell, the resume block and the titles.
 const SCREEN_TITLES = {
   home: "Εξετάσεις Ειδικότητας",
@@ -2763,7 +2774,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                       {isAdminProfile(profile) && <span className="admin-badge">admin</span>}
                     </span>
                     <span className="item-meta">
-                      <span>{summary.mastered} κατακτημένες</span>
+                      <span>{plural(summary.mastered, "κατακτημένη", "κατακτημένες")}</span>
                       <span>{summary.review} για επανάληψη</span>
                       <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
                     </span>
@@ -2864,14 +2875,14 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
-      detail: `${mcqProgressSummary.total} ερωτήσεις · ${mcqProgressSummary.mastered} κατακτημένες`,
+      detail: `${plural(mcqProgressSummary.total, "ερώτηση", "ερωτήσεις")} · ${plural(mcqProgressSummary.mastered, "κατακτημένη", "κατακτημένες")}`,
       level: mcqLevel,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
-      detail: `${oralProgressSummary.total} θέματα · ${oralProgressSummary.mastered} κατακτημένα`,
+      detail: `${plural(oralProgressSummary.total, "θέμα", "θέματα")} · ${plural(oralProgressSummary.mastered, "κατακτημένο", "κατακτημένα")}`,
       level: oralLevel,
     },
     {
@@ -3030,7 +3041,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   );
 }
 
-function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
+function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions, onResetProgress }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
   const practiceModes = [
@@ -3075,7 +3086,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
           <h2>Πολλαπλής Επιλογής</h2>
-          <span className="sheet-sub">{progressSummary.total} ερωτήσεις σε 21 κατηγορίες</span>
+          <span className="sheet-sub">{plural(progressSummary.total, "ερώτηση", "ερωτήσεις")} σε 21 κατηγορίες</span>
         </div>
       </div>
 
@@ -3144,6 +3155,23 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           ))}
         </div>
       )}
+
+      {progressSummary.attempted > 0 && (
+        <div className="danger-zone">
+          <div className="subscale">
+            <h3 className="subscale-title">Μηδενισμός</h3>
+            <span className="subscale-rule" />
+            <span />
+          </div>
+          <p className="anchor">
+            Σβήνει τις κατακτημένες ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα
+            επανάληψης για αυτό το προφίλ. Το υλικό μελέτης δεν επηρεάζεται.
+          </p>
+          <button type="button" className="btn btn-mark btn-sm" onClick={onResetProgress}>
+            Μηδενισμός προόδου
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -3197,8 +3225,8 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
               <span className="item-body">
                 <span className="item-title">{topic}</span>
                 <span className="item-meta">
-                  <span>{count} ερωτήσεις</span>
-                  <span>{mastery.mastered} κατακτημένες</span>
+                  <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
+                  <span>{plural(mastery.mastered, "κατακτημένη", "κατακτημένες")}</span>
                 </span>
               </span>
               <span className="item-side">
@@ -3445,7 +3473,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
         <div className="DSM5-chapter-list">
           <button className="DSM5-chapter-row featured" disabled={!totalDSM5Questions} onClick={() => startSession("random")}>
             <span className="DSM5-chapter-title">Τυχαία επιλογή</span>
-            <span>{totalDSM5Questions} ερωτήσεις</span>
+            <span>{plural(totalDSM5Questions, "ερώτηση", "ερωτήσεις")}</span>
           </button>
           {dsm5trSelfExamChapters.map(chapter => {
             const count = getDSM5ChapterQuestions(chapter).length;
@@ -3457,7 +3485,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
                 onClick={() => startSession("chapter", chapter)}
               >
                 <span className="DSM5-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
-                <span>{count} ερωτήσεις</span>
+                <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
               </button>
             );
           })}
@@ -3477,8 +3505,8 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
       <div className="DSM5-session-header">
         <span>{questions.length} σύνολο</span>
         <span>{answeredCount} απαντημένες</span>
-        <span>{correctCount} σωστές</span>
-        <span>{Math.max(0, answeredCount - correctCount)} λάθη</span>
+        <span>{plural(correctCount, "σωστή", "σωστές")}</span>
+        <span>{plural(Math.max(0, answeredCount - correctCount), "λάθος", "λάθη")}</span>
       </div>
       {renderQuestion()}
       <div className="structured-actions DSM5-nav-row">
@@ -3500,7 +3528,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
             <div className="DSM5-session-stats">
               <span>{result.correct}/{result.total}</span>
               <span>{Math.round((result.correct / Math.max(1, result.total)) * 100)}%</span>
-              <span>{result.wrong} λάθη</span>
+              <span>{plural(result.wrong, "λάθος", "λάθη")}</span>
             </div>
             <div className="modal-actions">
               <button className="results-btn" autoFocus onClick={() => setReviewWrong(true)}>Επανάληψη λανθασμένων απαντήσεων</button>
@@ -3671,7 +3699,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         <div className="structured-card">
           <div className="structured-top">
             <strong>{vignetteLabel}</strong>
-            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
+            <span className="structured-progress">{plural(vignette.questions.length, "ερώτηση", "ερωτήσεις")}</span>
           </div>
           <div className="vignette-text">{vignette.vignette}</div>
         </div>
@@ -3793,7 +3821,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         <div className="structured-card">
           <div className="structured-top">
             <strong>{vignetteLabel}</strong>
-            <span className="structured-progress">{vignette.questions.length} ερωτήσεις</span>
+            <span className="structured-progress">{plural(vignette.questions.length, "ερώτηση", "ερωτήσεις")}</span>
           </div>
           <div className="vignette-text">{vignette.vignette}</div>
         </div>
@@ -3975,7 +4003,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
         <div className="structured-card">
           <div className="structured-top">
             <strong>Επιλογή σετ</strong>
-            <span className="structured-progress">{availableSets.length} θέματα</span>
+            <span className="structured-progress">{plural(availableSets.length, "θέμα", "θέματα")}</span>
           </div>
           <div className="structured-options">
             {availableSets.map(set => (
@@ -4014,7 +4042,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
       <div className="structured-card compact" style={{ marginBottom: 16 }}>
         <div className="structured-top">
           <strong>{matchingSet.title}</strong>
-          <span className="structured-progress">{matchingSet.items.length} ερωτήσεις</span>
+          <span className="structured-progress">{plural(matchingSet.items.length, "ερώτηση", "ερωτήσεις")}</span>
         </div>
         <p className="structured-instruction">{matchingSet.instructions}</p>
       </div>
@@ -4282,8 +4310,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   // Keyboard: answering thousands of MCQs should not require the mouse.
   // 1–5 pick a displayed option, Enter submits then advances, arrows navigate.
-  useEffect(() => {
-    const onKeyDown = event => {
+  useWindowKeydown(event => {
+    {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       const target = event.target;
       if (
@@ -4329,10 +4357,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         if (mode === "written") goToWrittenIndex(prevIdx);
         else setCurrentIdx(prevIdx);
       }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    }
   });
 
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
@@ -4492,11 +4517,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             else if (originalIndex === item.selected && originalIndex !== question.correct) cls += " incorrect";
             return (
               <button key={originalIndex} className={cls} type="button" aria-disabled="true">
-                <span className="option-letter">
-                  {originalIndex === question.correct ? <Icons.Check /> :
-                   originalIndex === item.selected && originalIndex !== question.correct ? <Icons.X /> : letter}
-                </span>
+                <span className="option-letter" aria-hidden="true">{letter}</span>
                 <span>{option.text}</span>
+                <span className="answer-glyph" aria-hidden="true">
+                  {originalIndex === question.correct ? <Icons.Check /> :
+                   originalIndex === item.selected && originalIndex !== question.correct ? <Icons.X /> : null}
+                </span>
+                <span className="sr-only">
+                  {originalIndex === question.correct
+                    ? `Επιλογή ${letter}. Σωστή απάντηση.`
+                    : originalIndex === item.selected
+                      ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
+                      : `Επιλογή ${letter}.`}
+                </span>
               </button>
             );
           })}
@@ -4993,7 +5026,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
         {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
-        {mode !== "written" && <span className="mcq-session-secondary">{sessionStats.correct} σωστές · {sessionStats.incorrect} λάθη</span>}
+        {mode !== "written" && <span className="mcq-session-secondary">{plural(sessionStats.correct, "σωστή", "σωστές")} · {plural(sessionStats.incorrect, "λάθος", "λάθη")}</span>}
         {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} κατακτημένες</span>}
         {mode !== "written" && <div className="progress-bar"><div className="progress-fill" style={{width: `${(progressStats.mastered / progressStats.total) * 100}%`}} /></div>}
         <span className="mcq-session-question">Ερ. {q.id}</span>
@@ -5126,15 +5159,31 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               aria-pressed={originalIndex === selected}
               aria-describedby="mcq-question-stem"
             >
-              <span className="option-letter">
-                {isLocked && originalIndex === q.correct ? <Icons.Check /> :
-                 isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : letter}
-              </span>
+              <span className="option-letter" aria-hidden="true">{letter}</span>
               <span>{option.text}</span>
+              <span className="answer-glyph" aria-hidden="true">
+                {isLocked && originalIndex === q.correct ? <Icons.Check /> :
+                 isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : null}
+              </span>
+              <span className="sr-only">
+                {isLocked && originalIndex === q.correct
+                  ? `Επιλογή ${letter}. Σωστή απάντηση.`
+                  : isLocked && originalIndex === selected
+                    ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
+                    : `Επιλογή ${letter}.`}
+              </span>
             </button>
           );
         })}
       </div>
+
+      {isLocked && (
+        <p className="answer-verdict" role="status">
+          {selected === q.correct
+            ? "Σωστή απάντηση."
+            : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
+        </p>
+      )}
 
       {isLocked && mode !== "written" && (
         <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
@@ -5365,7 +5414,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
       {view === "all" && (
         <>
           <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Αναζήτηση στις 129 ερωτήσεις…" aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
-          <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${allEntries.length} ερωτήσεις` : `${visibleEntries.length} από ${allEntries.length} ερωτήσεις`}</div>
+          <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}` : `${visibleEntries.length} από ${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}`}</div>
           <ol className="oral-question-list">
             {visibleEntries.map((entry, index) => {
               const { question, gravity, topic, subtopic } = entry;
@@ -5575,8 +5624,8 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
         <>
           <div className="crucial-index-count">
             {visibleQuestions.length === questions.length
-              ? `${questions.length} ερωτήσεις`
-              : `${visibleQuestions.length} από ${questions.length} ερωτήσεις`}
+              ? `${plural(questions.length, "ερώτηση", "ερωτήσεις")}`
+              : `${visibleQuestions.length} από ${plural(questions.length, "ερώτηση", "ερωτήσεις")}`}
           </div>
           {visibleQuestions.length > 0 ? (
             <div className="crucial-index-list">
@@ -5688,8 +5737,8 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
   };
 
   // Space reveals, arrows move. Recall practice works best hands-on-keyboard.
-  useEffect(() => {
-    const onKeyDown = event => {
+  useWindowKeydown(event => {
+    {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       const target = event.target;
       if (
@@ -5711,9 +5760,7 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
         event.preventDefault();
         goPrev();
       }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    }
   });
 
   return (
@@ -5815,13 +5862,20 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
   );
 }
 
-function OralExamSimulator({ onBack, onHome }) {
+const VERDICT_LABELS = {
+  ready: "Επαρκώς",
+  partial: "Μερικώς",
+  review: "Χρειάζεται επανάληψη",
+};
+
+function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, onQuestionsMastered }) {
   const [phase, setPhase] = useState("start");
   const [session, setSession] = useState([]);
   const [examinerIndex, setExaminerIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [selfAssessments, setSelfAssessments] = useState({});
+  const [recorded, setRecorded] = useState(false);
 
   const currentExaminer = session[examinerIndex];
   const currentQuestions = currentExaminer
@@ -5835,6 +5889,19 @@ function OralExamSimulator({ onBack, onHome }) {
   const isLastQuestionForExaminer = questionIndex >= currentQuestions.length - 1;
   const isLastExaminer = examinerIndex >= session.length - 1;
   const canGoPrevious = examinerIndex > 0 || questionIndex > 0;
+
+  // What the trainee said about their own recall, counted so the mock viva
+  // produces a verdict rather than a transcript.
+  const tally = session.reduce((acc, examiner, groupIndex) => {
+    [examiner.anchor, ...examiner.followUps].forEach((question, index) => {
+      const verdict = selfAssessments[`${question.id}-${groupIndex}-${index}`];
+      if (verdict === "ready") acc.ready += 1;
+      else if (verdict === "partial") acc.partial += 1;
+      else if (verdict === "review") acc.review += 1;
+      else acc.unrated += 1;
+    });
+    return acc;
+  }, { ready: 0, partial: 0, review: 0, unrated: 0 });
 
   const startExam = () => {
     const nextSession = createOralExamSession();
@@ -5885,15 +5952,90 @@ function OralExamSimulator({ onBack, onHome }) {
           </button>
         </div>
         <h2>Ολοκλήρωση Προφορικής Εξέτασης</h2>
-        <div className="oral-exam-summary">
-          {askedQuestions.map((question, index) => (
-            <div className="oral-exam-summary-row" key={`${question.id}-${index}`}>
-              <span>{index + 1}. {getOralExamQuestionText(question)}</span>
-            </div>
-          ))}
+
+        <div className="figures">
+          <div className="figure figure-pass">
+            <span className="figure-value">{tally.ready}</span>
+            <span className="figure-label">Επαρκώς</span>
+          </div>
+          <div className="figure figure-due">
+            <span className="figure-value">{tally.partial}</span>
+            <span className="figure-label">Μερικώς</span>
+          </div>
+          <div className="figure figure-mark">
+            <span className="figure-value">{tally.review}</span>
+            <span className="figure-label">Χρειάζεται επανάληψη</span>
+          </div>
+          <div className="figure">
+            <span className="figure-value">{tally.unrated}</span>
+            <span className="figure-label">Χωρίς αξιολόγηση</span>
+          </div>
         </div>
+
+        {session.map((examiner, groupIndex) => {
+          const groupQuestions = [examiner.anchor, ...examiner.followUps];
+          return (
+            <div key={`examiner-${groupIndex}`}>
+              <div className="subscale">
+                <h3 className="subscale-title">Εξεταστής {groupIndex + 1}</h3>
+                <span className="subscale-rule" />
+                <span className="subscale-total">{plural(groupQuestions.length, "ερώτηση", "ερωτήσεις")}</span>
+              </div>
+              <div className="items">
+                {groupQuestions.map((question, index) => {
+                  const key = `${question.id}-${groupIndex}-${index}`;
+                  const verdict = selfAssessments[key] || "";
+                  const isMastered = Boolean(normalizeOralProgress(oralProgress).mastered[question.id]);
+                  return (
+                    <div className="item" key={key}>
+                      <span className="item-num">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="item-body">
+                        <span className="item-title">{getOralExamQuestionText(question)}</span>
+                        <span className="item-meta">
+                          <span>{VERDICT_LABELS[verdict] || "Χωρίς αξιολόγηση"}</span>
+                        </span>
+                      </span>
+                      <span className="item-side">
+                        <ScaleStrip
+                          level={isMastered ? 1 : 0}
+                          max={1}
+                          label="Κατοχή"
+                          onSet={next => onQuestionMastered(question.id, next === 1)}
+                        />
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
         <div className="results-actions">
-          <button className="results-btn primary" onClick={startExam}>
+          {tally.ready > 0 && (
+            <button
+              className="results-btn primary"
+              type="button"
+              disabled={recorded}
+              onClick={() => {
+                const ids = [];
+                session.forEach((examiner, groupIndex) => {
+                  [examiner.anchor, ...examiner.followUps].forEach((question, index) => {
+                    if (selfAssessments[`${question.id}-${groupIndex}-${index}`] === "ready") {
+                      ids.push(question.id);
+                    }
+                  });
+                });
+                onQuestionsMastered(ids);
+                setRecorded(true);
+              }}
+            >
+              {recorded
+                ? "Καταχωρίστηκαν"
+                : `Καταχώριση ${plural(tally.ready, "ερώτησης", "ερωτήσεων")} ως κατακτημένων`}
+            </button>
+          )}
+          <button className="results-btn" onClick={startExam}>
             Νέα Προφορική Εξέταση
           </button>
           <button className="results-btn" onClick={onBack}>
@@ -5953,7 +6095,9 @@ function OralExamSimulator({ onBack, onHome }) {
       </div>
 
       <div className="oral-exam-meta">
-        <span>Εξεταστής {examinerIndex + 1} / {session.length}</span>
+        <span>
+          Εξεταστής {examinerIndex + 1} / {session.length} · ερώτηση {questionIndex + 1} / {currentQuestions.length}
+        </span>
         <span>{isAnchorQuestion ? "Βασική ερώτηση" : "Follow-up ερώτηση"}</span>
       </div>
       <div className="oral-exam-context">
@@ -6001,9 +6145,7 @@ function OralExamSimulator({ onBack, onHome }) {
         </div>
       )}
 
-      <div style={{ height: 80 }} />
-
-      <div className="nav-bar">
+      <div className="nav-bar actionbar">
         <button className="nav-btn" onClick={goPreviousQuestion} disabled={!canGoPrevious}>
           <Icons.ChevronLeft /> Προηγούμενη Ερώτηση
         </button>
@@ -6577,32 +6719,23 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
   );
 }
 
-function SosNumbersList({ entries, onBack, onHome }) {
-  return (
-    <div className="sos-screen">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Ψυχιατρικής
-        </button>
-      </div>
-      <h2>Αριθμοί που πρέπει να θυμάμαι</h2>
-      <div className="sos-number-list">
-        {entries.map(entry => (
-          <div key={entry.id} className="sos-number-entry">
-            {renderSosNumberText(getSosNumberFact(entry))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome }) {
+function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώριση", "καταχωρίσεις"], countNoun = ["καταχώριση", "καταχωρίσεις"] }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [query, setQuery] = useState("");
   const normalizedProgress = normalizeSosProgress(sosProgress);
   const mastered = normalizedProgress.mastered[section] || {};
   const summary = summarizeSosProgress(normalizedProgress, section, entries);
   const selectedEntry = Number.isInteger(selectedIndex) ? entries[selectedIndex] : null;
+
+  // Keep the original index so numbering and prev/next stay stable while filtering.
+  const visibleEntries = useMemo(() => {
+    const normalized = normalizeGreekSearch(query);
+    const indexed = entries.map((entry, index) => ({ entry, index }));
+    if (!normalized) return indexed;
+    return indexed.filter(({ entry }) =>
+      normalizeGreekSearch(`${entry.title} ${entry.answer || ""}`).includes(normalized)
+    );
+  }, [entries, query]);
 
   const goPrev = () => setSelectedIndex(index => Math.max(0, index - 1));
   const goNext = () => setSelectedIndex(index => Math.min(entries.length - 1, index + 1));
@@ -6623,15 +6756,24 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           </span>
         </div>
         <h2>{selectedEntry.title}</h2>
-        <button
-          className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
-          onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
-        >
-          <Icons.Check />
-          Κατακτημένο
-        </button>
-        <div className="sos-detail-answer">{selectedEntry.answer}</div>
-        <div style={{ height: 80 }} />
+        <div className="sos-focus-toggles">
+          <ScaleStrip
+            level={isMastered ? 1 : 0}
+            max={1}
+            size="lg"
+            label="Κατοχή"
+            onSet={next => onToggleMastery(section, selectedEntry.id, next === 1)}
+          />
+          <button
+            className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+            aria-pressed={isMastered}
+            onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
+          >
+            <Icons.Check />
+            {isMastered ? "Κατακτημένο" : "Σημείωσέ το ως κατακτημένο"}
+          </button>
+        </div>
+        <div className="sos-detail-answer">{renderAnswer ? renderAnswer(selectedEntry) : selectedEntry.answer}</div>
         <div className="nav-bar">
           <button className="nav-btn" onClick={goPrev} disabled={selectedIndex === 0}>
             <Icons.ChevronLeft /> Προηγούμενο
@@ -6653,23 +6795,63 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
       </div>
       <div className="oral-viewer-meta">
         <h2>{title}</h2>
-        <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
+        <span className="oral-progress-pill">
           {summary.mastered}/{summary.total} κατακτημένα
         </span>
       </div>
-      <div className="sos-list">
-        {entries.map((entry, index) => (
-          <button
-            key={entry.id}
-            className={`sos-list-entry ${mastered[entry.id] ? "mastered" : ""}`}
-            onClick={() => setSelectedIndex(index)}
-          >
-            <span className="sos-list-index">{String(index + 1).padStart(2, "0")}</span>
-            <span className="sos-list-title">{entry.title}</span>
-            <span className="sos-list-status">{mastered[entry.id] ? <><Icons.Check /> Κατακτημένο</> : <Icons.ChevronRight />}</span>
-          </button>
-        ))}
+
+      <div className="oral-index-controls">
+        <div className="oral-search">
+          <input
+            type="search"
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder={`Αναζήτηση σε ${plural(entries.length, searchNoun[0], searchNoun[1])}…`}
+            aria-label={`Αναζήτηση σε ${title}`}
+          />
+        </div>
+        <div className="oral-index-count">
+          {visibleEntries.length === entries.length
+            ? plural(entries.length, countNoun[0], countNoun[1])
+            : `${visibleEntries.length} από ${plural(entries.length, countNoun[0], countNoun[1])}`}
+        </div>
       </div>
+
+      {visibleEntries.length === 0 ? (
+        <div className="state">
+          <span className="state-title">Καμία αντιστοίχιση</span>
+          <span className="state-body">Δεν βρέθηκε καταχώριση για «{query}».</span>
+          <button type="button" className="btn btn-quiet btn-sm" onClick={() => setQuery("")}>
+            Καθαρισμός αναζήτησης
+          </button>
+        </div>
+      ) : (
+        <div className="items">
+          {visibleEntries.map(({ entry, index }) => {
+            const entryMastered = Boolean(mastered[entry.id]);
+            return (
+              <div className="item" key={entry.id}>
+                <span className="item-num">{String(index + 1).padStart(2, "0")}</span>
+                <button
+                  className="item-body sos-list-open"
+                  type="button"
+                  onClick={() => setSelectedIndex(index)}
+                >
+                  <span className="item-title">{entry.title}</span>
+                </button>
+                <span className="item-side">
+                  <ScaleStrip
+                    level={entryMastered ? 1 : 0}
+                    max={1}
+                    label="Κατοχή"
+                    onSet={next => onToggleMastery(section, entry.id, next === 1)}
+                  />
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -6821,13 +7003,15 @@ export default function App() {
           target.tagName === "SELECT" ||
           target.isContentEditable);
 
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      // Match on physical key, not the character: this interface is Greek, so
+      // the user is normally in a Greek layout where Ctrl+K reports "κ".
+      if ((event.ctrlKey || event.metaKey) && (event.code === "KeyK" || event.key.toLowerCase() === "k")) {
         event.preventDefault();
         setPaletteOpen(open => !open);
         return;
       }
       if (typing) return;
-      if (event.key === "?" || (event.shiftKey && event.key === "/")) {
+      if (event.key === "?" || (event.shiftKey && (event.code === "Slash" || event.key === "/"))) {
         event.preventDefault();
         setShortcutsOpen(open => !open);
       }
@@ -7321,6 +7505,20 @@ export default function App() {
     });
   }, [updateOralProgress]);
 
+  // One update for a whole batch. updateOralProgress derives its next value
+  // from the render's profile snapshot, so calling it in a loop would let the
+  // last write win and silently drop the rest.
+  const setOralQuestionsMastered = useCallback((questionIds) => {
+    const ids = (questionIds || []).filter(Boolean);
+    if (!ids.length) return;
+    updateOralProgress(progress => {
+      const current = normalizeOralProgress(progress);
+      const nextMastered = { ...current.mastered };
+      ids.forEach(id => { nextMastered[id] = true; });
+      return { ...current, mastered: nextMastered, updatedAt: new Date().toISOString() };
+    });
+  }, [updateOralProgress]);
+
   const setSosEntryMastered = useCallback((section, entryId, mastered) => {
     const profileId = profileStore.activeProfileId;
     const profile = profileId ? profileStore.profiles[profileId] : null;
@@ -7363,7 +7561,15 @@ export default function App() {
   }, [profileStore.activeProfileId, profileStore.profiles]);
 
   const resetMcqProgress = useCallback(() => {
-    if (typeof window !== "undefined" && !window.confirm("Reset MCQ progress for this profile?")) return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        "Μηδενισμός της προόδου στις ερωτήσεις πολλαπλής επιλογής για αυτό το προφίλ;\n\n" +
+          "Χάνονται οι κατακτημένες ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα επανάληψης. Δεν αναιρείται."
+      )
+    ) {
+      return;
+    }
     const profileId = profileStore.activeProfileId;
     updateMcqProgress(createResetMcqProgress());
     if (ONLINE_PROFILES_ENABLED && profileId) {
@@ -7498,6 +7704,7 @@ export default function App() {
             onHome={() => setScreen('home')}
             progressSummary={mcqProgressSummary}
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
+            onResetProgress={resetMcqProgress}
           />
         )}
         {activeProfile && screen === 'mcq' && testMode === 'category' && !selectedMcqTopic && (
@@ -7612,6 +7819,9 @@ export default function App() {
           <OralExamSimulator
             onBack={() => setScreen('oral')}
             onHome={() => setScreen('home')}
+            oralProgress={oralProgress}
+            onQuestionMastered={setOralQuestionMastered}
+            onQuestionsMastered={setOralQuestionsMastered}
           />
         )}
         {activeProfile && screen === 'oral-viewer' && oralViewerData && (
@@ -7650,10 +7860,16 @@ export default function App() {
           />
         )}
         {activeProfile && screen === 'sos-numbers' && sosStudyData && (
-          <SosNumbersList
+          <SosEntrySection
+            title="Αριθμοί που πρέπει να θυμάμαι"
+            section="numbers"
             entries={sosStudyData.numbers}
+            sosProgress={sosProgress}
+            onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
-            onHome={() => setScreen('home')}
+            renderAnswer={entry => renderSosNumberText(getSosNumberFact(entry))}
+            searchNoun={["αριθμό", "αριθμούς"]}
+            countNoun={["αριθμός", "αριθμοί"]}
           />
         )}
         {activeProfile && screen === 'sos-highyield' && sosStudyData && (

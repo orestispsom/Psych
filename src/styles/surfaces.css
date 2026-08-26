@@ -123,7 +123,7 @@
 .home-update-editor-actions { display: flex; gap: var(--s2); }
 .home-update-status { font-size: var(--t-micro); color: var(--ink-3); }
 .admin-badge {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.11em;
+  font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.11em;
   color: var(--due); border: 1px solid currentColor; border-radius: var(--r-box);
   padding: 1px 5px;
 }
@@ -173,7 +173,7 @@
 }
 .card-icon, .card-icon-lg, .placeholder-icon { color: var(--ink-3); }
 .card-badge, .meta-pill {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.11em;
+  font-size: var(--t-micro); text-transform: uppercase; letter-spacing: 0.11em;
   color: var(--ink-3); border: 1px solid currentColor;
   border-radius: var(--r-box); padding: 1px 5px; justify-self: start;
 }
@@ -345,7 +345,20 @@
 
 .options-list > button.seen { opacity: 0.72; }
 
-.answer-glyph { font-family: var(--code); font-size: var(--t-meta); flex: none; }
+.answer-glyph {
+  display: flex; align-items: center;
+  flex: none; padding-top: 1px;
+}
+.answer-glyph .icon { width: 17px; height: 17px; }
+.options-list > button.correct .answer-glyph { color: var(--pass); }
+.options-list > button.incorrect .answer-glyph { color: var(--mark); }
+
+/* The verdict is stated in words, not left to the glyph alone. */
+.answer-verdict {
+  margin-top: var(--s3);
+  font-size: var(--t-meta); font-weight: 600;
+  color: var(--ink-2);
+}
 
 /* Explanation */
 .explanation-box, .DSM5-explanation, .answer-box, .oral-model-answer,
@@ -638,4 +651,22 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   }
   .resume { grid-template-columns: minmax(0, 1fr); }
   .oral-answer-modes { grid-auto-flow: row; }
+}
+
+/* ═══ RESET ZONE ══════════════════════════════════════════════ */
+
+.danger-zone {
+  margin-top: var(--s10);
+  padding-top: var(--s2);
+  display: grid; gap: var(--s3); justify-items: start;
+  max-width: 60ch;
+}
+
+/* SOS list row: the title opens the entry, the box marks it. */
+.sos-list-open {
+  text-align: left; width: 100%;
+  display: grid; gap: var(--s1);
+  align-content: center;
+  min-height: 44px;
+  color: inherit;
 }

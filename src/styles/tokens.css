@@ -18,12 +18,16 @@
 
   --ink: #e9e7e2;
   --ink-2: #a9aeb8;
-  --ink-3: #7b818d;
+  --ink-3: #818793; /* AA on ground, field, sunken and raised */
 
   /* ─── Second ink: marks, current position, warnings ─── */
-  --mark: #d2543a;
+  --mark: #de6046;  /* AA as text on every dark ground */
   --mark-quiet: rgba(210, 84, 58, 0.16);
   --mark-rule: rgba(210, 84, 58, 0.42);
+
+  /* Focus is its own ink. It must not be stock (invisible on the inverted
+     primary action) and must not be --mark, which already means "wrong". */
+  --focus: #5aa9d6;
 
   /* ─── Semantic inks ─── */
   --pass: #6e9e5e;
@@ -97,15 +101,17 @@
 
   --ink: #181a20;
   --ink-2: #4e535e;
-  --ink-3: #62666e; /* holds ≥4.5:1 on both the light ground and the white field */
+  --ink-3: #60646c; /* AA on ground, field, sunken and raised */
 
   --mark: #b33c22;
   --mark-quiet: rgba(179, 60, 34, 0.1);
   --mark-rule: rgba(179, 60, 34, 0.4);
 
+  --focus: #1f6f9c;
+
   --pass: #3f6b32;
   --pass-quiet: rgba(63, 107, 50, 0.12);
-  --due: #8a5d14;
+  --due: #885b12;   /* AA on every light ground */
   --due-quiet: rgba(138, 93, 20, 0.12);
 
   --stock: #181a20;
