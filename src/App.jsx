@@ -3216,7 +3216,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   );
 
   return (
-    <div className="mcq-select">
+    <div className="mcq-select mcq-hub">
       <div className="sheet-head">
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
