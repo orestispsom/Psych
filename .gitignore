@@ -5,3 +5,5 @@ dist/
 .DS_Store
 .claude/
 *.local
+.playwright-cli/
+.shots/
