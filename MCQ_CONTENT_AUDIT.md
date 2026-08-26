@@ -101,3 +101,27 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 401–500.
+
+## Batch 005 — IDs 401–500
+
+Status: reviewed on 2026-08-26.
+
+### Applied high-confidence corrections
+
+- IDs 424, 428, and 430: replaced residual hybrid pharmacology wording and expanded `NMS` in explanatory prose.
+- IDs 435–437: translated hybrid ICD-11 classification terminology while retaining the English official diagnostic name where helpful.
+- IDs 441–443: transliterated medication names and removed residual English drug-name prose from the adult ADHD items.
+- IDs 444, 447, 450, 456, 457, 461, 464, 466, 469, and 470: translated hybrid treatment, diagnosis, and explanatory terminology into natural clinical Greek.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 409: `στρες` can be both an adverse prognostic factor and a risk factor for additional disorders; the item does not establish a defensible single-best-answer criterion.
+- ID 414: the fixed `approximately 6 months` ICD-11 threshold needs careful wording around cultural norms and clinical duration; retain the current key pending source-level review.
+- ID 471: the keyed lurasidone profile omits its clinically relevant 5-HT1A partial agonism, while a distractor also describes D2 antagonism plus 5-HT1A action. The options are therefore not cleanly exclusive and need reauthoring.
+- ID 496: the claim that problematic substance use `τις περισσότερες φορές` involves multiple substances is too broad without a defined setting or prevalence source.
+
+### Next batch
+
+IDs 501–600.
