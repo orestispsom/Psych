@@ -111,6 +111,58 @@
 
 /* Section index on home — rows, not cards */
 .home-sections { display: grid; }
+
+/* ═══ HOME MODULES — the one deliberate exception to "no cards" ═══
+   Four functions, one dispatch point: each gets a big, colour-coded plate
+   instead of a list row, so the choice reads before the trainee reads. */
+.home-modules {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+  max-width: 760px;
+}
+.home-module {
+  position: relative;
+  display: flex; flex-direction: column;
+  gap: var(--s4);
+  min-height: 152px;
+  padding: var(--s5) var(--s5) var(--s4);
+  text-align: left;
+  background: var(--module-quiet);
+  border: 1px solid var(--module-rule);
+  border-radius: var(--r-lg);
+  color: var(--ink);
+  transition: border-color 0.12s var(--ease), transform 0.12s var(--ease);
+}
+.home-module:hover { border-color: var(--module); transform: translateY(-2px); }
+.home-module-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; flex: none;
+  border-radius: var(--r-md);
+  background: var(--module);
+  color: var(--stock-ink);
+}
+.home-module-icon .icon { width: 26px; height: 26px; }
+.home-module-title {
+  display: block;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.01em;
+}
+.home-module-detail {
+  display: block; margin-top: 2px;
+  font-size: var(--t-meta); color: var(--ink-2);
+}
+.home-module-progress { margin-top: auto; }
+.home-module-chevron {
+  position: absolute; top: var(--s5); right: var(--s5);
+  display: flex; color: var(--module);
+}
+.home-module-mcq { --module: var(--sec-mcq); --module-quiet: var(--sec-mcq-quiet); --module-rule: var(--rule-strong); }
+.home-module-oral { --module: var(--sec-oral); --module-quiet: var(--sec-oral-quiet); --module-rule: var(--rule-strong); }
+.home-module-sos { --module: var(--sec-sos); --module-quiet: var(--sec-sos-quiet); --module-rule: var(--rule-strong); }
+.home-module-boxes { --module: var(--sec-boxes); --module-quiet: var(--sec-boxes-quiet); --module-rule: var(--rule-strong); }
+@media (max-width: 699px) {
+  .home-modules { grid-template-columns: 1fr; max-width: none; }
+  .home-module { min-height: 128px; padding: var(--s4); }
+}
 .home-update-note {
   display: grid; gap: 2px; padding: var(--s3) 0;
   border-bottom: 1px solid var(--rule);
@@ -145,39 +197,78 @@
 .nav-bar, .pinakakia-topbar, .test-header, .oral-viewer-meta {
   display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
 }
-.back-link, .home-btn, .nav-btn {
+.home-btn, .nav-btn {
   display: inline-flex; align-items: center; gap: var(--s1);
   min-height: 44px; padding: 0 var(--s3);
   border-radius: var(--r-md);
   border: 1px solid var(--rule);
   color: var(--ink-2); font-size: var(--t-meta); font-weight: 500;
 }
-.back-link:hover, .home-btn:hover, .nav-btn:hover {
+.home-btn:hover, .nav-btn:hover {
   color: var(--ink); border-color: var(--rule-strong); background: var(--raised);
+}
+
+/* The up-one-level control: a bigger round icon button. Its label text stays
+   in the markup (and the accessible name) but is visually collapsed — the
+   chevron alone reads faster than "‹ Μενού MCQ" at this size. */
+.back-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none;
+  width: 48px; height: 48px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  color: var(--accent, var(--ink-2));
+  font-size: 0;
+}
+.back-link svg { transform: scale(1.25); }
+.back-link:hover {
+  border-color: var(--accent, var(--ink-3));
+  background: var(--accent-quiet, var(--raised));
+}
+
+@media (min-width: 1600px) {
+  .screen-topbar, .nav-bar, .pinakakia-topbar, .test-header, .oral-viewer-meta {
+    position: relative;
+    min-height: 48px;
+  }
+  .screen-topbar > .back-link:first-child,
+  .nav-bar > .back-link:first-child,
+  .pinakakia-topbar > .back-link:first-child,
+  .test-header > .back-link:first-child,
+  .oral-viewer-meta > .back-link:first-child {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * (48px + var(--s5)));
+  }
 }
 
 /* ═══ MCQ HUB ═════════════════════════════════════════════════ */
 
 .mcq-select { display: grid; gap: var(--s5); }
 
-/* Square clickable tiles, 2 per row, title only — no description line. */
+/* Square clickable tiles, 2 per row, title only — no description line.
+   Each tile is its own rounded, tinted plate with real air between them,
+   not hairline-joined cells — the section's colour is the material here. */
 .mode-tile-grid {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px; background: var(--rule);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-md); overflow: hidden;
-  max-width: 640px;
+  gap: var(--s3);
+  max-width: 660px;
 }
 .mode-tile {
   display: flex; align-items: center; justify-content: center;
   text-align: center;
   min-height: 128px; padding: var(--s5);
-  background: var(--ground);
+  background: var(--accent-quiet, var(--field));
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
   color: var(--ink);
-  transition: background 0.12s var(--ease);
+  transition: background 0.12s var(--ease), border-color 0.12s var(--ease), transform 0.12s var(--ease);
 }
-.mode-tile:hover { background: var(--raised); }
-.mode-tile.featured { box-shadow: inset 0 3px 0 var(--mark); }
+.mode-tile:hover {
+  border-color: var(--accent, var(--rule-strong));
+  transform: translateY(-1px);
+}
 .mode-tile-title { font-size: 18px; font-weight: 600; line-height: 1.3; }
 @media (max-width: 599px) {
   .mode-tile { min-height: 108px; padding: var(--s4); }
@@ -269,6 +360,12 @@
   line-height: 1.1; letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
+.results-score.gray { color: var(--ink-3); }
+.results-score.green { color: var(--pass); }
+.results-score.blue { color: var(--focus); }
+.results-score.purple { color: var(--grade-purple); }
+.results-score.orange { color: var(--due); }
+.results-score.pink { color: var(--grade-pink); }
 .mcq-memory-label, .hud-label, .results-label {
   font-size: var(--t-micro); color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.09em;
@@ -308,7 +405,7 @@
 /* Two children only (main block, trailing score/stats) — no leading gutter
    number in the markup, so they were being crammed into the 44px number
    column meant for a three-part row. Same fix as .pinakakia-row. */
-.written-history-row, .topic-performance-row {
+.topic-performance-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center; gap: var(--s3);
@@ -317,6 +414,23 @@
   min-height: 48px;
   border-bottom: 1px solid var(--rule);
   color: var(--ink);
+}
+
+/* One session per row, but the score's grade fills the row's own width as a
+   bar instead of leaving the sheet's middle column empty. */
+.written-history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(90px, 220px) auto;
+  align-items: center; gap: var(--s4);
+  width: 100%; text-align: left;
+  padding: var(--s3) var(--s2);
+  min-height: 52px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+@media (max-width: 599px) {
+  .written-history-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .written-history-bar { display: none; }
 }
 
 /* No leading gutter number in the markup — one or two children (title,
@@ -718,9 +832,27 @@
 
 .written-history { display: grid; }
 .written-history-main { display: grid; gap: 2px; min-width: 0; }
-.written-history-score { font-family: var(--code); font-variant-numeric: tabular-nums; }
+.written-history-score {
+  font-family: var(--code); font-size: 20px; font-weight: 600;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
 .written-history-dot { display: none; }
 .percent-high { color: var(--pass); }
+
+/* Score grade — a fixed band, not the section colour, so a written-exam
+   result reads the same regardless of which section it's viewed from. */
+.written-history-bar {
+  height: 6px; border-radius: 999px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.written-history-bar-fill { display: block; height: 100%; border-radius: inherit; }
+.written-history-score.gray, .written-history-bar.gray .written-history-bar-fill { color: var(--ink-3); background: var(--ink-3); }
+.written-history-score.green, .written-history-bar.green .written-history-bar-fill { color: var(--pass); background: var(--pass); }
+.written-history-score.blue, .written-history-bar.blue .written-history-bar-fill { color: var(--focus); background: var(--focus); }
+.written-history-score.purple, .written-history-bar.purple .written-history-bar-fill { color: var(--grade-purple); background: var(--grade-purple); }
+.written-history-score.orange, .written-history-bar.orange .written-history-bar-fill { color: var(--due); background: var(--due); }
+.written-history-score.pink, .written-history-bar.pink .written-history-bar-fill { color: var(--grade-pink); background: var(--grade-pink); }
 .percent-mid { color: var(--due); }
 .percent-low { color: var(--mark); }
 

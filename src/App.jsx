@@ -2908,6 +2908,33 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
   );
 }
 
+// The four functions the whole app is organised around, so the home hub
+// gets one deliberate exception to the "no cards" rule: this is the single
+// dispatch point, not a list of study items.
+const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
+
+function HomeModuleCard({ id, icon, title, detail, level, onOpen }) {
+  return (
+    <button
+      type="button"
+      className={`home-module home-module-${HOME_MODULE_ACCENT[id]}`}
+      onClick={() => onOpen(id)}
+    >
+      <span className="home-module-icon" aria-hidden="true">{icon}</span>
+      <span className="home-module-title">{title}</span>
+      {detail && <span className="home-module-detail">{detail}</span>}
+      {typeof level === "number" && (
+        <span className="home-module-progress">
+          <ScaleStrip level={level} label={`Πρόοδος: ${title}`} />
+        </span>
+      )}
+      <span className="home-module-chevron" aria-hidden="true">
+        <Icons.ChevronRight />
+      </span>
+    </button>
+  );
+}
+
 function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
@@ -3065,9 +3092,9 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
           <span className="subscale-rule" />
           <span />
         </div>
-        <div className="items">
+        <div className="home-modules">
           {sections.map(section => (
-            <SectionRow key={section.id} {...section} onOpen={onNavigate} />
+            <HomeModuleCard key={section.id} {...section} onOpen={onNavigate} />
           ))}
         </div>
       </div>
@@ -3094,7 +3121,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const practiceModes = [
-    { id: 'sprint', title: 'Mini-test', featured: true },
+    { id: 'sprint', title: 'Mini-test' },
     { id: 'daily', title: 'Αδύναμα Θέματα' },
     { id: 'random', title: 'Τυχαία Θέματα' },
     { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία' },
@@ -3112,7 +3139,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       {modes.map(mode => (
         <button
           key={mode.id}
-          className={`mode-tile${mode.featured ? ' featured' : ''}`}
+          className="mode-tile"
           onClick={() => onStart(mode.id)}
         >
           <span className="mode-tile-title">{mode.title}</span>
@@ -3171,29 +3198,35 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             <span className="subscale-rule" />
             <span className="subscale-total">{recentWrittenExamSessions.length}</span>
           </div>
-          {recentWrittenExamSessions.map(session => (
-            <div className="written-history-row" key={session.id}>
-              <div className="written-history-main">
-                <span className="written-history-date">
-                  {new Date(session.completedAt).toLocaleDateString("el-GR")}
-                </span>
-                <span className="written-history-detail">
-                  {session.correct}/{session.total} σωστές
-                </span>
-                {session.unanswered > 0 && (
-                  <>
-                    <span className="written-history-dot" aria-hidden="true" />
-                    <span className="written-history-detail">{session.unanswered} αναπάντητες</span>
-                  </>
-                )}
-                <span className="written-history-dot" aria-hidden="true" />
-                <span className="written-history-detail">{session.performanceLabel}</span>
+          {recentWrittenExamSessions.map(session => {
+            const gradeClass = getPercentageColorClass(session.scorePercent);
+            return (
+              <div className="written-history-row" key={session.id}>
+                <div className="written-history-main">
+                  <span className="written-history-date">
+                    {new Date(session.completedAt).toLocaleDateString("el-GR")}
+                  </span>
+                  <span className="written-history-detail">
+                    {session.correct}/{session.total} σωστές
+                  </span>
+                  {session.unanswered > 0 && (
+                    <>
+                      <span className="written-history-dot" aria-hidden="true" />
+                      <span className="written-history-detail">{session.unanswered} αναπάντητες</span>
+                    </>
+                  )}
+                  <span className="written-history-dot" aria-hidden="true" />
+                  <span className="written-history-detail">{session.performanceLabel}</span>
+                </div>
+                <div className={`written-history-bar ${gradeClass}`} aria-hidden="true">
+                  <span className="written-history-bar-fill" style={{ width: `${session.scorePercent}%` }} />
+                </div>
+                <strong className={`written-history-score ${gradeClass}`}>
+                  {session.scorePercent}%
+                </strong>
               </div>
-              <strong className={`written-history-score ${getPercentageColorClass(session.scorePercent)}`}>
-                {session.scorePercent}%
-              </strong>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -28,6 +28,15 @@ function sectionFor(screen) {
   return null;
 }
 
+// Section identity colour, cascaded as --accent so the rail and the active
+// screen pick up the same ink without every surface naming its own section.
+const SECTION_ACCENT_VAR = {
+  mcq: "--sec-mcq",
+  oral: "--sec-oral",
+  sos: "--sec-sos",
+  pinakakia: "--sec-boxes",
+};
+
 export default function AppShell({
   screen,
   title,
@@ -47,6 +56,8 @@ export default function AppShell({
   children,
 }) {
   const current = sectionFor(screen);
+  const accentVar = SECTION_ACCENT_VAR[current] || null;
+  const accentStyle = accentVar ? { "--accent": `var(${accentVar})`, "--accent-quiet": `var(${accentVar}-quiet)` } : undefined;
 
   // Purely presentational, persisted layout preference — kept local to the
   // shell rather than lifted to App state, same reasoning as the theme hook.
@@ -67,9 +78,18 @@ export default function AppShell({
   }, [collapsed]);
 
   return (
-    <div className={`app-shell${collapsed ? " rail-collapsed" : ""}`}>
+    <div className={`app-shell${collapsed ? " rail-collapsed" : ""}`} style={accentStyle}>
       <nav className="rail" aria-label="Κύρια πλοήγηση">
         <div className="rail-mast">
+          <button
+            type="button"
+            className="rail-collapse-btn"
+            onClick={() => setCollapsed(value => !value)}
+            aria-label={collapsed ? "Ανάπτυξη πλαϊνής στήλης" : "Σύμπτυξη πλαϊνής στήλης"}
+            title={collapsed ? "Ανάπτυξη" : "Σύμπτυξη"}
+          >
+            <Icons.PanelLeft />
+          </button>
           {!collapsed && (
             <button
               type="button"
@@ -80,16 +100,6 @@ export default function AppShell({
               Εξετάσεις Ειδικότητας
             </button>
           )}
-          <button
-            type="button"
-            className="rail-collapse-btn"
-            onClick={() => setCollapsed(value => !value)}
-            aria-label={collapsed ? "Ανάπτυξη πλαϊνής στήλης" : "Σύμπτυξη πλαϊνής στήλης"}
-            title={collapsed ? "Ανάπτυξη" : "Σύμπτυξη"}
-          >
-            <Icons.PanelLeft />
-          </button>
-          {!collapsed && <span className="rail-mast-sub">Ψυχιατρική</span>}
         </div>
 
         <button

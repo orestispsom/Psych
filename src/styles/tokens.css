@@ -28,12 +28,30 @@
   /* Focus is its own ink. It must not be stock (invisible on the inverted
      primary action) and must not be --mark, which already means "wrong". */
   --focus: #5aa9d6;
+  --focus-quiet: rgba(90, 169, 214, 0.15);
 
   /* ─── Semantic inks ─── */
   --pass: #6e9e5e;
   --pass-quiet: rgba(110, 158, 94, 0.15);
   --due: #c08a3e;
   --due-quiet: rgba(192, 138, 62, 0.15);
+
+  /* ─── Grade ramp: written-exam score bands only, never section identity ─── */
+  --grade-purple: #9b7bd1;
+  --grade-pink: #d97fb0;
+
+  /* ─── Section identity: the 4 top-level sections reuse the instrument's own
+     inks rather than a fifth palette, so colour still carries meaning: MCQ
+     is the marking ink, oral is "still due", SOS is the urgent second ink,
+     Πινακάκια is settled reference ground. ─── */
+  --sec-mcq: var(--focus);
+  --sec-mcq-quiet: var(--focus-quiet);
+  --sec-oral: var(--due);
+  --sec-oral-quiet: var(--due-quiet);
+  --sec-sos: var(--mark);
+  --sec-sos-quiet: var(--mark-quiet);
+  --sec-boxes: var(--pass);
+  --sec-boxes-quiet: var(--pass-quiet);
 
   /* ─── Inverted stock: the primary action ─── */
   --stock: #e9e7e2;
@@ -112,11 +130,15 @@
   --mark-rule: rgba(179, 60, 34, 0.4);
 
   --focus: #1f6f9c;
+  --focus-quiet: rgba(31, 111, 156, 0.1);
 
   --pass: #3f6b32;
   --pass-quiet: rgba(63, 107, 50, 0.12);
   --due: #885b12;   /* AA on every light ground */
   --due-quiet: rgba(138, 93, 20, 0.12);
+
+  --grade-purple: #6f4fac;
+  --grade-pink: #a8447c;
 
   --stock: #181a20;
   --stock-ink: #f2f1ec;

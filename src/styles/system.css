@@ -117,10 +117,6 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
   min-height: 44px; display: flex; align-items: center;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.rail-mast-sub {
-  font-size: var(--t-micro); color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 0.09em;
-}
 .rail-collapse-btn {
   flex: none;
   display: flex; align-items: center; justify-content: center;
@@ -175,14 +171,14 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .tab:hover { background: var(--raised); color: var(--ink); }
 .tab[aria-current="page"] {
-  color: var(--ink); background: var(--field);
-  box-shadow: inset 2px 0 0 var(--mark);
+  color: var(--ink); background: var(--accent-quiet, var(--field));
+  box-shadow: inset 2px 0 0 var(--accent, var(--mark));
 }
 .tab-count {
   font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
-.tab[aria-current="page"] .tab-count { color: var(--mark); }
+.tab[aria-current="page"] .tab-count { color: var(--accent, var(--mark)); }
 
 .rail-foot { margin-top: auto; padding: var(--s4) var(--s5) 0; display: grid; gap: var(--s2); }
 .rail-profile {
@@ -233,7 +229,7 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
   grid-template-columns: 1fr; justify-items: center;
   padding: var(--s3);
 }
-.rail-collapsed .tab[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--mark); }
+.rail-collapsed .tab[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--accent, var(--mark)); }
 .rail-collapsed .rail-foot { padding: var(--s4) var(--s2) 0; justify-items: center; }
 .rail-collapsed .rail-foot-actions { justify-content: center; }
 
@@ -258,9 +254,10 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .sheet-head-text { display: grid; gap: var(--s1); min-width: 0; }
 .sheet-eyebrow {
-  font-size: var(--t-micro); color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 0.1em;
+  font-size: var(--t-micro); color: var(--accent, var(--ink-3));
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
 }
+.sheet-head { border-bottom-color: var(--accent, var(--rule-strong)); }
 .sheet-sub { font-size: var(--t-meta); color: var(--ink-2); }
 .sheet-head-actions { display: flex; align-items: center; gap: var(--s2); flex: none; }
 
@@ -275,8 +272,8 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .subscale:first-child { margin-top: 0; }
 .subscale-title {
-  font-size: var(--t-label); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.09em;
+  font-size: 15px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
   color: var(--ink-2);
 }
 .subscale-rule { height: 1px; background: var(--rule); transform: translateY(-3px); }
@@ -632,7 +629,7 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
     min-height: var(--tabbar); padding: var(--s2) var(--s1);
     color: var(--ink-3); font-size: var(--t-micro); font-weight: 500;
   }
-  .tabbar-btn[aria-current="page"] { color: var(--ink); box-shadow: inset 0 2px 0 var(--mark); }
+  .tabbar-btn[aria-current="page"] { color: var(--accent, var(--ink)); box-shadow: inset 0 2px 0 var(--accent, var(--mark)); }
   .tabbar-btn .icon { width: 20px; height: 20px; }
 
   /* Study surfaces keep the primary action in the thumb zone */
