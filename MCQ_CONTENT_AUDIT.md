@@ -191,10 +191,19 @@ IDs 801–900.
 
 ## Batch 009 — IDs 801–900
 
-Status: in progress on 2026-08-27.
+Status: reviewed on 2026-08-27.
 
 ### Applied high-confidence corrections
 
 - IDs 860, 861, 878, and 895: began replacing remaining hybrid English terminology in learner-facing stems with established Greek clinical terms.
 
-All answer keys, option order, and option counts will be validated before publication.
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 861: the rapid-antidepressant mechanism is substantially simplified and is tagged `fabricated`; it needs a source-backed rewrite before being used as a definitive mechanistic MCQ.
+- ID 860: product indication and administration differ by jurisdiction; retain the item only with a current official product or guideline source.
+
+### Next batch
+
+IDs 901–1,000.
