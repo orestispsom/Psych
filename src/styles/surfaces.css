@@ -242,6 +242,8 @@
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--rule-strong);
+  /* Opaque: it is fixed, so study text scrolls underneath it. */
+  background: var(--ground);
   color: var(--accent, var(--ink-2));
   font-size: 0;
 }
@@ -1029,6 +1031,15 @@
   padding-bottom: var(--s2);
 }
 .oral-band-sub-letter { font-family: var(--code); color: var(--ink-3); }
+/* Rows share the band page's full width so they line up with the topic
+   rules above them; the question text keeps its own reading measure. */
+/* Everything in the oral section shares one column edge, so the lists line
+   up with the rules and heads above them instead of stopping short. */
+.oral-container .oral-question-list,
+.oral-container .oral-search,
+.oral-container .oral-index-controls,
+.crucial-index .crucial-index-list,
+.crucial-index .crucial-search { max-width: none; }
 /* The search control is sometimes the wrapper and sometimes the input itself,
    so both spellings are covered. */
 .oral-search, .crucial-search, .pinakakia-search-wrap { width: 100%; max-width: 940px; }
@@ -1080,7 +1091,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .oral-q-text {
   font-family: var(--read);
   font-size: clamp(21px, 2.2vw, 27px); line-height: 1.4;
-  max-width: 36ch;
+  max-width: 46ch;
   color: var(--ink);
   text-wrap: pretty;
 }
@@ -1102,12 +1113,12 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .oral-answer-reveal-hint { font-size: var(--t-micro); color: var(--ink-3); }
 
 .oral-viewer-foot {
-  display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3); flex-wrap: wrap;
   margin-top: var(--s8);
   padding-top: var(--s4);
   border-top: 1px solid var(--rule);
 }
-.oral-viewer-foot .oral-mastery-toggle { margin-left: auto; }
 
 /* One answer, so the toolbar is just a label and a way to close it — no
    mode switch to reason about. */
@@ -1126,7 +1137,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 @media (max-width: 599px) {
   .oral-q-block { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
   .oral-q-text { max-width: none; }
-  .oral-viewer-foot .oral-mastery-toggle { margin-left: 0; order: -1; width: 100%; }
+  .oral-viewer-foot .oral-mastery-toggle { order: -1; width: 100%; }
 }
 /* The examiner's topic tag: a label above the question, not a second
    question — distinct weight and size from .oral-q-text below it. */
@@ -1194,6 +1205,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   text-transform: uppercase; letter-spacing: 0.07em;
   font-family: var(--ui);
   color: var(--ink-3);
+  margin-bottom: var(--s3);
 }
 .oral-reference-section ul { display: grid; gap: var(--s2); margin-top: var(--s1); }
 .oral-reference-section li {

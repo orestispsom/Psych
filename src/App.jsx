@@ -5776,10 +5776,13 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
         </button>
       </div>
 
-      <header className="crucial-index-header">
-        <h2>100 Κρίσιμα Θέματα</h2>
-        <p>Επίλεξε μια ερώτηση για να ανοίξεις αυτούσια την πλήρη καταχώρηση του βιβλίου.</p>
-      </header>
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">Προφορικά</span>
+          <h2>100 Κρίσιμα Θέματα</h2>
+          <span className="sheet-sub">Πρότυπες απαντήσεις, άξονες ανάκλησης και παγίδες εξεταστή</span>
+        </div>
+      </div>
 
       <div className="crucial-search">
         <input
@@ -6093,7 +6096,13 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
             <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
           </button>
         </div>
-        <h2>Ολοκλήρωση Προφορικής Εξέτασης</h2>
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Προφορική Εξέταση</span>
+            <h2>Ολοκλήρωση</h2>
+            <span className="sheet-sub">Η αυτοαξιολόγησή σου ανά εξεταστή</span>
+          </div>
+        </div>
 
         <div className="figures">
           <div className="figure figure-pass">
