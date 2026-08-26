@@ -168,3 +168,23 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 701–800.
+
+## Batch 008 — IDs 701–800
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 702, 767, and 768: transliterated medication terminology and removed hybrid pharmacology abbreviations from learner-facing prose.
+- IDs 788 and 797: translated research-methods and adverse-effect terminology while preserving the keyed concepts.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 701: the apparently simple augmentation question is tagged `fabricated`; its `SSRI + μιρταζαπίνη` framing needs current guideline-level evidence before it is presented as a classic preferred strategy.
+- ID 767: the post-injection syndrome is important but administration and observation requirements are product- and jurisdiction-specific; the item needs an authoritative product/guideline source.
+
+### Next batch
+
+IDs 801–900.
