@@ -372,6 +372,22 @@
   color: var(--ink);
 }
 .explanation-box p + p, .answer-content p + p { margin-top: 0.8em; }
+
+/* The label ("Επεξήγηση", "Σωστό", "Επανάληψη"...) is a standalone <strong>
+   immediately followed by the answer text with no separating markup — a
+   block kicker keeps the two from running together as one word. */
+.explanation-box > strong:first-child,
+.DSM5-explanation > strong:first-child,
+.answer-content > strong:first-child {
+  display: block;
+  font-family: var(--ui);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: var(--s2);
+}
 .answer-placeholder, .pinakakia-reveal-placeholder, .oral-answer-hide,
 .pinakakia-hide-note, .DSM5-empty-note {
   font-size: var(--t-meta); color: var(--ink-3);
@@ -543,8 +559,12 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   font-size: var(--t-meta); text-align: left; vertical-align: top;
 }
 .ref-topic { color: var(--ink-2); width: 34%; }
-.crucial-empty, .crucial-loading, .pinakakia-empty, .sos-focus-empty {
+.crucial-empty, .crucial-loading, .pinakakia-empty {
   padding: var(--s10) 0; color: var(--ink-3); font-size: var(--t-meta);
+}
+.sos-focus-empty {
+  padding: var(--s10) 0; color: var(--ink-3); font-size: var(--t-meta);
+  display: grid; gap: var(--s2);
 }
 
 /* ═══ SOS ═════════════════════════════════════════════════════ */
@@ -598,9 +618,30 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 /* ═══ VIGNETTES / STRUCTURED ══════════════════════════════════ */
 
 .structured-mcq, .structured-card, .vignette-question-card,
-.DSM5-question-card, .mcq-session-primary { display: grid; gap: var(--s4); }
+.DSM5-question-card { display: grid; gap: var(--s4); }
 .structured-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
 .structured-instruction, .mcq-session-secondary { font-size: var(--t-meta); color: var(--ink-2); }
+
+/* The strip above a question: title on its own line, then a wrapped row of
+   meta stats. Each sibling is a bare <span> in the markup with no whitespace
+   between them, so the gap and the "·" separators are entirely CSS. */
+.mcq-session-strip {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--s1) var(--s3);
+  margin-bottom: var(--s4);
+}
+.mcq-session-primary {
+  flex-basis: 100%;
+  font-size: var(--t-item); font-weight: 600;
+}
+.mcq-session-secondary, .mcq-session-question, .question-status {
+  position: relative;
+}
+.mcq-session-secondary + .mcq-session-secondary::before,
+.mcq-session-question::before,
+.question-status::before {
+  content: "·"; margin-right: var(--s3); color: var(--rule-strong);
+}
 .vignette-open-card { display: grid; gap: var(--s3); }
 .vignette-modal { width: min(680px, 100%); }
 .DSM5-session-header { display: grid; gap: var(--s2); }

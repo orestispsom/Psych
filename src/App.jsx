@@ -3422,8 +3422,8 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
         </div>
         {lockedView && (
           <div className="explanation-box DSM5-explanation">
-            <strong>{rowSelected === correctIndex ? "Correct" : "Explanation"}</strong>
-            <span>{rowQuestion.explanation || rowQuestion.answer || "No explanation has been added for this question yet."}</span>
+            <strong>{rowSelected === correctIndex ? "Σωστό" : "Επεξήγηση"}</strong>
+            <span>{rowQuestion.explanation || rowQuestion.answer || "Δεν έχει προστεθεί ακόμη επεξήγηση για αυτή την ερώτηση."}</span>
           </div>
         )}
       </div>
@@ -3869,7 +3869,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         </div>
         {isLocked && (
           <div className="explanation-box">
-            <strong>{sameSelection(selected, question.correct) ? "Correct" : "Review"}</strong>
+            <strong>{sameSelection(selected, question.correct) ? "Σωστό" : "Επανάληψη"}</strong>
             {question.explanation}
           </div>
         )}
@@ -4056,7 +4056,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
         <div className="structured-question">{item.prompt}</div>
         {isLocked && (
           <div className="explanation-box">
-            <strong>{sameSelection(selected, item.correct) ? "Correct" : "Review"}</strong>
+            <strong>{sameSelection(selected, item.correct) ? "Σωστό" : "Επανάληψη"}</strong>
             {item.explanation}
           </div>
         )}
@@ -4803,7 +4803,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         {writtenResult.wrongItems.length === 0 ? (
           <div className="explanation-box">
             <strong>Δεν υπήρξαν λανθασμένες απαντήσεις</strong>
-            This written simulation had no answered questions marked incorrect.
+            Όλες οι απαντημένες ερωτήσεις σε αυτή την προσομοίωση ήταν σωστές.
           </div>
         ) : (
           <div className="wrong-answer-list">
