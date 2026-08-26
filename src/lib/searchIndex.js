@@ -100,6 +100,12 @@ async function build() {
   const crucial = await safeImport(() => import("../data/crucialQuestionsContent.js"));
   (crucial?.default || []).forEach((question, index) => {
     if (!question?.title) return;
+    const bodyText = [
+      ...(question.modelAnswer || []),
+      ...(question.keyPoints || []),
+      ...(question.examinerQuestions || []).map(eq => `${eq.question} ${(eq.answer || []).join(' ')}`),
+      ...(question.examVsPractice || []),
+    ].join(" ");
     items.push(
       entry(
         "oral",
@@ -107,7 +113,8 @@ async function build() {
         question.title,
         question.number ? `#${question.number}` : "",
         "/oral/crucial",
-        { crucialIndex: index }
+        { crucialIndex: index },
+        bodyText
       )
     );
   });

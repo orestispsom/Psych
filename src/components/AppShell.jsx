@@ -191,6 +191,25 @@ export default function AppShell({
       </nav>
 
       <div>
+        <div className="global-actions">
+          <button
+            type="button"
+            className="global-action-btn"
+            onClick={onHome}
+            aria-label="Αρχική"
+          >
+            <Icons.Home />
+          </button>
+          <button
+            type="button"
+            className="global-action-btn"
+            onClick={onOpenSearch}
+            aria-label="Αναζήτηση υλικού"
+          >
+            <Icons.Search />
+          </button>
+        </div>
+
         <div className="topbar">
           <button
             type="button"

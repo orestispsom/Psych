@@ -12,23 +12,16 @@ import json
 import re
 from pathlib import Path
 
-import pdfplumber
+import pypdf
 
 
-SECTION_HEADINGS = (
-    "ΑΞΟΝΑΣ ΑΝΑΚΛΗΣΗΣ",
-    "ΠΡΟΤΥΠΗ ΠΡΟΦΟΡΙΚΗ ΑΠΑΝΤΗΣΗ",
-    "ΒΑΣΙΚΑ ΣΗΜΕΙΑ ΓΙΑ ΤΙΣ ΕΞΕΤΑΣΕΙΣ",
-    "ΣΥΧΝΕΣ ΠΑΓΙΔΕΣ / ΠΑΓΙΔΕΣ ΕΞΕΤΑΣΤΗ",
-    "ΑΠΑΝΤΗΣΗ ΕΞΕΤΑΣΕΩΝ VS ΣΥΓΧΡΟΝΗ ΠΡΑΚΤΙΚΗ",
-)
-
-SUPPLEMENTAL_HEADINGS = (
-    "ΕΡΩΤΗΣΗ ΕΞΕΤΑΣΤΗ",
-    "ΕΡΏΤΗΣΗ ΕΞΕΤΑΣΤΉ",
-    "ΕΡΩΤΗΣΕΙΣ ΕΞΕΤΑΣΤΗ",
-    "ΙΣΤΟΡΙΚΟ ΣΤΟΙΧΕΙΟ ΕΞΕΤΑΣΕΩΝ",
-)
+SECTION_PATTERNS = {
+    "modelAnswer": r"(?m)^ΠΡΟΤΥΠΗ ΠΡΟΦΟΡΙΚΗ ΑΠΑΝΤΗΣΗ\s*$",
+    "recallAxis": r"(?m)^ΑΞΟΝΑΣ ΑΝΑΚΛΗΣΗΣ\s*$",
+    "keyPoints": r"(?m)^(?:ΒΑΣΙΚΟ ΣΗΜΕΙΟ ΓΙΑ ΤΙΣ ΕΞΕΤΑΣΕΙΣ|ΒΑΣΙΚΌ ΣΗΜΕΊΟ ΓΙΑ ΤΙΣ ΕΞΕΤΆΣΕΙΣ|ΒΑΣΙΚΑ ΣΗΜΕΙΑ ΓΙΑ ΤΙΣ ΕΞΕΤΑΣΕΙΣ|ΒΑΣΙΚΆ ΣΗΜΕΊΑ ΓΙΑ ΤΙΣ ΕΞΕΤΆΣΕΙΣ)\s*$",
+    "examiner": r"(?m)^(?:ΕΡΩΤΗΣΕΙΣ ΕΞΕΤΑΣΤΗ|ΕΡΩΤΗΣΗ ΕΞΕΤΑΣΤΗ|ΕΡΏΤΗΣΗ ΕΞΕΤΑΣΤΉ|ΠΙΘΑΝΗ ΕΡΩΤΗΣΗ ΕΞΕΤΑΣΤΗ|ΠΙΘΑΝΉ ΕΡΏΤΗΣΗ ΕΞΕΤΑΣΤΉ)\s*$",
+    "practice": r"(?m)^(?:ΑΠΑΝΤΗΣΗ ΕΞΕΤΑΣΕΩΝ ΕΝΑΝΤΙ ΤΡΕΧΟΥΣΑΣ ΠΡΑΚΤΙΚΗΣ|ΑΠΆΝΤΗΣΗ ΕΞΕΤΆΣΕΩΝ ΈΝΑΝΤΙ ΤΡΈΧΟΥΣΑΣ ΠΡΑΚΤΙΚΉΣ|ΑΠΑΝΤΗΣΗ ΕΞΕΤΑΣΕΩΝ VS ΣΥΓΧΡΟΝΗ ΠΡΑΚΤΙΚΗ)\s*$",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -47,7 +40,11 @@ def clean_page_text(text: str) -> str:
             continue
         if re.fullmatch(r"\d+", line):
             continue
-        if "100 ΚΑΙΡΙΕΣ ΕΡΩΤΗΣΕΙΣ ΣΤΗΝ ΨΥΧΙΑΤΡΙΚΗ" in line and re.search(r"Q\d+", line):
+        if "100 ΚΑΙΡΙΕΣ ΕΡΩΤΗΣΕΙΣ ΣΤΗΝ ΨΥΧΙΑΤΡΙΚΗ" in line:
+            continue
+        if re.match(r"^Q\d+\s+100 ΚΑΙΡΙΕΣ", line):
+            continue
+        if re.match(r"^100 ΚΑΙΡΙΕΣ ΕΡΩΤΗΣΕΙΣ ΣΤΗΝ ΨΥΧΙΑΤΡΙΚΗ\s+Q\d+", line):
             continue
         cleaned.append(line)
     return "\n".join(cleaned)
@@ -57,17 +54,6 @@ def join_wrapped(lines: list[str]) -> str:
     text = " ".join(part.strip() for part in lines if part.strip())
     text = re.sub(r"\s+", " ", text)
     return text.strip()
-
-
-def numbered_items(text: str) -> list[str]:
-    items: list[list[str]] = []
-    for line in text.splitlines():
-        match = re.match(r"^\d+\s+(.+)$", line)
-        if match:
-            items.append([match.group(1)])
-        elif items:
-            items[-1].append(line)
-    return [join_wrapped(item) for item in items]
 
 
 def bullet_items(text: str) -> list[str]:
@@ -80,13 +66,23 @@ def bullet_items(text: str) -> list[str]:
     return [join_wrapped(item) for item in items]
 
 
-def practice_blocks(text: str) -> list[str]:
-    bullets = bullet_items(text)
-    return bullets if bullets else paragraphize(text, target_chars=420)
+def clean_recall_axis_line(line: str) -> str:
+    return re.sub(r"^\d+\s+", "", line.strip()).strip()
+
+
+def recall_axis_items(text: str) -> list[str]:
+    lines = [clean_recall_axis_line(l) for l in text.splitlines() if clean_recall_axis_line(l)]
+    if not lines:
+        return []
+    combined = join_wrapped(lines)
+    return [combined]
 
 
 def paragraphize(text: str, target_chars: int = 520) -> list[str]:
-    prose = join_wrapped(text.splitlines())
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    if not lines:
+        return []
+    prose = join_wrapped(lines)
     sentences = re.split(r"(?<=[.!;;])\s+(?=[Α-ΩA-ZΆΈΉΊΌΎΏ0-9«])", prose)
     paragraphs: list[str] = []
     current: list[str] = []
@@ -106,21 +102,44 @@ def paragraphize(text: str, target_chars: int = 520) -> list[str]:
     return paragraphs
 
 
-def slice_section(block: str, heading: str) -> str:
-    start = block.find(heading)
-    if start < 0:
-        return ""
-    start += len(heading)
-    ends = [block.find(candidate, start) for candidate in SECTION_HEADINGS if candidate != heading]
-    ends.extend(block.find(candidate, start) for candidate in SUPPLEMENTAL_HEADINGS)
-    valid_ends = [end for end in ends if end >= 0]
-    end = min(valid_ends) if valid_ends else len(block)
-    return block[start:end].strip()
+def parse_examiner_section(text: str) -> list[dict[str, object]]:
+    sub_blocks = re.split(
+        r"(?m)^(?:ΕΡΩΤΗΣΕΙΣ ΕΞΕΤΑΣΤΗ|ΕΡΩΤΗΣΗ ΕΞΕΤΑΣΤΗ|ΕΡΏΤΗΣΗ ΕΞΕΤΑΣΤΉ|ΠΙΘΑΝΗ ΕΡΩΤΗΣΗ ΕΞΕΤΑΣΤΗ|ΠΙΘΑΝΉ ΕΡΏΤΗΣΗ ΕΞΕΤΑΣΤΉ)\s*$",
+        text,
+    )
+    results: list[dict[str, object]] = []
+    for sb in sub_blocks:
+        sb = sb.strip()
+        if not sb:
+            continue
+        lines = sb.splitlines()
+        title_lines: list[str] = []
+        body_lines: list[str] = []
+        found_end_of_q = False
+        for line in lines:
+            if not found_end_of_q:
+                title_lines.append(line)
+                if ";" in line or "?" in line or ";" in line or len(title_lines) >= 2:
+                    found_end_of_q = True
+                elif len(title_lines) == 1 and not (";" in line or "?" in line or ";" in line) and not line.endswith(" και") and not line.endswith(" ή") and not line.endswith(" από"):
+                    if any(t in line for t in ["Ιδεατοποίηση", "Υποστηρικτική"]):
+                        found_end_of_q = True
+            else:
+                body_lines.append(line)
+
+        q_title = join_wrapped(title_lines)
+        ans_paragraphs = paragraphize("\n".join(body_lines), target_chars=400)
+        results.append({
+            "question": q_title,
+            "answer": ans_paragraphs,
+        })
+    return results
 
 
 def extract_questions(pdf_path: Path) -> list[dict[str, object]]:
-    with pdfplumber.open(pdf_path) as pdf:
-        corpus = "\n".join(clean_page_text(page.extract_text() or "") for page in pdf.pages[4:])
+    reader = pypdf.PdfReader(str(pdf_path))
+    pages = [clean_page_text(p.extract_text() or "") for p in reader.pages[5:]]
+    corpus = "\n".join(pages)
 
     starts = list(re.finditer(r"(?m)^ΕΡΩΤΗΣΗ (\d+)\s*$", corpus))
     questions: list[dict[str, object]] = []
@@ -128,23 +147,47 @@ def extract_questions(pdf_path: Path) -> list[dict[str, object]]:
         number = int(match.group(1))
         block_end = starts[index + 1].start() if index + 1 < len(starts) else len(corpus)
         block = corpus[match.end():block_end].strip()
-        axis_start = block.find("ΑΞΟΝΑΣ ΑΝΑΚΛΗΣΗΣ")
-        title = join_wrapped(block[:axis_start].splitlines()) if axis_start >= 0 else ""
-        axis_text = slice_section(block, "ΑΞΟΝΑΣ ΑΝΑΚΛΗΣΗΣ")
-        answer_text = slice_section(block, "ΠΡΟΤΥΠΗ ΠΡΟΦΟΡΙΚΗ ΑΠΑΝΤΗΣΗ")
-        key_points_text = slice_section(block, "ΒΑΣΙΚΑ ΣΗΜΕΙΑ ΓΙΑ ΤΙΣ ΕΞΕΤΑΣΕΙΣ")
-        traps_text = slice_section(block, "ΣΥΧΝΕΣ ΠΑΓΙΔΕΣ / ΠΑΓΙΔΕΣ ΕΞΕΤΑΣΤΗ")
-        modern_text = slice_section(block, "ΑΠΑΝΤΗΣΗ ΕΞΕΤΑΣΕΩΝ VS ΣΥΓΧΡΟΝΗ ΠΡΑΚΤΙΚΗ")
+
+        ans_start = block.find("ΠΡΟΤΥΠΗ ΠΡΟΦΟΡΙΚΗ ΑΠΑΝΤΗΣΗ")
+        title = join_wrapped(block[:ans_start].splitlines())
+
+        positions: list[tuple[int, int, str]] = []
+        for sec_name, pat in SECTION_PATTERNS.items():
+            for m in re.finditer(pat, block):
+                positions.append((m.start(), m.end(), sec_name))
+                break
+        positions.sort(key=lambda x: x[0])
+
+        sec_texts: dict[str, str] = {}
+        for idx, (p_start, p_end, sec_name) in enumerate(positions):
+            next_start = positions[idx + 1][0] if idx + 1 < len(positions) else len(block)
+            sec_texts[sec_name] = block[p_end:next_start].strip()
+
+        model_ans_text = sec_texts.get("modelAnswer", "")
+        recall_axis_text = sec_texts.get("recallAxis", "")
+        key_points_text = sec_texts.get("keyPoints", "")
+        examiner_text = sec_texts.get("examiner", "")
+        practice_text = sec_texts.get("practice", "")
+
+        recall_axis = recall_axis_items(recall_axis_text) if recall_axis_text else []
+        model_answer = paragraphize(model_ans_text)
+        key_points = bullet_items(key_points_text) if key_points_text else []
+        if not key_points and key_points_text:
+            key_points = [join_wrapped(key_points_text.splitlines())]
+        examiner_questions = parse_examiner_section(examiner_text) if examiner_text else []
+        exam_vs_practice = paragraphize(practice_text) if practice_text else []
+
         questions.append(
             {
                 "id": f"Q{number}",
                 "number": number,
                 "title": title,
-                "recallAxis": numbered_items(axis_text),
-                "modelAnswer": paragraphize(answer_text),
-                "keyPoints": bullet_items(key_points_text),
-                "examTraps": bullet_items(traps_text),
-                "examVsPractice": practice_blocks(modern_text),
+                "recallAxis": recall_axis,
+                "modelAnswer": model_answer,
+                "keyPoints": key_points,
+                "examinerQuestions": examiner_questions,
+                "examTraps": [],
+                "examVsPractice": exam_vs_practice,
             }
         )
     return questions

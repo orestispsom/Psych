@@ -265,6 +265,27 @@
   .app-shell.rail-collapsed .back-link { left: calc(var(--rail-collapsed) + var(--s4)); }
 }
 
+/* Home + search: the back-link's mirror, fixed at top-right on every
+   screen, the same spot regardless of scroll or which screen renders it.
+   Below 900px the rail's own topbar carries these instead. */
+.global-actions { display: none; }
+@media (min-width: 900px) {
+  .global-actions {
+    display: flex; gap: var(--s2);
+    position: fixed; top: var(--s5); right: var(--s5);
+    z-index: 40;
+  }
+  .global-action-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-strong);
+    background: var(--ground);
+    color: var(--ink-2);
+  }
+  .global-action-btn:hover { color: var(--ink); border-color: var(--ink-3); background: var(--raised); }
+}
+
 /* ═══ MCQ HUB ═════════════════════════════════════════════════ */
 
 .mcq-select { display: grid; gap: var(--s5); }
@@ -296,6 +317,58 @@
 @media (max-width: 599px) {
   .mode-tile { min-height: 108px; padding: var(--s4); }
   .mode-tile-title { font-size: var(--t-item); }
+}
+
+/* A hub of 2–3 functions reads better as fewer, wider plates with a real
+   description and a live stat than as square icon tiles. */
+/* Wide rows, not a card grid: with two or three functions a row layout
+   fills the page honestly, gives each description a full line instead of a
+   three-line wrap, and keeps the icons on one reading axis. */
+.oral-hub-grid {
+  display: grid; gap: var(--s3);
+  max-width: 940px;
+}
+.oral-hub-tile {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s5);
+  min-height: 132px;
+  padding: var(--s5);
+  text-align: left;
+  background: var(--accent-quiet, var(--field));
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  color: var(--ink);
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.oral-hub-tile:hover { border-color: var(--accent, var(--ink-3)); }
+.oral-hub-body { display: grid; gap: var(--s1); min-width: 0; }
+.oral-hub-go { display: flex; color: var(--accent, var(--ink-3)); }
+
+/* Deliberately not stretched to the viewport: two or three rows blown up to
+   fill 900px read as padding, not as design. They keep their natural height
+   and span the sheet's full width so they line up with the head's rule. */
+@media (min-width: 900px) {
+  .oral-container.oral-hub-screen .oral-hub-grid { max-width: none; }
+  .oral-container.oral-hub-screen .oral-hub-tile { min-height: 124px; }
+  .oral-container.oral-hub-screen .oral-hub-title { font-size: 21px; }
+  .oral-container.oral-hub-screen .oral-hub-icon { width: 52px; height: 52px; }
+  .oral-container.oral-hub-screen .oral-hub-icon .icon { width: 26px; height: 26px; }
+}
+.oral-hub-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; flex: none;
+  border-radius: var(--r-md);
+  background: var(--accent, var(--ink-3));
+  color: var(--stock-ink);
+}
+.oral-hub-icon .icon { width: 22px; height: 22px; }
+.oral-hub-title { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.oral-hub-detail { font-size: var(--t-meta); color: var(--ink-2); line-height: 1.5; }
+.oral-hub-stat {
+  margin-top: var(--s1);
+  font-family: var(--code); font-size: var(--t-micro);
+  color: var(--accent, var(--ink-3));
+  font-variant-numeric: tabular-nums;
 }
 .mcq-mode-grid, .choice-grid, .sos-option-grid, .grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -518,23 +591,6 @@
   display: none;
 }
 
-/* .gravity-bar is not a progress-bar fill despite the name it inherited from
-   the legacy build — it's the accordion toggle for a whole exam-frequency
-   tier ("ΚΡΙΣΙΜΑ", "#1"...). The `display: none` above was hiding the entire
-   categorized oral view. */
-.gravity-bar {
-  display: flex; align-items: center; flex-wrap: wrap;
-  gap: var(--s1) var(--s3);
-  width: 100%; text-align: left;
-  padding: var(--s4) var(--s2);
-  min-height: 56px;
-  border-bottom: 1px solid var(--rule-strong);
-  color: var(--ink);
-  transition: background 0.1s var(--ease);
-}
-.gravity-bar:hover { background: var(--raised); }
-.gravity-bar .bar-title { font-size: var(--t-item); font-weight: 600; }
-.gravity-bar .oral-progress-pill { margin-left: auto; }
 .progress-text, .topic-percent-value, .oral-progress-pill, .oral-index-count {
   font-family: var(--code); font-size: var(--t-micro);
   color: var(--ink-3); font-variant-numeric: tabular-nums;
@@ -682,8 +738,10 @@
   font-size: var(--t-read); line-height: 1.7;
   max-width: var(--measure-read);
   color: var(--ink);
+  text-align: left;
 }
-.explanation-box p + p, .answer-content p + p { margin-top: 0.8em; }
+.explanation-box p + p, .answer-content p + p,
+.oral-model-answer p + p, .oral-quick-answer p + p { margin-top: 0.8em; }
 
 /* The label ("Επεξήγηση", "Σωστό", "Επανάληψη"...) is a standalone <strong>
    immediately followed by the answer text with no separating markup — a
@@ -714,7 +772,9 @@
   font-size: var(--t-meta); color: var(--ink-3);
 }
 .answer-placeholder small { font-size: var(--t-micro); }
+
 .oral-answer-kicker, .sos-card-kicker {
+  font-family: var(--ui);
   font-size: var(--t-micro); color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.1em;
 }
@@ -735,7 +795,7 @@
 .mcq-feedback-btn, .mcq-quality-btn, .vignette-open-btn, .sos-shuffle-btn,
 .oral-expand-all, .wrong-full-btn, .vignette-modal-close, .oral-answer-reveal,
 .pinakakia-reveal, .sos-focus-reveal, .oral-mastery-toggle, .vignette-complete-toggle,
-.sos-check-control, .results-btn, .admin-pin-key, .oral-answer-modes button {
+.sos-check-control, .results-btn, .admin-pin-key, .oral-verdict {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
   min-height: 44px; padding: 0 var(--s4);
   border: 1px solid var(--rule-strong); border-radius: var(--r-md);
@@ -745,7 +805,7 @@
 .mcq-feedback-btn:hover, .mcq-quality-btn:hover, .vignette-open-btn:hover,
 .sos-shuffle-btn:hover, .oral-expand-all:hover, .wrong-full-btn:hover,
 .oral-answer-reveal:hover, .pinakakia-reveal:hover, .sos-focus-reveal:hover,
-.results-btn:hover, .oral-mastery-toggle:hover {
+.results-btn:hover, .oral-mastery-toggle:hover, .oral-verdict:hover {
   color: var(--ink); border-color: var(--ink-3); background: var(--raised);
 }
 .results-btn.primary, .btn.primary {
@@ -758,6 +818,9 @@
   color: var(--pass); border-color: var(--pass);
 }
 .mcq-feedback-btn.down[aria-pressed="true"] { color: var(--mark); border-color: var(--mark); }
+
+.oral-mastery-toggle { color: var(--ink-3); }
+.oral-mastery-toggle.mastered { color: var(--pass); border-color: var(--pass); }
 
 .mcq-feedback-btn.compact, .mcq-quality-btn.compact { min-height: 36px; padding: 0 var(--s2); }
 
@@ -871,6 +934,101 @@
 .oral-index-tab[aria-pressed="true"], .oral-index-tab.is-active {
   color: var(--ink); border-color: var(--ink-3); background: var(--raised);
 }
+
+/* ─── The frequency ladder ───────────────────────────────────
+   The section's signature. Five rungs, ordered by how often the band
+   actually appears in the exam, with a meter drawn from that same figure —
+   the trainee's revision priority read straight off the page. */
+.oral-ladder { display: grid; gap: var(--s2); }
+
+.oral-band {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center; gap: var(--s4);
+  width: 100%; text-align: left;
+  padding: var(--s4);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--field);
+  color: var(--ink);
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.oral-band:hover { background: var(--raised); border-color: var(--band); }
+
+/* The plate code carries the band's ink as a filled chip — the same device
+   the home modules use for their section icon, rather than a coloured tab
+   stuck to the side of a card. */
+.oral-band-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 42px; padding: var(--s2) var(--s2);
+  border-radius: var(--r-sm);
+  background: var(--band);
+  color: var(--stock-ink);
+  font-family: var(--code); font-size: var(--t-meta); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.oral-band-main { display: grid; gap: var(--s1); min-width: 0; }
+.oral-band-title {
+  font-size: var(--t-item); font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.oral-band-tagline { font-size: var(--t-micro); color: var(--ink-3); }
+.oral-band-meter {
+  display: block; height: 4px; margin-top: 2px;
+  max-width: 260px;
+  border-radius: 999px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.oral-band-meter-fill { display: block; height: 100%; background: var(--band); border-radius: inherit; }
+
+.oral-band-side {
+  display: grid; justify-items: end; gap: 0;
+  font-variant-numeric: tabular-nums;
+}
+.oral-band-count {
+  font-family: var(--code); font-size: 21px; font-weight: 600;
+  line-height: 1.1; color: var(--ink);
+}
+.oral-band-count-label {
+  font-size: var(--t-micro); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.oral-band-progress {
+  margin-top: var(--s1);
+  font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
+}
+.oral-band-go { display: flex; color: var(--ink-3); }
+.oral-band:hover .oral-band-go { color: var(--band); }
+
+@media (max-width: 599px) {
+  .oral-band { grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s3); }
+  .oral-band-go { display: none; }
+  .oral-band-count { font-size: var(--t-item); }
+}
+
+/* ─── One band, opened ─────────────────────────────────────── */
+.oral-band-page { display: grid; gap: var(--s5); }
+.oral-band-head {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3);
+  padding-bottom: var(--s3);
+  border-bottom: 2px solid var(--band);
+}
+.oral-band-head-title {
+  font-size: var(--t-section); font-weight: 700; letter-spacing: 0.04em;
+}
+.oral-band-head-tagline { font-size: var(--t-micro); color: var(--ink-3); }
+.oral-band-topic-note {
+  font-size: var(--t-micro); color: var(--ink-3);
+  margin-top: calc(-1 * var(--s2)); margin-bottom: var(--s3);
+}
+.oral-band-sub { margin-top: var(--s4); }
+.oral-band-sub-title {
+  display: flex; align-items: baseline; gap: var(--s2);
+  font-size: var(--t-meta); font-weight: 600; color: var(--ink-2);
+  padding-bottom: var(--s2);
+}
+.oral-band-sub-letter { font-family: var(--code); color: var(--ink-3); }
 /* The search control is sometimes the wrapper and sometimes the input itself,
    so both spellings are covered. */
 .oral-search, .crucial-search, .pinakakia-search-wrap { width: 100%; max-width: 940px; }
@@ -890,21 +1048,191 @@ input.oral-search {
 input.pinakakia-search::placeholder,
 input.crucial-search::placeholder { color: var(--ink-3); }
 
-.oral-topic-questions, .subtopic-disclosure { display: grid; }
-.oral-q-text, .crucial-viewer-heading, .oral-exam-context {
+.crucial-viewer-heading {
   font-size: var(--t-read); line-height: 1.5;
   max-width: var(--measure-item);
 }
-.oral-question-state, .oral-source-badge, .oral-exam-meta {
+
+/* ─── Question viewer ──────────────────────────────────────────
+   The question is the thing being read aloud in the exam, so it is set in
+   the reading face at display size with its position in the gutter — the
+   instrument's own item grammar, not a UI label. */
+.oral-viewer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s4); flex-wrap: wrap;
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--accent, var(--rule-strong));
+}
+.oral-viewer-head-side { display: flex; align-items: center; gap: var(--s3); }
+
+.oral-q-block {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  align-items: start; gap: var(--s4);
+  padding: var(--s5) 0 var(--s4);
+}
+.oral-q-position {
+  display: flex; align-items: baseline; gap: 2px;
+  font-family: var(--code); font-variant-numeric: tabular-nums;
+  color: var(--accent, var(--ink-3));
+}
+.oral-q-position-now { font-size: 25px; font-weight: 600; line-height: 1; }
+.oral-q-position-total { font-size: var(--t-micro); color: var(--ink-3); }
+.oral-q-text {
+  font-family: var(--read);
+  font-size: clamp(21px, 2.2vw, 27px); line-height: 1.4;
+  max-width: 36ch;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* A real button, sized like one — not a full-width dashed panel. */
+.oral-answer-reveal {
+  justify-self: start; width: auto;
+  display: inline-flex; align-items: center; gap: var(--s3);
+  min-height: 56px; padding: 0 var(--s5);
+  border: 1px solid var(--accent, var(--rule-strong));
+  border-radius: var(--r-md);
+  background: var(--accent-quiet, transparent);
+  color: var(--ink);
+}
+.oral-answer-reveal:hover { background: var(--accent-quiet, var(--raised)); border-color: var(--accent, var(--ink-3)); }
+.oral-answer-reveal svg { color: var(--accent, var(--ink-3)); flex: none; }
+.oral-answer-reveal-label { font-size: var(--t-body); font-weight: 600; }
+.oral-answer-prompt { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.oral-answer-reveal-hint { font-size: var(--t-micro); color: var(--ink-3); }
+
+.oral-viewer-foot {
+  display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+  margin-top: var(--s8);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+}
+.oral-viewer-foot .oral-mastery-toggle { margin-left: auto; }
+
+/* One answer, so the toolbar is just a label and a way to close it — no
+   mode switch to reason about. */
+.oral-answer-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3);
+  margin-top: 0; padding-top: 0; border-top: none;
+}
+.oral-answer-hide {
+  min-height: 36px; padding: 0 var(--s3);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  font-size: var(--t-micro);
+}
+.oral-answer-hide:hover { color: var(--ink); border-color: var(--ink-3); }
+.oral-quick-answer { margin-top: var(--s2); border-left-color: var(--accent, var(--mark-rule)); }
+@media (max-width: 599px) {
+  .oral-q-block { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+  .oral-q-text { max-width: none; }
+  .oral-viewer-foot .oral-mastery-toggle { margin-left: 0; order: -1; width: 100%; }
+}
+/* The examiner's topic tag: a label above the question, not a second
+   question — distinct weight and size from .oral-q-text below it. */
+.oral-exam-context {
+  font-size: var(--t-label); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent, var(--ink-2));
+  margin-top: var(--s4);
+}
+
+/* ─── Simulator framing ────────────────────────────────────── */
+.oral-exam-frame {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--accent, var(--rule-strong));
+}
+.oral-exam-examiner {
+  font-size: var(--t-item); font-weight: 700;
+  color: var(--ink);
+}
+.oral-exam-of { font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3); font-weight: 400; }
+.oral-exam-sep { width: 1px; height: 16px; background: var(--rule-strong); }
+.oral-exam-step {
+  font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.oral-exam-kind {
+  margin-left: auto;
+  font-size: var(--t-micro); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 8px; border-radius: var(--r-box);
+  border: 1px solid currentColor;
+}
+.oral-exam-kind.anchor { color: var(--accent, var(--ink-2)); }
+.oral-exam-kind.follow { color: var(--ink-3); }
+
+/* The three verdicts are an ordered scale, so they carry the semantic inks
+   they already mean elsewhere in the product. */
+.oral-self-assessment-label { font-size: var(--t-meta); color: var(--ink-2); font-weight: 600; }
+.oral-verdict[aria-pressed="true"].oral-verdict-review { color: var(--mark); border-color: var(--mark); background: var(--mark-quiet); }
+.oral-verdict[aria-pressed="true"].oral-verdict-partial { color: var(--due); border-color: var(--due); background: var(--due-quiet); }
+.oral-verdict[aria-pressed="true"].oral-verdict-ready { color: var(--pass); border-color: var(--pass); background: var(--pass-quiet); }
+.oral-question-state, .oral-source-badge {
   font-size: var(--t-micro); color: var(--ink-3);
 }
-.oral-answer-panel, .crucial-viewer-content, .oral-reference-section,
-.oral-self-assessment, .oral-answer-modes {
+/* Two facts on one line — which examiner/question, and what kind — so they
+   need a real gap and a divider, not adjacency in the markup. */
+.oral-exam-meta {
+  font-size: var(--t-micro); color: var(--ink-3);
+}
+.oral-answer-panel, .oral-self-assessment {
   display: grid; gap: var(--s3);
 }
-.oral-answer-modes { grid-auto-flow: column; justify-content: start; gap: var(--s2); }
+.crucial-viewer-content, .oral-reference-section {
+  display: grid; gap: var(--s6);
+}
 .oral-source-title { font-size: var(--t-item); font-weight: 600; }
 .oral-source-chapter, .oral-source-body { font-size: var(--t-meta); color: var(--ink-2); }
+
+/* Reference sections (recall axis, key points, exam traps, exam-vs-practice):
+   the tone is real information — a trap is a warning, a key point is what
+   sticks — so it gets the semantic ink, not a decorative accent. */
+.oral-reference-section h4, .oral-model-answer h4 {
+  font-size: var(--t-label); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  font-family: var(--ui);
+  color: var(--ink-3);
+}
+.oral-reference-section ul { display: grid; gap: var(--s2); margin-top: var(--s1); }
+.oral-reference-section li {
+  position: relative; padding-left: var(--s4);
+  font-family: var(--read); font-size: var(--t-read); line-height: 1.6;
+  color: var(--ink-2);
+}
+.oral-reference-section li::before {
+  content: "–"; position: absolute; left: 0; color: var(--ink-3);
+}
+.oral-reference-section.recall h4 { color: var(--focus); }
+.oral-reference-section.recall li::before { color: var(--focus); }
+.oral-reference-section.key-points h4 { color: var(--pass); }
+.oral-reference-section.key-points li::before { color: var(--pass); }
+.oral-reference-section.practice h4 { color: var(--due); }
+/* Follow-ups the examiner is likely to push with: a Q/A pair, so the question
+   is set as a question (UI face, weighted) and the answer as reading matter,
+   separated by a rule rather than a tinted card. */
+.oral-reference-section.examiner-questions h4 { color: var(--accent, var(--ink-2)); }
+.oral-reference-section.examiner-questions { gap: var(--s4); }
+.crucial-examiner-item {
+  display: grid; gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+.crucial-examiner-item:first-of-type { border-top: none; padding-top: 0; }
+.crucial-examiner-q {
+  font-family: var(--ui);
+  font-size: var(--t-body); font-weight: 600; line-height: 1.45;
+  color: var(--ink);
+  max-width: var(--measure-read);
+}
+.crucial-examiner-a {
+  font-family: var(--read);
+  font-size: var(--t-read); line-height: 1.7;
+  color: var(--ink-2);
+  max-width: var(--measure-read);
+}
+.crucial-examiner-a + .crucial-examiner-a { margin-top: 0.5em; }
 .ref-table { width: 100%; border-collapse: collapse; }
 .ref-row { border-bottom: 1px solid var(--rule); }
 .ref-topic, .ref-value {
@@ -1048,7 +1376,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
     grid-template-columns: repeat(2, 1fr);
   }
   .resume { grid-template-columns: minmax(0, 1fr); }
-  .oral-answer-modes { grid-auto-flow: row; }
 }
 
 /* SOS list row: the title opens the entry, the box marks it. */

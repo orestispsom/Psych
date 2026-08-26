@@ -40,6 +40,16 @@
   --grade-purple: #9b7bd1;
   --grade-pink: #d97fb0;
 
+  /* ─── Severity ramp: how often an oral topic appears in the exam.
+     A real ordered scale (critical → baseline), so it is one deliberate
+     hot-to-cool ramp rather than five unrelated hues. Replaces the raw
+     framework-default colours the dataset carries. ─── */
+  --sev-1: #dd5f4a;
+  --sev-2: #d98545;
+  --sev-3: #c9a542;
+  --sev-4: #7ea55e;
+  --sev-5: #6fa6d0;
+
   /* ─── Section identity: the 4 top-level sections reuse the instrument's own
      inks rather than a fifth palette, so colour still carries meaning: MCQ
      is the marking ink, oral is "still due", SOS is the urgent second ink,
@@ -139,6 +149,12 @@
 
   --grade-purple: #6f4fac;
   --grade-pink: #a8447c;
+
+  --sev-1: #b33c22;
+  --sev-2: #9a5715;
+  --sev-3: #7d6410;
+  --sev-4: #3f6b32;
+  --sev-5: #1f6f9c;
 
   --stock: #181a20;
   --stock-ink: #f2f1ec;

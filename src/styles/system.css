@@ -242,6 +242,16 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .sheet-narrow { max-width: 860px; }
 
+/* Desktop reserves the top band for the fixed back / home / search controls,
+   so no screen's own first row can land underneath them. */
+@media (min-width: 900px) {
+  .sheet { padding-top: 84px; }
+  /* The back-link inside is fixed, so the row itself has nothing left to
+     lay out — collapse its spacing without hiding it (a display:none
+     parent would take the fixed child with it). */
+  .screen-topbar { margin-bottom: 0; }
+}
+
 .sheet-head {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: var(--s4);
