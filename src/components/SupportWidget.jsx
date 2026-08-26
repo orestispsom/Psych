@@ -70,8 +70,7 @@ export default function SupportWidget({ delayMinutes = DEFAULT_DELAY_MIN }) {
           </svg>
         </span>
         <span className="support-widget-text">
-          <strong>Σ' αρέσει η εφαρμογή;</strong>
-          <span>Ένας καφές βοηθάει να συνεχίσει να ενημερώνεται.</span>
+          <strong>Υποστηρίξτε την εφαρμογή με ένα κέρασμα.</strong>
         </span>
       </div>
 

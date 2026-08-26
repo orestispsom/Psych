@@ -2,6 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 
 const KEY = "psych_theme";
 
+function normalizeTheme(value) {
+  return value === "dark" ? "dark" : "light";
+}
+
 function readStored() {
   try {
     const value = window.localStorage.getItem(KEY);
@@ -12,12 +16,15 @@ function readStored() {
 }
 
 /**
- * Dark is the default: the dominant use scene is evening and night revision
- * after clinical duty. Light is the same instrument in positive, for daytime
- * desk study.
+ * Theme belongs to the active study profile. The local key remains a fallback
+ * for the profile picker and for installations without online profile sync.
  */
-export function useTheme() {
-  const [theme, setTheme] = useState(() => readStored() || "dark");
+export function useTheme(profileTheme = "light", onThemeChange) {
+  const [theme, setTheme] = useState(() => normalizeTheme(profileTheme || readStored()));
+
+  useEffect(() => {
+    setTheme(normalizeTheme(profileTheme));
+  }, [profileTheme]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -29,8 +36,10 @@ export function useTheme() {
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme(current => (current === "dark" ? "light" : "dark"));
-  }, []);
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    onThemeChange?.(next);
+  }, [onThemeChange, theme]);
 
   return { theme, toggleTheme };
 }

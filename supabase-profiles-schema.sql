@@ -3,12 +3,17 @@ create table if not exists public.study_profiles (
   name text not null,
   mcq_progress jsonb not null default '{"version":2,"questions":{},"attempts":[],"dailyChallenges":{},"sprintSessions":[],"writtenExamSessions":[],"writtenExamDraft":null,"vignettes":{"completed":{},"updatedAt":null},"updatedAt":null}'::jsonb,
   oral_progress jsonb not null default '{"version":1,"mastered":{},"updatedAt":null}'::jsonb,
+  theme_preference text not null default 'light' check (theme_preference in ('light', 'dark')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 alter table public.study_profiles
   add column if not exists oral_progress jsonb not null default '{"version":1,"mastered":{},"updatedAt":null}'::jsonb;
+
+alter table public.study_profiles
+  add column if not exists theme_preference text not null default 'light'
+  check (theme_preference in ('light', 'dark'));
 
 alter table public.study_profiles
   alter column mcq_progress set default '{"version":2,"questions":{},"attempts":[],"dailyChallenges":{},"sprintSessions":[],"writtenExamSessions":[],"writtenExamDraft":null,"vignettes":{"completed":{},"updatedAt":null},"updatedAt":null}'::jsonb;

@@ -3,7 +3,6 @@ const oralData = [
     "id": 1,
     "label": "#1",
     "title": "ΚΡΙΣΙΜΑ",
-    "tagline": "100–95% εμφάνιση στις εξετάσεις",
     "color": "#ef4444",
     "topics": [
       {
@@ -537,7 +536,6 @@ const oralData = [
     "id": 2,
     "label": "#2",
     "title": "ΠΟΛΥ ΥΨΗΛΗ",
-    "tagline": "90% εμφάνιση",
     "color": "#f97316",
     "topics": [
       {
@@ -771,7 +769,6 @@ const oralData = [
     "id": 3,
     "label": "#3",
     "title": "ΥΨΗΛΗ",
-    "tagline": "75–85% εμφάνιση",
     "color": "#eab308",
     "topics": [
       {
@@ -1012,7 +1009,6 @@ const oralData = [
     "id": 4,
     "label": "#4",
     "title": "ΜΕΤΡΙΑ",
-    "tagline": "50–65% εμφάνιση",
     "color": "#22c55e",
     "topics": [
       {
@@ -1189,7 +1185,6 @@ const oralData = [
     "id": 5,
     "label": "#5",
     "title": "ΒΑΣΙΚΑ",
-    "tagline": "40–45% εμφάνιση",
     "color": "#3b82f6",
     "topics": [
       {

@@ -748,7 +748,12 @@ function createStudyProfile(
     mcqProgress: normalizeMcqProgress(mcqProgress),
     oralProgress: normalizeOralProgress(oralProgress),
     sosProgress: normalizeSosProgress(sosProgress),
+    themePreference: "light",
   };
+}
+
+function normalizeThemePreference(value) {
+  return value === "dark" ? "dark" : "light";
 }
 
 function loadProfileStore() {
@@ -773,6 +778,7 @@ function loadProfileStore() {
             mcqProgress: normalizeMcqProgress(profile.mcqProgress),
             oralProgress: normalizeOralProgress(profile.oralProgress),
             sosProgress: normalizeSosProgress(profile.sosProgress),
+            themePreference: normalizeThemePreference(profile.themePreference),
           },
         ])
     );
@@ -802,6 +808,7 @@ function profileFromRemoteRow(row) {
     mcqProgress: normalizeMcqProgress(row.mcq_progress),
     oralProgress: normalizeOralProgress(row.oral_progress),
     sosProgress: createEmptySosProgress(),
+    themePreference: normalizeThemePreference(row.theme_preference),
   };
 }
 
@@ -811,6 +818,7 @@ function profileToRemoteRow(profile) {
     name: profile.name,
     mcq_progress: normalizeMcqProgress(profile.mcqProgress),
     oral_progress: normalizeOralProgress(profile.oralProgress),
+    theme_preference: normalizeThemePreference(profile.themePreference),
   };
 }
 
@@ -1234,7 +1242,7 @@ async function loadRemoteProfileStore(activeProfileId = null) {
   let rows;
   try {
     rows = await supabaseProfilesRequest({
-      select: "id,name,mcq_progress,oral_progress,created_at",
+      select: "id,name,mcq_progress,oral_progress,theme_preference,created_at",
       order: "name.asc",
     });
   } catch {
@@ -1288,6 +1296,7 @@ async function upsertRemoteProfile(profile) {
   } catch {
     const fallbackRow = profileToRemoteRow(profile);
     delete fallbackRow.oral_progress;
+    delete fallbackRow.theme_preference;
     rows = await supabaseProfilesRequest(
       { on_conflict: "id" },
       {
@@ -3181,28 +3190,27 @@ function AdminOptionsScreen({
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
-  const practiceModes = [
-    { id: 'sprint', title: 'Mini-test' },
-    { id: 'daily', title: 'Αδύναμα Θέματα' },
-    { id: 'random', title: 'Τυχαία Θέματα' },
-    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία' },
+  const modes = [
+    { id: 'sprint', title: 'Mini-test', tone: 'var(--pass)' },
+    { id: 'daily', title: 'Αδύναμα Θέματα', tone: 'var(--due)' },
+    { id: 'random', title: 'Τυχαία Θέματα', tone: 'var(--focus)' },
+    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία', tone: 'var(--grade-purple)' },
+    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής', tone: 'var(--mark)' },
+    { id: 'vignettes', title: 'Vignettes', tone: 'var(--sev-3)' },
+    { id: 'matching', title: 'Αντιστοίχηση', tone: 'var(--grade-pink)' },
+    { id: 'DSM5', title: 'DSM-5-TR', tone: 'var(--ink-3)' },
   ];
 
-  const examModes = [
-    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής' },
-    { id: 'vignettes', title: 'Vignettes' },
-    { id: 'matching', title: 'Αντιστοίχηση' },
-    { id: 'DSM5', title: 'DSM-5-TR' },
-  ];
-
-  const renderModes = modes => (
+  const renderModes = () => (
     <div className="mode-tile-grid">
-      {modes.map(mode => (
+      {modes.map((mode, index) => (
         <button
           key={mode.id}
           className="mode-tile"
+          style={{ '--mode-accent': mode.tone }}
           onClick={() => onStart(mode.id)}
         >
+          <span className="mode-tile-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
           <span className="mode-tile-title">{mode.title}</span>
         </button>
       ))}
@@ -3238,19 +3246,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         </div>
       </div>
 
-      <div className="subscale">
-        <h3 className="subscale-title">Εξάσκηση</h3>
-        <span className="subscale-rule" />
-        <span />
-      </div>
-      {renderModes(practiceModes)}
-
-      <div className="subscale">
-        <h3 className="subscale-title">Εξέταση και ειδικές μορφές</h3>
-        <span className="subscale-rule" />
-        <span />
-      </div>
-      {renderModes(examModes)}
+      {renderModes()}
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
@@ -5436,16 +5432,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
   );
 }
 
-// «100–95% εμφάνιση στις εξετάσεις» → 97.5. The frequency band is the single
-// most decision-useful fact in this dataset (it is the trainee's revision
-// priority), so it gets read out of the tagline and drawn, not just printed.
-function getGravityFrequency(gravity) {
-  const numbers = String(gravity?.tagline || "").match(/\d+/g);
-  if (!numbers?.length) return null;
-  const values = numbers.map(Number);
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
 // The dataset carries raw framework-default hexes. The bands are an ordered
 // severity scale, so they are drawn from the themed ramp instead — which also
 // keeps them legible in both themes.
@@ -5565,15 +5551,11 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
         </>
       )}
 
-      {/* The frequency ladder. Each rung's meter is drawn from the band's own
-          stated appearance rate, so the list is ordered by how much the exam
-          actually rewards it — the revision priority, made visible. */}
       {view === "bands" && !openBand && (
         <div className="oral-ladder">
           {oralData.map(gravity => {
             const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
             const summary = summarizeOralProgress(normalizedOralProgress, questions);
-            const frequency = getGravityFrequency(gravity);
             return (
               <button
                 key={gravity.id}
@@ -5585,12 +5567,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                 <span className="oral-band-code">{gravity.label}</span>
                 <span className="oral-band-main">
                   <span className="oral-band-title">{gravity.title}</span>
-                  <span className="oral-band-tagline">{gravity.tagline}</span>
-                  {frequency !== null && (
-                    <span className="oral-band-meter" aria-hidden="true">
-                      <span className="oral-band-meter-fill" style={{ width: `${frequency}%` }} />
-                    </span>
-                  )}
                 </span>
                 <span className="oral-band-side">
                   {!gravity.isTable && (
@@ -5618,7 +5594,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
             </button>
             <span className="oral-band-code">{openBand.label}</span>
             <span className="oral-band-head-title">{openBand.title}</span>
-            <span className="oral-band-head-tagline">{openBand.tagline}</span>
           </div>
 
           {(openBand.topics || []).map(topic => (
@@ -7134,6 +7109,30 @@ export default function App() {
     ? selectedProfile
     : null;
   const hasAdminAccess = Boolean(activeProfile && isAdminProfile(activeProfile) && adminUnlocked);
+  const handleThemePreferenceChange = useCallback((nextTheme) => {
+    const profileId = profileStore.activeProfileId;
+    const profile = profileId ? profileStore.profiles[profileId] : null;
+    if (!profile) return;
+
+    const nextProfile = {
+      ...profile,
+      themePreference: normalizeThemePreference(nextTheme),
+    };
+    setProfileStore(prev => ({
+      ...prev,
+      profiles: {
+        ...prev.profiles,
+        [profileId]: nextProfile,
+      },
+    }));
+
+    if (ONLINE_PROFILES_ENABLED) {
+      setSyncStatus("saving");
+      upsertRemoteProfile(nextProfile)
+        .then(() => setSyncStatus("online"))
+        .catch(() => setSyncStatus("offline"));
+    }
+  }, [profileStore.activeProfileId, profileStore.profiles]);
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
   const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
   const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
@@ -7161,7 +7160,7 @@ export default function App() {
   }, [navigate, route.valid]);
 
   // ─── Shell: theme, global search, shortcut sheet ───
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme(activeProfile?.themePreference, handleThemePreferenceChange);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
