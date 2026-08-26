@@ -260,7 +260,7 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 .items-plain .item.has-glyph > .item-num { display: flex; padding-top: 1px; }
 .item-body { display: grid; gap: var(--s1); min-width: 0; }
 .item-title {
-  font-size: var(--t-item); line-height: 1.4; color: var(--ink);
+  font-size: var(--t-item); line-height: 1.45; color: var(--ink);
   max-width: var(--measure-item);
 }
 .item-meta {
@@ -282,8 +282,8 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
   flex: none;
 }
 .scale-box {
-  width: 11px; height: 15px;
-  border: 1px solid var(--rule-strong);
+  width: 13px; height: 18px;
+  border: 1.5px solid var(--rule-strong);
   border-radius: var(--r-box);
   background: transparent;
   position: relative;
@@ -320,7 +320,7 @@ button.scale-box::after {
    row height so the overlays sit side by side rather than stacked. */
 .scale:has(button) { min-height: 44px; }
 
-.scale-lg .scale-box { width: 15px; height: 20px; }
+.scale-lg .scale-box { width: 17px; height: 23px; }
 
 /* ═══ STENCIL — a stencilled label, never a pill ══════════════ */
 
@@ -408,7 +408,7 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
 .read {
   font-family: var(--read);
   font-size: var(--t-read);
-  line-height: 1.68;
+  line-height: 1.72;
   max-width: var(--measure-read);
   color: var(--ink);
 }

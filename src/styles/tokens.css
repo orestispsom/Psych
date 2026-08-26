@@ -45,14 +45,17 @@
   --read: "Source Serif 4", Georgia, "Times New Roman", serif;
   --code: "Fira Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --t-micro: 11px;
-  --t-label: 12px;
-  --t-meta: 13px;
-  --t-body: 15px;
-  --t-item: 16px;
-  --t-read: 17px;
-  --t-section: 20px;
-  --t-title: clamp(22px, 2.4vw, 28px);
+  /* Sized for long revision sessions on a phone at night, not for a dense
+     marketing page: every step is a real step, and nothing that carries
+     study meaning drops below 13px. */
+  --t-micro: 12px;   /* stencils, plate codes, anchors */
+  --t-label: 13px;   /* subscale heads */
+  --t-meta: 14px;    /* secondary text, controls */
+  --t-body: 16px;    /* interface default */
+  --t-item: 18px;    /* list item titles */
+  --t-read: 19px;    /* long-form answers, question stems */
+  --t-section: 23px;
+  --t-title: clamp(27px, 2.9vw, 35px);
 
   /* ─── Grid: 4px base ─── */
   --s1: 4px;
@@ -71,8 +74,8 @@
   --rail: 232px;           /* desktop thumb-index rail */
   --tabbar: 60px;          /* mobile bottom tab bar */
   --sheet: 1180px;
-  --measure-read: 68ch;
-  --measure-item: 78ch;
+  --measure-read: 66ch;
+  --measure-item: 70ch;
 
   --r-box: 2px;            /* score boxes are square-ish, like printed boxes */
   --r-sm: 4px;

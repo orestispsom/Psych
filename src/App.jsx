@@ -3653,8 +3653,8 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   if (!selectedVignetteId) {
     return (
       <div className="structured-mcq">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
@@ -3748,8 +3748,8 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
     const row = result.rows[reviewIdx];
     return (
       <div className="structured-mcq">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={() => setReviewIdx(null)}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={() => setReviewIdx(null)}>
             <Icons.ChevronLeft /> Results
           </button>
         </div>
@@ -3813,8 +3813,8 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   if (!started) {
     return (
       <div className="structured-mcq">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
@@ -3836,8 +3836,8 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
 
   return (
     <div className="structured-mcq">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
         </button>
       </div>
@@ -3952,8 +3952,8 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   if (!availableSets.length) {
     return (
       <div className="structured-mcq">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
@@ -3992,8 +3992,8 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   if (showSetMenu) {
     return (
       <div className="structured-mcq">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
           <button className="nav-btn" type="button" onClick={() => startMatchingSet(pickRandomMatchingSet(mcqMatchingSets))}>
@@ -4029,8 +4029,8 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
 
   return (
     <div className="structured-mcq">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
@@ -5598,8 +5598,8 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
 
   return (
     <div className="crucial-index">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
       </div>
@@ -5664,8 +5664,8 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
 
   return (
     <div className="oral-viewer">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Ευρετήριο
         </button>
       </div>
@@ -5766,8 +5766,8 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
 
   return (
     <div className="oral-viewer">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
       </div>
@@ -5947,8 +5947,8 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
   if (phase === "result") {
     return (
       <div className="oral-simulator">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
           </button>
         </div>
@@ -6050,8 +6050,8 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
   if (phase === "start") {
     return (
       <div className="oral-simulator">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={onBack}>
             <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
           </button>
         </div>
@@ -6089,8 +6089,8 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
 
   return (
     <div className="oral-simulator">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Επιστροφή στα Προφορικά
         </button>
       </div>
@@ -6161,8 +6161,8 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
 function OralTable({ rows, onBack, onHome }) {
   return (
     <div className="ref-table">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
       </div>
@@ -6672,8 +6672,8 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
 
   return (
     <div className="sos-screen">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
       </div>
@@ -6745,8 +6745,8 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
     const isMastered = Boolean(mastered[selectedEntry.id]);
     return (
       <div className="sos-screen">
-        <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-          <button className="back-link" style={{marginBottom:0}} onClick={() => setSelectedIndex(null)}>
+        <div className="screen-topbar">
+          <button className="back-link" onClick={() => setSelectedIndex(null)}>
             <Icons.ChevronLeft /> {title}
           </button>
         </div>
@@ -6789,8 +6789,8 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
 
   return (
     <div className="sos-screen">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
       </div>
@@ -6860,8 +6860,8 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
 function StudyModuleLoading({ error, onRetry, onBack, onHome }) {
   return (
     <div className="mcq-select">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:32}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
       </div>
@@ -6890,8 +6890,8 @@ function QuestionBankLoading({ error, onRetry, onSwitchProfile }) {
 function PlaceholderPage({ title, description, icon, onBack, onHome }) {
   return (
     <div className="placeholder-page">
-      <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:24}}>
-        <button className="back-link" style={{marginBottom:0}} onClick={onBack}>
+      <div className="screen-topbar">
+        <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
         </button>
       </div>
