@@ -236,7 +236,7 @@
 }
 
 .topic-row, .subtopic-row,
-.pinakakia-row, .crucial-index-item, .sos-list-entry, .oral-question-row,
+.crucial-index-item, .sos-list-entry, .oral-question-row,
 .topic-performance-row, .written-history-row {
   display: grid;
   grid-template-columns: var(--gutter) minmax(0, 1fr) auto;
@@ -249,10 +249,26 @@
   transition: background 0.1s var(--ease);
 }
 .topic-row:hover, .subtopic-row:hover,
-.pinakakia-row:hover, .crucial-index-item:hover,
+.crucial-index-item:hover,
 .sos-list-entry:hover, .oral-question-row:hover {
   background: var(--raised);
 }
+
+/* No leading gutter number in the markup — one or two children (title,
+   optional trailing meta), never three — so its own two-column grid
+   instead of the number-gutter pattern above. */
+.pinakakia-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s3) var(--s2);
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  transition: background 0.1s var(--ease);
+}
+.pinakakia-row:hover { background: var(--raised); }
 
 /* Two buttons side by side — open the vignette, mark it complete — not a
    gutter/title/trailing row, so it gets its own flex layout. */
@@ -755,8 +771,8 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 /* ═══ RESPONSIVE ══════════════════════════════════════════════ */
 
 @media (max-width: 899px) {
-  .topic-row, .subtopic-row, .DSM5-chapter-row, .vignette-row,
-  .pinakakia-row, .crucial-index-item, .sos-list-entry,
+  .topic-row, .subtopic-row,
+  .crucial-index-item, .sos-list-entry,
   .oral-question-row, .written-history-row {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
