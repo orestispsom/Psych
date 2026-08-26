@@ -153,10 +153,12 @@
 .home-module-title {
   display: block;
   font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+  min-width: 0; overflow-wrap: anywhere;
 }
 .home-module-detail {
   display: block; margin-top: -4px;
   font-size: var(--t-micro); color: var(--ink-2);
+  min-width: 0; overflow-wrap: anywhere;
 }
 .home-module-chevron {
   position: absolute; top: var(--s4); right: var(--s4);
@@ -168,7 +170,7 @@
 .home-module-boxes { --module: var(--sec-boxes); --module-quiet: var(--sec-boxes-quiet); --module-rule: var(--rule-strong); }
 @media (max-width: 699px) {
   .home-modules { grid-template-columns: 1fr; max-width: none; }
-  .home-module { height: 116px; }
+  .home-module { height: auto; min-height: 116px; }
 }
 /* ≥900px: the grid fills whatever room the flexed section leaves, both
    axes — the cards are exactly as big as the fixed-height blocks allow. */
@@ -1024,11 +1026,19 @@
   font-size: var(--t-micro); color: var(--ink-3);
   margin-top: calc(-1 * var(--s2)); margin-bottom: var(--s3);
 }
-.oral-band-sub { margin-top: var(--s4); }
+.oral-band-topic + .oral-band-topic {
+  padding-top: var(--s6);
+  border-top: 2px solid var(--rule-strong);
+}
+.oral-band-sub { margin-top: var(--s5); }
+.oral-band-sub + .oral-band-sub {
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule-strong);
+}
 .oral-band-sub-title {
   display: flex; align-items: baseline; gap: var(--s2);
-  font-size: var(--t-meta); font-weight: 600; color: var(--ink-2);
-  padding-bottom: var(--s2);
+  font-size: var(--t-item); font-weight: 700; color: var(--ink);
+  padding-bottom: var(--s3);
 }
 .oral-band-sub-letter { font-family: var(--code); color: var(--ink-3); }
 /* Rows share the band page's full width so they line up with the topic
@@ -1354,7 +1364,28 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 @media (max-width: 899px) {
   /* Study chrome is compressed on a phone so the stem and options lead. */
   .screen-topbar { margin-bottom: var(--s3); }
-  .mcq-session-strip { gap: var(--s1) var(--s2); margin-bottom: var(--s3); }
+  .mcq-session-strip {
+    flex-wrap: nowrap; gap: 4px; margin-bottom: var(--s2);
+    min-width: 0;
+  }
+  .mcq-session-primary {
+    flex: 1 1 auto; flex-basis: auto; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: var(--t-meta);
+  }
+  .mcq-session-secondary,
+  .mcq-session-question { flex: none; white-space: nowrap; font-size: var(--t-micro); }
+  .mcq-session-strip > .question-status { display: none; }
+  .mcq-session-question::before { margin-right: 4px; }
+  .mcq-session-strip .mcq-feedback-controls {
+    flex: none; gap: 2px; margin-left: auto;
+  }
+  .mcq-session-strip .mcq-feedback-btn,
+  .mcq-session-strip .mcq-quality-btn {
+    min-height: 32px; height: 32px; padding: 0 6px;
+    font-size: var(--t-micro);
+  }
+  .mcq-session-strip .mcq-quality-btn { width: 32px; }
   .options-list, .DSM5-options, .structured-options { margin-top: var(--s3); }
   .mcq-feedback-btn, .mcq-quality-btn { padding: 0 var(--s3); }
 
