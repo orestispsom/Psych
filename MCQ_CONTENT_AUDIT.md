@@ -148,3 +148,23 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 601–700.
+
+## Batch 007 — IDs 601–700
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- ID 645: translated the hybrid post-trauma intervention wording and expanded `PTSD` in learner-facing text.
+- IDs 659, 660, 666, 669, 684, 686, and 688: translated residual English clinical and research terminology, including `placebo`, `mood-congruent`, diagnostic labels, and network terminology.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 645: the item correctly rejects mandatory single-session psychological debriefing, but it should cite a guideline or review because this is a safety-relevant intervention claim.
+- ID 688: the stated response rates and number needed to treat are historical aggregate estimates; they need an identified population, duration, and source before being presented as a stable general fact.
+
+### Next batch
+
+IDs 701–800.
