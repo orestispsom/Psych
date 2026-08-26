@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Icons } from "./Icons.jsx";
 
 /**
@@ -15,6 +16,8 @@ export const SECTIONS = [
   { id: "sos", path: "/sos", label: "SOS", full: "SOS Ψυχιατρικής", Icon: Icons.Bolt },
   { id: "pinakakia", path: "/tables", label: "Πινακάκια", full: "Πινακάκια", Icon: Icons.Table },
 ];
+
+const RAIL_COLLAPSED_KEY = "psych_rail_collapsed";
 
 function sectionFor(screen) {
   if (!screen) return null;
@@ -42,45 +45,87 @@ export default function AppShell({
 }) {
   const current = sectionFor(screen);
 
+  // Purely presentational, persisted layout preference — kept local to the
+  // shell rather than lifted to App state, same reasoning as the theme hook.
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return window.localStorage.getItem(RAIL_COLLAPSED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(RAIL_COLLAPSED_KEY, collapsed ? "1" : "0");
+    } catch {
+      /* layout preference just won't persist */
+    }
+  }, [collapsed]);
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell${collapsed ? " rail-collapsed" : ""}`}>
       <nav className="rail" aria-label="Κύρια πλοήγηση">
         <div className="rail-mast">
+          {!collapsed && (
+            <button
+              type="button"
+              className="rail-mast-title"
+              onClick={onHome}
+              style={{ textAlign: "left", padding: 0 }}
+            >
+              Εξετάσεις Ειδικότητας
+            </button>
+          )}
           <button
             type="button"
-            className="rail-mast-title"
-            onClick={onHome}
-            style={{ textAlign: "left", padding: 0 }}
+            className="rail-collapse-btn"
+            onClick={() => setCollapsed(value => !value)}
+            aria-label={collapsed ? "Ανάπτυξη πλαϊνής στήλης" : "Σύμπτυξη πλαϊνής στήλης"}
+            title={collapsed ? "Ανάπτυξη" : "Σύμπτυξη"}
           >
-            Εξετάσεις Ειδικότητας
+            <Icons.PanelLeft />
           </button>
-          <span className="rail-mast-sub">Ψυχιατρική</span>
+          {!collapsed && <span className="rail-mast-sub">Ψυχιατρική</span>}
         </div>
 
-        <button type="button" className="rail-search" onClick={onOpenSearch}>
+        <button
+          type="button"
+          className="rail-search"
+          onClick={onOpenSearch}
+          aria-label="Αναζήτηση υλικού"
+        >
           <Icons.Search />
-          <span>Αναζήτηση υλικού</span>
-          <span className="rail-search-key" aria-hidden="true">
-            Ctrl K
-          </span>
+          {!collapsed && (
+            <>
+              <span>Αναζήτηση υλικού</span>
+              <span className="rail-search-key" aria-hidden="true">
+                Ctrl K
+              </span>
+            </>
+          )}
         </button>
 
         <div className="rail-group">
-          <span className="rail-group-label" id="rail-sections">
-            Ενότητες
-          </span>
-          <ul aria-labelledby="rail-sections">
+          {!collapsed && (
+            <span className="rail-group-label" id="rail-sections">
+              Ενότητες
+            </span>
+          )}
+          <ul aria-labelledby={collapsed ? undefined : "rail-sections"}>
             {SECTIONS.map(section => (
               <li key={section.id}>
                 <button
                   type="button"
                   className="tab"
                   aria-current={current === section.id ? "page" : undefined}
+                  aria-label={collapsed ? section.full : undefined}
+                  title={collapsed ? section.full : undefined}
                   onClick={() => onNavigateSection(section)}
                 >
                   <section.Icon />
-                  <span>{section.full}</span>
-                  {counts[section.id] ? <span className="tab-count">{counts[section.id]}</span> : <span />}
+                  {!collapsed && <span>{section.full}</span>}
+                  {!collapsed && (counts[section.id] ? <span className="tab-count">{counts[section.id]}</span> : <span />)}
                 </button>
               </li>
             ))}
@@ -88,15 +133,29 @@ export default function AppShell({
         </div>
 
         <div className="rail-foot">
-          <div className="rail-profile">
-            <Icons.User />
-            <span className="rail-profile-name">{profileName}</span>
-            {isAdmin ? <span className="admin-badge">admin</span> : null}
-          </div>
-          <div style={{ display: "flex", gap: "var(--s1)", flexWrap: "wrap" }}>
-            <button type="button" className="btn btn-quiet btn-sm" onClick={onSwitchProfile}>
-              Αλλαγή προφίλ
+          {collapsed ? (
+            <button
+              type="button"
+              className="btn btn-quiet btn-sm btn-icon"
+              onClick={onSwitchProfile}
+              aria-label={`Αλλαγή προφίλ (${profileName})`}
+              title={profileName}
+            >
+              <Icons.User />
             </button>
+          ) : (
+            <div className="rail-profile">
+              <Icons.User />
+              <span className="rail-profile-name">{profileName}</span>
+              {isAdmin ? <span className="admin-badge">admin</span> : null}
+            </div>
+          )}
+          <div className="rail-foot-actions">
+            {!collapsed && (
+              <button type="button" className="btn btn-quiet btn-sm" onClick={onSwitchProfile}>
+                Αλλαγή προφίλ
+              </button>
+            )}
             <button
               type="button"
               className="btn btn-quiet btn-sm btn-icon"

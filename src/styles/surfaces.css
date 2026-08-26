@@ -83,20 +83,22 @@
 .resume-title { font-size: var(--t-item); font-weight: 600; }
 .resume-meta { font-size: var(--t-meta); color: var(--ink-2); }
 
-/* Today's figures — a printed scoring summary, not a metric hero */
+/* Today's figures — secondary context, not the reason the trainee opened
+   this screen. Hugs its own content instead of stretching to fill a wide
+   sheet, and reads well below the actionable list beneath it, not above. */
 .figures {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  display: flex; flex-wrap: wrap;
   border-top: 1px solid var(--rule);
 }
 .figure {
-  padding: var(--s4) var(--s4) var(--s4) 0;
-  display: grid; gap: var(--s1);
-  border-right: 1px solid var(--rule);
+  flex: 0 0 auto;
+  min-width: 84px;
+  padding: var(--s3) var(--s6) var(--s3) 0;
+  display: grid; gap: 2px;
 }
-.figure:last-child { border-right: none; }
 .figure-value {
-  font-family: var(--code); font-size: 30px; font-weight: 500;
-  line-height: 1.1; letter-spacing: -0.02em;
+  font-family: var(--code); font-size: 19px; font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums; color: var(--ink);
 }
 .figure-label {
@@ -215,18 +217,30 @@
 }
 .mode-btn.featured { box-shadow: inset 2px 0 0 var(--mark); }
 
-/* MCQ memory strip */
+/* MCQ memory strip — secondary context beside the actionable list below it,
+   so it hugs its own content rather than stretching across a wide sheet
+   with a big gap opening between each number. */
 .mcq-memory {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  display: flex; flex-wrap: wrap;
   border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
 }
-.mcq-memory-stat, .hud-stat, .written-result-stat, .results-detail {
+.mcq-memory-stat, .hud-stat {
+  flex: 0 0 auto; min-width: 84px;
+  padding: var(--s3) var(--s6) var(--s3) 0;
+  display: grid; gap: 2px;
+}
+.written-result-stat, .results-detail {
   padding: var(--s4) var(--s4) var(--s4) 0;
   display: grid; gap: var(--s1);
   border-right: 1px solid var(--rule);
 }
-.mcq-memory-stat:last-child, .hud-stat:last-child, .written-result-stat:last-child { border-right: none; }
-.mcq-memory-value, .hud-value, .results-score {
+.written-result-stat:last-child { border-right: none; }
+.mcq-memory-value, .hud-value {
+  font-family: var(--code); font-size: 19px; font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.results-score {
   font-family: var(--code); font-size: 28px; font-weight: 500;
   line-height: 1.1; letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -372,7 +386,9 @@
 
 /* ═══ MCQ TEST ════════════════════════════════════════════════ */
 
-.test-container { display: grid; gap: var(--s4); }
+/* A single question is a reading task, not a list: centered in the sheet
+   rather than left-hugging with a wide dead margin beside it. */
+.test-container { display: grid; gap: var(--s4); max-width: 760px; margin: 0 auto; }
 
 .test-header {
   display: grid;
@@ -819,10 +835,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 }
 
 @media (max-width: 599px) {
-  .figure, .mcq-memory-stat, .hud-stat, .written-result-stat {
+  .written-result-stat {
     border-right: none; border-bottom: 1px solid var(--rule);
   }
-  .figures, .mcq-memory, .written-result-grid, .DSM5-session-stats {
+  .written-result-grid, .DSM5-session-stats {
     grid-template-columns: repeat(2, 1fr);
   }
   .resume { grid-template-columns: minmax(0, 1fr); }

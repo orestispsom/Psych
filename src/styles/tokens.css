@@ -72,6 +72,7 @@
   /* ─── Geometry ─── */
   --gutter: 44px;          /* the instrument's numbered gutter */
   --rail: 232px;           /* desktop thumb-index rail */
+  --rail-collapsed: 68px;  /* icon-only rail */
   --tabbar: 60px;          /* mobile bottom tab bar */
   --sheet: 1180px;
   --measure-read: 66ch;
