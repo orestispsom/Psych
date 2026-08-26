@@ -123,43 +123,43 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --ground: #f2f1ec;
+  --ground: #f4f9ff;
   --field: #ffffff;
-  --raised: #e9e8e2;
-  --sunken: #e4e3dc;
+  --raised: #e9f3ff;
+  --sunken: #dcecff;
 
-  --rule: rgba(24, 26, 32, 0.14);
-  --rule-strong: rgba(24, 26, 32, 0.28);
+  --rule: rgba(31, 111, 156, 0.16);
+  --rule-strong: rgba(31, 111, 156, 0.30);
 
-  --ink: #181a20;
-  --ink-2: #4e535e;
-  --ink-3: #60646c; /* AA on ground, field, sunken and raised */
+  --ink: #16263d;
+  --ink-2: #4c6582;
+  --ink-3: #5d7695; /* AA on ground, field, sunken and raised */
 
-  --mark: #b33c22;
-  --mark-quiet: rgba(179, 60, 34, 0.1);
-  --mark-rule: rgba(179, 60, 34, 0.4);
+  --mark: #2377ac;
+  --mark-quiet: rgba(35, 119, 172, 0.10);
+  --mark-rule: rgba(35, 119, 172, 0.40);
 
-  --focus: #1f6f9c;
-  --focus-quiet: rgba(31, 111, 156, 0.1);
+  --focus: #217bb5;
+  --focus-quiet: rgba(33, 123, 181, 0.12);
 
-  --pass: #3f6b32;
-  --pass-quiet: rgba(63, 107, 50, 0.12);
-  --due: #885b12;   /* AA on every light ground */
-  --due-quiet: rgba(138, 93, 20, 0.12);
+  --pass: #317b9f;
+  --pass-quiet: rgba(49, 123, 159, 0.12);
+  --due: #4b78a8;   /* AA on every light ground */
+  --due-quiet: rgba(75, 120, 168, 0.12);
 
-  --grade-purple: #6f4fac;
-  --grade-pink: #a8447c;
+  --grade-purple: #3f6f9e;
+  --grade-pink: #2f87bd;
 
-  --sev-1: #b33c22;
-  --sev-2: #9a5715;
-  --sev-3: #7d6410;
-  --sev-4: #3f6b32;
-  --sev-5: #1f6f9c;
+  --sev-1: #2a75a9;
+  --sev-2: #367eae;
+  --sev-3: #4a88b8;
+  --sev-4: #659dca;
+  --sev-5: #7eb2d9;
 
-  --stock: #181a20;
-  --stock-ink: #f2f1ec;
-  --stock-hover: #000000;
+  --stock: #16263d;
+  --stock-ink: #f4f9ff;
+  --stock-hover: #0e1b2c;
 
-  --lift: 0 6px 16px -8px rgba(24, 26, 32, 0.28), 0 2px 4px -2px rgba(24, 26, 32, 0.16);
-  --lift-modal: 0 24px 56px -20px rgba(24, 26, 32, 0.34), 0 8px 16px -8px rgba(24, 26, 32, 0.2);
+  --lift: 0 6px 16px -8px rgba(31, 111, 156, 0.22), 0 2px 4px -2px rgba(31, 111, 156, 0.14);
+  --lift-modal: 0 24px 56px -20px rgba(31, 111, 156, 0.28), 0 8px 16px -8px rgba(31, 111, 156, 0.16);
 }

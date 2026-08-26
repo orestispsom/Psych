@@ -3191,26 +3191,24 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'sprint', title: 'Mini-test', tone: 'var(--pass)' },
-    { id: 'daily', title: 'Αδύναμα Θέματα', tone: 'var(--due)' },
-    { id: 'random', title: 'Τυχαία Θέματα', tone: 'var(--focus)' },
-    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία', tone: 'var(--grade-purple)' },
-    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής', tone: 'var(--mark)' },
-    { id: 'vignettes', title: 'Vignettes', tone: 'var(--sev-3)' },
-    { id: 'matching', title: 'Αντιστοίχηση', tone: 'var(--grade-pink)' },
-    { id: 'DSM5', title: 'DSM-5-TR', tone: 'var(--ink-3)' },
+    { id: 'sprint', title: 'Mini-test' },
+    { id: 'daily', title: 'Αδύναμα Θέματα' },
+    { id: 'random', title: 'Τυχαία Θέματα' },
+    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία' },
+    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής' },
+    { id: 'vignettes', title: 'Vignettes' },
+    { id: 'matching', title: 'Αντιστοίχηση' },
+    { id: 'DSM5', title: 'DSM-5-TR' },
   ];
 
   const renderModes = () => (
     <div className="mode-tile-grid">
-      {modes.map((mode, index) => (
+      {modes.map(mode => (
         <button
           key={mode.id}
           className="mode-tile"
-          style={{ '--mode-accent': mode.tone }}
           onClick={() => onStart(mode.id)}
         >
-          <span className="mode-tile-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
           <span className="mode-tile-title">{mode.title}</span>
         </button>
       ))}
