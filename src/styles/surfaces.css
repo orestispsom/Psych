@@ -424,7 +424,33 @@
 
 /* A single question is a reading task, not a list: centered in the sheet
    rather than left-hugging with a wide dead margin beside it. */
-.test-container { display: grid; gap: var(--s4); max-width: 760px; margin: 0 auto; }
+.test-container {
+  position: relative;
+  display: grid; gap: 10px; max-width: 760px; margin: 0 auto;
+}
+
+/* Floats above the question in the sheet's own top padding instead of
+   claiming a row of its own — the goal is fitting stem, options and the
+   explanation on one screen with no scroll. */
+.mcq-back-float {
+  position: absolute;
+  /* Fits inside the sheet's own 32px top padding (--s8) rather than
+     claiming a row of its own: 4px clearance above and below at every
+     desktop width, never clipped by the viewport, never overlapping the
+     stats strip that follows. */
+  top: -30px; left: -2px;
+  display: inline-flex; align-items: center; gap: 3px;
+  height: 26px; padding: 0 6px;
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  font-size: 12px; font-weight: 600;
+}
+.mcq-back-float:hover { color: var(--ink); background: var(--raised); }
+.mcq-back-float .icon { width: 13px; height: 13px; }
+@media (max-width: 899px) {
+  .mcq-back-float { position: static; margin-bottom: var(--s2); height: 44px; font-size: var(--t-meta); }
+  .mcq-back-float .icon { width: 15px; height: 15px; }
+}
 
 .test-header {
   display: grid;
@@ -523,12 +549,26 @@
 .options-list > button.correct .answer-glyph { color: var(--pass); }
 .options-list > button.incorrect .answer-glyph { color: var(--mark); }
 
-/* The verdict is stated in words, not left to the glyph alone. */
-.answer-verdict {
-  margin-top: var(--s3);
-  font-size: var(--t-meta); font-weight: 600;
-  color: var(--ink-2);
+/* Denser than the app's general reading scale: the goal on this screen is
+   stem + all five options + the explanation fitting one viewport. */
+.test-container .question-stem { font-size: 17px; line-height: 1.45; }
+.test-container .options-list {
+  gap: 5px; margin-top: var(--s2);
 }
+.test-container .options-list > button {
+  padding: 9px var(--s3);
+  min-height: 44px;
+  font-size: var(--t-body); line-height: 1.3;
+}
+.test-container .explanation-box {
+  /* Wider than the 66ch reading cap: more width trades for fewer lines,
+     which is the point here. */
+  max-width: none;
+  margin-top: var(--s2);
+  padding: var(--s1) 0 var(--s1) var(--s3);
+  font-size: var(--t-body); line-height: 1.48;
+}
+.test-container .point-breakdown { margin-top: 6px; }
 
 /* Explanation */
 .explanation-box, .DSM5-explanation, .answer-box, .oral-model-answer,
@@ -809,7 +849,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .mcq-session-strip {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: var(--s1) var(--s3);
-  margin-bottom: var(--s4);
 }
 .mcq-session-primary {
   flex-basis: 100%;

@@ -1480,7 +1480,7 @@ function isQuestionMastered(record = {}) {
 }
 
 function getQuestionStatus(record) {
-  if (isQuestionMastered(record)) return "Κατακτημένη";
+  if (isQuestionMastered(record)) return "Mastered";
   if (getAttemptsCount(record) > 0) return "Επανάληψη";
   if (hasSeenQuestion(record)) return "Προβλήθηκε";
   return "Νέα";
@@ -2317,7 +2317,7 @@ function getDailyReason(progress, questionId, dateKey = getLocalDateKey()) {
 function getDailyReasonLabel(reason) {
   const labels = {
     repeated_wrong: "Επανειλημμένα λάθος",
-    mastered_due: "Επανάληψη κατακτημένης",
+    mastered_due: "Mastered · επανάληψη",
     normal_due: "Ώρα για επανάληψη",
     unseen_or_random: "Νέα ερώτηση",
     fallback_random: "Μεικτή επανάληψη",
@@ -2825,7 +2825,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                       {isAdminProfile(profile) && <span className="admin-badge">admin</span>}
                     </span>
                     <span className="item-meta">
-                      <span>{plural(summary.mastered, "κατακτημένη", "κατακτημένες")}</span>
+                      <span>{summary.mastered} mastered</span>
                       <span>{summary.review} για επανάληψη</span>
                       <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
                     </span>
@@ -2926,14 +2926,14 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
-      detail: `${plural(mcqProgressSummary.total, "ερώτηση", "ερωτήσεις")} · ${plural(mcqProgressSummary.mastered, "κατακτημένη", "κατακτημένες")}`,
+      detail: `${plural(mcqProgressSummary.total, "ερώτηση", "ερωτήσεις")} · ${mcqProgressSummary.mastered} mastered`,
       level: mcqLevel,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
-      detail: `${plural(oralProgressSummary.total, "θέμα", "θέματα")} · ${plural(oralProgressSummary.mastered, "κατακτημένο", "κατακτημένα")}`,
+      detail: `${plural(oralProgressSummary.total, "θέμα", "θέματα")} · ${oralProgressSummary.mastered} mastered`,
       level: oralLevel,
     },
     {
@@ -3017,7 +3017,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         </div>
         <div className="figure figure-pass">
           <span className="figure-value">{mcqProgressSummary.mastered}</span>
-          <span className="figure-label">Κατακτημένες</span>
+          <span className="figure-label">Mastered</span>
         </div>
         <div className="figure">
           <span className="figure-value">{mcqProgressSummary.unseen}</span>
@@ -3134,7 +3134,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
       <div className="mcq-memory">
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value" style={{ color: 'var(--pass)' }}>{progressSummary.mastered}</span>
-          <span className="mcq-memory-label">Κατακτημένες</span>
+          <span className="mcq-memory-label">Mastered</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value" style={{ color: 'var(--due)' }}>{progressSummary.review}</span>
@@ -3205,7 +3205,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             <span />
           </div>
           <p className="anchor">
-            Σβήνει τις κατακτημένες ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα
+            Σβήνει τις mastered ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα
             επανάληψης για αυτό το προφίλ. Το υλικό μελέτης δεν επηρεάζεται.
           </p>
           <button type="button" className="btn btn-mark btn-sm" onClick={onResetProgress}>
@@ -3267,7 +3267,7 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
                 <span className="item-title">{topic}</span>
                 <span className="item-meta">
                   <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
-                  <span>{plural(mastery.mastered, "κατακτημένη", "κατακτημένες")}</span>
+                  <span>{mastery.mastered} mastered</span>
                 </span>
               </span>
               <span className="item-side">
@@ -3555,7 +3555,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
           <Icons.ChevronLeft />
         </button>
         <button className="nav-btn primary" disabled={selected === undefined || isLocked} onClick={lockAnswer}>
-          <Icons.Lock /> Καταχώριση
+          <Icons.Lock /> Καταχώρηση
         </button>
         <button className="nav-btn" aria-label="Επόμενη ερώτηση" disabled={currentIdx >= questions.length - 1} onClick={() => setCurrentIdx(index => Math.min(questions.length - 1, index + 1))}>
           <Icons.ChevronRight />
@@ -3926,7 +3926,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
             )}
             {!isLocked && (
               <button className="nav-btn primary" onClick={lockCurrentQuestion} disabled={selected.length === 0}>
-                <Icons.Lock /> Καταχώριση
+                <Icons.Lock /> Καταχώρηση
               </button>
             )}
             {currentIdx === vignette.questions.length - 1 && hasDeferredAnswers && (
@@ -4108,7 +4108,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
           <div className="structured-actions-group">
             {!isLocked && (
               <button className="nav-btn primary" onClick={() => setLocked(prev => ({ ...prev, [item.id]: true }))} disabled={selected.length === 0}>
-                <Icons.Lock /> Καταχώριση
+                <Icons.Lock /> Καταχώρηση
               </button>
             )}
             <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(matchingSet.items.length - 1, index + 1))} disabled={currentIdx >= matchingSet.items.length - 1}>
@@ -4709,11 +4709,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
     return (
       <div className="test-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
-          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-        </div>
+        <button className="mcq-back-float" onClick={onBack}>
+          <Icons.ChevronLeft /> Μενού MCQ
+        </button>
 
         <div className="oral-choice">
           <h2>Προσομοίωση με 100 Πολλαπλής</h2>
@@ -5004,11 +5002,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   if (!q) {
     return (
       <div className="test-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
-          <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> Μενού MCQ
-          </button>
-        </div>
+        <button className="mcq-back-float" onClick={onBack}>
+          <Icons.ChevronLeft /> Μενού MCQ
+        </button>
         <div className="explanation-box">
           <strong>Δεν υπάρχουν ακόμη ερωτήσεις σε αυτή τη λειτουργία</strong>
           Δεν υπάρχουν αρκετές διαθέσιμες ερωτήσεις για αυτή τη λειτουργία σε αυτό το προφίλ.
@@ -5019,11 +5015,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   return (
     <div className="test-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
-        <button className="back-link" style={{ marginBottom: 0 }} onClick={onBack}>
-            <Icons.ChevronLeft /> Μενού MCQ
-        </button>
-      </div>
+      <button className="mcq-back-float" onClick={onBack}>
+        <Icons.ChevronLeft /> Μενού MCQ
+      </button>
 
       {mode === "written" ? (
         <div className="game-hud">
@@ -5048,7 +5042,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       {mode === "written" && <div className="test-header">
         <span className="progress-text">
-          {mode === "written" ? `Απαντημένες ${writtenAnsweredCount}/${totalQ}` : `Κατακτημένες ${progressStats.mastered}/${progressStats.total}`}
+          {mode === "written" ? `Απαντημένες ${writtenAnsweredCount}/${totalQ}` : `Mastered ${progressStats.mastered}/${progressStats.total}`}
         </span>
         <div className="progress-bar">
           <div
@@ -5068,7 +5062,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
         {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
         {mode !== "written" && <span className="mcq-session-secondary">{plural(sessionStats.correct, "σωστή", "σωστές")} · {plural(sessionStats.incorrect, "λάθος", "λάθη")}</span>}
-        {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} κατακτημένες</span>}
+        {mode !== "written" && <span className="mcq-session-secondary">{progressStats.mastered}/{progressStats.total} mastered</span>}
         {mode !== "written" && <div className="progress-bar"><div className="progress-fill" style={{width: `${(progressStats.mastered / progressStats.total) * 100}%`}} /></div>}
         <span className="mcq-session-question">Ερ. {q.id}</span>
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
@@ -5219,7 +5213,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       </div>
 
       {isLocked && (
-        <p className="answer-verdict" role="status">
+        <p className="answer-verdict sr-only" role="status">
           {selected === q.correct
             ? "Σωστή απάντηση."
             : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
@@ -5259,7 +5253,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </button>
           {!isLocked && (
             <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-              <Icons.Lock /> Καταχώριση
+              <Icons.Lock /> Καταχώρηση
             </button>
           )}
           <button className="nav-btn primary" type="button" onClick={startNewSprint}>Νέο mini-test</button>
@@ -5271,7 +5265,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </button>
           {!isLocked && (
             <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-              <Icons.Lock /> Καταχώριση
+              <Icons.Lock /> Καταχώρηση
             </button>
           )}
           <button
@@ -5383,7 +5377,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
             <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(questions, title, index)}>
               <span className="oral-question-number">{question.id}</span>
               <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span>{context && <span className="oral-question-context">{context}</span>}</span>
-              <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Κατακτημένη" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
+              <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
             </button>
           </li>
         );
@@ -5463,7 +5457,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                   <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(allEntries.map(item => item.question), "Όλες οι προηγούμενες ερωτήσεις", allEntries.indexOf(entry))}>
                     <span className="oral-question-number">{String(index + 1).padStart(3, "0")}</span>
                     <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span><span className="oral-question-context">{gravity.label} · {topic.title}{subtopic ? ` · ${subtopic.title}` : ""}</span></span>
-                    <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Κατακτημένη" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
+                    <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
                   </button>
                 </li>
               );
@@ -5640,7 +5634,7 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
 
       <header className="crucial-index-header">
         <h2>100 Καίριες Ερωτήσεις</h2>
-        <p>Επίλεξε μια ερώτηση για να ανοίξεις αυτούσια την πλήρη καταχώριση του βιβλίου.</p>
+        <p>Επίλεξε μια ερώτηση για να ανοίξεις αυτούσια την πλήρη καταχώρηση του βιβλίου.</p>
       </header>
 
       <div className="crucial-search">
@@ -5829,7 +5823,7 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
         onClick={() => onQuestionMastered(q.id, !isMastered)}
       >
         <Icons.Check />
-        {isMastered ? "Κατακτήθηκε" : "Σήμανση ως κατακτημένη"}
+        {isMastered ? "Mastered" : "Σήμανση ως mastered"}
       </button>
 
       {!showAnswer ? (
@@ -6067,7 +6061,7 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
             >
               {recorded
                 ? "Καταχωρίστηκαν"
-                : `Καταχώριση ${plural(tally.ready, "ερώτησης", "ερωτήσεων")} ως κατακτημένων`}
+                : `Καταχώρηση ${plural(tally.ready, "ερώτησης", "ερωτήσεων")} ως mastered`}
             </button>
           )}
           <button className="results-btn" onClick={startExam}>
@@ -6649,7 +6643,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
             >
               <span className="item-body">
                 <span className="item-title" style={{ fontWeight: 600 }}>{section.title}</span>
-                <span className="item-meta"><span>{total} καταχωρίσεις</span></span>
+                <span className="item-meta"><span>{total} καταχωρήσεις</span></span>
               </span>
               <span className="item-side">
                 <ScaleStrip level={level} label={`Πρόοδος: ${section.title}`} />
@@ -6713,16 +6707,16 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         <div className="sos-focus-toggles">
           <label className="sos-check-control">
             <input type="checkbox" checked={showMastered} onChange={event => { setShowMastered(event.target.checked); setCurrentIndex(0); setShowAnswer(false); }} />
-            Εμφάνιση κατακτημένων
+            Εμφάνιση mastered
           </label>
-          <span className="oral-progress-pill">{summary.mastered}/{summary.total} κατακτημένα</span>
+          <span className="oral-progress-pill">{summary.mastered}/{summary.total} mastered</span>
         </div>
         <button className="sos-shuffle-btn" type="button" onClick={reshuffle}>Ανακάτεμα</button>
       </div>
       {!entry ? (
         <div className="sos-focus-empty">
           <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
-          <span>Ενεργοποίησε την εμφάνιση κατακτημένων για επανάληψη.</span>
+          <span>Ενεργοποίησε την εμφάνιση mastered για επανάληψη.</span>
         </div>
       ) : <>
       <div className="sos-focus-meta">
@@ -6739,7 +6733,7 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         )}
         <label className={`sos-check-control ${mastered[entry.id] ? "mastered" : ""}`}>
           <input type="checkbox" checked={Boolean(mastered[entry.id])} onChange={event => toggleCurrentMastery(event.target.checked)} />
-          Κατακτημένο
+          Mastered
         </label>
       </section>
       <div className="sos-focus-nav">
@@ -6751,7 +6745,7 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
   );
 }
 
-function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώριση", "καταχωρίσεις"], countNoun = ["καταχώριση", "καταχωρίσεις"] }) {
+function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώρηση", "καταχωρήσεις"], countNoun = ["καταχώρηση", "καταχωρήσεις"] }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [query, setQuery] = useState("");
   const normalizedProgress = normalizeSosProgress(sosProgress);
@@ -6784,7 +6778,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         <div className="oral-viewer-meta">
           <div className="oral-q-counter">{selectedIndex + 1} / {entries.length}</div>
           <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
-            {summary.mastered}/{summary.total} κατακτημένα
+            {summary.mastered}/{summary.total} mastered
           </span>
         </div>
         <h2>{selectedEntry.title}</h2>
@@ -6802,7 +6796,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
           >
             <Icons.Check />
-            {isMastered ? "Κατακτημένο" : "Σημείωσέ το ως κατακτημένο"}
+            {isMastered ? "Mastered" : "Σημείωσέ το ως mastered"}
           </button>
         </div>
         <div className="sos-detail-answer">{renderAnswer ? renderAnswer(selectedEntry) : selectedEntry.answer}</div>
@@ -6828,7 +6822,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
       <div className="oral-viewer-meta">
         <h2>{title}</h2>
         <span className="oral-progress-pill">
-          {summary.mastered}/{summary.total} κατακτημένα
+          {summary.mastered}/{summary.total} mastered
         </span>
       </div>
 
@@ -6852,7 +6846,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
       {visibleEntries.length === 0 ? (
         <div className="state">
           <span className="state-title">Καμία αντιστοίχιση</span>
-          <span className="state-body">Δεν βρέθηκε καταχώριση για «{query}».</span>
+          <span className="state-body">Δεν βρέθηκε καταχώρηση για «{query}».</span>
           <button type="button" className="btn btn-quiet btn-sm" onClick={() => setQuery("")}>
             Καθαρισμός αναζήτησης
           </button>
@@ -7630,7 +7624,7 @@ export default function App() {
       typeof window !== "undefined" &&
       !window.confirm(
         "Μηδενισμός της προόδου στις ερωτήσεις πολλαπλής επιλογής για αυτό το προφίλ;\n\n" +
-          "Χάνονται οι κατακτημένες ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα επανάληψης. Δεν αναιρείται."
+          "Χάνονται οι mastered ερωτήσεις, το ιστορικό απαντήσεων και τα διαστήματα επανάληψης. Δεν αναιρείται."
       )
     ) {
       return;
