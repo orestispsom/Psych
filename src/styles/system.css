@@ -97,7 +97,7 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 .rail {
   position: sticky; top: 0; align-self: start;
   height: 100vh;
-  border-right: 1px solid var(--rule);
+  border-right: 1px solid var(--rule-strong);
   background: var(--sunken);
   display: flex; flex-direction: column;
   padding: var(--s5) 0 var(--s4);

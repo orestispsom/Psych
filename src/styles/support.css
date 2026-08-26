@@ -8,10 +8,13 @@
   right: var(--s4);
   bottom: var(--s4);
   z-index: 120;
-  width: 252px;
+  width: 268px;
   max-width: calc(100vw - 2 * var(--s4));
   background: #fffaf6;
   color: #2a1a12;
+  /* The light theme's ground is also warm paper, so the card needs an edge
+     of its own — background alone gives it 1.09:1 there. */
+  border: 1px solid #e6d3c2;
   border-radius: 16px;
   box-shadow: 0 16px 32px -10px rgba(30, 15, 5, 0.32), 0 4px 10px -4px rgba(30, 15, 5, 0.22);
   padding: 14px 14px 12px;
@@ -34,8 +37,8 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -67,21 +70,24 @@
 .support-widget-text {
   display: grid;
   gap: 2px;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.45;
 }
-.support-widget-text strong { font-size: 14px; color: #2a1a12; }
-.support-widget-text span { color: #8a7a6e; }
+.support-widget-text strong { font-size: 15px; color: #2a1a12; }
+.support-widget-text span { color: #7d6d61; }
 
 .support-widget-cta {
-  display: block;
   text-align: center;
+  /* The brand orange, kept exactly — but with ink rather than white on it:
+     white lands at 2.48:1, the dark brown at 6.74:1. */
   background: #ff813f;
-  color: #fff;
+  color: #2a1a12;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 999px;
-  padding: 10px 12px;
+  min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 14px;
   text-decoration: none;
   transition: background 0.12s ease;
 }
