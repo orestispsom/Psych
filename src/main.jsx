@@ -6,6 +6,7 @@ import App from './App'
 import './styles/tokens.css'
 import './styles/system.css'
 import './styles/surfaces.css'
+import './styles/support.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

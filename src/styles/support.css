@@ -1,0 +1,102 @@
+/* ═══════════════════════════════════════════════════════════════
+   SUPPORT WIDGET — a personal ask, deliberately outside the
+   instrument-sheet system. Warm, small, easy to dismiss.
+   ═══════════════════════════════════════════════════════════════ */
+
+.support-widget {
+  position: fixed;
+  right: var(--s4);
+  bottom: var(--s4);
+  z-index: 120;
+  width: 252px;
+  max-width: calc(100vw - 2 * var(--s4));
+  background: #fffaf6;
+  color: #2a1a12;
+  border-radius: 16px;
+  box-shadow: 0 16px 32px -10px rgba(30, 15, 5, 0.32), 0 4px 10px -4px rgba(30, 15, 5, 0.22);
+  padding: 14px 14px 12px;
+  display: grid;
+  gap: 10px;
+  font-family: var(--ui);
+  animation: support-pop 220ms cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+@keyframes support-pop {
+  from { transform: translateY(10px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-widget { animation: none; }
+}
+
+.support-widget-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #a8968a;
+  background: transparent;
+}
+.support-widget-close:hover { background: rgba(42, 26, 18, 0.08); color: #2a1a12; }
+.support-widget-close svg { width: 14px; height: 14px; }
+
+.support-widget-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-right: 18px;
+}
+
+.support-widget-cup {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ffead9;
+  color: #ff813f;
+  display: grid;
+  place-items: center;
+}
+.support-widget-cup svg { width: 19px; height: 19px; }
+
+.support-widget-text {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.support-widget-text strong { font-size: 14px; color: #2a1a12; }
+.support-widget-text span { color: #8a7a6e; }
+
+.support-widget-cta {
+  display: block;
+  text-align: center;
+  background: #ff813f;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 999px;
+  padding: 10px 12px;
+  text-decoration: none;
+  transition: background 0.12s ease;
+}
+.support-widget-cta:hover { background: #ff9a5f; }
+.support-widget-cta:focus-visible {
+  outline: 3px solid #ff813f;
+  outline-offset: 2px;
+}
+
+/* Clear the mobile tab bar (and any study-screen action bar above it). */
+@media (max-width: 899px) {
+  .support-widget {
+    left: var(--s3);
+    right: var(--s3);
+    bottom: calc(var(--tabbar) + 88px);
+    width: auto;
+  }
+}

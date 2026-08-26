@@ -6,6 +6,7 @@ import AppShell from "./components/AppShell.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
+import SupportWidget from "./components/SupportWidget.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
@@ -7928,6 +7929,7 @@ export default function App() {
         onNavigate={handlePaletteNavigate}
       />
       <ShortcutSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <SupportWidget />
     </div>
   );
 }
