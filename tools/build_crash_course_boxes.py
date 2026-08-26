@@ -1,4 +1,16 @@
-export const crashCourseBoxes = [
+# -*- coding: utf-8 -*-
+"""
+Builder for Crash Course Psychiatry 5th Edition Reference Boxes & Tables
+Translated into clinical Greek adhering strictly to English ↔ Greek Psychiatry Translation Guide v4.
+"""
+import json
+import sys
+
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+crash_boxes = [
+  # ── CHAPTER 1: Ψυχιατρική Εκτίμηση & Διάγνωση ──
   {
     "id": "crash-1.1",
     "source": "Crash Course",
@@ -80,6 +92,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 2: Ψυχοφαρμακολογία & Ηλεκτροσπασμοθεραπεία ──
   {
     "id": "crash-2.1",
     "source": "Crash Course",
@@ -412,6 +426,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 3: Ψυχολογικές Θεραπείες ──
   {
     "id": "crash-3.1",
     "source": "Crash Course",
@@ -517,6 +533,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 6: Αυτοκτονικότητα & Αυτοτραυματισμός ──
   {
     "id": "crash-6.1",
     "source": "Crash Course",
@@ -539,6 +557,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 7: Γνωστικές Διαταραχές, Ντελίριο & Άνοια ──
   {
     "id": "crash-7.1",
     "source": "Crash Course",
@@ -647,6 +667,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 8: Αλκοόλ & Ουσίες ──
   {
     "id": "crash-8.1",
     "source": "Crash Course",
@@ -732,6 +754,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 9: Ψυχωσικές Διαταραχές & Σχιζοφρένεια ──
   {
     "id": "crash-9.1",
     "source": "Crash Course",
@@ -778,6 +802,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 10 & 11: Διαταραχές Διάθεσης ──
   {
     "id": "crash-10.1",
     "source": "Crash Course",
@@ -841,6 +867,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 12 & 13: Αγχώδεις Διαταραχές & ΙΨΔ ──
   {
     "id": "crash-12.1",
     "source": "Crash Course",
@@ -909,6 +937,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 14: Στρες, Τραύμα & Λειτουργικά Συμπτώματα ──
   {
     "id": "crash-14.1",
     "source": "Crash Course",
@@ -960,6 +990,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 16: Διαταραχές Πρόσληψης Τροφής ──
   {
     "id": "crash-16.1",
     "source": "Crash Course",
@@ -994,6 +1026,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 20: Φαρμακοθεραπεία Οπιοειδών ──
   {
     "id": "crash-20.1",
     "source": "Crash Course",
@@ -1022,6 +1056,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 22: Επιλογή Αντικαταθλιπτικού & Ανθεκτικότητα ──
   {
     "id": "crash-22.1",
     "source": "Crash Course",
@@ -1065,6 +1101,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 24: Σύνδρομο Επανασίτισης ──
   {
     "id": "crash-24.1",
     "source": "Crash Course",
@@ -1085,6 +1123,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 25: Ύπνος & Υγιεινή Ύπνου ──
   {
     "id": "crash-25.1",
     "source": "Crash Course",
@@ -1108,6 +1148,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 27: Περιγεννητική Ψυχιατρική ──
   {
     "id": "crash-27.1",
     "source": "Crash Course",
@@ -1165,6 +1207,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 30: Παιδοψυχιατρική & Προσκόλληση ──
   {
     "id": "crash-30.1",
     "source": "Crash Course",
@@ -1185,6 +1229,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 31: Ψυχογηριατρική & Φαρμακοκινητική ──
   {
     "id": "crash-31.1",
     "source": "Crash Course",
@@ -1215,6 +1261,8 @@ export const crashCourseBoxes = [
       }
     ]
   },
+
+  # ── CHAPTER 32: Δικαστική Ψυχιατρική ──
   {
     "id": "crash-32.1",
     "source": "Crash Course",
@@ -1247,4 +1295,16 @@ export const crashCourseBoxes = [
       }
     ]
   }
-];
+]
+
+print(f"Total structured Crash Course boxes: {len(crash_boxes)}")
+
+# Order by chapter and box number
+crash_boxes_sorted = sorted(crash_boxes, key=lambda x: (x["chapter"], float(x["boxNumber"])))
+
+file_content = f"export const crashCourseBoxes = {json.dumps(crash_boxes_sorted, ensure_ascii=False, indent=2)};\n"
+
+with open("src/data/crashCourseBoxes.js", "w", encoding="utf-8") as f:
+    f.write(file_content)
+
+print("Successfully wrote src/data/crashCourseBoxes.js!")

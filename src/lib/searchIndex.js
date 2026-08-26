@@ -156,6 +156,21 @@ async function build() {
     );
   }
 
+  const crash = await safeImport(() => import("../data/crashCourseBoxes.js"));
+  for (const box of crash?.crashCourseBoxes || []) {
+    items.push(
+      entry(
+        "tables",
+        box?.source || "Crash Course",
+        box?.title,
+        [box?.boxNumber ? `Box ${box.boxNumber}` : "", box?.page ? `σ. ${box.page}` : ""]
+          .filter(Boolean)
+          .join(" · "),
+        "/tables/crash/list"
+      )
+    );
+  }
+
   for (const item of items) {
     item.haystack = normalizeGreekSearch(`${item.title} ${item.meta} ${item.body}`);
   }
