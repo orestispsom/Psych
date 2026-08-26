@@ -125,3 +125,26 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 501–600.
+
+## Batch 006 — IDs 501–600
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- ID 501: repaired multiple grammatical errors in the first-episode psychosis vignette.
+- IDs 502 and 505: replaced residual hybrid `lapse` and `depot` wording.
+- ID 525: replaced the calqued `εκδραμάτιση ονείρων` with natural clinical Greek.
+- ID 569: removed an internal all-caps drafting note and clarified the distinction between sickness behaviour and illness behaviour in learner-facing Greek.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- IDs 531–533: the stated clozapine ANC thresholds and monitoring intervals are jurisdiction- and protocol-dependent. The items need their named European source or a narrower jurisdictional scope before being treated as universal rules.
+- ID 527: the phrase `καταστολή του ανοσοποιητικού` is too simple for the mixed inflammatory and immunoregulatory effects of chronic stress; the single-best-answer framing needs a cited teaching source.
+- IDs 577 and 581: the mortality and completed-suicide percentages need a dated source and defined denominator/cohort; retain pending source-level review.
+
+### Next batch
+
+IDs 601–700.
