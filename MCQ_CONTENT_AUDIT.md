@@ -50,3 +50,26 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 201–300.
+
+## Batch 003 — IDs 201–300
+
+Status: reviewed on 2026-08-26.
+
+### Applied high-confidence corrections
+
+- IDs 212, 239, 243, 248, 251, and 253: removed hybrid English or malformed clinical phrasing while retaining the same clinical claims.
+- ID 258: rewrote a malformed epidemiology stem into a grammatically complete question without changing its data or key.
+- IDs 283, 288, and 291: corrected `ντελίριο` grammar and terminology consistency.
+- ID 296: replaced the calqued `εκδραμάτιση έντονων ονείρων` with natural clinical Greek.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 230: the explanation calls the stated postural blood-pressure change concerning, but the figures do not meet commonly used orthostatic-change thresholds. The selected functional weakness may remain the best available answer, but the vignette needs a clinician to decide whether to revise or remove the competing blood-pressure distractor. Sources: <https://pmc.ncbi.nlm.nih.gov/articles/PMC10266399/> and <https://pmc.ncbi.nlm.nih.gov/articles/PMC10864000/>.
+- ID 262: the keyed pramipexole answer is now outdated as a routine first-line choice. The current AASM guideline conditionally recommends against standard pramipexole use because of long-term augmentation risk; none of the preferred alternatives is offered. Source: <https://pmc.ncbi.nlm.nih.gov/articles/PMC11701286/>.
+- ID 284: the stem supplies insufficient depressive-syndrome evidence to make `καταθλιπτικό επεισόδιο` uniquely preferable to anxiety; it needs reauthoring or a source-backed rationale.
+
+### Next batch
+
+IDs 301–400.
