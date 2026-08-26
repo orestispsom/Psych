@@ -1,0 +1,47 @@
+- generic [ref=f2e3]:
+  - link "Μετάβαση στο κύριο περιεχόμενο" [ref=f2e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f2e12]:
+    - navigation "Κύρια πλοήγηση" [ref=f2e13]:
+      - generic [ref=f2e14]:
+        - button "Εξετάσεις Ειδικότητας" [ref=f2e15] [cursor=pointer]
+        - generic [ref=f2e16]: Ψυχιατρική
+      - button "Αναζήτηση υλικού" [ref=f2e17] [cursor=pointer]:
+        - generic [ref=f2e22]: Ctrl K
+      - generic [ref=f2e23]:
+        - generic [ref=f2e24]: Ενότητες
+        - list "Ενότητες" [ref=f2e25]:
+          - listitem [ref=f2e26]:
+            - button "Πολλαπλής Επιλογής" [ref=f2e27] [cursor=pointer]
+          - listitem [ref=f2e33]:
+            - button "Προφορικά" [ref=f2e34] [cursor=pointer]
+          - listitem [ref=f2e39]:
+            - button "SOS Ψυχιατρικής" [ref=f2e40] [cursor=pointer]
+          - listitem [ref=f2e44]:
+            - button "Πινακάκια" [ref=f2e45] [cursor=pointer]
+      - generic [ref=f2e49]:
+        - generic [ref=f2e50]: Ορέστης
+        - generic [ref=f2e55]:
+          - button "Αλλαγή προφίλ" [ref=f2e56] [cursor=pointer]
+          - button "Εναλλαγή σε φωτεινό θέμα" [ref=f2e57] [cursor=pointer]
+          - button "Συντομεύσεις πληκτρολογίου" [ref=f2e61] [cursor=pointer]
+    - main [active] [ref=f2e66]:
+      - heading "Προηγούμενα Θέματα" [level=1] [ref=f2e67]
+      - generic [ref=f2e1265]:
+        - button "Πίσω" [ref=f2e1267] [cursor=pointer]
+        - generic [ref=f2e1270]:
+          - generic [ref=f2e1271]:
+            - generic [ref=f2e1272]: Όλες οι προηγούμενες ερωτήσεις
+            - generic [ref=f2e1273]: Ερώτηση 1 / 129
+          - generic [ref=f2e1274]:
+            - 'img "Πρόοδος ενότητας: 0 από 5 — Καθόλου" [ref=f2e1275]'
+            - generic [ref=f2e1281]: 0/129
+        - generic [ref=f2e1282]: Ποια είναι η διαστασιακή ταξινόμηση των συμπτωμάτων της σχιζοφρένειας;
+        - button "Σήμανση ως κατακτημένη" [ref=f2e1283] [cursor=pointer]
+        - button "Εμφάνιση απάντησης Πρώτα δοκίμασε να απαντήσεις προφορικά." [ref=f2e1286] [cursor=pointer]:
+          - generic [ref=f2e1287]:
+            - generic [ref=f2e1291]: Εμφάνιση απάντησης
+            - generic [ref=f2e1292]: Πρώτα δοκίμασε να απαντήσεις προφορικά.
+        - generic [ref=f2e1294]:
+          - button "Προηγούμενη" [disabled] [ref=f2e1295] [cursor=pointer]
+          - button "Επόμενη" [ref=f2e1298] [cursor=pointer]

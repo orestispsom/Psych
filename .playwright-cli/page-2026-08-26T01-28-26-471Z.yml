@@ -1,0 +1,54 @@
+- generic [ref=f7e3]:
+  - link "Μετάβαση στο κύριο περιεχόμενο" [ref=f7e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f7e12]:
+    - navigation "Κύρια πλοήγηση" [ref=f7e13]:
+      - generic [ref=f7e14]:
+        - button "Εξετάσεις Ειδικότητας" [ref=f7e15] [cursor=pointer]
+        - generic [ref=f7e16]: Ψυχιατρική
+      - button "Αναζήτηση υλικού" [ref=f7e17] [cursor=pointer]:
+        - generic [ref=f7e22]: Ctrl K
+      - generic [ref=f7e23]:
+        - generic [ref=f7e24]: Ενότητες
+        - list "Ενότητες" [ref=f7e25]:
+          - listitem [ref=f7e26]:
+            - button "Πολλαπλής Επιλογής" [ref=f7e27] [cursor=pointer]
+          - listitem [ref=f7e33]:
+            - button "Προφορικά" [ref=f7e34] [cursor=pointer]
+          - listitem [ref=f7e39]:
+            - button "SOS Ψυχιατρικής" [ref=f7e40] [cursor=pointer]
+          - listitem [ref=f7e44]:
+            - button "Πινακάκια" [ref=f7e45] [cursor=pointer]
+      - generic [ref=f7e49]:
+        - generic [ref=f7e50]: Ορέστης
+        - generic [ref=f7e55]:
+          - button "Αλλαγή προφίλ" [ref=f7e56] [cursor=pointer]
+          - button "Εναλλαγή σε φωτεινό θέμα" [ref=f7e57] [cursor=pointer]
+          - button "Συντομεύσεις πληκτρολογίου" [ref=f7e61] [cursor=pointer]
+    - main [ref=f7e66]:
+      - heading "Αντιστοίχηση" [level=1] [ref=f7e67]
+      - generic [ref=f7e69]:
+        - generic [ref=f7e70]:
+          - button "Μενού MCQ" [ref=f7e71] [cursor=pointer]
+          - button "Νέο σετ" [ref=f7e74] [cursor=pointer]
+          - button "Επιλογή σετ" [ref=f7e75] [cursor=pointer]
+        - generic [ref=f7e76]:
+          - generic [ref=f7e77]:
+            - strong [ref=f7e78]: Legislation
+            - generic [ref=f7e79]: 5 ερωτήσεις
+          - paragraph [ref=f7e80]: Which type of legislation could help in the management of the following cases?
+        - generic [ref=f7e82]:
+          - button "αMental capacity legislation" [ref=f7e83] [cursor=pointer]
+          - button "βNo legislation required" [ref=f7e84] [cursor=pointer]
+          - button "γMental health legislation" [ref=f7e85] [cursor=pointer]
+          - button "δCriminal legislation" [ref=f7e86] [cursor=pointer]
+          - button "εForensic mental health legislation" [ref=f7e87] [cursor=pointer]
+          - button "ζCommon law" [ref=f7e88] [cursor=pointer]
+        - generic [ref=f7e89]:
+          - generic [ref=f7e90]: Ερώτηση 1/5
+          - generic [ref=f7e92]: A 26-year-old man with schizophrenia and comorbid depression. He is currently severely depressed with an active plan to commit suicide by hanging. He lives with his mother who does not feel he is safe to go home. He is refusing admission because he thinks the doctors want to torture him.
+          - generic [ref=f7e93]:
+            - button [disabled] [ref=f7e94] [cursor=pointer]
+            - generic [ref=f7e97]:
+              - button "Καταχώριση" [disabled] [ref=f7e98] [cursor=pointer]
+              - button [ref=f7e102] [cursor=pointer]

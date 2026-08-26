@@ -1,0 +1,86 @@
+- generic [ref=f11e3]:
+  - link "Μετάβαση στο κύριο περιεχόμενο" [ref=f11e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f11e12]:
+    - navigation "Κύρια πλοήγηση" [ref=f11e13]:
+      - generic [ref=f11e14]:
+        - button "Εξετάσεις Ειδικότητας" [ref=f11e15] [cursor=pointer]
+        - generic [ref=f11e16]: Ψυχιατρική
+      - button "Αναζήτηση υλικού" [ref=f11e17] [cursor=pointer]:
+        - generic [ref=f11e22]: Ctrl K
+      - generic [ref=f11e23]:
+        - generic [ref=f11e24]: Ενότητες
+        - list "Ενότητες" [ref=f11e25]:
+          - listitem [ref=f11e26]:
+            - button "Πολλαπλής Επιλογής" [ref=f11e27] [cursor=pointer]
+          - listitem [ref=f11e33]:
+            - button "Προφορικά" [ref=f11e34] [cursor=pointer]
+          - listitem [ref=f11e39]:
+            - button "SOS Ψυχιατρικής" [ref=f11e40] [cursor=pointer]
+          - listitem [ref=f11e44]:
+            - button "Πινακάκια" [ref=f11e45] [cursor=pointer]
+      - generic [ref=f11e49]:
+        - generic [ref=f11e50]: Ορέστης
+        - generic [ref=f11e55]:
+          - button "Αλλαγή προφίλ" [ref=f11e56] [cursor=pointer]
+          - button "Εναλλαγή σε φωτεινό θέμα" [ref=f11e57] [cursor=pointer]
+          - button "Συντομεύσεις πληκτρολογίου" [ref=f11e61] [cursor=pointer]
+    - main [ref=f11e66]:
+      - heading "Προηγούμενα Θέματα" [level=1] [ref=f11e67]
+      - generic [ref=f11e69]:
+        - generic [ref=f11e70]:
+          - generic [ref=f11e71]:
+            - generic [ref=f11e72]: Προφορικά
+            - heading "Προηγούμενα Θέματα" [level=2] [ref=f11e73]
+            - generic [ref=f11e74]: 129 ερωτήσεις εξετάσεων, με τις απαντήσεις τους
+          - generic [ref=f11e75]:
+            - 'img "Πρόοδος προφορικών: 0 από 5 — Καθόλου" [ref=f11e76]'
+            - generic [ref=f11e82]: 0/129
+        - button "Προφορική Εξέταση Προσομοίωση με εξεταστή και follow-up ερωτήσεις" [ref=f11e84] [cursor=pointer]:
+          - generic [ref=f11e89]:
+            - generic [ref=f11e90]: Προφορική Εξέταση
+            - generic [ref=f11e91]: Προσομοίωση με εξεταστή και follow-up ερωτήσεις
+        - generic [ref=f11e96]:
+          - generic "Προβολή προηγούμενων θεμάτων" [ref=f11e97]:
+            - button "Όλες (129)" [ref=f11e98] [cursor=pointer]
+            - button "Ανά κατηγορία" [pressed] [ref=f11e99] [cursor=pointer]
+          - button "Άνοιγμα όλων" [ref=f11e100] [cursor=pointer]
+        - generic [ref=f11e101]:
+          - button "#1 ΚΡΙΣΙΜΑ 100–95% εμφάνιση στις εξετάσεις 0/55" [expanded] [active] [ref=f11e102] [cursor=pointer]:
+            - generic [ref=f11e103]: "#1"
+            - generic [ref=f11e104]: ΚΡΙΣΙΜΑ
+            - generic [ref=f11e105]: 100–95% εμφάνιση στις εξετάσεις
+            - generic [ref=f11e106]: 0/55
+          - generic [ref=f11e146]:
+            - button "A. Σχιζοφρένεια & ΨυχώσειςΕμφανίζεται σε κάθε εξέταση – 100% 0/30" [ref=f11e148] [cursor=pointer]:
+              - generic [ref=f11e149]: A.
+              - generic [ref=f11e150]: Σχιζοφρένεια & ΨυχώσειςΕμφανίζεται σε κάθε εξέταση – 100%
+              - generic [ref=f11e151]: 0/30
+            - button "B. Παραλήρημα (Delirium)Εμφανίζεται στο 95% των εξετάσεων – Καλογεροπούλου 0/8" [ref=f11e156] [cursor=pointer]:
+              - generic [ref=f11e157]: B.
+              - generic [ref=f11e158]: Παραλήρημα (Delirium)Εμφανίζεται στο 95% των εξετάσεων – Καλογεροπούλου
+              - generic [ref=f11e159]: 0/8
+            - button "C. Διαταραχές ΔιάθεσηςΕμφανίζεται στο 95% των εξετάσεων 0/17" [ref=f11e164] [cursor=pointer]:
+              - generic [ref=f11e165]: C.
+              - generic [ref=f11e166]: Διαταραχές ΔιάθεσηςΕμφανίζεται στο 95% των εξετάσεων
+              - generic [ref=f11e167]: 0/17
+        - button "#2 ΠΟΛΥ ΥΨΗΛΗ 90% εμφάνιση 0/22" [ref=f11e111] [cursor=pointer]:
+          - generic [ref=f11e112]: "#2"
+          - generic [ref=f11e113]: ΠΟΛΥ ΥΨΗΛΗ
+          - generic [ref=f11e114]: 90% εμφάνιση
+          - generic [ref=f11e115]: 0/22
+        - button "#3 ΥΨΗΛΗ 75–85% εμφάνιση 0/26" [ref=f11e120] [cursor=pointer]:
+          - generic [ref=f11e121]: "#3"
+          - generic [ref=f11e122]: ΥΨΗΛΗ
+          - generic [ref=f11e123]: 75–85% εμφάνιση
+          - generic [ref=f11e124]: 0/26
+        - button "#4 ΜΕΤΡΙΑ 50–65% εμφάνιση 0/17" [ref=f11e129] [cursor=pointer]:
+          - generic [ref=f11e130]: "#4"
+          - generic [ref=f11e131]: ΜΕΤΡΙΑ
+          - generic [ref=f11e132]: 50–65% εμφάνιση
+          - generic [ref=f11e133]: 0/17
+        - button "#5 ΒΑΣΙΚΑ 40–45% εμφάνιση 0/9" [ref=f11e138] [cursor=pointer]:
+          - generic [ref=f11e139]: "#5"
+          - generic [ref=f11e140]: ΒΑΣΙΚΑ
+          - generic [ref=f11e141]: 40–45% εμφάνιση
+          - generic [ref=f11e142]: 0/9

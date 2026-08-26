@@ -1,0 +1,7 @@
+- generic [ref=f1e3]:
+  - link "Μετάβαση στο κύριο περιεχόμενο" [ref=f1e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [active] [ref=f1e5]:
+    - status [ref=f1e8]:
+      - paragraph [ref=f1e9]: Προετοιμασία της τράπεζας ερωτήσεων…
+      - button "Αλλαγή προφίλ" [ref=f1e11] [cursor=pointer]

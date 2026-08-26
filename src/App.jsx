@@ -3484,7 +3484,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
                 disabled={!count}
                 onClick={() => startSession("chapter", chapter)}
               >
-                <span className="DSM5-chapter-title">Chapter {chapter.chapter}: {chapter.title}</span>
+                <span className="DSM5-chapter-title">Κεφάλαιο {chapter.chapter}: {chapter.title}</span>
                 <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
               </button>
             );

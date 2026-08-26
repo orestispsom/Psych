@@ -165,10 +165,36 @@
 }
 .mode-btn:hover, .card:hover, .sos-option-card:hover,
 .oral-choice:hover, .pinakakia-card:hover { background: var(--raised); }
+
+/* Matching-mode answer key: denser than a mode tile, so its own rule rather
+   than joining the card group above. Was previously unstyled — a bare
+   button with no padding or gap, so the letter ran into the label. */
+.choice-card {
+  display: flex; align-items: baseline; gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  background: var(--ground);
+  text-align: left; width: 100%;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: var(--t-meta);
+  transition: background 0.12s var(--ease);
+}
+.choice-card:hover { background: var(--raised); }
+.choice-card.selected { box-shadow: inset 2px 0 0 var(--mark); }
+.choice-card.correct { background: var(--pass-quiet); }
+.choice-card.correct .choice-id { color: var(--pass); }
+.choice-card.incorrect { background: var(--mark-quiet); }
+.choice-card.incorrect .choice-id { color: var(--mark); }
 .card-title, .sos-option-title, .card-heading {
   font-size: var(--t-item); font-weight: 600;
 }
-.card-status, .sos-option-meta, .topic-desc, .sos-card-kicker {
+.card-status, .sos-option-meta, .sos-card-kicker {
+  font-size: var(--t-meta); color: var(--ink-2);
+}
+/* Sits inline after .topic-title in a plain (non-flex) wrapper span, so it
+   needs its own block display or it runs into the title with no space. */
+.topic-desc {
+  display: block; margin-top: 2px;
   font-size: var(--t-meta); color: var(--ink-2);
 }
 .card-icon, .card-icon-lg, .placeholder-icon { color: var(--ink-3); }
@@ -203,11 +229,13 @@
 
 .topic-list, .subtopic-list, .oral-question-list, .sos-list,
 .sos-number-list, .vignette-list, .DSM5-chapter-list, .pinakakia-list,
+.crucial-index-header { display: grid; gap: var(--s2); margin-bottom: var(--s5); }
+.crucial-index-header p { font-size: var(--t-meta); color: var(--ink-2); }
 .crucial-index-list, .profile-list, .wrong-answer-list, .topic-performance-list {
   display: grid;
 }
 
-.topic-row, .subtopic-row, .DSM5-chapter-row, .vignette-row,
+.topic-row, .subtopic-row,
 .pinakakia-row, .crucial-index-item, .sos-list-entry, .oral-question-row,
 .topic-performance-row, .written-history-row {
   display: grid;
@@ -220,10 +248,48 @@
   color: var(--ink);
   transition: background 0.1s var(--ease);
 }
-.topic-row:hover, .subtopic-row:hover, .DSM5-chapter-row:hover,
-.vignette-row:hover, .pinakakia-row:hover, .crucial-index-item:hover,
+.topic-row:hover, .subtopic-row:hover,
+.pinakakia-row:hover, .crucial-index-item:hover,
 .sos-list-entry:hover, .oral-question-row:hover {
   background: var(--raised);
+}
+
+/* Two buttons side by side — open the vignette, mark it complete — not a
+   gutter/title/trailing row, so it gets its own flex layout. */
+.vignette-row {
+  display: flex; align-items: stretch; gap: var(--s2);
+  padding: var(--s2) 0;
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+}
+.vignette-open-card {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s2) var(--s2);
+  text-align: left; color: var(--ink);
+  border-radius: var(--r-md);
+}
+.vignette-open-card:hover { background: var(--raised); }
+.vignette-row.completed .vignette-open-card { opacity: 0.7; }
+
+/* Two children only (title, count) — no leading gutter number in the
+   markup, unlike its siblings above, so it gets its own two-column grid
+   rather than being squeezed into the 44px gutter column. */
+.DSM5-chapter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s3) var(--s2);
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  transition: background 0.1s var(--ease);
+}
+.DSM5-chapter-row:hover { background: var(--raised); }
+.DSM5-chapter-row:disabled { opacity: 0.42; cursor: not-allowed; }
+.DSM5-chapter-row > span:last-child {
+  font-size: var(--t-micro); color: var(--ink-3); white-space: nowrap;
 }
 
 .topic-letter, .choice-id, .sub-letter, .oral-question-number,
@@ -246,9 +312,27 @@
 .oral-question-copy, .topic-performance-main { display: grid; gap: 2px; min-width: 0; }
 
 /* Progress rendered as the scale strip, never as a bar */
-.progress-bar, .gravity-bar, .topic-percent-bar, .progress-fill, .topic-percent-fill {
+.progress-bar, .topic-percent-bar, .progress-fill, .topic-percent-fill {
   display: none;
 }
+
+/* .gravity-bar is not a progress-bar fill despite the name it inherited from
+   the legacy build — it's the accordion toggle for a whole exam-frequency
+   tier ("ΚΡΙΣΙΜΑ", "#1"...). The `display: none` above was hiding the entire
+   categorized oral view. */
+.gravity-bar {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: var(--s1) var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s4) var(--s2);
+  min-height: 56px;
+  border-bottom: 1px solid var(--rule-strong);
+  color: var(--ink);
+  transition: background 0.1s var(--ease);
+}
+.gravity-bar:hover { background: var(--raised); }
+.gravity-bar .bar-title { font-size: var(--t-item); font-weight: 600; }
+.gravity-bar .oral-progress-pill { margin-left: auto; }
 .progress-text, .topic-percent-value, .oral-progress-pill, .oral-index-count {
   font-family: var(--code); font-size: var(--t-micro);
   color: var(--ink-3); font-variant-numeric: tabular-nums;
@@ -388,10 +472,20 @@
   letter-spacing: 0.09em;
   margin-bottom: var(--s2);
 }
-.answer-placeholder, .pinakakia-reveal-placeholder, .oral-answer-hide,
+.pinakakia-reveal-placeholder, .oral-answer-hide,
 .pinakakia-hide-note, .DSM5-empty-note {
   font-size: var(--t-meta); color: var(--ink-3);
 }
+
+/* Icon + label + small caption, three inline siblings in the markup with no
+   separating whitespace once JSX collapses it. Stack them instead of trying
+   to force inline spacing between elements that carry no gap of their own. */
+.answer-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--s1); text-align: center;
+  font-size: var(--t-meta); color: var(--ink-3);
+}
+.answer-placeholder small { font-size: var(--t-micro); }
 .oral-answer-kicker, .sos-card-kicker {
   font-size: var(--t-micro); color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.1em;
@@ -453,6 +547,7 @@
 .mcq-feedback-comment { display: grid; gap: var(--s2); padding: var(--s2); }
 .mcq-feedback-comment-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .mcq-feedback-message { font-size: var(--t-micro); color: var(--ink-3); }
+.mcq-feedback-message.error { color: var(--mark); }
 .mcq-feedback-comment textarea {
   width: 100%; min-height: 68px; padding: var(--s2);
   background: var(--ground); border: 1px solid var(--rule-strong);
