@@ -238,13 +238,17 @@
 
 /* ═══ TOPIC LISTS ═════════════════════════════════════════════ */
 
+/* Rows stop where their content does, rather than stretching the full sheet
+   and stranding a trailing control far from its text. */
 .topic-list, .subtopic-list, .oral-question-list, .sos-list,
 .sos-number-list, .vignette-list, .DSM5-chapter-list, .pinakakia-list,
+.crucial-index-list, .wrong-answer-list, .topic-performance-list {
+  display: grid; max-width: 940px;
+}
+.profile-list { display: grid; }
+
 .crucial-index-header { display: grid; gap: var(--s2); margin-bottom: var(--s5); }
 .crucial-index-header p { font-size: var(--t-meta); color: var(--ink-2); }
-.crucial-index-list, .profile-list, .wrong-answer-list, .topic-performance-list {
-  display: grid;
-}
 
 .topic-row, .subtopic-row,
 .crucial-index-item, .sos-list-entry, .oral-question-row,
@@ -633,7 +637,7 @@
 .oral-container, .oral-viewer, .oral-simulator, .oral-overview, .crucial-index {
   display: grid; gap: var(--s5);
 }
-.oral-index-controls { display: grid; gap: var(--s3); }
+.oral-index-controls { display: grid; gap: var(--s3); max-width: 940px; }
 .oral-index-tabs { display: flex; gap: var(--s1); flex-wrap: wrap; }
 .oral-index-tab {
   min-height: 44px; padding: 0 var(--s4);
@@ -645,7 +649,7 @@
 }
 /* The search control is sometimes the wrapper and sometimes the input itself,
    so both spellings are covered. */
-.oral-search, .crucial-search, .pinakakia-search-wrap { width: 100%; }
+.oral-search, .crucial-search, .pinakakia-search-wrap { width: 100%; max-width: 940px; }
 
 .oral-search input,
 .crucial-search input,

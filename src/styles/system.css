@@ -231,7 +231,9 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 
 /* ═══ ITEM ROW — the core primitive that replaces cards ═══════ */
 
-.items { display: grid; }
+/* Rows stop where their content does. Stretched to the full 1180px sheet, a
+   trailing control ends up hundreds of pixels from the text it belongs to. */
+.items { display: grid; max-width: 940px; }
 
 .item {
   display: grid;
