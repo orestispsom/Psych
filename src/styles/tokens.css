@@ -123,7 +123,9 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --ground: #f2f1ec;
+  /* One continuous daytime canvas: the workspace and rail use the same
+     stock colour, while elevated surfaces remain distinct. */
+  --ground: #e4e3dc;
   --field: #ffffff;
   --raised: #e9e8e2;
   --sunken: #e4e3dc;

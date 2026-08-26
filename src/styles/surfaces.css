@@ -294,58 +294,35 @@
 
 .mcq-select { display: grid; gap: var(--s5); }
 
-/* The MCQ dispatch hub is the one light-blue workspace requested for this
-   screen. These local tokens deliberately do not leak into the other study
-   screens or the persistent navigation shell. */
-:root[data-theme="light"] main:has(.mcq-hub) { background: #f4f9ff; }
-:root[data-theme="light"] .mcq-hub {
-  --ground: #f4f9ff;
-  --field: #ffffff;
-  --raised: #e9f3ff;
-  --sunken: #dcecff;
-  --rule: rgba(31, 111, 156, 0.16);
-  --rule-strong: rgba(31, 111, 156, 0.30);
-  --ink: #16263d;
-  --ink-2: #4c6582;
-  --ink-3: #5d7695;
-  --focus: #217bb5;
-  --focus-quiet: rgba(33, 123, 181, 0.12);
-  --pass: #317b9f;
-  --pass-quiet: rgba(49, 123, 159, 0.12);
-  --due: #4b78a8;
-  --due-quiet: rgba(75, 120, 168, 0.12);
-  --lift: 0 6px 16px -8px rgba(31, 111, 156, 0.22), 0 2px 4px -2px rgba(31, 111, 156, 0.14);
-  --lift-modal: 0 24px 56px -20px rgba(31, 111, 156, 0.28), 0 8px 16px -8px rgba(31, 111, 156, 0.16);
-}
 .admin-options { display: grid; gap: var(--s3); max-width: 480px; }
 
 /* Eight study modes are a compact, scan-friendly 4 × 2 board on desktop.
-   White cards on a soft-blue field give them clear separation without
-   introducing a competing colour system or decorative serial numbers. */
+   The hub's one blue family distinguishes its actions from the shared stock
+   background without re-theming the application. */
 .mode-tile-grid {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--s3);
   max-width: none;
 }
-.mode-tile {
+.mcq-hub .mode-tile {
   display: flex; align-items: center; justify-content: center;
   text-align: center;
   min-height: 136px; padding: var(--s5);
-  background: var(--field);
-  border: 1px solid var(--rule);
-  border-top: 3px solid var(--focus);
+  background: linear-gradient(145deg, #eaf6ff 0%, #d9edfb 100%);
+  border: 1px solid #9ec7df;
+  border-top: 4px solid #2b85b9;
   border-radius: var(--r-lg);
-  color: var(--ink);
-  box-shadow: var(--lift);
+  color: #17324a;
+  box-shadow: 0 8px 18px -13px rgba(33, 85, 119, 0.58), 0 2px 5px -3px rgba(33, 85, 119, 0.34);
   transition: background 0.12s var(--ease), border-color 0.12s var(--ease), box-shadow 0.12s var(--ease), transform 0.12s var(--ease);
 }
-.mode-tile:hover {
-  background: var(--raised);
-  border-color: var(--focus);
-  box-shadow: var(--lift-modal);
-  transform: translateY(-1px);
+.mcq-hub .mode-tile:hover {
+  background: #cde8fa;
+  border-color: #5c9fc7;
+  box-shadow: 0 14px 24px -16px rgba(33, 85, 119, 0.72), 0 4px 9px -5px rgba(33, 85, 119, 0.38);
+  transform: translateY(-2px);
 }
-.mode-tile:focus-visible { outline-color: var(--focus); }
+.mcq-hub .mode-tile:focus-visible { outline-color: #1f6f9c; }
 .mode-tile-title { font-size: 18px; font-weight: 600; line-height: 1.3; }
 @media (max-width: 899px) {
   .mode-tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
