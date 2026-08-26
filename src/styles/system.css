@@ -274,6 +274,16 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .item-side { display: flex; align-items: center; gap: var(--s3); padding-top: 2px; }
 
+/* Home's section rows lead with an icon rather than a gutter number, so the
+   icon stays beside the title at every width instead of reflowing onto its
+   own line the way a number does. */
+.item-icon {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+.item-section { align-items: center; }
+
 /* ═══ SCALE STRIP — the signature ═════════════════════════════
    Five boxes, marked left to right, exactly like an instrument's
    anchored response row. Renders masteryLevel; is the control
@@ -592,6 +602,13 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .actionbar .nav-btn .icon { width: 16px; height: 16px; }
 
   .item { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }
+  .item-section {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s3);
+  }
+  .item-section .item-icon { grid-column: 1; grid-row: 1; }
+  .item-section .item-body { grid-column: 2; grid-row: 1; }
+  .item-section .item-side { grid-column: 3; grid-row: 1; }
   .item-num {
     grid-column: 1; grid-row: 1;
     padding-top: 0; margin-bottom: 2px;

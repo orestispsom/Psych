@@ -2840,8 +2840,8 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
 
 function SectionRow({ id, icon, title, detail, level, onOpen }) {
   return (
-    <button type="button" className="item" onClick={() => onOpen(id)}>
-      <span className="item-num" aria-hidden="true" style={{ display: "flex", color: "var(--ink-3)" }}>
+    <button type="button" className="item item-section" onClick={() => onOpen(id)}>
+      <span className="item-icon" aria-hidden="true">
         {icon}
       </span>
       <span className="item-body">

@@ -793,7 +793,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   .screen-topbar { margin-bottom: var(--s3); }
   .mcq-session-strip { gap: var(--s1) var(--s2); margin-bottom: var(--s3); }
   .options-list, .DSM5-options, .structured-options { margin-top: var(--s3); }
-  .mcq-feedback-btn, .mcq-quality-btn { min-height: 40px; padding: 0 var(--s3); }
+  .mcq-feedback-btn, .mcq-quality-btn { padding: 0 var(--s3); }
 
   .topic-row, .subtopic-row,
   .crucial-index-item, .sos-list-entry,
