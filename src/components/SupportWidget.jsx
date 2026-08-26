@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const BMC_URL = "https://buymeacoffee.com/kmivzd3csi";
-const SHOW_AFTER_MS = 10 * 60 * 1000; // 10 minutes
+const SHOW_AFTER_MS = 30 * 60 * 1000; // 30 minutes
 const DISMISS_KEY = "psych_support_dismissed";
 
 /**
@@ -12,7 +12,7 @@ const DISMISS_KEY = "psych_support_dismissed";
  * Mounted once at the App root (a sibling of AppShell, not inside it), so it
  * survives every route change: navigating between MCQ/oral/SOS/tables never
  * unmounts App itself, only the screen content inside the shell, so the
- * 10-minute timer keeps running and the popup can appear on whatever screen
+ * 30-minute timer keeps running and the popup can appear on whatever screen
  * the trainee happens to be on when it fires.
  *
  * "Not again this session" uses sessionStorage, not localStorage — closing

@@ -159,6 +159,30 @@
 /* ═══ MCQ HUB ═════════════════════════════════════════════════ */
 
 .mcq-select { display: grid; gap: var(--s5); }
+
+/* Square clickable tiles, 2 per row, title only — no description line. */
+.mode-tile-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md); overflow: hidden;
+  max-width: 640px;
+}
+.mode-tile {
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  min-height: 128px; padding: var(--s5);
+  background: var(--ground);
+  color: var(--ink);
+  transition: background 0.12s var(--ease);
+}
+.mode-tile:hover { background: var(--raised); }
+.mode-tile.featured { box-shadow: inset 0 3px 0 var(--mark); }
+.mode-tile-title { font-size: 18px; font-weight: 600; line-height: 1.3; }
+@media (max-width: 599px) {
+  .mode-tile { min-height: 108px; padding: var(--s4); }
+  .mode-tile-title { font-size: var(--t-item); }
+}
 .mcq-mode-grid, .choice-grid, .sos-option-grid, .grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1px; background: var(--rule);
@@ -265,8 +289,7 @@
 .crucial-index-header p { font-size: var(--t-meta); color: var(--ink-2); }
 
 .topic-row, .subtopic-row,
-.crucial-index-item, .sos-list-entry, .oral-question-row,
-.topic-performance-row, .written-history-row {
+.crucial-index-item, .oral-question-row {
   display: grid;
   grid-template-columns: var(--gutter) minmax(0, 1fr) auto;
   align-items: center; gap: var(--s3);
@@ -278,9 +301,22 @@
   transition: background 0.1s var(--ease);
 }
 .topic-row:hover, .subtopic-row:hover,
-.crucial-index-item:hover,
-.sos-list-entry:hover, .oral-question-row:hover {
+.crucial-index-item:hover, .oral-question-row:hover {
   background: var(--raised);
+}
+
+/* Two children only (main block, trailing score/stats) — no leading gutter
+   number in the markup, so they were being crammed into the 44px number
+   column meant for a three-part row. Same fix as .pinakakia-row. */
+.written-history-row, .topic-performance-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s3);
+  width: 100%; text-align: left;
+  padding: var(--s3) var(--s2);
+  min-height: 48px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
 }
 
 /* No leading gutter number in the markup — one or two children (title,
@@ -812,8 +848,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   .mcq-feedback-btn, .mcq-quality-btn { padding: 0 var(--s3); }
 
   .topic-row, .subtopic-row,
-  .crucial-index-item, .sos-list-entry,
-  .oral-question-row, .written-history-row {
+  .crucial-index-item, .oral-question-row {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
   }
@@ -821,7 +856,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   .crucial-index-number, .sos-list-index {
     grid-column: 1; grid-row: 1; margin-bottom: 2px;
   }
-  .oral-question-copy, .topic-performance-main { grid-column: 1; grid-row: 2; }
+  .oral-question-copy { grid-column: 1; grid-row: 2; }
   .topic-chevron { display: none; }
 
   .mcq-mode-grid, .choice-grid, .sos-option-grid, .grid {

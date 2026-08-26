@@ -196,6 +196,32 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
 }
 .rail-foot-actions { display: flex; gap: var(--s1); flex-wrap: wrap; }
 
+/* ─── Admin-only visibility switches ─── */
+.rail-admin { padding-bottom: var(--s2); }
+.admin-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3);
+  width: 100%; text-align: left;
+  min-height: 44px; padding: var(--s2) var(--s3);
+  border-radius: var(--r-md);
+  color: var(--ink-2); font-size: var(--t-meta); font-weight: 500;
+}
+.admin-toggle-row:hover { background: var(--raised); color: var(--ink); }
+.admin-toggle-state {
+  font-size: var(--t-micro); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 2px 7px; border-radius: var(--r-box);
+  border: 1px solid currentColor;
+  flex: none;
+}
+.admin-toggle-state.on { color: var(--pass); }
+.admin-toggle-state.off { color: var(--ink-3); }
+.admin-toggle-note {
+  display: block;
+  font-size: var(--t-micro); color: var(--ink-3);
+  padding: 0 0 var(--s1);
+}
+
 /* ─── Collapsed rail: icons only, everything centered ─── */
 .rail-collapsed .rail-mast { padding: 0 var(--s2) var(--s5); justify-content: center; }
 .rail-collapsed .rail-search {

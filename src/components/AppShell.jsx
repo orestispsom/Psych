@@ -41,6 +41,9 @@ export default function AppShell({
   onOpenShortcuts,
   onSwitchProfile,
   onHome,
+  supportWidgetEnabled = true,
+  onToggleSupportWidget,
+  supportWidgetSyncNote,
   children,
 }) {
   const current = sectionFor(screen);
@@ -131,6 +134,24 @@ export default function AppShell({
             ))}
           </ul>
         </div>
+
+        {isAdmin && !collapsed && onToggleSupportWidget && (
+          <div className="rail-group rail-admin">
+            <span className="rail-group-label">Διαχείριση</span>
+            <button
+              type="button"
+              className="admin-toggle-row"
+              onClick={onToggleSupportWidget}
+              aria-pressed={supportWidgetEnabled}
+            >
+              <span>Buy Me a Coffee</span>
+              <span className={`admin-toggle-state ${supportWidgetEnabled ? "on" : "off"}`}>
+                {supportWidgetEnabled ? "Ενεργό" : "Ανενεργό"}
+              </span>
+            </button>
+            {supportWidgetSyncNote && <span className="admin-toggle-note">{supportWidgetSyncNote}</span>}
+          </div>
+        )}
 
         <div className="rail-foot">
           {collapsed ? (

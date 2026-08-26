@@ -316,6 +316,8 @@ const SUPABASE_PROFILE_TABLE = "study_profiles";
 const SUPABASE_APP_SETTINGS_TABLE = "app_settings";
 const UPDATE_MESSAGE_SETTING_KEY = "home_update_message";
 const DEFAULT_UPDATE_MESSAGE = "\u039c\u03bf\u03b9\u03c1\u03b1\u03c3\u03c4\u03b5\u03af\u03c4\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c6\u03b1\u03c1\u03bc\u03bf\u03b3\u03ae \u03c5\u03c0\u03b5\u03cd\u03b8\u03b7\u03bd\u03b1.";
+const SUPPORT_WIDGET_SETTING_KEY = "support_widget_enabled";
+const SUPPORT_WIDGET_LOCAL_KEY = "psych_support_widget_enabled";
 const ADMIN_PROFILE_ID = "orestis";
 const ADMIN_PASSWORD_SALT = "psych-admin-gate-v1";
 const ADMIN_PASSWORD_HASH = "6c257c22343abe14b00c4efcd7ce29b038157578ee4b18972efff8ff2b165ef1";
@@ -972,6 +974,54 @@ async function saveRemoteUpdateMessage(message) {
     }
   );
   return value;
+}
+
+// Admin-controlled visibility switches. Same key-value app_settings table as
+// the update message; "1"/"0" strings so an absent row (never set) reads as
+// enabled by default. When Supabase isn't configured the switch still works,
+// but only for this device (localStorage) — there is no shared backend to
+// broadcast it to other visitors, which the admin panel says explicitly.
+async function loadRemoteSupportWidgetEnabled() {
+  const rows = await supabaseTableRequest(SUPABASE_APP_SETTINGS_TABLE, {
+    select: "key,value",
+    key: `eq.${SUPPORT_WIDGET_SETTING_KEY}`,
+    limit: "1",
+  });
+  const value = rows?.[0]?.value;
+  return value !== "0";
+}
+
+async function saveRemoteSupportWidgetEnabled(enabled) {
+  await supabaseTableRequest(
+    SUPABASE_APP_SETTINGS_TABLE,
+    { on_conflict: "key" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        key: SUPPORT_WIDGET_SETTING_KEY,
+        value: enabled ? "1" : "0",
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+  return enabled;
+}
+
+function loadLocalSupportWidgetEnabled() {
+  try {
+    return window.localStorage.getItem(SUPPORT_WIDGET_LOCAL_KEY) !== "0";
+  } catch {
+    return true;
+  }
+}
+
+function saveLocalSupportWidgetEnabled(enabled) {
+  try {
+    window.localStorage.setItem(SUPPORT_WIDGET_LOCAL_KEY, enabled ? "1" : "0");
+  } catch {
+    /* best effort */
+  }
 }
 
 async function saveMcqFeedback(questionId, feedbackType, optionalMetadata = {}) {
@@ -2443,10 +2493,10 @@ function recordWrittenExamSubmission(progress, questions, answers, sessionId) {
 }
 
 function getWrittenPerformanceCategory(scorePercent) {
-  if (scorePercent >= 90) return { label: "Exam-ready", className: "excellent" };
-  if (scorePercent > 70) return { label: "Good performance", className: "good" };
-  if (scorePercent >= 50) return { label: "Barely passing / borderline", className: "pass" };
-  return { label: "Not yet passing level", className: "fail" };
+  if (scorePercent >= 90) return { label: "Έτοιμος/η για εξετάσεις", className: "excellent" };
+  if (scorePercent > 70) return { label: "Καλή επίδοση", className: "good" };
+  if (scorePercent >= 50) return { label: "Οριακά επιτυχής", className: "pass" };
+  return { label: "Όχι ακόμη σε επίπεδο επιτυχίας", className: "fail" };
 }
 
 function getPercentageColorClass(scorePercent) {
@@ -2674,7 +2724,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
       setPendingAdminProfile(null);
       setAdminPassword("");
     } catch (err) {
-      setAdminError(err.message || "Could not unlock this profile.");
+      setAdminError(err.message || "Δεν ήταν δυνατό το ξεκλείδωμα αυτού του προφίλ.");
     } finally {
       setIsVerifyingAdmin(false);
     }
@@ -2690,12 +2740,12 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
     const name = normalizeProfileName(username);
 
     if (name.length < 2) {
-      setError("Please enter at least 2 characters.");
+      setError("Το όνομα πρέπει να έχει τουλάχιστον 2 χαρακτήρες.");
       return;
     }
 
     if (name.length > 32) {
-      setError("Please keep the username under 32 characters.");
+      setError("Το όνομα πρέπει να έχει έως 32 χαρακτήρες.");
       return;
     }
 
@@ -2705,7 +2755,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
         setUsername("");
         requestProfileSelection(adminProfile);
       } else {
-        setError("The admin profile is still loading. Please try again shortly.");
+        setError("Το προφίλ διαχειριστή φορτώνει ακόμη. Δοκίμασε ξανά σε λίγο.");
       }
       return;
     }
@@ -2716,7 +2766,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
       await onCreateProfile(name);
       setUsername("");
     } catch (err) {
-      setError(err.message || "Could not create this profile.");
+      setError(err.message || "Δεν ήταν δυνατή η δημιουργία αυτού του προφίλ.");
     } finally {
       setIsSubmitting(false);
     }
@@ -2846,7 +2896,7 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
       </span>
       <span className="item-body">
         <span className="item-title" style={{ fontWeight: 600 }}>{title}</span>
-        <span className="item-meta"><span>{detail}</span></span>
+        {detail && <span className="item-meta"><span>{detail}</span></span>}
       </span>
       <span className="item-side">
         {typeof level === "number" ? <ScaleStrip level={level} label="Πρόοδος ενότητας" /> : null}
@@ -2890,13 +2940,11 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       id: 'sos',
       icon: <Icons.Bolt />,
       title: 'SOS Ψυχιατρικής',
-      detail: 'Γρήγορη ανάκληση: αριθμοί, κρίσιμα θέματα, διαφοροδιάγνωση',
     },
     {
       id: 'pinakakia',
       icon: <Icons.Table />,
       title: 'Πινακάκια',
-      detail: 'Oxford και Crash Course, με αναζήτηση',
     },
   ];
 
@@ -3028,7 +3076,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         <div className="profile-bar">
           <span className="admin-badge">admin</span>
           <button
-            className="btn btn-quiet btn-sm"
+            className="btn btn-quiet"
             type="button"
             aria-pressed={rememberAdmin}
             title="Η επιλογή αποθηκεύεται μόνο σε αυτόν τον browser. Μην την ενεργοποιείς σε κοινόχρηστη συσκευή."
@@ -3046,36 +3094,28 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const practiceModes = [
-    { id: 'sprint', title: 'Mini-test', detail: 'Σύντομο σετ με χρόνο και σκορ', featured: true },
-    { id: 'daily', title: 'Αδύναμα Θέματα', detail: 'Όσες έχεις λάθος ή είναι ώρα να επαναληφθούν' },
-    { id: 'random', title: 'Τυχαία Θέματα', detail: 'Ανακάτεμα από όλη την ύλη' },
-    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία', detail: 'Διάλεξε ένα από τα 21 θεματικά πεδία' },
+    { id: 'sprint', title: 'Mini-test', featured: true },
+    { id: 'daily', title: 'Αδύναμα Θέματα' },
+    { id: 'random', title: 'Τυχαία Θέματα' },
+    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία' },
   ];
 
   const examModes = [
-    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής', detail: 'Πλήρες γραπτό, με δυνατότητα συνέχισης' },
-    { id: 'vignettes', title: 'Vignettes', detail: 'Κλινικά σενάρια με διαδοχικά ερωτήματα' },
-    { id: 'matching', title: 'Αντιστοίχηση', detail: 'Σετ αντιστοίχισης εννοιών' },
-    { id: 'DSM5', title: 'DSM-5-TR', detail: 'Self-exam ανά κεφάλαιο' },
+    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής' },
+    { id: 'vignettes', title: 'Vignettes' },
+    { id: 'matching', title: 'Αντιστοίχηση' },
+    { id: 'DSM5', title: 'DSM-5-TR' },
   ];
 
   const renderModes = modes => (
-    <div className="items">
+    <div className="mode-tile-grid">
       {modes.map(mode => (
         <button
           key={mode.id}
-          className="item"
+          className={`mode-tile${mode.featured ? ' featured' : ''}`}
           onClick={() => onStart(mode.id)}
-          style={mode.featured ? { boxShadow: 'inset 3px 0 0 var(--mark)' } : undefined}
         >
-          <span className="item-num" aria-hidden="true" />
-          <span className="item-body">
-            <span className="item-title" style={{ fontWeight: 600 }}>{mode.title}</span>
-            <span className="item-meta"><span>{mode.detail}</span></span>
-          </span>
-          <span className="item-side" style={{ color: 'var(--ink-3)' }} aria-hidden="true">
-            <Icons.ChevronRight />
-          </span>
+          <span className="mode-tile-title">{mode.title}</span>
         </button>
       ))}
     </div>
@@ -5380,7 +5420,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
               </span>
               <span className="item-body">
                 <span className="item-title" style={{ fontWeight: 600 }}>Προφορική Εξέταση</span>
-                <span className="item-meta"><span>Προσομοίωση με εξεταστή και follow-up ερωτήσεις</span></span>
               </span>
               <span className="item-side" style={{ color: "var(--ink-3)" }} aria-hidden="true">
                 <Icons.ChevronRight />
@@ -5394,7 +5433,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
               </span>
               <span className="item-body">
                 <span className="item-title" style={{ fontWeight: 600 }}>100 Καίριες Ερωτήσεις</span>
-                <span className="item-meta"><span>Εκτενείς απαντήσεις με άξονες ανάκλησης</span></span>
               </span>
               <span className="item-side" style={{ color: "var(--ink-3)" }} aria-hidden="true">
                 <Icons.ChevronRight />
@@ -5452,7 +5490,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
           >
             <span className="bar-label" style={{color: gravity.color}}>{gravity.label}</span>
             <span className="bar-title">{gravity.title}</span>
-            <span className="bar-tagline">{gravity.tagline}</span>
             {!gravity.isTable && renderProgressPill(getOralQuestionsFromGravity(gravity))}
             {!gravity.isTable && (
               <span className={`bar-chevron ${expandedGravity[gravity.id] ? 'open' : ''}`}>
@@ -5476,10 +5513,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                     onClick={() => toggleTopic(topic.id)}
                   >
                     <span className="topic-letter">{topic.letter}.</span>
-                    <span style={{flex:1}}>
-                      <span className="topic-title">{topic.title}</span>
-                      {topic.description && <span className="topic-desc">{topic.description}</span>}
-                    </span>
+                    <span className="topic-title" style={{flex:1}}>{topic.title}</span>
                     {renderProgressPill(getOralQuestionsFromTopic(topic))}
                     <span className={`topic-chevron ${expandedTopic[topic.id] ? 'open' : ''}`}><Icons.ChevronDown /></span>
                   </button>
@@ -6583,10 +6617,10 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
 function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
   const sections = [
-    { id: "highyield", title: "Γρήγορα SOS", meta: "Κάρτες ανάκλησης: ερώτημα και απάντηση", section: "high_yield", entries: data?.highYieldTables },
-    { id: "numbers", title: "Αριθμοί", meta: "Δόσεις, όρια, διάρκειες και κατώφλια", section: "numbers", entries: data?.numbers },
-    { id: "critical", title: "Κρίσιμα Θέματα", meta: "Καταστάσεις που πρέπει να αναγνωρίζονται αμέσως", section: "critical_topics", entries: data?.criticalTopics },
-    { id: "differential", title: "Διαφοροδιάγνωση", meta: "Ζεύγη που συγχέονται στις εξετάσεις", section: "differential_diagnosis", entries: data?.differentialDiagnosis },
+    { id: "highyield", title: "Γρήγορα SOS", section: "high_yield", entries: data?.highYieldTables },
+    { id: "numbers", title: "Αριθμοί", section: "numbers", entries: data?.numbers },
+    { id: "critical", title: "Κρίσιμα Θέματα", section: "critical_topics", entries: data?.criticalTopics },
+    { id: "differential", title: "Διαφοροδιάγνωση", section: "differential_diagnosis", entries: data?.differentialDiagnosis },
   ];
 
   return (
@@ -6615,10 +6649,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
             >
               <span className="item-body">
                 <span className="item-title" style={{ fontWeight: 600 }}>{section.title}</span>
-                <span className="item-meta">
-                  <span>{section.meta}</span>
-                  <span>{total} καταχωρίσεις</span>
-                </span>
+                <span className="item-meta"><span>{total} καταχωρίσεις</span></span>
               </span>
               <span className="item-side">
                 <ScaleStrip level={level} label={`Πρόοδος: ${section.title}`} />
@@ -6945,6 +6976,9 @@ export default function App() {
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
+  const [supportWidgetEnabled, setSupportWidgetEnabled] = useState(() =>
+    ONLINE_PROFILES_ENABLED ? true : loadLocalSupportWidgetEnabled()
+  );
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [mcqQualitySignals, setMcqQualitySignals] = useState({});
@@ -7241,6 +7275,21 @@ export default function App() {
 
   useEffect(() => {
     if (!ONLINE_PROFILES_ENABLED) return;
+    let cancelled = false;
+    loadRemoteSupportWidgetEnabled()
+      .then(enabled => {
+        if (!cancelled) setSupportWidgetEnabled(enabled);
+      })
+      .catch(() => {
+        /* keep the current (default-enabled) value if this fails to load */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ONLINE_PROFILES_ENABLED) return;
 
     let cancelled = false;
 
@@ -7425,6 +7474,21 @@ export default function App() {
       setUpdateMessageStatus("offline");
       throw error;
     }
+  }, []);
+
+  const handleToggleSupportWidget = useCallback(() => {
+    setSupportWidgetEnabled(prev => {
+      const next = !prev;
+      if (ONLINE_PROFILES_ENABLED) {
+        saveRemoteSupportWidgetEnabled(next).catch(() => {
+          /* the toggle already updated locally; a failed sync just means
+             other visitors won't see the change until it's retried */
+        });
+      } else {
+        saveLocalSupportWidgetEnabled(next);
+      }
+      return next;
+    });
   }, []);
 
   const updateMcqProgress = useCallback((nextOrUpdater) => {
@@ -7642,6 +7706,9 @@ export default function App() {
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onSwitchProfile={switchProfile}
         onHome={() => setScreen("home")}
+        supportWidgetEnabled={supportWidgetEnabled}
+        onToggleSupportWidget={handleToggleSupportWidget}
+        supportWidgetSyncNote={ONLINE_PROFILES_ENABLED ? null : "μόνο σε αυτή τη συσκευή"}
       >
         <div className="sheet">
         {activeProfile && screen === 'home' && (
@@ -7929,7 +7996,7 @@ export default function App() {
         onNavigate={handlePaletteNavigate}
       />
       <ShortcutSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <SupportWidget />
+      {supportWidgetEnabled && <SupportWidget />}
     </div>
   );
 }
