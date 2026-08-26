@@ -10098,7 +10098,7 @@ export default [
     "source": "chatgpt_question_bank",
     "sourceStatus": "near_exact",
     "qualityStatus": "good",
-    "stem": "Με ποια ένδειξη συνδέεται ιδιαίτερα η brexanolone/allopregnanolone;",
+    "stem": "Με ποια ένδειξη συνδέεται ιδιαίτερα η βρεξανολόνη;",
     "options": [
       "Επιλόχεια κατάθλιψη",
       "Ανθεκτική σχιζοφρένεια",
@@ -10117,7 +10117,7 @@ export default [
     "source": "stahl",
     "sourceStatus": "fabricated",
     "qualityStatus": "good",
-    "stem": "Ποια downstream αλληλουχία συνδέεται με την ταχεία αντικαταθλιπτική δράση της κεταμίνης;",
+    "stem": "Ποια αλληλουχία ενδοκυττάριων επιδράσεων συνδέεται με την ταχεία αντικαταθλιπτική δράση της κεταμίνης;",
     "options": [
       "AMPA ενεργοποίηση και BDNF/VEGF",
       "GABA-B ενεργοποίηση και CREB",
@@ -10306,7 +10306,7 @@ export default [
     "source": "actual_exam",
     "sourceStatus": "near_exact",
     "qualityStatus": "good",
-    "stem": "Η θεωρία των πέντε διαστάσεων προσωπικότητας, γνωστή ως Big Five, περιλαμβάνει:",
+    "stem": "Η θεωρία των πέντε διαστάσεων προσωπικότητας περιλαμβάνει:",
     "options": [
       "Εξωστρέφεια, προσήνεια, ευσυνειδησία, νευρωτισμός, δεκτικότητα στην εμπειρία",
       "Εξωστρέφεια, εξάρτηση, τελειοθηρία, νευρωτισμός, ψυχωτισμός",
@@ -10428,7 +10428,7 @@ export default [
     "source": "shorter_oxford",
     "sourceStatus": "near_exact",
     "qualityStatus": "good",
-    "stem": "Ποια λειτουργία αποδίδεται κυρίως στα orexin/hypocretin νευρωνικά συστήματα;",
+    "stem": "Ποια λειτουργία αποδίδεται κυρίως στα νευρωνικά συστήματα ορεξίνης/υποκρετίνης;",
     "options": [
       "Σταθεροποίηση εγρήγορσης",
       "Καταστολή αναπνοής",

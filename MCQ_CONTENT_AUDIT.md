@@ -188,3 +188,13 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 801–900.
+
+## Batch 009 — IDs 801–900
+
+Status: in progress on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 860, 861, 878, and 895: began replacing remaining hybrid English terminology in learner-facing stems with established Greek clinical terms.
+
+All answer keys, option order, and option counts will be validated before publication.
