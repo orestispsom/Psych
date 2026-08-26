@@ -360,11 +360,11 @@
 /* Wide rows, not a card grid: with two or three functions a row layout
    fills the page honestly, gives each description a full line instead of a
    three-line wrap, and keeps the icons on one reading axis. */
-.oral-hub-grid {
+.oral-hub-grid, .hub-row-grid {
   display: grid; gap: var(--s3);
   max-width: 940px;
 }
-.oral-hub-tile {
+.oral-hub-tile, .hub-row {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center; gap: var(--s5);
   min-height: 132px;
@@ -376,9 +376,10 @@
   color: var(--ink);
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
 }
-.oral-hub-tile:hover { border-color: var(--accent, var(--ink-3)); }
-.oral-hub-body { display: grid; gap: var(--s1); min-width: 0; }
-.oral-hub-go { display: flex; color: var(--accent, var(--ink-3)); }
+.oral-hub-tile:hover, .hub-row:hover { border-color: var(--accent, var(--ink-3)); }
+.oral-hub-tile:disabled, .hub-row:disabled { opacity: 0.42; cursor: not-allowed; }
+.oral-hub-body, .hub-row-body { display: grid; gap: var(--s1); min-width: 0; }
+.oral-hub-go, .hub-row-go { display: flex; color: var(--accent, var(--ink-3)); }
 
 /* Deliberately not stretched to the viewport: two or three rows blown up to
    fill 900px read as padding, not as design. They keep their natural height
@@ -390,17 +391,17 @@
   .oral-container.oral-hub-screen .oral-hub-icon { width: 52px; height: 52px; }
   .oral-container.oral-hub-screen .oral-hub-icon .icon { width: 26px; height: 26px; }
 }
-.oral-hub-icon {
+.oral-hub-icon, .hub-row-icon {
   display: flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; flex: none;
   border-radius: var(--r-md);
   background: var(--accent, var(--ink-3));
   color: var(--stock-ink);
 }
-.oral-hub-icon .icon { width: 22px; height: 22px; }
-.oral-hub-title { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
-.oral-hub-detail { font-size: var(--t-meta); color: var(--ink-2); line-height: 1.5; }
-.oral-hub-stat {
+.oral-hub-icon .icon, .hub-row-icon .icon { width: 22px; height: 22px; }
+.oral-hub-title, .hub-row-title { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.oral-hub-detail, .hub-row-detail { font-size: var(--t-meta); color: var(--ink-2); line-height: 1.5; }
+.oral-hub-stat, .hub-row-stat {
   margin-top: var(--s1);
   font-family: var(--code); font-size: var(--t-micro);
   color: var(--accent, var(--ink-3));
@@ -412,7 +413,7 @@
   border: 1px solid var(--rule);
   border-radius: var(--r-md); overflow: hidden;
 }
-.mode-btn, .card, .sos-option-card, .oral-choice, .pinakakia-card {
+.mode-btn, .card, .sos-option-card, .oral-choice {
   display: grid; gap: var(--s1);
   padding: var(--s4);
   background: var(--ground);
@@ -423,7 +424,7 @@
   transition: background 0.12s var(--ease);
 }
 .mode-btn:hover, .card:hover, .sos-option-card:hover,
-.oral-choice:hover, .pinakakia-card:hover { background: var(--raised); }
+.oral-choice:hover { background: var(--raised); }
 
 /* Matching-mode answer key: denser than a mode tile, so its own rule rather
    than joining the card group above. Was previously unstyled — a bare
@@ -508,7 +509,7 @@
 /* Rows stop where their content does, rather than stretching the full sheet
    and stranding a trailing control far from its text. */
 .topic-list, .subtopic-list, .oral-question-list, .sos-list,
-.sos-number-list, .vignette-list, .DSM5-chapter-list, .pinakakia-list,
+.sos-number-list, .vignette-list, .DSM5-chapter-list,
 .crucial-index-list, .wrong-answer-list, .topic-performance-list {
   display: grid; max-width: 940px;
 }
@@ -1364,10 +1365,12 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 .pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s5); }
 .pinakakia-search-wrap { display: grid; gap: var(--s2); }
-.pinakakia-search-summary, .pinakakia-viewer-meta { font-size: var(--t-micro); color: var(--ink-3); }
-.pinakakia-section-title {
-  font-size: var(--t-label); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-2);
+.pinakakia-search-summary { font-size: var(--t-micro); color: var(--ink-3); }
+/* Four optional facts (source, box, chapter, page) as bare sibling <span>s
+   with no separating whitespace in the markup — a gap, not adjacency. */
+.pinakakia-viewer-meta {
+  display: flex; flex-wrap: wrap; gap: var(--s3);
+  font-size: var(--t-micro); color: var(--ink-3);
 }
 .pinakakia-book-box { display: grid; gap: var(--s3); }
 .pinakakia-book-header {

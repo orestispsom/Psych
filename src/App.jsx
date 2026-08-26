@@ -6541,15 +6541,35 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   };
 
   if (screen === "sources") {
+    const oxfordCount = boxesForSource("oxford").length;
+    const crashCount = boxesForSource("crash").length;
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Πινακάκια</h2>
-        <div className="pinakakia-list">
-          <button className="pinakakia-card" onClick={() => { setSourceKey("oxford"); setScreen("oxford-modes"); }}>
-            Oxford <Icons.ChevronRight />
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Ενότητα</span>
+            <h2>Πινακάκια</h2>
+            <span className="sheet-sub">Γρήγορη αναζήτηση σε πλαίσια αναφοράς από τα δύο εγχειρίδια</span>
+          </div>
+        </div>
+        <div className="hub-row-grid">
+          <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-modes"); }}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Oxford</span>
+              <span className="hub-row-detail">Πλαίσια αναφοράς από το Oxford Handbook, ανά κεφάλαιο.</span>
+              <span className="hub-row-stat">{plural(oxfordCount, "πινακάκιο", "πινακάκια")}</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-          <button className="pinakakia-card" onClick={() => { setSourceKey("crash"); setScreen("crash-modes"); }}>
-            Crash Course <Icons.ChevronRight />
+          <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-modes"); }}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Crash Course</span>
+              <span className="hub-row-detail">Πλαίσια αναφοράς από το Crash Course, με τη σειρά τους.</span>
+              <span className="hub-row-stat">{plural(crashCount, "πινακάκιο", "πινακάκια")}</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
         </div>
       </>
@@ -6560,13 +6580,29 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = boxesForSource("oxford");
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Oxford</h2>
-        <div className="pinakakia-list">
-          <button className="pinakakia-card" onClick={() => setScreen("oxford-chapters")}>
-            Κεφάλαια <Icons.ChevronRight />
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Πινακάκια</span>
+            <h2>Oxford</h2>
+            <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")} σε {oxfordChapterGroups.length} κεφάλαια</span>
+          </div>
+        </div>
+        <div className="hub-row-grid">
+          <button className="hub-row" onClick={() => setScreen("oxford-chapters")}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Κεφάλαια</span>
+              <span className="hub-row-detail">Περιήγηση με τη σειρά του βιβλίου.</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-          <button className="pinakakia-card" disabled={!boxes.length} onClick={() => openRandom("oxford", "oxford-modes")}>
-            Τυχαία <Icons.ChevronRight />
+          <button className="hub-row" disabled={!boxes.length} onClick={() => openRandom("oxford", "oxford-modes")}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.Globe /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Τυχαία</span>
+              <span className="hub-row-detail">Ένα τυχαίο πινακάκιο κάθε φορά, για γρήγορη ανασκόπηση.</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
         </div>
         {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Oxford.</div>}
@@ -6577,18 +6613,30 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   if (screen === "oxford-chapters") {
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Oxford — Κεφάλαια</h2>
-        <div className="pinakakia-list">
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Oxford</span>
+            <h2>Κεφάλαια</h2>
+          </div>
+        </div>
+        <div className="items">
           {oxfordChapterGroups.map(([chapter, boxes]) => (
             <button
               key={chapter}
-              className="pinakakia-row"
+              className="item"
               onClick={() => {
                 setSelectedChapter(chapter);
                 setScreen("oxford-boxes", chapter);
               }}
             >
-              <span className="pinakakia-row-title">Κεφάλαιο {chapter} — {boxes.length} πινακάκια</span>
+              <span className="item-num">{String(chapter).padStart(2, "0")}</span>
+              <span className="item-body">
+                <span className="item-title">Κεφάλαιο {chapter}</span>
+                <span className="item-meta"><span>{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span></span>
+              </span>
+              <span className="item-side">
+                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+              </span>
             </button>
           ))}
         </div>
@@ -6601,16 +6649,27 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = boxesForSource("oxford").filter(box => Number(box.chapter) === Number(selectedChapter));
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Κεφάλαιο {selectedChapter}</h2>
-        <div className="pinakakia-list">
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Oxford · Κεφάλαιο {selectedChapter}</span>
+            <h2>{plural(boxes.length, "πινακάκιο", "πινακάκια")}</h2>
+          </div>
+        </div>
+        <div className="items">
           {boxes.map((box, index) => (
             <button
               key={box.id}
-              className="pinakakia-row"
+              className="item"
               onClick={() => openViewer("oxford", boxes, index, { backScreen: "oxford-boxes", backChapter: selectedChapter })}
             >
-              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
-              <span className="pinakakia-row-meta">{box.page && <span>pg. {box.page}</span>}</span>
+              <span className="item-num">{box.boxNumber}</span>
+              <span className="item-body">
+                <span className="item-title">{box.title}</span>
+                {box.page && <span className="item-meta"><span>pg. {box.page}</span></span>}
+              </span>
+              <span className="item-side">
+                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+              </span>
             </button>
           ))}
         </div>
@@ -6622,13 +6681,29 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = boxesForSource("crash");
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Crash Course</h2>
-        <div className="pinakakia-list">
-          <button className="pinakakia-card" onClick={() => setScreen("crash-list")}>
-            Με σειρά <Icons.ChevronRight />
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Πινακάκια</span>
+            <h2>Crash Course</h2>
+            <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span>
+          </div>
+        </div>
+        <div className="hub-row-grid">
+          <button className="hub-row" onClick={() => setScreen("crash-list")}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Με σειρά</span>
+              <span className="hub-row-detail">Περιήγηση με τη σειρά του βιβλίου.</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-          <button className="pinakakia-card" disabled={!boxes.length} onClick={() => openRandom("crash", "crash-modes")}>
-            Τυχαία <Icons.ChevronRight />
+          <button className="hub-row" disabled={!boxes.length} onClick={() => openRandom("crash", "crash-modes")}>
+            <span className="hub-row-icon" aria-hidden="true"><Icons.Globe /></span>
+            <span className="hub-row-body">
+              <span className="hub-row-title">Τυχαία</span>
+              <span className="hub-row-detail">Ένα τυχαίο πινακάκιο κάθε φορά, για γρήγορη ανασκόπηση.</span>
+            </span>
+            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
         </div>
         {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Crash Course.</div>}
@@ -6640,16 +6715,27 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = boxesForSource("crash");
     return renderShell(
       <>
-        <h2 className="pinakakia-section-title">Crash Course — Με σειρά</h2>
-        <div className="pinakakia-list">
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Crash Course</span>
+            <h2>Με σειρά</h2>
+          </div>
+        </div>
+        <div className="items">
           {boxes.map((box, index) => (
             <button
               key={box.id}
-              className="pinakakia-row"
+              className="item"
               onClick={() => openViewer("crash", boxes, index, { backScreen: "crash-list" })}
             >
-              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
-              <span className="pinakakia-row-meta">{box.page && <span>pg. {box.page}</span>}</span>
+              <span className="item-num">{box.boxNumber}</span>
+              <span className="item-body">
+                <span className="item-title">{box.title}</span>
+                {box.page && <span className="item-meta"><span>pg. {box.page}</span></span>}
+              </span>
+              <span className="item-side">
+                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+              </span>
             </button>
           ))}
         </div>
