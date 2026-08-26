@@ -54,11 +54,26 @@
 
 /* ═══ HOME ════════════════════════════════════════════════════ */
 
-.home { display: grid; gap: var(--s6); }
+.home { display: grid; gap: var(--s3); }
 
 .home-header { display: grid; gap: var(--s2); }
 .home-title { font-size: var(--t-title); }
 .home-logo { display: none; }
+
+/* On desktop the home screen is a fixed composition, never a scroll: the
+   fixed-height blocks (title, update, figures, "Ενότητες" head) take their
+   natural size and the module grid absorbs whatever's left, so the cards
+   are always as big as the viewport allows. */
+@media (min-width: 900px) {
+  .home {
+    display: flex; flex-direction: column;
+    /* A hard boundary, not a floor: flexbox shrinks the module grid to fit
+       rather than the page ever growing past one viewport. */
+    height: calc(100vh - var(--s8) - var(--s16));
+  }
+  .home-modules-section { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .home-modules-section .home-modules { flex: 1; min-height: 0; }
+}
 
 .home-section-heading {
   font-size: var(--t-label); font-weight: 600;
@@ -77,6 +92,10 @@
   display: flex; flex-wrap: wrap;
   border-top: 1px solid var(--rule);
 }
+/* Home already separates Update from the figures with whitespace and
+   different content types — the rule there was a redundant third divider. */
+.home .figures { border-top: none; }
+.home .figure { padding-top: var(--s2); padding-bottom: var(--s2); }
 .figure {
   flex: 0 0 auto;
   min-width: 84px;
@@ -151,8 +170,25 @@
   .home-modules { grid-template-columns: 1fr; max-width: none; }
   .home-module { height: 116px; }
 }
+/* ≥900px: the grid fills whatever room the flexed section leaves, both
+   axes — the cards are exactly as big as the fixed-height blocks allow. */
+@media (min-width: 900px) {
+  .home-modules-section .home-modules {
+    max-width: none; height: 100%;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+  .home-modules-section .home-module {
+    height: 100%;
+    padding: var(--s5);
+    justify-content: center;
+  }
+  .home-modules-section .home-module-icon { width: 52px; height: 52px; }
+  .home-modules-section .home-module-icon .icon { width: 26px; height: 26px; }
+  .home-modules-section .home-module-title { font-size: 22px; }
+  .home-modules-section .home-module-detail { font-size: var(--t-meta); margin-top: 0; }
+}
 .home-update-note {
-  display: grid; gap: 2px; padding: var(--s3) 0;
+  display: grid; gap: 2px; padding: var(--s2) 0;
   border-bottom: 1px solid var(--rule);
   text-align: left; width: 100%;
 }

@@ -3094,7 +3094,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         </div>
       </div>
 
-      <div>
+      <div className="home-modules-section">
         <div className="subscale">
           <h2 className="subscale-title">Ενότητες</h2>
           <span className="subscale-rule" />
