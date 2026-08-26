@@ -207,3 +207,22 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 901–1,000.
+
+## Batch 010 — IDs 901–1,000
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 917, 927, 932, 977, 988, 989, 996, and 997: replaced residual English or malformed learner-facing terminology with Greek clinical wording.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 971: the claimed Child Behavior Checklist profile for autism needs a source and should not imply diagnostic specificity.
+- ID 977: the label `παραληρητική διαταραχή πολύ όψιμης έναρξης` requires a source-defined classification framework; it was translated but not clinically reclassified.
+
+### Next batch
+
+IDs 1,001–1,100.
