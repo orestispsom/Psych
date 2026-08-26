@@ -318,6 +318,9 @@ const UPDATE_MESSAGE_SETTING_KEY = "home_update_message";
 const DEFAULT_UPDATE_MESSAGE = "\u039c\u03bf\u03b9\u03c1\u03b1\u03c3\u03c4\u03b5\u03af\u03c4\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c6\u03b1\u03c1\u03bc\u03bf\u03b3\u03ae \u03c5\u03c0\u03b5\u03cd\u03b8\u03b7\u03bd\u03b1.";
 const SUPPORT_WIDGET_SETTING_KEY = "support_widget_enabled";
 const SUPPORT_WIDGET_LOCAL_KEY = "psych_support_widget_enabled";
+const SUPPORT_WIDGET_DELAY_SETTING_KEY = "support_widget_delay_min";
+const SUPPORT_WIDGET_DELAY_LOCAL_KEY = "psych_support_widget_delay_min";
+const SUPPORT_WIDGET_DEFAULT_DELAY_MIN = 30;
 const ADMIN_PROFILE_ID = "orestis";
 const ADMIN_PASSWORD_SALT = "psych-admin-gate-v1";
 const ADMIN_PASSWORD_HASH = "6c257c22343abe14b00c4efcd7ce29b038157578ee4b18972efff8ff2b165ef1";
@@ -1019,6 +1022,50 @@ function loadLocalSupportWidgetEnabled() {
 function saveLocalSupportWidgetEnabled(enabled) {
   try {
     window.localStorage.setItem(SUPPORT_WIDGET_LOCAL_KEY, enabled ? "1" : "0");
+  } catch {
+    /* best effort */
+  }
+}
+
+async function loadRemoteSupportWidgetDelayMinutes() {
+  const rows = await supabaseTableRequest(SUPABASE_APP_SETTINGS_TABLE, {
+    select: "key,value",
+    key: `eq.${SUPPORT_WIDGET_DELAY_SETTING_KEY}`,
+    limit: "1",
+  });
+  const value = Number(rows?.[0]?.value);
+  return Number.isFinite(value) && value > 0 ? value : SUPPORT_WIDGET_DEFAULT_DELAY_MIN;
+}
+
+async function saveRemoteSupportWidgetDelayMinutes(minutes) {
+  await supabaseTableRequest(
+    SUPABASE_APP_SETTINGS_TABLE,
+    { on_conflict: "key" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        key: SUPPORT_WIDGET_DELAY_SETTING_KEY,
+        value: String(minutes),
+        updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+  return minutes;
+}
+
+function loadLocalSupportWidgetDelayMinutes() {
+  try {
+    const value = Number(window.localStorage.getItem(SUPPORT_WIDGET_DELAY_LOCAL_KEY));
+    return Number.isFinite(value) && value > 0 ? value : SUPPORT_WIDGET_DEFAULT_DELAY_MIN;
+  } catch {
+    return SUPPORT_WIDGET_DEFAULT_DELAY_MIN;
+  }
+}
+
+function saveLocalSupportWidgetDelayMinutes(minutes) {
+  try {
+    window.localStorage.setItem(SUPPORT_WIDGET_DELAY_LOCAL_KEY, String(minutes));
   } catch {
     /* best effort */
   }
@@ -2646,7 +2693,7 @@ function plural(count, one, many) {
 
 // Screen and mode names, shared by the shell, the resume block and the titles.
 const SCREEN_TITLES = {
-  home: "Εξετάσεις Ειδικότητας",
+  home: "Επανάληψη Ψυχιατρικής",
   mcq: "Πολλαπλής Επιλογής",
   oral: "Προφορικά",
   "oral-past": "Προηγούμενα Θέματα",
@@ -2778,7 +2825,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
         <div className="profile-panel">
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ψυχιατρική</span>
-          <h1>Εξετάσεις Ειδικότητας</h1>
+          <h1>Επανάληψη Ψυχιατρικής</h1>
         </div>
         <p>Διάλεξε ή δημιούργησε προφίλ μελέτης. Η πρόοδός σου κρατιέται ανά προφίλ.</p>
         <div className={`sync-status ${syncStatus}`} role="status">
@@ -2913,7 +2960,7 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
 // dispatch point, not a list of study items.
 const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
 
-function HomeModuleCard({ id, icon, title, detail, level, onOpen }) {
+function HomeModuleCard({ id, icon, title, detail, onOpen }) {
   return (
     <button
       type="button"
@@ -2923,11 +2970,6 @@ function HomeModuleCard({ id, icon, title, detail, level, onOpen }) {
       <span className="home-module-icon" aria-hidden="true">{icon}</span>
       <span className="home-module-title">{title}</span>
       {detail && <span className="home-module-detail">{detail}</span>}
-      {typeof level === "number" && (
-        <span className="home-module-progress">
-          <ScaleStrip level={level} label={`Πρόοδος: ${title}`} />
-        </span>
-      )}
       <span className="home-module-chevron" aria-hidden="true">
         <Icons.ChevronRight />
       </span>
@@ -2941,27 +2983,18 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
-  const mcqLevel = mcqProgressSummary.total
-    ? Math.round((mcqProgressSummary.mastered / mcqProgressSummary.total) * 5)
-    : 0;
-  const oralLevel = oralProgressSummary.total
-    ? Math.round((oralProgressSummary.mastered / oralProgressSummary.total) * 5)
-    : 0;
-
   const sections = [
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
       detail: `${plural(mcqProgressSummary.total, "ερώτηση", "ερωτήσεις")} · ${mcqProgressSummary.mastered} mastered`,
-      level: mcqLevel,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
       detail: `${plural(oralProgressSummary.total, "θέμα", "θέματα")} · ${oralProgressSummary.mastered} mastered`,
-      level: oralLevel,
     },
     {
       id: 'sos',
@@ -3009,51 +3042,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   return (
     <div className="home">
       <div className="home-header">
-        <h1 className="home-title">Εξετάσεις Ειδικότητας</h1>
-        <p className="sheet-sub">
-          Ψυχιατρική — γραπτά και προφορικά. Πάτησε <span className="kbd">Ctrl K</span> για αναζήτηση σε όλο το υλικό.
-        </p>
-      </div>
-
-      {resumePosition && (
-        <div className="resume">
-          <div className="resume-text">
-            <span className="resume-eyebrow">Συνέχισε από εκεί που έμεινες</span>
-            <span className="resume-title">{resumePosition.title}</span>
-          </div>
-          <div style={{ display: 'flex', gap: 'var(--s2)', flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-primary" onClick={onResume}>
-              Συνέχεια <Icons.ArrowRight />
-            </button>
-            <button
-              type="button"
-              className="btn btn-quiet btn-icon"
-              onClick={onDismissResume}
-              aria-label="Καθαρισμός σημείου μελέτης"
-            >
-              <Icons.X />
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="figures">
-        <div className="figure figure-due">
-          <span className="figure-value">{mcqProgressSummary.review}</span>
-          <span className="figure-label">Για επανάληψη</span>
-        </div>
-        <div className="figure figure-pass">
-          <span className="figure-value">{mcqProgressSummary.mastered}</span>
-          <span className="figure-label">Mastered</span>
-        </div>
-        <div className="figure">
-          <span className="figure-value">{mcqProgressSummary.unseen}</span>
-          <span className="figure-label">Νέες</span>
-        </div>
-        <div className="figure">
-          <span className="figure-value">{mcqProgressSummary.accuracy}%</span>
-          <span className="figure-label">Ευστοχία</span>
-        </div>
+        <h1 className="home-title">Επανάληψη Ψυχιατρικής</h1>
       </div>
 
       <div>
@@ -3086,11 +3075,49 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         )}
       </div>
 
+      <div className="figures">
+        <div className="figure figure-due">
+          <span className="figure-value">{mcqProgressSummary.review}</span>
+          <span className="figure-label">Για επανάληψη</span>
+        </div>
+        <div className="figure figure-pass">
+          <span className="figure-value">{mcqProgressSummary.mastered}</span>
+          <span className="figure-label">Mastered</span>
+        </div>
+        <div className="figure">
+          <span className="figure-value">{mcqProgressSummary.unseen}</span>
+          <span className="figure-label">Νέες</span>
+        </div>
+        <div className="figure">
+          <span className="figure-value">{mcqProgressSummary.accuracy}%</span>
+          <span className="figure-label">Ευστοχία</span>
+        </div>
+      </div>
+
       <div>
         <div className="subscale">
           <h2 className="subscale-title">Ενότητες</h2>
           <span className="subscale-rule" />
-          <span />
+          {resumePosition ? (
+            <span className="home-resume-inline">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={onResume}
+                title={resumePosition.title}
+              >
+                Συνέχεια <Icons.ArrowRight />
+              </button>
+              <button
+                type="button"
+                className="btn btn-quiet btn-sm btn-icon"
+                onClick={onDismissResume}
+                aria-label="Καθαρισμός σημείου μελέτης"
+              >
+                <Icons.X />
+              </button>
+            </span>
+          ) : <span />}
         </div>
         <div className="home-modules">
           {sections.map(section => (
@@ -7003,9 +7030,11 @@ export default function App() {
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
-  const [supportWidgetEnabled, setSupportWidgetEnabled] = useState(() =>
-    ONLINE_PROFILES_ENABLED ? true : loadLocalSupportWidgetEnabled()
-  );
+  // Seeded from local storage even when a remote value will follow: if the
+  // remote write ever silently fails (missing table, RLS), this device's
+  // last-known toggle still survives a refresh instead of appearing to revert.
+  const [supportWidgetEnabled, setSupportWidgetEnabled] = useState(() => loadLocalSupportWidgetEnabled());
+  const [supportWidgetDelayMinutes, setSupportWidgetDelayMinutes] = useState(() => loadLocalSupportWidgetDelayMinutes());
   const [profileStore, setProfileStore] = useState(() => loadProfileStore());
   const [syncStatus, setSyncStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   const [mcqQualitySignals, setMcqQualitySignals] = useState({});
@@ -7103,7 +7132,7 @@ export default function App() {
 
   const shellTitle = useMemo(() => {
     if (testMode) return MCQ_MODE_LABELS[testMode] || SCREEN_TITLES[screen] || "Μελέτη";
-    return SCREEN_TITLES[screen] || "Εξετάσεις Ειδικότητας";
+    return SCREEN_TITLES[screen] || "Επανάληψη Ψυχιατρικής";
   }, [screen, testMode]);
 
   const sectionCounts = useMemo(
@@ -7305,10 +7334,29 @@ export default function App() {
     let cancelled = false;
     loadRemoteSupportWidgetEnabled()
       .then(enabled => {
-        if (!cancelled) setSupportWidgetEnabled(enabled);
+        if (cancelled) return;
+        setSupportWidgetEnabled(enabled);
+        saveLocalSupportWidgetEnabled(enabled);
       })
       .catch(() => {
-        /* keep the current (default-enabled) value if this fails to load */
+        /* remote unreachable — keep the local (last-known) value already set */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ONLINE_PROFILES_ENABLED) return;
+    let cancelled = false;
+    loadRemoteSupportWidgetDelayMinutes()
+      .then(minutes => {
+        if (cancelled) return;
+        setSupportWidgetDelayMinutes(minutes);
+        saveLocalSupportWidgetDelayMinutes(minutes);
+      })
+      .catch(() => {
+        /* remote unreachable — keep the local (last-known) value already set */
       });
     return () => {
       cancelled = true;
@@ -7506,16 +7554,28 @@ export default function App() {
   const handleToggleSupportWidget = useCallback(() => {
     setSupportWidgetEnabled(prev => {
       const next = !prev;
+      // Always write locally first: it's this device's source of truth on
+      // reload even if the remote sync below fails silently.
+      saveLocalSupportWidgetEnabled(next);
       if (ONLINE_PROFILES_ENABLED) {
         saveRemoteSupportWidgetEnabled(next).catch(() => {
-          /* the toggle already updated locally; a failed sync just means
+          /* the toggle already persisted locally; a failed sync just means
              other visitors won't see the change until it's retried */
         });
-      } else {
-        saveLocalSupportWidgetEnabled(next);
       }
       return next;
     });
+  }, []);
+
+  const handleChangeSupportWidgetDelay = useCallback((minutes) => {
+    const next = Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : SUPPORT_WIDGET_DEFAULT_DELAY_MIN;
+    setSupportWidgetDelayMinutes(next);
+    saveLocalSupportWidgetDelayMinutes(next);
+    if (ONLINE_PROFILES_ENABLED) {
+      saveRemoteSupportWidgetDelayMinutes(next).catch(() => {
+        /* persisted locally regardless */
+      });
+    }
   }, []);
 
   const updateMcqProgress = useCallback((nextOrUpdater) => {
@@ -7735,6 +7795,8 @@ export default function App() {
         onHome={() => setScreen("home")}
         supportWidgetEnabled={supportWidgetEnabled}
         onToggleSupportWidget={handleToggleSupportWidget}
+        supportWidgetDelayMinutes={supportWidgetDelayMinutes}
+        onChangeSupportWidgetDelay={handleChangeSupportWidgetDelay}
         supportWidgetSyncNote={ONLINE_PROFILES_ENABLED ? null : "μόνο σε αυτή τη συσκευή"}
       >
         <div className="sheet">
@@ -8023,7 +8085,7 @@ export default function App() {
         onNavigate={handlePaletteNavigate}
       />
       <ShortcutSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      {supportWidgetEnabled && <SupportWidget />}
+      {supportWidgetEnabled && <SupportWidget delayMinutes={supportWidgetDelayMinutes} />}
     </div>
   );
 }

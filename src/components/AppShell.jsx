@@ -52,6 +52,8 @@ export default function AppShell({
   onHome,
   supportWidgetEnabled = true,
   onToggleSupportWidget,
+  supportWidgetDelayMinutes,
+  onChangeSupportWidgetDelay,
   supportWidgetSyncNote,
   children,
 }) {
@@ -97,7 +99,7 @@ export default function AppShell({
               onClick={onHome}
               style={{ textAlign: "left", padding: 0 }}
             >
-              Εξετάσεις Ειδικότητας
+              Επανάληψη Ψυχιατρικής
             </button>
           )}
         </div>
@@ -110,12 +112,9 @@ export default function AppShell({
         >
           <Icons.Search />
           {!collapsed && (
-            <>
-              <span>Αναζήτηση υλικού</span>
-              <span className="rail-search-key" aria-hidden="true">
-                Ctrl K
-              </span>
-            </>
+            <span className="rail-search-key" aria-hidden="true">
+              Ctrl K
+            </span>
           )}
         </button>
 
@@ -131,6 +130,7 @@ export default function AppShell({
                 <button
                   type="button"
                   className="tab"
+                  style={{ "--tab-accent": `var(${SECTION_ACCENT_VAR[section.id]})` }}
                   aria-current={current === section.id ? "page" : undefined}
                   aria-label={collapsed ? section.full : undefined}
                   title={collapsed ? section.full : undefined}
@@ -159,6 +159,22 @@ export default function AppShell({
                 {supportWidgetEnabled ? "Ενεργό" : "Ανενεργό"}
               </span>
             </button>
+            {onChangeSupportWidgetDelay && (
+              <label className="admin-delay-row">
+                <span>Εμφάνιση μετά από</span>
+                <span className="admin-delay-input">
+                  <input
+                    type="number"
+                    min={1}
+                    max={180}
+                    step={5}
+                    value={supportWidgetDelayMinutes ?? 30}
+                    onChange={event => onChangeSupportWidgetDelay(Number(event.target.value))}
+                  />
+                  <span>λεπτά</span>
+                </span>
+              </label>
+            )}
             {supportWidgetSyncNote && <span className="admin-toggle-note">{supportWidgetSyncNote}</span>}
           </div>
         )}

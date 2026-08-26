@@ -66,22 +66,9 @@
   color: var(--ink-2);
 }
 
-/* Resume block — the primary action for a returning user */
-.resume {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center; gap: var(--s4);
-  padding: var(--s4) 0;
-  border-top: 1px solid var(--rule-strong);
-  border-bottom: 1px solid var(--rule-strong);
-}
-.resume-text { display: grid; gap: var(--s1); min-width: 0; }
-.resume-eyebrow {
-  font-size: var(--t-micro); color: var(--mark);
-  text-transform: uppercase; letter-spacing: 0.1em;
-}
-.resume-title { font-size: var(--t-item); font-weight: 600; }
-.resume-meta { font-size: var(--t-meta); color: var(--ink-2); }
+/* Resume — a small button living in the "Ενότητες" header row itself
+   (the subscale head's trailing slot) rather than a whole dedicated row. */
+.home-resume-inline { display: flex; align-items: center; gap: var(--s1); }
 
 /* Today's figures — secondary context, not the reason the trainee opened
    this screen. Hugs its own content instead of stretching to fill a wide
@@ -120,12 +107,14 @@
   gap: var(--s4);
   max-width: 760px;
 }
+/* Fixed height, not min-height: all four read as one set regardless of
+   which ones happen to carry a detail line, so the grid is visibly even. */
 .home-module {
   position: relative;
   display: flex; flex-direction: column;
-  gap: var(--s4);
-  min-height: 152px;
-  padding: var(--s5) var(--s5) var(--s4);
+  gap: var(--s3);
+  height: 144px;
+  padding: var(--s4);
   text-align: left;
   background: var(--module-quiet);
   border: 1px solid var(--module-rule);
@@ -136,23 +125,22 @@
 .home-module:hover { border-color: var(--module); transform: translateY(-2px); }
 .home-module-icon {
   display: flex; align-items: center; justify-content: center;
-  width: 52px; height: 52px; flex: none;
+  width: 44px; height: 44px; flex: none;
   border-radius: var(--r-md);
   background: var(--module);
   color: var(--stock-ink);
 }
-.home-module-icon .icon { width: 26px; height: 26px; }
+.home-module-icon .icon { width: 22px; height: 22px; }
 .home-module-title {
   display: block;
-  font-size: 20px; font-weight: 700; letter-spacing: -0.01em;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
 }
 .home-module-detail {
-  display: block; margin-top: 2px;
-  font-size: var(--t-meta); color: var(--ink-2);
+  display: block; margin-top: -4px;
+  font-size: var(--t-micro); color: var(--ink-2);
 }
-.home-module-progress { margin-top: auto; }
 .home-module-chevron {
-  position: absolute; top: var(--s5); right: var(--s5);
+  position: absolute; top: var(--s4); right: var(--s4);
   display: flex; color: var(--module);
 }
 .home-module-mcq { --module: var(--sec-mcq); --module-quiet: var(--sec-mcq-quiet); --module-rule: var(--rule-strong); }
@@ -161,7 +149,7 @@
 .home-module-boxes { --module: var(--sec-boxes); --module-quiet: var(--sec-boxes-quiet); --module-rule: var(--rule-strong); }
 @media (max-width: 699px) {
   .home-modules { grid-template-columns: 1fr; max-width: none; }
-  .home-module { min-height: 128px; padding: var(--s4); }
+  .home-module { height: 116px; }
 }
 .home-update-note {
   display: grid; gap: 2px; padding: var(--s3) 0;

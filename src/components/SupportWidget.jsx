@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const BMC_URL = "https://buymeacoffee.com/kmivzd3csi";
-const SHOW_AFTER_MS = 30 * 60 * 1000; // 30 minutes
+const DEFAULT_DELAY_MIN = 30;
 const DISMISS_KEY = "psych_support_dismissed";
 
 /**
@@ -12,13 +12,14 @@ const DISMISS_KEY = "psych_support_dismissed";
  * Mounted once at the App root (a sibling of AppShell, not inside it), so it
  * survives every route change: navigating between MCQ/oral/SOS/tables never
  * unmounts App itself, only the screen content inside the shell, so the
- * 30-minute timer keeps running and the popup can appear on whatever screen
- * the trainee happens to be on when it fires.
+ * delay timer keeps running and the popup can appear on whatever screen
+ * the trainee happens to be on when it fires. The delay itself is an
+ * admin-controlled setting (default 30 minutes), not a fixed constant.
  *
  * "Not again this session" uses sessionStorage, not localStorage — closing
  * it quiets it for this tab until the next visit, not forever.
  */
-export default function SupportWidget() {
+export default function SupportWidget({ delayMinutes = DEFAULT_DELAY_MIN }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -30,9 +31,10 @@ export default function SupportWidget() {
     }
     if (dismissed) return undefined;
 
-    const timer = setTimeout(() => setVisible(true), SHOW_AFTER_MS);
+    const showAfterMs = (Number.isFinite(delayMinutes) && delayMinutes > 0 ? delayMinutes : DEFAULT_DELAY_MIN) * 60 * 1000;
+    const timer = setTimeout(() => setVisible(true), showAfterMs);
     return () => clearTimeout(timer);
-  }, []);
+  }, [delayMinutes]);
 
   const dismiss = () => {
     setVisible(false);
