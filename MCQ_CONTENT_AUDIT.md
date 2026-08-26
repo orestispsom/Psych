@@ -73,3 +73,31 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 301–400.
+
+## Batch 004 — IDs 301–400
+
+Status: reviewed on 2026-08-26.
+
+### Applied high-confidence corrections
+
+- IDs 319 and 337: expanded clinical abbreviations in explanatory prose to `κακόηθες νευροληπτικό σύνδρομο` and `γενικευμένη αγχώδης διαταραχή`.
+- ID 328: made the explanation's term for bulimia consistent with the stem.
+- ID 333: corrected the malformed phrase `χειρουργική επιβεβαίωσης φύλου` to `χειρουργική επέμβαση επιβεβαίωσης φύλου`.
+- ID 347: replaced the hybrid `μετατραυματική διαταραχή stress` with `διαταραχή μετατραυματικού στρες` and corrected subject–verb agreement.
+- ID 360: removed an unnecessary English duplicate of the already translated trait name.
+- ID 363: translated the hybrid treatment option and introduced `applied tension` after the Greek clinical term in the explanation.
+- ID 389: repaired an ungrammatical stem and replaced the hybrid verb `enact` with natural Greek.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 306: the `περίπου 20%` long-term mortality claim after 25–30 years needs a traceable contemporary source and a defined cohort; the exact-source item was left unchanged.
+- ID 311: the key singles out `ασιατική καταγωγή` as a risk factor for clozapine agranulocytosis. This needs current source-level verification and an equity-sensitive reauthoring decision before it can remain a learner-facing single-best-answer item.
+- ID 315: although bromocriptine can lower prolactin pharmacologically, dopamine agonism may worsen psychosis. The current explanation flags this but the keyed answer needs an exam-author decision about whether it is clinically appropriate as the sole best answer.
+- ID 347: the unqualified claim that one trauma-exposed group has the `highest frequency` of post-traumatic stress disorder is population- and measurement-dependent; retain the exact-source key pending a source-level review.
+- ID 398: the broad category `ψυχοσωματική διαταραχή` is not operationally defined and classifying immune-mediated diseases this way is clinically dated. The question needs reauthoring against a specified diagnostic or teaching framework.
+
+### Next batch
+
+IDs 401–500.
