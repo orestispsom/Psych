@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router";
 import App from "./App";
@@ -14,12 +14,19 @@ function renderApp() {
   );
 }
 
-async function createProfile(user, name) {
+async function createProfile(user, name, container) {
   const input = await screen.findByLabelText("Όνομα προφίλ");
   await user.type(input, name);
   await user.click(screen.getByRole("button", { name: /Συνέχεια/ }));
-  // Home renders once the profile is selected — its module row is the signal.
-  await screen.findByText("Πολλαπλής Επιλογής");
+  // Home renders once the profile is selected — its module grid is the signal.
+  return within(await waitForHomeModules(container));
+}
+
+async function waitForHomeModules(container) {
+  await waitFor(() => {
+    expect(container.querySelector(".home-modules")).toBeTruthy();
+  });
+  return container.querySelector(".home-modules");
 }
 
 function readProfileStore() {
@@ -29,6 +36,10 @@ function readProfileStore() {
 
 beforeEach(() => {
   window.localStorage.clear();
+  // jsdom's window.location/history persists across tests within a file;
+  // reset it so each fresh render starts at "/" instead of wherever the
+  // previous test's BrowserRouter navigation left off.
+  window.history.pushState({}, "", "/");
 });
 
 afterEach(() => {
@@ -44,13 +55,13 @@ describe("golden path smoke tests", () => {
 
   it("creates a profile and reaches Home with all four study sections", async () => {
     const user = userEvent.setup();
-    renderApp();
-    await createProfile(user, "Δοκιμαστικός");
+    const { container } = renderApp();
+    const home = await createProfile(user, "Δοκιμαστικός", container);
 
-    expect(screen.getByText("Πολλαπλής Επιλογής")).toBeInTheDocument();
-    expect(screen.getByText("Προφορικά")).toBeInTheDocument();
-    expect(screen.getByText("SOS")).toBeInTheDocument();
-    expect(screen.getByText("Πινακάκια")).toBeInTheDocument();
+    expect(home.getByText("Πολλαπλής Επιλογής")).toBeInTheDocument();
+    expect(home.getByText("Προφορικά")).toBeInTheDocument();
+    expect(home.getByText("SOS")).toBeInTheDocument();
+    expect(home.getByText("Πινακάκια")).toBeInTheDocument();
   });
 
   // Regression guard for the cold-start bug: the whole app used to block on
@@ -58,10 +69,10 @@ describe("golden path smoke tests", () => {
   // before showing ANY screen, even ones that don't need that data.
   it("SOS is reachable immediately, without waiting on the MCQ question bank", async () => {
     const user = userEvent.setup();
-    renderApp();
-    await createProfile(user, "ΔοκιμαστικόςSOS");
+    const { container } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςSOS", container);
 
-    await user.click(screen.getByText("SOS"));
+    await user.click(home.getByText("SOS"));
 
     expect(
       screen.queryByText("Προετοιμασία της τράπεζας ερωτήσεων…")
@@ -71,10 +82,10 @@ describe("golden path smoke tests", () => {
 
   it("Πινακάκια is reachable immediately, without waiting on the MCQ question bank", async () => {
     const user = userEvent.setup();
-    renderApp();
-    await createProfile(user, "ΔοκιμαστικόςTables");
+    const { container } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςTables", container);
 
-    await user.click(screen.getByText("Πινακάκια"));
+    await user.click(home.getByText("Πινακάκια"));
 
     expect(
       screen.queryByText("Προετοιμασία της τράπεζας ερωτήσεων…")
@@ -83,10 +94,10 @@ describe("golden path smoke tests", () => {
 
   it("the MCQ hub loads and lists its study modes", async () => {
     const user = userEvent.setup();
-    renderApp();
-    await createProfile(user, "ΔοκιμαστικόςMCQ");
+    const { container } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςMCQ", container);
 
-    await user.click(screen.getByText("Πολλαπλής Επιλογής"));
+    await user.click(home.getByText("Πολλαπλής Επιλογής"));
 
     expect(await screen.findByText("Τυχαία Θέματα", {}, { timeout: 10000 })).toBeInTheDocument();
     expect(screen.getByText("Vignettes")).toBeInTheDocument();
@@ -98,9 +109,9 @@ describe("golden path smoke tests", () => {
   it("marking an SOS entry as mastered persists to the profile store", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();
-    await createProfile(user, "ΔοκιμαστικόςMastery");
+    const home = await createProfile(user, "ΔοκιμαστικόςMastery", container);
 
-    await user.click(screen.getByText("SOS"));
+    await user.click(home.getByText("SOS"));
     await user.click(await screen.findByText("Κρίσιμα Θέματα"));
 
     const firstEntry = container.querySelector(".sos-list-open");

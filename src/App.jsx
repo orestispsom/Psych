@@ -4379,7 +4379,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
   const [flaggedIds, setFlaggedIds] = useState(() => new Set());
-  const [showSimTray, setShowSimTray] = useState(false);
+  const [showSimTray, setShowSimTray] = useState(true);
   const [simSeconds, setSimSeconds] = useState(0);
   const [showSimTimer, setShowSimTimer] = useState(true);
   const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
@@ -5449,24 +5449,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           <button className="back-link" onClick={onBack} style={{ margin: 0 }}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
-          <div className="mcq-top-nav-center">
-            {flaggedIds.size > 0 && (
-              <span className="mcq-top-flag-badge">
-                🚩 {flaggedIds.size} για έλεγχο
-              </span>
-            )}
-          </div>
-          <div className="mcq-top-nav-right">
-            {mode === "written" && (
-              <button
-                type="button"
-                className="sim-tray-toggle-btn"
-                onClick={() => setShowSimTray(open => !open)}
-              >
-                📋 Πλοηγός ({writtenAnsweredCount}/{totalQ}) {showSimTray ? "▲" : "▼"}
-              </button>
-            )}
-          </div>
+          {flaggedIds.size > 0 && (
+            <span className="mcq-top-flag-badge">
+              🚩 {flaggedIds.size} για έλεγχο
+            </span>
+          )}
         </div>
 
         <div className="mcq-question-header">
@@ -5614,7 +5601,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       <aside className="mcq-side-rail" aria-label="Πρόοδος εξέτασης">
         <div className="mcq-rail-header">
-          <span className="sheet-eyebrow" style={{ margin: 0 }}>{modeTitle}</span>
+          <span className="mcq-rail-title">{modeTitle}</span>
           <div
             className="mcq-rail-timer"
             onClick={() => setShowSimTimer(t => !t)}
