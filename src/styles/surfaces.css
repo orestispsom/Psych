@@ -422,12 +422,12 @@
   font-size: var(--t-meta);
   transition: background 0.12s var(--ease);
 }
-.choice-card:hover { background: var(--raised); }
-.choice-card.selected { box-shadow: inset 2px 0 0 var(--mark); }
-.choice-card.correct { background: var(--pass-quiet); }
-.choice-card.correct .choice-id { color: var(--pass); }
-.choice-card.incorrect { background: var(--mark-quiet); }
-.choice-card.incorrect .choice-id { color: var(--mark); }
+.choice-card:hover:not(.correct):not(.incorrect) { background: var(--raised); }
+.choice-card.selected:not(.correct):not(.incorrect) { box-shadow: inset 2px 0 0 var(--mark); }
+.choice-card.correct, .choice-card.correct:hover { background: rgba(34, 197, 94, 0.16) !important; border-color: #22c55e !important; }
+.choice-card.correct .choice-id { color: #22c55e !important; font-weight: 700; }
+.choice-card.incorrect, .choice-card.incorrect:hover { background: rgba(239, 68, 68, 0.16) !important; border-color: #ef4444 !important; }
+.choice-card.incorrect .choice-id { color: #ef4444 !important; font-weight: 700; }
 .card-title, .sos-option-title, .card-heading {
   font-size: var(--t-item); font-weight: 600;
 }
@@ -673,7 +673,7 @@
 
 /* An option row is a control, so it is contained — the one legitimate case. */
 .mode-btn.option, .options-list > button, .DSM5-options > button,
-.structured-option {
+.structured-option, .option-btn {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr) auto;
   align-items: start; gap: var(--s3);
@@ -685,45 +685,103 @@
   border-radius: var(--r-md);
   color: var(--ink);
   font-size: var(--t-item); line-height: 1.45;
-  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease), box-shadow 0.12s var(--ease);
 }
-.options-list > button:hover:not(:disabled),
-.DSM5-options > button:hover:not(:disabled),
-.structured-option:hover:not(:disabled) {
+
+.options-list > button:hover:not(:disabled):not(.locked):not(.correct):not(.incorrect),
+.DSM5-options > button:hover:not(:disabled):not(.locked):not(.correct):not(.incorrect),
+.structured-option:hover:not(:disabled):not(.locked):not(.correct):not(.incorrect),
+.option-btn:hover:not(:disabled):not(.locked):not(.correct):not(.incorrect) {
   border-color: var(--ink-3); background: var(--raised);
 }
 
 .option-letter, .structured-option-letter, .DSM5-option-text::before {
-  font-family: var(--code); font-size: var(--t-body); font-weight: 500;
+  font-family: var(--code); font-size: var(--t-body); font-weight: 600;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
   padding-top: 1px;
 }
 
 /* Chosen but not yet submitted: the mark in the margin, as on a paper sheet. */
-.option-btn.selected {
+.option-btn.selected:not(.correct):not(.incorrect) {
   border-color: var(--ink-3);
   background: var(--raised);
-  box-shadow: inset 3px 0 0 var(--mark);
+  box-shadow: inset 3px 0 0 var(--focus, #3b82f6);
 }
-.option-btn.selected .option-letter { color: var(--ink); }
+.option-btn.selected:not(.correct):not(.incorrect) .option-letter { color: var(--ink); }
 
 .option-btn.locked { cursor: default; }
-.option-btn.locked:not(.correct):not(.incorrect) { opacity: 0.6; }
+.option-btn.locked:not(.correct):not(.incorrect) { opacity: 0.55; }
 
-/* Answer states — colour is never the only signal; a glyph rides along. */
-.options-list > button.correct, .DSM5-options > button.correct,
-.structured-option.correct {
-  border-color: var(--pass); background: var(--pass-quiet);
+/* ─── Vivid Correct & Incorrect States (Never faded or overridden by cursor hover) ─── */
+.options-list > button.correct,
+.options-list > button.correct:hover,
+.options-list > button.correct:focus,
+.options-list > button.correct:active,
+.DSM5-options > button.correct,
+.DSM5-options > button.correct:hover,
+.structured-option.correct,
+.structured-option.correct:hover,
+.option-btn.correct,
+.option-btn.correct:hover,
+.option-btn.correct:focus {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.16) !important;
+  box-shadow: inset 0 0 0 1.5px rgba(34, 197, 94, 0.65), 0 0 12px rgba(34, 197, 94, 0.2) !important;
+  color: var(--ink) !important;
+  opacity: 1 !important;
 }
+
 .options-list > button.correct .option-letter,
-.structured-option.correct .structured-option-letter { color: var(--pass); }
-
-.options-list > button.incorrect, .DSM5-options > button.incorrect,
-.structured-option.incorrect {
-  border-color: var(--mark); background: var(--mark-quiet);
+.options-list > button.correct:hover .option-letter,
+.structured-option.correct .structured-option-letter,
+.option-btn.correct .option-letter,
+.option-btn.correct:hover .option-letter {
+  color: #22c55e !important;
+  font-weight: 700 !important;
 }
+
+.options-list > button.correct .answer-glyph,
+.options-list > button.correct:hover .answer-glyph,
+.structured-option.correct .answer-glyph,
+.option-btn.correct .answer-glyph,
+.option-btn.correct:hover .answer-glyph {
+  color: #22c55e !important;
+}
+
+.options-list > button.incorrect,
+.options-list > button.incorrect:hover,
+.options-list > button.incorrect:focus,
+.options-list > button.incorrect:active,
+.DSM5-options > button.incorrect,
+.DSM5-options > button.incorrect:hover,
+.structured-option.incorrect,
+.structured-option.incorrect:hover,
+.option-btn.incorrect,
+.option-btn.incorrect:hover,
+.option-btn.incorrect:focus {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.16) !important;
+  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.65), 0 0 12px rgba(239, 68, 68, 0.2) !important;
+  color: var(--ink) !important;
+  opacity: 1 !important;
+}
+
 .options-list > button.incorrect .option-letter,
-.structured-option.incorrect .structured-option-letter { color: var(--mark); }
+.options-list > button.incorrect:hover .option-letter,
+.structured-option.incorrect .structured-option-letter,
+.option-btn.incorrect .option-letter,
+.option-btn.incorrect:hover .option-letter {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
+.options-list > button.incorrect .answer-glyph,
+.options-list > button.incorrect:hover .answer-glyph,
+.structured-option.incorrect .answer-glyph,
+.option-btn.incorrect .answer-glyph,
+.option-btn.incorrect:hover .answer-glyph {
+  color: #ef4444 !important;
+}
 
 .options-list > button.seen { opacity: 0.72; }
 
@@ -731,9 +789,7 @@
   display: flex; align-items: center;
   flex: none; padding-top: 1px;
 }
-.answer-glyph .icon { width: 17px; height: 17px; }
-.options-list > button.correct .answer-glyph { color: var(--pass); }
-.options-list > button.incorrect .answer-glyph { color: var(--mark); }
+.answer-glyph .icon, .answer-glyph svg { width: 18px; height: 18px; }
 
 /* Denser than the app's general reading scale: the goal on this screen is
    stem + all five options + the explanation fitting one viewport. */
