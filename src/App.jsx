@@ -5449,6 +5449,24 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           <button className="back-link" onClick={onBack} style={{ margin: 0 }}>
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
+          <div className="mcq-top-nav-center">
+            {flaggedIds.size > 0 && (
+              <span className="mcq-top-flag-badge">
+                🚩 {flaggedIds.size} για έλεγχο
+              </span>
+            )}
+          </div>
+          <div className="mcq-top-nav-right">
+            {mode === "written" && (
+              <button
+                type="button"
+                className="sim-tray-toggle-btn"
+                onClick={() => setShowSimTray(open => !open)}
+              >
+                📋 Πλοηγός ({writtenAnsweredCount}/{totalQ}) {showSimTray ? "▲" : "▼"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mcq-question-header">
