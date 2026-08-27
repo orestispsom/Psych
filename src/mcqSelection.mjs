@@ -126,6 +126,8 @@ export function selectAdaptiveQuestionOrder({
 }) {
   const limit = Math.min(count, questions.length);
 
+  const getRecord = (qId) => records[qId] || records[String(qId)] || records[Number(qId)] || {};
+
   const shuffle = (array) => {
     const copy = [...array];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -135,96 +137,51 @@ export function selectAdaptiveQuestionOrder({
     return copy;
   };
 
-  const unseenPool = shuffle(questions.filter(question => !hasSeen(records[question.id])));
-  const unseenFresh = rankQuestionsWithQuality(
-    unseenPool.filter(question => !isRecent(question)),
-    () => 0,
-    qualitySignals,
-    { random, jitter: 12 }
-  );
-  const unseenAll = rankQuestionsWithQuality(
-    unseenPool,
-    () => 0,
-    qualitySignals,
-    { random, jitter: 12 }
-  );
+  // Filter out any broken or remove_candidate questions
+  const eligibleQuestions = questions.filter(q => q?.qualityStatus !== "remove_candidate");
 
-  const lightlySeenPool = shuffle(questions.filter(question => {
-    const record = records[question.id];
-    return hasSeen(record) && getSeenCount(record) <= 1 && !isMastered(record);
-  }));
-  const lightlySeenFresh = rankQuestionsWithQuality(
-    lightlySeenPool.filter(question => !isRecent(question)),
-    scoreStudy,
-    qualitySignals,
-    { random, jitter: 8 }
-  );
-  const lightlySeenAll = rankQuestionsWithQuality(
-    lightlySeenPool,
-    scoreStudy,
-    qualitySignals,
-    { random, jitter: 8 }
-  );
+  // 1. Unseen questions (never attempted or viewed)
+  const unseen = eligibleQuestions.filter(q => !hasSeen(getRecord(q.id)));
 
-  const reviewPool = shuffle(questions.filter(question => Number.isFinite(scoreReview(question))));
-  const reviewFresh = rankQuestionsWithQuality(
-    reviewPool.filter(question => !isRecent(question)),
-    scoreReview,
-    qualitySignals,
-    { random, jitter: 6 }
-  );
-  const reviewAll = rankQuestionsWithQuality(
-    reviewPool,
-    scoreReview,
-    qualitySignals,
-    { random, jitter: 6 }
-  );
+  // 2. Questions needing review (attempted, but wrong / unmastered)
+  const needsReview = eligibleQuestions.filter(q => {
+    const rec = getRecord(q.id);
+    return hasSeen(rec) && !isMastered(rec);
+  });
 
-  const broadReviewPool = shuffle(questions.filter(question => hasSeen(records[question.id])));
-  const broadReviewFresh = rankQuestionsWithQuality(
-    broadReviewPool.filter(question => !isRecent(question)),
-    question => scoreStudy(question) + (isDue(records[question.id]) ? 10 : 0),
-    qualitySignals,
-    { random, jitter: 10 }
-  );
-  const broadReviewAll = rankQuestionsWithQuality(
-    broadReviewPool,
-    question => scoreStudy(question) + (isDue(records[question.id]) ? 10 : 0),
-    qualitySignals,
-    { random, jitter: 10 }
-  );
+  // 3. Mastered questions
+  const mastered = eligibleQuestions.filter(q => {
+    const rec = getRecord(q.id);
+    return hasSeen(rec) && isMastered(rec);
+  });
+
+  // Shuffle pools with true Fisher-Yates randomness, separating fresh vs recent
+  const unseenFresh = shuffle(unseen.filter(q => !isRecent(q)));
+  const unseenRecent = shuffle(unseen.filter(q => isRecent(q)));
+
+  const needsReviewFresh = shuffle(needsReview.filter(q => !isRecent(q)));
+  const needsReviewRecent = shuffle(needsReview.filter(q => isRecent(q)));
+
+  const masteredFresh = shuffle(mastered.filter(q => !isRecent(q)));
+  const masteredRecent = shuffle(mastered.filter(q => isRecent(q)));
 
   const selected = [];
   const usedIds = new Set();
 
-  // First pass: Select exclusively from non-recent (fresh) items
+  // Tier 1: Fresh unseen questions (true random)
   appendUnique(selected, unseenFresh, usedIds, limit);
-  appendUnique(selected, lightlySeenFresh, usedIds, limit);
-  appendUnique(selected, blendQueues(reviewFresh, broadReviewFresh, questions.length), usedIds, limit);
-  appendUnique(
-    selected,
-    rankQuestionsWithQuality(
-      questions.filter(question => !isRecent(question)),
-      scoreStudy,
-      qualitySignals,
-      { random, jitter: 15 }
-    ),
-    usedIds,
-    limit
-  );
 
-  // Fallback pass: If not enough non-recent candidates exist, backfill from remaining items
-  if (selected.length < limit) {
-    appendUnique(selected, unseenAll, usedIds, limit);
-    appendUnique(selected, lightlySeenAll, usedIds, limit);
-    appendUnique(selected, blendQueues(reviewAll, broadReviewAll, questions.length), usedIds, limit);
-    appendUnique(
-      selected,
-      rankQuestionsWithQuality(questions, scoreStudy, qualitySignals, { random, jitter: 15 }),
-      usedIds,
-      limit
-    );
-  }
+  // Tier 2: Fresh review questions (true random)
+  appendUnique(selected, needsReviewFresh, usedIds, limit);
+
+  // Tier 3: Fresh mastered questions (true random)
+  appendUnique(selected, masteredFresh, usedIds, limit);
+
+  // Fallbacks if user has seen almost everything:
+  appendUnique(selected, unseenRecent, usedIds, limit);
+  appendUnique(selected, needsReviewRecent, usedIds, limit);
+  appendUnique(selected, masteredRecent, usedIds, limit);
+  appendUnique(selected, shuffle(eligibleQuestions), usedIds, limit);
 
   return selected;
 }

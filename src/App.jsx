@@ -1464,14 +1464,19 @@ async function saveRemoteQuestionStates(profileId, progress, questionIds) {
   );
 }
 
+function getQuestionRecord(records, questionId) {
+  if (!records || typeof records !== "object") return {};
+  return records[questionId] || records[String(questionId)] || records[Number(questionId)] || {};
+}
+
 function summarizeMcqProgress(progress) {
-  const records = progress.questions || {};
+  const records = progress?.questions || {};
   const total = QUESTIONS.length;
-  const seen = QUESTIONS.filter(q => hasSeenQuestion(records[q.id])).length;
-  const attempted = QUESTIONS.filter(q => getAttemptsCount(records[q.id]) > 0).length;
-  const mastered = QUESTIONS.filter(q => isQuestionMastered(records[q.id])).length;
-  const correct = QUESTIONS.reduce((sum, q) => sum + (records[q.id]?.correctCount || 0), 0);
-  const attempts = QUESTIONS.reduce((sum, q) => sum + getAttemptsCount(records[q.id]), 0);
+  const seen = QUESTIONS.filter(q => hasSeenQuestion(getQuestionRecord(records, q.id))).length;
+  const attempted = QUESTIONS.filter(q => getAttemptsCount(getQuestionRecord(records, q.id)) > 0).length;
+  const mastered = QUESTIONS.filter(q => isQuestionMastered(getQuestionRecord(records, q.id))).length;
+  const correct = QUESTIONS.reduce((sum, q) => sum + (getQuestionRecord(records, q.id)?.correctCount || 0), 0);
+  const attempts = QUESTIONS.reduce((sum, q) => sum + getAttemptsCount(getQuestionRecord(records, q.id)), 0);
 
   return {
     total,
@@ -1485,7 +1490,7 @@ function summarizeMcqProgress(progress) {
 }
 
 function getQuestionProgress(progress, questionId) {
-  return progress.questions?.[questionId] || {};
+  return getQuestionRecord(progress?.questions, questionId);
 }
 
 function getAttemptsCount(record = {}) {
@@ -8012,6 +8017,7 @@ export default function App() {
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef(null);
   const pendingMcqRemoteSaveRef = useRef(null);
+  const pendingOralRemoteSaveRef = useRef(null);
   const selectedProfile = profileStore.activeProfileId
     ? profileStore.profiles[profileStore.activeProfileId]
     : null;
@@ -8606,28 +8612,41 @@ export default function App() {
 
   const updateOralProgress = useCallback((nextOrUpdater) => {
     const profileId = profileStore.activeProfileId;
-    const profile = profileId ? profileStore.profiles[profileId] : null;
-    if (!profile) return;
+    if (!profileId) return;
 
-    const currentProgress = profile.oralProgress || createEmptyOralProgress();
-    const nextProgress = normalizeOralProgress(
-      typeof nextOrUpdater === "function"
-        ? nextOrUpdater(currentProgress)
-        : nextOrUpdater
-    );
+    setProfileStore(prev => {
+      const profile = prev.profiles[profileId];
+      if (!profile) return prev;
 
-    setProfileStore(prev => ({
-      ...prev,
-      profiles: {
-        ...prev.profiles,
-        [profileId]: {
-          ...prev.profiles[profileId],
-          oralProgress: nextProgress,
+      const currentProgress = profile.oralProgress || createEmptyOralProgress();
+      const nextProgress = normalizeOralProgress(
+        typeof nextOrUpdater === "function"
+          ? nextOrUpdater(currentProgress)
+          : nextOrUpdater
+      );
+
+      pendingOralRemoteSaveRef.current = { profileId, progress: nextProgress };
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: {
+            ...profile,
+            oralProgress: nextProgress,
+          },
         },
-      },
-    }));
-    queueRemoteOralProgressSave(profileId, nextProgress);
-  }, [profileStore.activeProfileId, profileStore.profiles, queueRemoteOralProgressSave]);
+      };
+    });
+  }, [profileStore.activeProfileId]);
+
+  useEffect(() => {
+    const pending = pendingOralRemoteSaveRef.current;
+    if (!pending) return;
+
+    pendingOralRemoteSaveRef.current = null;
+    queueRemoteOralProgressSave(pending.profileId, pending.progress);
+  }, [profileStore, queueRemoteOralProgressSave]);
 
   const setOralQuestionMastered = useCallback((questionId, mastered) => {
     updateOralProgress(progress => {
@@ -8663,36 +8682,40 @@ export default function App() {
 
   const setSosEntryMastered = useCallback((section, entryId, mastered) => {
     const profileId = profileStore.activeProfileId;
-    const profile = profileId ? profileStore.profiles[profileId] : null;
-    if (!profile) return;
+    if (!profileId) return;
 
-    const current = normalizeSosProgress(profile.sosProgress);
-    const nextSection = { ...(current.mastered[section] || {}) };
-    if (mastered) {
-      nextSection[entryId] = true;
-    } else {
-      delete nextSection[entryId];
-    }
+    setProfileStore(prev => {
+      const profile = prev.profiles[profileId];
+      if (!profile) return prev;
 
-    const nextProgress = {
-      ...current,
-      mastered: {
-        ...current.mastered,
-        [section]: nextSection,
-      },
-      updatedAt: new Date().toISOString(),
-    };
+      const current = normalizeSosProgress(profile.sosProgress);
+      const nextSection = { ...(current.mastered[section] || {}) };
+      if (mastered) {
+        nextSection[entryId] = true;
+      } else {
+        delete nextSection[entryId];
+      }
 
-    setProfileStore(prev => ({
-      ...prev,
-      profiles: {
-        ...prev.profiles,
-        [profileId]: {
-          ...prev.profiles[profileId],
-          sosProgress: nextProgress,
+      const nextProgress = {
+        ...current,
+        mastered: {
+          ...current.mastered,
+          [section]: nextSection,
         },
-      },
-    }));
+        updatedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        profiles: {
+          ...prev.profiles,
+          [profileId]: {
+            ...profile,
+            sosProgress: nextProgress,
+          },
+        },
+      };
+    });
 
     if (ONLINE_PROFILES_ENABLED) {
       setSyncStatus("saving");
@@ -8700,7 +8723,7 @@ export default function App() {
         .then(() => setSyncStatus("online"))
         .catch(() => setSyncStatus("offline"));
     }
-  }, [profileStore.activeProfileId, profileStore.profiles]);
+  }, [profileStore.activeProfileId]);
 
   const switchProfile = useCallback(() => {
     setAdminUnlocked(false);
@@ -8816,7 +8839,16 @@ export default function App() {
             )}
           />
         )}
-        {activeProfile && screen === 'mcq' && !testMode && (
+        {activeProfile && screen === 'mcq' && questionBankStatus !== 'ready' && (
+          <div className="sheet">
+            <QuestionBankLoading
+              error={questionBankError}
+              onRetry={() => setQuestionBankStatus("idle")}
+              onSwitchProfile={switchProfile}
+            />
+          </div>
+        )}
+        {activeProfile && screen === 'mcq' && questionBankStatus === 'ready' && !testMode && (
           <McqSelect
             onBack={() => setScreen('home')}
             onStart={startMcqMode}
