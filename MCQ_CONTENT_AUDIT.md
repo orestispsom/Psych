@@ -289,4 +289,24 @@ All answer keys, option order, and option counts were preserved.
 
 IDs 1,301–1,400.
 
+## Batch 014 — IDs 1,301–1,400
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1304, 1306, 1307, 1311, 1312, 1316, 1317, 1319, 1323, 1326, 1329, 1340, 1347, 1350, 1358, 1359, 1361, 1367, 1370, 1374, 1377, 1382, 1396, and 1399: naturalised hybrid English terms and expanded diagnostic and clinical acronyms (`JC virus`, `HGPRT`, `α2δ-ligands`, `nucleus caudalis`, `flooding/modeling`, `TCA`, `port-wine stain`, `best interests`, `amaurosis fugax`, `myasthenia gravis`, `conduction block/F-waves`, `The Ego and the Mechanisms of Defense`, `extinction`, `poor metabolizer`, `IPT/CBT`, `dementia pugilistica`, `downregulation/upregulation`, `abreaction`, `ECT`, `Heschl`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1323: the inverted HPA axis neuroendocrine finding in PTSD vs major depressive disorder represents established research literature; retained exact-source framing.
+- ID 1370: downregulation of beta-adrenergic receptors as a delayed correlate of antidepressant action is a classical neurobiological model.
+
+### Next batch
+
+IDs 1,401–1,500.
+
+
 

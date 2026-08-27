@@ -137,50 +137,74 @@ export function selectAdaptiveQuestionOrder({
     return copy;
   };
 
-  // Filter out any broken or remove_candidate questions
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  // Filter out broken or remove_candidate questions
   const eligibleQuestions = questions.filter(q => q?.qualityStatus !== "remove_candidate");
 
   // 1. Unseen questions (never attempted or viewed)
-  const unseen = eligibleQuestions.filter(q => !hasSeen(getRecord(q.id)));
+  const unseen = [];
+  // 2. Wrong or due review questions
+  const wrongOrDue = [];
+  // 3. Stale / Oldest seen questions (seen >= 7 days ago or timestamp missing)
+  const staleSeen = [];
+  // 4. Moderate seen questions (seen 2 - 7 days ago)
+  const moderateSeen = [];
+  // 5. Recent seen questions (seen < 2 days ago or marked recent)
+  const recentSeen = [];
 
-  // 2. Questions needing review (attempted, but wrong / unmastered)
-  const needsReview = eligibleQuestions.filter(q => {
+  for (const q of eligibleQuestions) {
     const rec = getRecord(q.id);
-    return hasSeen(rec) && !isMastered(rec);
-  });
+    const seen = hasSeen(rec);
+    const recent = isRecent(q);
 
-  // 3. Mastered questions
-  const mastered = eligibleQuestions.filter(q => {
-    const rec = getRecord(q.id);
-    return hasSeen(rec) && isMastered(rec);
-  });
+    if (!seen) {
+      if (!recent) unseen.push(q);
+      else recentSeen.push(q);
+      continue;
+    }
 
-  // Shuffle pools with true Fisher-Yates randomness, separating fresh vs recent
-  const unseenFresh = shuffle(unseen.filter(q => !isRecent(q)));
-  const unseenRecent = shuffle(unseen.filter(q => isRecent(q)));
+    const wrong = (rec.wrongCount || rec.incorrectCount || 0) > 0 || rec.lastCorrect === false;
+    const due = isDue ? isDue(rec) : false;
 
-  const needsReviewFresh = shuffle(needsReview.filter(q => !isRecent(q)));
-  const needsReviewRecent = shuffle(needsReview.filter(q => isRecent(q)));
+    if ((wrong || due) && !recent) {
+      wrongOrDue.push(q);
+      continue;
+    }
 
-  const masteredFresh = shuffle(mastered.filter(q => !isRecent(q)));
-  const masteredRecent = shuffle(mastered.filter(q => isRecent(q)));
+    const lastTimeStr = rec.lastAnsweredAt || rec.seenAt || rec.updatedAt;
+    const lastTime = lastTimeStr ? new Date(lastTimeStr).getTime() : 0;
+    const daysSince = lastTime ? (now - lastTime) / oneDayMs : 999;
+
+    if (recent || daysSince < 2) {
+      recentSeen.push(q);
+    } else if (daysSince >= 7) {
+      staleSeen.push(q);
+    } else {
+      moderateSeen.push(q);
+    }
+  }
 
   const selected = [];
   const usedIds = new Set();
 
-  // Tier 1: Fresh unseen questions (true random)
-  appendUnique(selected, unseenFresh, usedIds, limit);
+  // Tier 1: Fresh unseen questions (Fisher-Yates random)
+  appendUnique(selected, shuffle(unseen), usedIds, limit);
 
-  // Tier 2: Fresh review questions (true random)
-  appendUnique(selected, needsReviewFresh, usedIds, limit);
+  // Tier 2: Questions needing review / error remediation (Fisher-Yates random)
+  appendUnique(selected, shuffle(wrongOrDue), usedIds, limit);
 
-  // Tier 3: Fresh mastered questions (true random)
-  appendUnique(selected, masteredFresh, usedIds, limit);
+  // Tier 3: Questions not seen in the longest time (>= 7 days ago, Fisher-Yates random)
+  appendUnique(selected, shuffle(staleSeen), usedIds, limit);
 
-  // Fallbacks if user has seen almost everything:
-  appendUnique(selected, unseenRecent, usedIds, limit);
-  appendUnique(selected, needsReviewRecent, usedIds, limit);
-  appendUnique(selected, masteredRecent, usedIds, limit);
+  // Tier 4: Moderate age questions (2 - 7 days ago, Fisher-Yates random)
+  appendUnique(selected, shuffle(moderateSeen), usedIds, limit);
+
+  // Tier 5: Recent questions (fallback to fill quota, Fisher-Yates random)
+  appendUnique(selected, shuffle(recentSeen), usedIds, limit);
+
+  // Final safety fallback
   appendUnique(selected, shuffle(eligibleQuestions), usedIds, limit);
 
   return selected;
@@ -197,10 +221,14 @@ export function selectWrittenExamByTopic({
   getSelected,
   shuffle,
 }) {
-  const rank = questions => questions
-    .map(question => ({ question, score: scoreQuestion(question) }))
-    .sort((left, right) => right.score - left.score || String(left.question.id).localeCompare(String(right.question.id)))
+  const rankWithJitter = questions => shuffle(questions)
+    .map(question => ({
+      question,
+      score: (scoreQuestion ? scoreQuestion(question) : 0) + (Math.random() * 40),
+    }))
+    .sort((left, right) => right.score - left.score)
     .map(item => item.question);
+
   const pickFrom = (candidates, topicLimit) => {
     for (const question of candidates) {
       if (getSelected().length >= targetCount || getSelected().length >= topicLimit) break;
@@ -212,12 +240,12 @@ export function selectWrittenExamByTopic({
     const topicLimit = getSelected().length + quota;
     const topicQuestions = eligible.filter(question => getTopic(question) === topic);
 
-    pickFrom(rank(topicQuestions.filter(question => !isRecent(question))), topicLimit);
-    pickFrom(rank(topicQuestions), topicLimit);
+    pickFrom(rankWithJitter(topicQuestions.filter(question => !isRecent(question))), topicLimit);
+    pickFrom(rankWithJitter(topicQuestions), topicLimit);
   }
 
-  pickFrom(rank(eligible.filter(question => !isRecent(question))), targetCount);
-  pickFrom(rank(eligible), targetCount);
+  pickFrom(rankWithJitter(eligible.filter(question => !isRecent(question))), targetCount);
+  pickFrom(rankWithJitter(eligible), targetCount);
 
   return shuffle(getSelected());
 }

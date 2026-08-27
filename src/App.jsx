@@ -1852,14 +1852,21 @@ function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE, qualitySig
   });
 }
 
+function getRecentAttemptQuestionIds(progress, count = 100) {
+  const attempts = progress?.attempts || [];
+  return new Set(attempts.slice(0, count).map(a => String(a.questionId)));
+}
+
 function selectRandomPracticeQuestions(progress, qualitySignals = {}, questions = QUESTIONS) {
   const now = new Date();
-  const records = progress.questions || {};
+  const records = progress?.questions || {};
+  const recentIds = getRecentAttemptQuestionIds(progress, 80);
   return selectAdaptiveQuestionOrder({
     questions,
     count: questions.length,
     records,
     qualitySignals,
+    isRecent: question => recentIds.has(String(question.id)),
     hasSeen: hasSeenQuestion,
     getSeenCount,
     isMastered: isQuestionMastered,
