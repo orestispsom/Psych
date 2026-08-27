@@ -1830,7 +1830,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 /* ═══ ΠΙΝΑΚΑΚΙΑ ═══════════════════════════════════════════════ */
 
-.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s4); position: relative; }
+.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s5); position: relative; }
 .pinakakia-search-wrap { display: grid; gap: var(--s2); }
 .pinakakia-search-summary { font-size: var(--t-micro); color: var(--ink-3); }
 
