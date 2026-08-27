@@ -8,22 +8,22 @@
   color-scheme: dark;
 
   /* ─── Stock and ink ─── */
-  --ground: #0f1116;
-  --field: #14171e;
-  --raised: #1a1e27;
-  --sunken: #0b0d11;
+  --ground: #0d0f14;
+  --field: #161922;
+  --raised: #1e2330;
+  --sunken: #090b0e;
 
-  --rule: rgba(233, 231, 226, 0.13);
-  --rule-strong: rgba(233, 231, 226, 0.26);
+  --rule: rgba(233, 231, 226, 0.11);
+  --rule-strong: rgba(233, 231, 226, 0.22);
 
   --ink: #e9e7e2;
   --ink-2: #a9aeb8;
   --ink-3: #818793; /* AA on ground, field, sunken and raised */
 
   /* ─── Second ink: marks, current position, warnings ─── */
-  --mark: #de6046;  /* AA as text on every dark ground */
-  --mark-quiet: rgba(210, 84, 58, 0.16);
-  --mark-rule: rgba(210, 84, 58, 0.42);
+  --mark: #f87171;  /* AA as text on every dark ground */
+  --mark-quiet: rgba(248, 113, 113, 0.14);
+  --mark-rule: rgba(248, 113, 113, 0.42);
 
   /* Focus is its own ink. It must not be stock (invisible on the inverted
      primary action) and must not be --mark, which already means "wrong". */
@@ -31,8 +31,8 @@
   --focus-quiet: rgba(90, 169, 214, 0.15);
 
   /* ─── Semantic inks ─── */
-  --pass: #6e9e5e;
-  --pass-quiet: rgba(110, 158, 94, 0.15);
+  --pass: #34d399;
+  --pass-quiet: rgba(52, 211, 153, 0.14);
   --due: #c08a3e;
   --due-quiet: rgba(192, 138, 62, 0.15);
 
@@ -44,11 +44,11 @@
      A real ordered scale (critical → baseline), so it is one deliberate
      hot-to-cool ramp rather than five unrelated hues. Replaces the raw
      framework-default colours the dataset carries. ─── */
-  --sev-1: #dd5f4a;
-  --sev-2: #d98545;
-  --sev-3: #c9a542;
-  --sev-4: #7ea55e;
-  --sev-5: #6fa6d0;
+  --sev-1: #f87171;
+  --sev-2: #fb923c;
+  --sev-3: #facc15;
+  --sev-4: #4ade80;
+  --sev-5: #60a5fa;
 
   /* ─── Section identity: the 4 top-level sections reuse the instrument's own
      inks rather than a fifth palette, so colour still carries meaning: MCQ
@@ -137,15 +137,15 @@
   --ink-2: #4e535e;
   --ink-3: #60646c; /* AA on ground, field, sunken and raised */
 
-  --mark: #b33c22;
-  --mark-quiet: rgba(179, 60, 34, 0.1);
-  --mark-rule: rgba(179, 60, 34, 0.4);
+  --mark: #dc2626;
+  --mark-quiet: rgba(220, 38, 38, 0.12);
+  --mark-rule: rgba(220, 38, 38, 0.4);
 
   --focus: #1f6f9c;
   --focus-quiet: rgba(31, 111, 156, 0.1);
 
-  --pass: #3f6b32;
-  --pass-quiet: rgba(63, 107, 50, 0.12);
+  --pass: #16a34a;
+  --pass-quiet: rgba(22, 163, 74, 0.12);
   --due: #885b12;   /* AA on every light ground */
   --due-quiet: rgba(138, 93, 20, 0.12);
 

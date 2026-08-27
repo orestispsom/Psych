@@ -302,14 +302,14 @@
    denser board than two or three do. The quiet accent wash (not a solid
    fill) is what keeps this a row-as-control, not a coloured CTA. */
 .mode-tile-grid {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: var(--s3);
   max-width: none;
 }
 .mcq-hub .mode-tile {
   display: flex; flex-direction: column; align-items: flex-start;
   gap: var(--s3); text-align: left;
-  height: 176px; padding: var(--s4);
+  min-height: 160px; height: auto; padding: var(--s4);
   background: var(--accent-quiet, var(--sec-mcq-quiet));
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-lg);
@@ -324,18 +324,14 @@
 .mode-tile-icon { flex: none; }
 .mode-tile-body { display: grid; gap: var(--s1); min-width: 0; }
 .mode-tile-title {
-  font-size: var(--t-item); font-weight: 700; letter-spacing: -0.01em; line-height: 1.3;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: var(--t-item); font-weight: 700; letter-spacing: -0.01em; line-height: 1.35;
 }
 .mode-tile-detail {
-  font-size: var(--t-meta); color: var(--ink-2); line-height: 1.4;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-@media (max-width: 899px) {
-  .mode-tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  font-size: var(--t-meta); color: var(--ink-2); line-height: 1.45;
 }
 @media (max-width: 599px) {
-  .mode-tile { height: 156px; padding: var(--s4); }
+  .mode-tile-grid { grid-template-columns: 1fr; }
+  .mode-tile { min-height: 136px; padding: var(--s4); }
 }
 
 /* A hub of 2–3 functions reads better as fewer, wider plates with a real
@@ -675,16 +671,16 @@
 .mode-btn.option, .options-list > button, .DSM5-options > button,
 .structured-option, .option-btn {
   display: grid;
-  grid-template-columns: 26px minmax(0, 1fr) auto;
-  align-items: start; gap: var(--s3);
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: flex-start; gap: var(--s3);
   width: 100%; text-align: left;
-  padding: var(--s3);
+  padding: 12px 14px;
   min-height: 48px;
   background: var(--field);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   color: var(--ink);
-  font-size: var(--t-item); line-height: 1.45;
+  font-size: var(--t-item); line-height: 1.5;
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease), box-shadow 0.12s var(--ease);
 }
 
@@ -698,7 +694,7 @@
 .option-letter, .structured-option-letter, .DSM5-option-text::before {
   font-family: var(--code); font-size: var(--t-body); font-weight: 600;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
-  padding-top: 1px;
+  margin-top: 1px; padding-top: 0;
 }
 
 /* Chosen but not yet submitted: the mark in the margin, as on a paper sheet. */
@@ -787,28 +783,27 @@
 
 .answer-glyph {
   display: flex; align-items: center;
-  flex: none; padding-top: 1px;
+  flex: none; margin-top: 1px;
 }
 .answer-glyph .icon, .answer-glyph svg { width: 18px; height: 18px; }
 
-/* Denser than the app's general reading scale: the goal on this screen is
-   stem + all five options + the explanation fitting one viewport. */
-.test-container .question-stem { font-size: 17px; line-height: 1.45; }
+/* Readable, well-paced Greek clinical stem and options */
+.test-container .question-stem { font-size: 18px; line-height: 1.6; }
 .test-container .options-list {
-  gap: 5px; margin-top: var(--s2);
+  gap: 6px; margin-top: var(--s3);
 }
 .test-container .options-list > button {
-  padding: 9px var(--s3);
-  min-height: 44px;
-  font-size: var(--t-body); line-height: 1.3;
+  padding: 11px var(--s3);
+  min-height: 46px;
+  font-size: var(--t-body); line-height: 1.48;
 }
 .test-container .explanation-box {
   /* Wider than the 66ch reading cap: more width trades for fewer lines,
      which is the point here. */
   max-width: none;
-  margin-top: var(--s2);
-  padding: var(--s1) 0 var(--s1) var(--s3);
-  font-size: var(--t-body); line-height: 1.48;
+  margin-top: var(--s3);
+  padding: var(--s2) 0 var(--s2) var(--s3);
+  font-size: var(--t-body); line-height: 1.65;
 }
 .test-container .point-breakdown { margin-top: 6px; }
 
@@ -1543,7 +1538,26 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   max-width: var(--measure-read);
 }
 .crucial-examiner-a + .crucial-examiner-a { margin-top: 0.5em; }
-.ref-table { width: 100%; border-collapse: collapse; }
+.ref-table, table { width: 100%; border-collapse: collapse; }
+.ref-table th, table th {
+  position: sticky; top: 0; background: var(--field); z-index: 10;
+  padding: var(--s2) var(--s3);
+  font-family: var(--ui); font-size: var(--t-micro); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-2); border-bottom: 2px solid var(--rule-strong);
+  text-align: left;
+}
+.ref-table td, table td {
+  padding: var(--s3) var(--s3);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-meta); vertical-align: top;
+}
+.ref-table tr:nth-child(even), table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+.ref-table tr:hover, table tbody tr:hover {
+  background: var(--raised);
+}
 .ref-row { border-bottom: 1px solid var(--rule); }
 .ref-topic, .ref-value {
   padding: var(--s2) var(--s3) var(--s2) 0;
@@ -2203,13 +2217,41 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 .review-q-grid {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: var(--s2);
   padding: var(--s3);
   background: var(--field);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   margin-bottom: var(--s5);
+}
+
+.review-q-decade-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+}
+
+.review-q-decade-label {
+  font-family: var(--code);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  min-width: 44px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.review-q-decade-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  flex: 1;
 }
 
 .review-q-chip {
@@ -2232,6 +2274,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .review-q-chip:hover {
   border-color: var(--ink-3);
   color: var(--ink);
+  transform: scale(1.05);
 }
 
 .review-q-chip.correct {
@@ -2250,6 +2293,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   border-color: var(--rule-strong);
   background: var(--raised);
   color: var(--ink-3);
+}
+
+.review-q-chip.flagged {
+  box-shadow: 0 0 0 1px var(--due);
 }
 
 .review-q-chip.current {

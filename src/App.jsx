@@ -5246,32 +5246,45 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         </div>
 
         <div className="review-q-grid">
-          {allReviewItems.map((item, idx) => {
-            const isCorrect = item.selected === item.question.correct;
-            const isUnanswered = item.selected === undefined || item.selected === null;
-            const isItemInFilter = filteredReviewItems.includes(item);
-            const isCurrent = reviewItem && reviewItem.question.id === item.question.id;
-            const statusClass = isUnanswered ? "unanswered" : isCorrect ? "correct" : "incorrect";
-
+          {Array.from({ length: Math.ceil(allReviewItems.length / 10) }, (_, dIdx) => {
+            const start = dIdx * 10;
+            const end = Math.min(start + 10, allReviewItems.length);
+            const slice = allReviewItems.slice(start, end);
             return (
-              <button
-                key={item.question.id}
-                type="button"
-                className={`review-q-chip ${statusClass} ${isCurrent ? "current" : ""}`}
-                style={{ opacity: isItemInFilter ? 1 : 0.35 }}
-                title={`Ερώτηση ${idx + 1} (${isUnanswered ? "Αναπάντητη" : isCorrect ? "Σωστή" : "Λάθος"})`}
-                onClick={() => {
-                  const targetFilteredIdx = filteredReviewItems.indexOf(item);
-                  if (targetFilteredIdx >= 0) {
-                    setWrittenReviewIndex(targetFilteredIdx);
-                  } else {
-                    setWrittenReviewFilter("all");
-                    setWrittenReviewIndex(idx);
-                  }
-                }}
-              >
-                {idx + 1}
-              </button>
+              <div key={dIdx} className="review-q-decade-row">
+                <span className="review-q-decade-label">{start + 1}–{end}</span>
+                <div className="review-q-decade-chips">
+                  {slice.map((item, sIdx) => {
+                    const idx = start + sIdx;
+                    const isCorrect = item.selected === item.question.correct;
+                    const isUnanswered = item.selected === undefined || item.selected === null;
+                    const isItemInFilter = filteredReviewItems.includes(item);
+                    const isCurrent = reviewItem && reviewItem.question.id === item.question.id;
+                    const statusClass = isUnanswered ? "unanswered" : isCorrect ? "correct" : "incorrect";
+
+                    return (
+                      <button
+                        key={item.question.id}
+                        type="button"
+                        className={`review-q-chip ${statusClass} ${isCurrent ? "current" : ""}`}
+                        style={{ opacity: isItemInFilter ? 1 : 0.35 }}
+                        title={`Ερώτηση ${idx + 1} (${isUnanswered ? "Αναπάντητη" : isCorrect ? "Σωστή" : "Λάθος"})`}
+                        onClick={() => {
+                          const targetFilteredIdx = filteredReviewItems.indexOf(item);
+                          if (targetFilteredIdx >= 0) {
+                            setWrittenReviewIndex(targetFilteredIdx);
+                          } else {
+                            setWrittenReviewFilter("all");
+                            setWrittenReviewIndex(idx);
+                          }
+                        }}
+                      >
+                        {idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
@@ -5774,21 +5787,34 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             </button>
 
             {showSimTray && (
-              <div className="review-q-grid" style={{ marginTop: "var(--s3)", maxHeight: "280px", overflowY: "auto", padding: "4px" }}>
-                {questions.map((item, idx) => {
-                  const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
-                  const isFlagged = flaggedIds.has(item.id);
-                  const isCurrent = currentIdx === idx;
+              <div className="review-q-grid" style={{ marginTop: "var(--s3)", maxHeight: "320px", overflowY: "auto", padding: "4px" }}>
+                {Array.from({ length: Math.ceil(questions.length / 10) }, (_, dIdx) => {
+                  const start = dIdx * 10;
+                  const end = Math.min(start + 10, questions.length);
+                  const slice = questions.slice(start, end);
                   return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
-                      onClick={() => goToWrittenIndex(idx)}
-                      title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
-                    >
-                      {idx + 1}
-                    </button>
+                    <div key={dIdx} className="review-q-decade-row">
+                      <span className="review-q-decade-label">{start + 1}–{end}</span>
+                      <div className="review-q-decade-chips">
+                        {slice.map((item, sIdx) => {
+                          const idx = start + sIdx;
+                          const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
+                          const isFlagged = flaggedIds.has(item.id);
+                          const isCurrent = currentIdx === idx;
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
+                              onClick={() => goToWrittenIndex(idx)}
+                              title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
+                            >
+                              {idx + 1}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
