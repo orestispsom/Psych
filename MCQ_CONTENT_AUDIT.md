@@ -422,6 +422,107 @@ All answer keys, option order, and option counts were preserved.
 
 IDs 2,001–2,100.
 
+## Batch 021 — IDs 2,001–2,100
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2030, 2059, 2060, 2077, and 2096: standardized Greek medical acronyms and terminology (`phencyclidine / PCP`, `bedside testing`, `ECG -> ΗΚΓ / CTPA`, `EEG -> ΗΕΓ`, `REM sleep`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2020: distinction between interictal and postictal psychosis in chronic epilepsy correctly grounded in course and symptoms.
+- ID 2060: emergency medical evaluation for suspected pulmonary embolism in acute respiratory distress/tachycardia takes precedence over assumed panic attacks.
+
+### Next batch
+
+IDs 2,101–2,200.
+
+## Batch 022 — IDs 2,101–2,200
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2109, 2114, 2115, 2116, 2118, 2128, and 2133: standardized medical terms and abbreviations (`rapid tranquillisation / per os`, `phencyclidine / PCP`, `delirium tremens`, `RPR syphilis test / brain CT`, `ADHD / ΔΕΠΥ`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2105: parenteral thiamine administration prior to IV glucose for suspected Wernicke's encephalopathy adheres to emergency resuscitation guidelines.
+- ID 2122: historical epidemiologic figures for annual suicide mortality in Greece (2010–2020: ~350–500 cases/year) preserved accurately against official health statistics.
+
+### Next batch
+
+IDs 2,201–2,300.
+
+## Batch 023 — IDs 2,201–2,300
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2209, 2213, 2223, 2228, 2261, 2263, 2264, 2272, 2273, 2279, 2280, 2287, 2297, and 2299: naturalised psychiatric rating scales and clinical terminology (`anti-NMDA receptor encephalitis`, `Bush-Francis Catatonia Rating Scale (BFCRS)`, `ECT continuation vs maintenance`, `belle indifférence`, `digit span`, `BOLD signal in fMRI`, `Vineland Adaptive Behavior Scale`, `cri-du-chat`, `Luria-Nebraska battery`, `PKU`, `ARFID`, `EMDR`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2205: DSM-5/DSM-5-TR requirement for at least 3 catatonic signs to establish catatonia diagnosis verified.
+- ID 2254, 2255, 2271 & 2272: psychometric instrument properties (SCID, BPRS, Bayley/Denver developmental screening, Vineland) reflect canonical test construction.
+
+### Next batch
+
+IDs 2,301–2,400.
+
+## Batch 024 — IDs 2,301–2,400
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2305, 2308, 2316, 2320, 2325, 2335, 2344, 2345, 2363, 2367, 2369, 2371, 2372, 2373, 2375, 2376, 2377, 2385, 2389, and 2393: standard medical acronyms and naturalised Greek expressions (`black box warning`, `ADHD / ΔΕΠΥ`, `HCTZ`, `Lewy bodies`, `EEG -> ΗΕΓ`, `Complicated Grief Treatment (CGT)`, `locus coeruleus`, `lead-pipe rigidity`, `MAOI`, `bath salts`, `meth mouth`, `bupropion SR`, `flashbacks / HPPD`, `PCP`, `IV fluids`, `LAI / depot`, `ECT`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2349: classic epidemiological finding of earlier age at onset of schizophrenia in males (by ~5 years) correctly retained.
+- ID 2388: duration and indefinite maintenance recommendations for recurrent schizophrenia follow clinical guidelines.
+
+### Next batch
+
+IDs 2,401–2,500.
+
+## Batch 025 — IDs 2,401–2,500
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2410, 2418, 2419, 2428, 2434, 2440, 2443, 2450, 2451, 2461, 2462, 2464, 2471, 2473, 2483, 2491, 2493, and 2495: naturalised terminology and therapy acronyms (`HPA axis`, `sensory homunculus`, `CSTC loop`, `CPT / EMDR`, `trance state`, `DBT`, `swinging flashlight test`, `la belle indifférence`, `lanugo`, `reverse T3`, `binge eating`, `FBT`, `CBT-ED`, `bell-and-pad conditioning`, `CBT-I`, `α2δ ligands`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2413: concordance rate for schizophrenia in monozygotic twins (~40–50%) verified against landmark genetic psychiatric literature.
+- ID 2425: diagnostic distinction in trichotillomania criteria between ICD-10 (pre-urge tension and post-relief) and DSM-5 verified.
+- ID 2455: documented 25–50% subsequent neurological diagnostic emergence in conversion disorder patients preserved accurately.
+
+### Next batch
+
+IDs 2,501–2,600.
+
+
+
+
+
+
 
 
 
