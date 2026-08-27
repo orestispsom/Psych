@@ -3207,14 +3207,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: `Γρήγορο τεστ ${SPRINT_SESSION_SIZE} ερωτήσεων.` },
-    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Τυχαία επιλογή από όλη την τράπεζα ερωτήσεων.' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: 'Επίλεξε μία από τις 21 κατηγορίες για εξάσκηση.' },
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: 'Πλήρης γραπτή εξέταση 100 ερωτήσεων.' },
-    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Κύκλος επανάληψης σημειωμένων ερωτήσεων.' },
-    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια σε ενιαία εκφώνηση.' },
-    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Συνδύασε όρους και ορισμούς.' },
-    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Οι ερωτήσεις που έχεις χάσει ή έχεις σε επανάληψη.' },
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test' },
+    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση' },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες' },
+    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes' },
+    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση' },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα' },
   ];
 
   const renderModes = () => (
@@ -3228,7 +3228,6 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           <span className="mode-tile-icon hub-row-icon" aria-hidden="true">{mode.icon}</span>
           <span className="mode-tile-body">
             <span className="mode-tile-title">{mode.title}</span>
-            <span className="mode-tile-detail">{mode.detail}</span>
           </span>
         </button>
       ))}
@@ -5619,7 +5618,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
       id: "past",
       icon: <Icons.BookOpen />,
       title: "Σημαντικά Θέματα",
-      detail: "Οι ερωτήσεις που έχουν πέσει, ταξινομημένες κατά συχνότητα εμφάνισης στις εξετάσεις.",
       stat: `${overallSummary.mastered}/${overallSummary.total} κατακτημένα`,
       onOpen: onOpenPast,
     },
@@ -5627,7 +5625,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
       id: "simulator",
       icon: <Icons.Mic />,
       title: "Προφορική Εξέταση",
-      detail: "Προσομοίωση με τρεις εξεταστές, βασικές ερωτήσεις και follow-up.",
       stat: "Νέα εξέταση κάθε φορά",
       onOpen: onOpenSimulator,
     },
@@ -5637,7 +5634,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
       id: "crucial",
       icon: <Icons.FileText />,
       title: "100 Κρίσιμα Θέματα",
-      detail: "Πρότυπες απαντήσεις, άξονες ανάκλησης και παγίδες εξεταστή.",
       stat: "100 θέματα σε 16 κεφάλαια",
       onOpen: onOpenCrucialQuestions,
     });
@@ -5663,7 +5659,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
             <span className="oral-hub-icon" aria-hidden="true">{mode.icon}</span>
             <span className="oral-hub-body">
               <span className="oral-hub-title">{mode.title}</span>
-              <span className="oral-hub-detail">{mode.detail}</span>
               <span className="oral-hub-stat">{mode.stat}</span>
             </span>
             <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
@@ -6837,7 +6832,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
             <span className="hub-row-body">
               <span className="hub-row-title">Oxford</span>
-              <span className="hub-row-detail">Πλαίσια αναφοράς από το Oxford Handbook, ανά κεφάλαιο.</span>
               <span className="hub-row-stat">{plural(oxfordCount, "πινακάκιο", "πινακάκια")}</span>
             </span>
             <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
@@ -6846,7 +6840,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
             <span className="hub-row-body">
               <span className="hub-row-title">Crash Course</span>
-              <span className="hub-row-detail">Πλαίσια αναφοράς από το Crash Course, με τη σειρά τους.</span>
               <span className="hub-row-stat">{plural(crashCount, "πινακάκιο", "πινακάκια")}</span>
             </span>
             <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
@@ -6856,7 +6849,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
               <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
               <span className="hub-row-body">
                 <span className="hub-row-title">DSM-5-TR Self-Exam (Admin)</span>
-                <span className="hub-row-detail">Ερωτήσεις αυτοεξέτασης βασισμένες στα διαγνωστικά κριτήρια DSM-5-TR.</span>
                 <span className="hub-row-stat">528 ερωτήσεις</span>
               </span>
               <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
@@ -7051,7 +7043,6 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Γρήγορα SOS",
       section: "high_yield",
       entries: data?.highYieldTables,
-      detail: "Κάρτες ερώτησης/απάντησης για ό,τι πρέπει να θυμάσαι πρώτο.",
     },
     {
       id: "numbers",
@@ -7059,7 +7050,6 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Αριθμοί",
       section: "numbers",
       entries: data?.numbers,
-      detail: "Κατώφλια, δόσεις και τιμές που ρωτάει η εξέταση κατά λέξη.",
     },
     {
       id: "critical",
@@ -7067,7 +7057,6 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Κρίσιμα Θέματα",
       section: "critical_topics",
       entries: data?.criticalTopics,
-      detail: "Θέματα που εμφανίζονται συχνά και δεν επιδέχονται λάθος.",
     },
     {
       id: "differential",
@@ -7075,7 +7064,6 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Διαφοροδιάγνωση",
       section: "differential_diagnosis",
       entries: data?.differentialDiagnosis,
-      detail: "Πίνακες σύγκρισης για καταστάσεις που μπερδεύονται εύκολα.",
     },
   ];
 
@@ -7110,7 +7098,6 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
               <span className="hub-row-icon" aria-hidden="true">{section.icon}</span>
               <span className="hub-row-body">
                 <span className="hub-row-title">{section.title}</span>
-                <span className="hub-row-detail">{section.detail}</span>
                 <span className="hub-row-stat">{mastered}/{total} mastered</span>
               </span>
               <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
