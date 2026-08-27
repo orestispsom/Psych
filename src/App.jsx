@@ -6981,7 +6981,12 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
       </div>
-      <h2>Γρήγορα SOS</h2>
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">SOS Ψυχιατρικής</span>
+          <h2>Γρήγορα SOS</h2>
+        </div>
+      </div>
       <div className="sos-focus-toolbar">
         <div className="sos-focus-toggles">
           <label className="sos-check-control">
@@ -7054,30 +7059,23 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             <Icons.ChevronLeft /> {title}
           </button>
         </div>
-        <div className="oral-viewer-meta">
-          <div className="oral-q-counter">{selectedIndex + 1} / {entries.length}</div>
-          <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
-            {summary.mastered}/{summary.total} mastered
-          </span>
+        <div className="sheet-head">
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">{title} · {selectedIndex + 1} / {entries.length}</span>
+            <h2>{selectedEntry.title}</h2>
+          </div>
+          <div className="sheet-head-actions">
+            <span className="plate">{summary.mastered}/{summary.total} mastered</span>
+          </div>
         </div>
-        <h2>{selectedEntry.title}</h2>
-        <div className="sos-focus-toggles">
-          <ScaleStrip
-            level={isMastered ? 1 : 0}
-            max={1}
-            size="lg"
-            label="Κατοχή"
-            onSet={next => onToggleMastery(section, selectedEntry.id, next === 1)}
-          />
-          <button
-            className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
-            aria-pressed={isMastered}
-            onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
-          >
-            <Icons.Check />
-            {isMastered ? "Mastered" : "Σημείωσέ το ως mastered"}
-          </button>
-        </div>
+        <button
+          className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+          aria-pressed={isMastered}
+          onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
+        >
+          <Icons.Check />
+          {isMastered ? "Κατακτημένο" : "Σημείωσέ το ως κατακτημένο"}
+        </button>
         <div className="sos-detail-answer">{renderAnswer ? renderAnswer(selectedEntry) : selectedEntry.answer}</div>
         <div className="nav-bar">
           <button className="nav-btn" onClick={goPrev} disabled={selectedIndex === 0}>
@@ -7098,11 +7096,14 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           <Icons.ChevronLeft /> SOS Ψυχιατρικής
         </button>
       </div>
-      <div className="oral-viewer-meta">
-        <h2>{title}</h2>
-        <span className="oral-progress-pill">
-          {summary.mastered}/{summary.total} mastered
-        </span>
+      <div className="sheet-head">
+        <div className="sheet-head-text">
+          <span className="sheet-eyebrow">SOS Ψυχιατρικής</span>
+          <h2>{title}</h2>
+        </div>
+        <div className="sheet-head-actions">
+          <span className="plate">{summary.mastered}/{summary.total} mastered</span>
+        </div>
       </div>
 
       <div className="oral-index-controls">
