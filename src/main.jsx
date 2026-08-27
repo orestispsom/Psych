@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import App from './App'
 
+import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/system.css'
 import './styles/surfaces.css'

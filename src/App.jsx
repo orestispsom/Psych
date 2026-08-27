@@ -3294,10 +3294,11 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 }
 
 function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortFilter, setSortFilter] = useState("all"); // "all", "needWork", "most", "alpha"
+
   const topicCounts = useMemo(() => getMcqTopicCounts(), []);
 
-  // Per-topic mastery, so the trainee can see which categories are still weak
-  // before choosing one rather than after working through it.
   const topicMastery = useMemo(() => {
     const records = progress?.questions || {};
     const map = new Map();
@@ -3311,6 +3312,31 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
     return map;
   }, [progress]);
 
+  const filteredAndSortedTopics = useMemo(() => {
+    let list = [...MCQ_TOPIC_CATEGORIES];
+    const query = normalizeGreekSearch(searchQuery);
+
+    if (query) {
+      list = list.filter(topic => normalizeGreekSearch(topic).includes(query));
+    }
+
+    if (sortFilter === "needWork") {
+      list.sort((a, b) => {
+        const masteryA = topicMastery.get(a) || { mastered: 0, total: 1 };
+        const masteryB = topicMastery.get(b) || { mastered: 0, total: 1 };
+        const percentA = masteryA.total ? masteryA.mastered / masteryA.total : 0;
+        const percentB = masteryB.total ? masteryB.mastered / masteryB.total : 0;
+        return percentA - percentB;
+      });
+    } else if (sortFilter === "most") {
+      list.sort((a, b) => (topicCounts.get(b) || 0) - (topicCounts.get(a) || 0));
+    } else if (sortFilter === "alpha") {
+      list.sort((a, b) => a.localeCompare(b, "el"));
+    }
+
+    return list;
+  }, [searchQuery, sortFilter, topicMastery, topicCounts]);
+
   return (
     <div className="mcq-select">
       <div className="nav-bar" style={{ marginBottom: "var(--s4)" }}>
@@ -3322,40 +3348,96 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
       <div className="sheet-head">
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Πολλαπλής Επιλογής</span>
-          <h2>Ερωτήσεις ανά Κατηγορία</h2>
+          <h2 aria-hidden="true">Ερωτήσεις ανά Κατηγορία</h2>
           <span className="sheet-sub">{MCQ_TOPIC_CATEGORIES.length} κατηγορίες</span>
         </div>
       </div>
 
-      <div className="items items-plain">
-        {MCQ_TOPIC_CATEGORIES.map(topic => {
-          const count = topicCounts.get(topic) || 0;
-          const mastery = topicMastery.get(topic) || { mastered: 0, total: 0 };
-          const level = mastery.total ? Math.round((mastery.mastered / mastery.total) * 5) : 0;
-          return (
-            <button
-              key={topic}
-              className="item"
-              disabled={!count}
-              onClick={() => onSelectTopic(topic)}
-            >
-              <span className="item-body">
-                <span className="item-title">{topic}</span>
-                <span className="item-meta">
-                  <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
-                  <span>{mastery.mastered} mastered</span>
-                </span>
-              </span>
-              <span className="item-side">
-                <ScaleStrip level={level} label={`Πρόοδος: ${topic}`} />
-                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
-                  <Icons.ChevronRight />
-                </span>
-              </span>
-            </button>
-          );
-        })}
+      <div className="category-search-bar">
+        <input
+          type="search"
+          className="category-search-input"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Αναζήτηση σε 21 κατηγορίες…"
+          aria-label="Αναζήτηση κατηγορίας"
+        />
       </div>
+
+      <div className="category-sort-bar">
+        <button
+          type="button"
+          className={`review-filter-pill ${sortFilter === "all" ? "active" : ""}`}
+          onClick={() => setSortFilter("all")}
+        >
+          Όλες
+        </button>
+        <button
+          type="button"
+          className={`review-filter-pill ${sortFilter === "needWork" ? "active" : ""}`}
+          onClick={() => setSortFilter("needWork")}
+        >
+          🎯 Χρειάζονται Μελέτη
+        </button>
+        <button
+          type="button"
+          className={`review-filter-pill ${sortFilter === "most" ? "active" : ""}`}
+          onClick={() => setSortFilter("most")}
+        >
+          📚 Περισσότερες Ερωτήσεις
+        </button>
+        <button
+          type="button"
+          className={`review-filter-pill ${sortFilter === "alpha" ? "active" : ""}`}
+          onClick={() => setSortFilter("alpha")}
+        >
+          🔤 Α–Ω
+        </button>
+      </div>
+
+      {filteredAndSortedTopics.length === 0 ? (
+        <div className="explanation-box" style={{ marginTop: "var(--s3)" }}>
+          <strong>Δεν βρέθηκε κατηγορία</strong>
+          Δεν υπάρχει κατηγορία που να ταιριάζει με την αναζήτηση «{searchQuery}».
+        </div>
+      ) : (
+        <div className="items items-plain">
+          {filteredAndSortedTopics.map(topic => {
+            const count = topicCounts.get(topic) || 0;
+            const mastery = topicMastery.get(topic) || { mastered: 0, total: 0 };
+            const percent = mastery.total ? Math.round((mastery.mastered / mastery.total) * 100) : 0;
+            const level = mastery.total ? Math.round((mastery.mastered / mastery.total) * 5) : 0;
+
+            return (
+              <button
+                key={topic}
+                className="item"
+                disabled={!count}
+                onClick={() => onSelectTopic(topic)}
+              >
+                <span className="item-body">
+                  <span className="item-title">{topic}</span>
+                  <span className="item-meta">
+                    <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
+                    <span>{mastery.mastered}/{count} mastered ({percent}%)</span>
+                  </span>
+                </span>
+                <span className="item-side">
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                    <ScaleStrip level={level} label={`Πρόοδος: ${topic}`} />
+                    <div className="category-progress-track">
+                      <div className="category-progress-fill" style={{ width: `${percent}%` }} />
+                    </div>
+                  </div>
+                  <span style={{ color: "var(--ink-3)", display: "flex", marginLeft: 8 }} aria-hidden="true">
+                    <Icons.ChevronRight />
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -3601,7 +3683,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
             <Icons.ChevronLeft /> Results
           </button>
         </div>
-        <h2>Επανάληψη λανθασμένων απαντήσεων</h2>
+        <h2 aria-hidden="true">Επανάληψη λανθασμένων απαντήσεων</h2>
         {wrongRows.length === 0 ? (
           <div className="structured-card DSM5-empty-note">Δεν υπήρξαν λανθασμένες απαντήσεις σε αυτή τη συνεδρία.</div>
         ) : (
@@ -3629,7 +3711,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
-        <h2>DSM5</h2>
+        <h2 aria-hidden="true">DSM5</h2>
         <div className="structured-card compact DSM5-empty-note">
           Τράπεζα αυτοεξέτασης DSM5: {totalDSM5Questions} διαθέσιμες ερωτήσεις.
         </div>
@@ -3664,7 +3746,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
           <Icons.ChevronLeft /> DSM5 Menu
         </button>
       </div>
-      <h2>{sessionLabel}</h2>
+      <h2 aria-hidden="true">{sessionLabel}</h2>
       <div className="DSM5-session-header">
         <span>{questions.length} σύνολο</span>
         <span>{answeredCount} απαντημένες</span>
@@ -3820,7 +3902,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
-        <h2>Vignettes</h2>
+        <h2 aria-hidden="true">Vignettes</h2>
         <div className="vignette-list">
           {availableVignettes.map(item => {
             const completed = Boolean(completedVignettes[item.id]?.completed || completedVignettes[item.id] === true);
@@ -3980,7 +4062,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
-        <h2>Vignettes</h2>
+        <h2 aria-hidden="true">Vignettes</h2>
         <div className="structured-card">
           <div className="structured-top">
             <strong>{vignetteLabel}</strong>
@@ -4000,65 +4082,75 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
     <div className="structured-mcq">
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
-            <Icons.ChevronLeft /> Μενού MCQ
+          <Icons.ChevronLeft /> Μενού MCQ
         </button>
       </div>
 
-      <button className="vignette-open-btn" type="button" onClick={() => setShowVignette(true)}>
-        Προβολή vignette
-      </button>
-
-      <div className="structured-card vignette-question-card">
-        <div className="structured-top">
-          <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
-          {isChosen && !isLocked && <span className="structured-progress">Επιλογή σου</span>}
-        </div>
-        <div className="structured-question">{question.stem}</div>
-        <div className="structured-options">
-          {displayedOptions.map((option, displayIndex) => {
-            const isSelected = selected.includes(option.originalIndex);
-            const isCorrect = question.correct.includes(option.originalIndex);
-            let cls = "structured-option";
-            if (!isLocked && isSelected) cls += " selected";
-            if (isLocked && isCorrect) cls += " correct";
-            if (isLocked && isSelected && !isCorrect) cls += " incorrect";
-            return (
-              <button key={option.originalIndex} type="button" className={cls} onClick={() => chooseOption(option.originalIndex)}>
-                <span className="structured-option-letter">{String.fromCharCode(913 + displayIndex)}</span>
-                <span>{option.text}</span>
-              </button>
-            );
-          })}
-        </div>
-        {isLocked && (
-          <div className="explanation-box">
-            <strong>{sameSelection(selected, question.correct) ? "Σωστό" : "Επανάληψη"}</strong>
-            {question.explanation}
+      <div className="vignette-split-grid">
+        <div className="structured-card vignette-case-pane">
+          <div className="structured-top">
+            <span className="sheet-eyebrow">Κλινικό Σενάριο</span>
+            <strong>{vignetteLabel}</strong>
           </div>
-        )}
-        <div className="structured-actions">
-          <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.max(0, index - 1))} disabled={currentIdx === 0}>
-            <Icons.ChevronLeft />
-          </button>
-          <div className="structured-actions-group">
-            {!isLocked && (
-              <button className="nav-btn" onClick={chooseCurrentQuestion} disabled={selected.length === 0}>
-                Choose
-              </button>
+          <div className="vignette-text" style={{ marginTop: "var(--s3)", lineHeight: 1.6 }}>
+            {vignette.vignette}
+          </div>
+        </div>
+
+        <div className="vignette-questions-pane">
+          <div className="structured-card vignette-question-card">
+            <div className="structured-top">
+              <span className="structured-progress">Ερώτηση {currentIdx + 1}/{vignette.questions.length}</span>
+              {isChosen && !isLocked && <span className="structured-progress">Επιλογή σου</span>}
+            </div>
+            <div className="structured-question">{question.stem}</div>
+            <div className="structured-options">
+              {displayedOptions.map((option, displayIndex) => {
+                const isSelected = selected.includes(option.originalIndex);
+                const isCorrect = question.correct.includes(option.originalIndex);
+                let cls = "structured-option";
+                if (!isLocked && isSelected) cls += " selected";
+                if (isLocked && isCorrect) cls += " correct";
+                if (isLocked && isSelected && !isCorrect) cls += " incorrect";
+                return (
+                  <button key={option.originalIndex} type="button" className={cls} onClick={() => chooseOption(option.originalIndex)}>
+                    <span className="structured-option-letter">{String.fromCharCode(913 + displayIndex)}</span>
+                    <span>{option.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {isLocked && (
+              <div className="explanation-box">
+                <strong>{sameSelection(selected, question.correct) ? "Σωστό" : "Επανάληψη"}</strong>
+                {question.explanation}
+              </div>
             )}
-            {!isLocked && (
-              <button className="nav-btn primary" onClick={lockCurrentQuestion} disabled={selected.length === 0}>
-                <Icons.Lock /> Καταχώρηση
+            <div className="structured-actions">
+              <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.max(0, index - 1))} disabled={currentIdx === 0}>
+                <Icons.ChevronLeft />
               </button>
-            )}
-            {currentIdx === vignette.questions.length - 1 && hasDeferredAnswers && (
-              <button className="nav-btn primary" onClick={buildVignetteResult}>
-                Submit
-              </button>
-            )}
-            <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(vignette.questions.length - 1, index + 1))} disabled={currentIdx >= vignette.questions.length - 1}>
-              <Icons.ChevronRight />
-            </button>
+              <div className="structured-actions-group">
+                {!isLocked && (
+                  <button className="nav-btn" onClick={chooseCurrentQuestion} disabled={selected.length === 0}>
+                    Choose
+                  </button>
+                )}
+                {!isLocked && (
+                  <button className="nav-btn primary" onClick={lockCurrentQuestion} disabled={selected.length === 0}>
+                    <Icons.Lock /> Καταχώρηση
+                  </button>
+                )}
+                {currentIdx === vignette.questions.length - 1 && hasDeferredAnswers && (
+                  <button className="nav-btn primary" onClick={buildVignetteResult}>
+                    Submit
+                  </button>
+                )}
+                <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(vignette.questions.length - 1, index + 1))} disabled={currentIdx >= vignette.questions.length - 1}>
+                  <Icons.ChevronRight />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -4119,7 +4211,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
             <Icons.ChevronLeft /> Μενού MCQ
           </button>
         </div>
-        <h2>Αντιστοίχηση</h2>
+        <h2 aria-hidden="true">Αντιστοίχηση</h2>
         <div className="structured-card">
           <p className="structured-instruction">Δεν υπάρχουν διαθέσιμα τεστ αντιστοίχησης.</p>
         </div>
@@ -4162,7 +4254,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
             Νέο σετ
           </button>
         </div>
-        <h2>Αντιστοίχηση</h2>
+        <h2 aria-hidden="true">Αντιστοίχηση</h2>
         <div className="structured-card">
           <div className="structured-top">
             <strong>Επιλογή σετ</strong>
@@ -4233,9 +4325,15 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
                 <Icons.Lock /> Καταχώρηση
               </button>
             )}
-            <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(matchingSet.items.length - 1, index + 1))} disabled={currentIdx >= matchingSet.items.length - 1}>
-              <Icons.ChevronRight />
-            </button>
+            {isLocked && currentIdx === matchingSet.items.length - 1 ? (
+              <button className="nav-btn primary" onClick={goToRandomMatchingSet}>
+                Επόμενο σετ <Icons.ChevronRight />
+              </button>
+            ) : (
+              <button className="nav-btn" onClick={() => setCurrentIdx(index => Math.min(matchingSet.items.length - 1, index + 1))} disabled={currentIdx >= matchingSet.items.length - 1}>
+                <Icons.ChevronRight />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -4275,6 +4373,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
+  const [flaggedIds, setFlaggedIds] = useState(() => new Set());
+  const [showSimTray, setShowSimTray] = useState(false);
+  const [simSeconds, setSimSeconds] = useState(0);
+  const [showSimTimer, setShowSimTimer] = useState(true);
+  const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
@@ -4397,6 +4500,34 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [questions]);
 
   useEffect(() => {
+    if (mode !== "written" || writtenResult || writtenDraftChoice === "choice") return undefined;
+    const timer = setInterval(() => {
+      setSimSeconds(sec => sec + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [mode, writtenResult, writtenDraftChoice]);
+
+  const formatSimTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    if (hours > 0) {
+      return `${hours}:${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const toggleFlag = (questionId = q?.id) => {
+    if (!questionId) return;
+    setFlaggedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(questionId)) next.delete(questionId);
+      else next.add(questionId);
+      return next;
+    });
+  };
+
+  useEffect(() => {
     if (!q?.id) return;
     if (mode === "written" && writtenDraftChoice === "choice") return;
     const viewEffectKey = `${mode}:${q.id}:${writtenDraftChoice}`;
@@ -4481,6 +4612,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setLocked(prev => ({ ...prev, [q.id]: true }));
     setLastBreakdown(pointBreakdown);
     setSessionStats(nextStats);
+    if (mode === "sprint" && currentIdx === totalQ - 1) {
+      setShowSprintCompleteModal(true);
+    }
     onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
       mode,
       confidence: inferredConfidence,
@@ -4490,7 +4624,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       sessionId: sessionIdRef.current,
       streakPosition: nextStreak,
     }));
-  }, [selected, isLocked, q, sessionStats, mode, onProgressChange]);
+  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, currentIdx, totalQ]);
 
   const selectOption = (idx) => {
     if (isLocked || writtenResult || !q) return;
@@ -4879,6 +5013,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackStatus(null);
     setFeedbackCommentOpen(false);
     setFeedbackCommentText("");
+    setShowSprintCompleteModal(false);
     onProgressChange(prev => recordSprintSession(prev, {
       id: nextSessionId,
       questionIds: nextQuestions.map(item => item.id),
@@ -5184,7 +5319,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </button>
         </div>
 
-        <div className={`results-score ${getPercentageColorClass(writtenResult.scorePercent)}`}>
+<div className={`results-score ${getPercentageColorClass(writtenResult.scorePercent)}`}>
           {writtenResult.scorePercent}%
         </div>
         <div className="results-label">{writtenResult.performance.label}</div>
@@ -5320,49 +5455,107 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       </button>
 
       {mode === "written" ? (
-        <div className="game-hud">
-          <div className="hud-stat">
-            <span className="hud-value">{currentIdx + 1}</span>
-            <span className="hud-label">Τρέχουσα</span>
+        <div className="sim-hud-wrap">
+          <div className="sim-hud-top">
+            <div
+              className="sim-timer-badge"
+              onClick={() => setShowSimTimer(t => !t)}
+              title="Χρόνος εξέτασης (κλικ για εναλλαγή)"
+              style={{ cursor: "pointer" }}
+            >
+              ⏱️ {showSimTimer ? formatSimTime(simSeconds) : "••:••"}
+            </div>
+            <button
+              type="button"
+              className="sim-tray-toggle-btn"
+              onClick={() => setShowSimTray(open => !open)}
+            >
+              📋 Πλοηγός ({writtenAnsweredCount}/{totalQ}) {showSimTray ? "▲" : "▼"}
+            </button>
+            {flaggedIds.size > 0 && (
+              <span className="sim-flag-badge" style={{ fontSize: "var(--t-micro)", color: "var(--due)", fontWeight: 700 }}>
+                🚩 {flaggedIds.size} για έλεγχο
+              </span>
+            )}
           </div>
-          <div className="hud-stat">
-            <span className="hud-value">{writtenAnsweredCount}</span>
-            <span className="hud-label">Απαντημένες</span>
+
+          <div className="game-hud">
+            <div className="hud-stat">
+              <span className="hud-value">{currentIdx + 1}</span>
+              <span className="hud-label">Τρέχουσα</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{writtenAnsweredCount}</span>
+              <span className="hud-label">Απαντημένες</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{writtenUnansweredCount}</span>
+              <span className="hud-label">Αναπάντητες</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{totalQ}</span>
+              <span className="hud-label">Σύνολο</span>
+            </div>
           </div>
-          <div className="hud-stat">
-            <span className="hud-value">{writtenUnansweredCount}</span>
-            <span className="hud-label">Αναπάντητες</span>
-          </div>
-          <div className="hud-stat">
-            <span className="hud-value">{totalQ}</span>
-            <span className="hud-label">Σύνολο</span>
-          </div>
+
+          {showSimTray && (
+            <div className="review-q-grid" style={{ marginBottom: 0 }}>
+              {questions.map((item, idx) => {
+                const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
+                const isFlagged = flaggedIds.has(item.id);
+                const isCurrent = currentIdx === idx;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
+                    onClick={() => {
+                      goToWrittenIndex(idx);
+                    }}
+                    title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       ) : null}
 
-      {mode === "written" && <div className="test-header">
-        <span className="progress-text">
-          {mode === "written" ? `Απαντημένες ${writtenAnsweredCount}/${totalQ}` : `Mastered ${progressStats.mastered}/${progressStats.total}`}
-        </span>
-        <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{
-              width: mode === "written"
-                ? `${totalQ > 0 ? (writtenAnsweredCount / totalQ) * 100 : 0}%`
-                : `${(progressStats.mastered / progressStats.total) * 100}%`,
-            }}
-          />
+      {mode === "written" && (
+        <div className="test-header">
+          <span className="progress-text">
+            Απαντημένες {writtenAnsweredCount}/{totalQ}
+          </span>
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${totalQ > 0 ? (writtenAnsweredCount / totalQ) * 100 : 0}%`,
+              }}
+            />
+          </div>
+          <span className="progress-text">
+            {modeTitle} {currentIdx + 1}/{totalQ}
+          </span>
         </div>
-        <span className="progress-text">
-          {modeTitle} {currentIdx + 1}/{totalQ}
-        </span>
-      </div>}
+      )}
 
       <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
         {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
         {mode !== "written" && <span className="mcq-session-secondary">{plural(sessionStats.correct, "σωστή", "σωστές")} · {plural(sessionStats.incorrect, "λάθος", "λάθη")}</span>}
         <span className="mcq-session-question">#{q.id}</span>
+        {mode === "written" && (
+          <button
+            type="button"
+            className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
+            onClick={() => toggleFlag(q.id)}
+            title={flaggedIds.has(q.id) ? "Αφαίρεση σημαίας ελέγχου" : "Σημείωση για επανέλεγχο"}
+          >
+            🚩 {flaggedIds.has(q.id) ? "Σημειωμένη" : "Έλεγχος"}
+          </button>
+        )}
         {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
         {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
         <div className="mcq-feedback-controls">
@@ -5460,6 +5653,15 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           >
             <Icons.ThumbsDown />
           </button>
+          <button
+            type="button"
+            className={`mcq-quality-btn bookmark ${Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "active" : ""}`}
+            title={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
+            aria-label={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
+            onClick={() => toggleBookmark(q.id)}
+          >
+            <Icons.Bookmark filled={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)])} />
+          </button>
         </div>
       </div>
       {feedbackStatus && (
@@ -5521,6 +5723,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       {isLocked && mode !== "written" && (
         <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
           <strong>Επεξήγηση</strong>{q.explanation}
+          {getQuestionExamLesson(q) && (
+            <div className="exam-takeaway-card">
+              <strong>Τι κρατάμε</strong>
+              {getQuestionExamLesson(q)}
+            </div>
+          )}
           {displayedBreakdown && (
             <div className={`point-breakdown ${pointTier}`}>
               <span className="point-pill">Σωστό +{displayedBreakdown.base}</span>
@@ -5582,11 +5790,16 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           <div className="modal">
             <h3>Υποβολή γραπτής εξέτασης;</h3>
             <p>
-              Έχεις απαντήσει {writtenAnsweredCount} από {totalQ} ερωτήσεις.
+              Έχεις απαντήσει <strong>{writtenAnsweredCount}</strong> από <strong>{totalQ}</strong> ερωτήσεις.
               {writtenUnansweredCount > 0
                 ? ` ${writtenUnansweredCount} θα παραμείνουν αναπάντητες και θα υπολογιστούν ως μη σωστές.`
                 : " Δεν υπάρχουν αναπάντητες ερωτήσεις."}
             </p>
+            {flaggedIds.size > 0 && (
+              <p style={{ color: "var(--due)", fontWeight: 600 }}>
+                ⚠️ Έχεις {flaggedIds.size} ερωτήσεις σημειωμένες για επανέλεγχο.
+              </p>
+            )}
             <div className="modal-actions">
               <button className="results-btn primary" onClick={() => submitWrittenExam(true)}>
                 Υποβολή και αποτελέσματα
@@ -5599,6 +5812,43 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         </div>
       )}
 
+      {mode === "sprint" && showSprintCompleteModal && (
+        <div className="sprint-summary-overlay" role="dialog" aria-modal="true">
+          <div className="sprint-summary-card">
+            <div className="sheet-eyebrow">Mini-Test Ολοκληρώθηκε</div>
+            <div className="sprint-score-badge">
+              {sessionStats.correct} <small>/ {totalQ}</small>
+            </div>
+            <p style={{ color: "var(--ink-2)", margin: 0 }}>
+              Ευστοχία: <strong>{Math.round((sessionStats.correct / (totalQ || 1)) * 100)}%</strong>
+              {sessionStats.maxStreak > 1 && ` · Μέγιστο σερί: ${sessionStats.maxStreak}`}
+            </p>
+            <div className="modal-actions" style={{ width: "100%", marginTop: "var(--s2)" }}>
+              <button
+                type="button"
+                className="results-btn primary"
+                onClick={startNewSprint}
+              >
+                <Icons.Bolt /> Επόμενο Mini-Test (Νέες 10)
+              </button>
+              <button
+                type="button"
+                className="results-btn"
+                onClick={() => setShowSprintCompleteModal(false)}
+              >
+                Ανασκόπηση ερωτήσεων
+              </button>
+              <button
+                type="button"
+                className="results-btn"
+                onClick={onBack}
+              >
+                Μενού MCQ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
