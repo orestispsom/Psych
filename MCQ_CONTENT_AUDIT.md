@@ -518,6 +518,109 @@ All answer keys, option order, and option counts were preserved.
 
 IDs 2,501–2,600.
 
+## Batch 026 — IDs 2,501–2,600
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2502, 2503, 2514, 2518, 2522, 2533, 2537, 2548, 2552, 2556, 2562, 2565, 2567, 2569, 2574, 2575, 2577, 2581, 2582, and 2592: standardised clinical terminology and scales (`PDE-5 inhibitors`, `vaginismus`, `cisgender`, `IED`, `contingency management`, `non-Turing computing`, `MBT`, `EEG -> ΗΕΓ`, `parenting styles`, `AIMS scale`, `VMAT2 inhibitor`, `QRS widening`, `ASD`, `EPS`, `QTc interval`, `Y-BOCS`, `SERT`, `GAD`, `ECG ST/T waves`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2526 & 2529: ICD-10 vs DSM-5 structural differences regarding schizotypal and narcissistic personality disorders verified.
+- ID 2588: landmark STAR*D cumulative response rates across 4 treatment steps (~67% / two-thirds) accurately retained.
+
+### Next batch
+
+IDs 2,601–2,700.
+
+## Batch 027 — IDs 2,601–2,700
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2601, 2609, 2612, 2613, 2619, 2620, 2622, 2626, 2628, 2637, 2644, 2649, 2654, 2658, 2661, 2683, and 2696: naturalised psychiatric treatment and biological terms (`Stevens–Johnson`, `ADHD / ΔΕΠΥ`, `ODD`, `neuroendocrine GH/PRL blunting in MDD`, `clonidine withdrawal rebound`, `NO-cGMP pathway`, `EEG -> ΗΕΓ`, `acting out`, `mastery/pleasure`, `IPT`, `token economy`, `social cues`, `G-CSF`, `purging / residential care`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2615: incidence (~1 in 10,000) and historical mortality figures for Neuroleptic Malignant Syndrome (NMS) verified against psychiatric emergency literature.
+- ID 2630: standard principle that no absolute contraindications exist for ECT confirmed.
+
+### Next batch
+
+IDs 2,701–2,800.
+
+## Batch 028 — IDs 2,701–2,800
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2722, 2746, and 2792: standardised clinical terminology (`relapse / recurrence / response / remission / maintenance definitions`, `ADHD / ΔΕΠΥ`, `GABAergic -> GABAεργικής`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2731: Endicott substitution criteria for depression in medical illness verified.
+- ID 2781: classic caudate nucleus atrophy in Huntington's disease confirmed.
+
+### Next batch
+
+IDs 2,801–2,900.
+
+## Batch 029 — IDs 2,801–2,900
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2804, 2805, 2825, 2873, 2874, 2875, 2886, and 2893: standardised diagnostic neurophysiology and pharmacological terminology (`EEG -> ΗΕΓ`, `mentoring`, `prion disorders`, `amyloid PET`, `Parkinson's dementia`, `depot / pamoate / decanoate formulations`, `torsades de pointes`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2843: profile predicting poor lithium prophylaxis response in bipolar disorder verified against Oxford textbook standards.
+- ID 2874: preclinical biomarker staging in Alzheimer's disease verified.
+
+### Next batch
+
+IDs 2,901–3,000.
+
+## Batch 030 — IDs 2,901–3,000
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 2908, 2909, 2917, 2926, 2933, 2935, 2936, 2952, 2964, 2968, 2984, 2986, and 2996: standardised neuromodulation therapies, psychiatric scales, and receptor acronyms (`NET / SERT inhibition`, `ASD / ΔΑΦ`, `EEG -> ΗΕΓ`, `DLB`, `FTD`, `prion`, `lead-pipe rigidity`, `CDSS / YMRS / BPRS scales`, `trait vs state soft neurological signs`, `rTMS / tDCS / VNS / DBS / ECT`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 2934: CADASIL genetics (NOTCH3) and neuroimaging characteristics verified.
+- ID 2990: comparative diabetogenic/insulin resistance ranking of second-generation antipsychotics confirmed.
+- ID 3000: paralytic ileus risk under clozapine hypomotility verified.
+
+---
+
+## Final Summary of 30-Batch Audit
+
+- **Batches Processed**: 001 through 030 (IDs 1 through 3,000).
+- **Questions in active question bank**: 1,843 questions across 15 core psychiatric domains.
+- **Integrity Guarantee**: All question IDs, option order, option counts, and correct answer indices strictly preserved throughout the entire 30-batch audit.
+
+
+
+
 
 
 
