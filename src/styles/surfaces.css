@@ -1504,32 +1504,69 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 /* ═══ SOS ═════════════════════════════════════════════════════ */
 
-.sos-screen { display: grid; gap: var(--s5); }
-.sos-focus-card { display: grid; gap: var(--s4); justify-items: start; }
-.sos-focus-prompt { font-size: var(--t-read); line-height: 1.5; max-width: var(--measure-item); }
-/* Two bare sibling spans, no separating whitespace in the markup. */
-.sos-focus-meta { display: flex; gap: var(--s3); font-size: var(--t-micro); color: var(--ink-3); }
-.sos-focus-answer {
-  font-family: var(--read); font-size: var(--t-read); line-height: 1.7;
-  max-width: var(--measure-read);
-  padding: var(--s4);
-  border: 1px solid var(--rule-strong); border-radius: var(--r-md);
+.sos-screen { display: grid; gap: var(--s4); position: relative; }
+.sos-focus-card {
+  display: grid; gap: var(--s4); justify-items: start;
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  padding: var(--s5);
+  box-shadow: var(--shadow-sm);
 }
+.sos-focus-prompt {
+  font-family: var(--read);
+  font-size: 19px; line-height: 1.45;
+  font-weight: 600;
+  max-width: var(--measure-item);
+  color: var(--ink);
+}
+
+.sos-focus-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3); font-size: var(--t-meta); color: var(--ink-3);
+  margin-bottom: var(--s1);
+}
+
+.sos-focus-answer {
+  font-family: var(--read); font-size: 16px; line-height: 1.65;
+  max-width: 68ch;
+  width: 100%;
+  padding: var(--s4);
+  background: var(--ground);
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  color: var(--ink);
+}
+
 .sos-focus-toggles { display: flex; gap: var(--s2); flex-wrap: wrap; align-items: center; }
 
-/* The reveal is the point of the card; the mastered checkbox is a small,
-   secondary control — neither should be a full-width grid-stretched bar. */
 .sos-focus-reveal {
-  width: auto; min-height: 52px; padding: 0 var(--s6);
+  width: auto; min-height: 48px; padding: 0 var(--s6);
   border: 1px solid var(--accent, var(--rule-strong));
+  border-radius: var(--r-md);
   background: var(--accent-quiet, transparent);
   font-size: var(--t-body); font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
-.sos-focus-reveal:hover { background: var(--accent-quiet, var(--raised)); }
-.sos-check-control { width: auto; }
-.sos-check-control.mastered { color: var(--pass); border-color: var(--pass); }
-/* A "number" entry is a sentence with the figure marked inside it, not a row
-   with a gutter — the value must never be squeezed into the ordinal column. */
+.sos-focus-reveal:hover { background: var(--accent-quiet, var(--raised)); border-color: var(--accent); }
+
+.sos-focus-nav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) 0;
+  background: var(--ground);
+  border-top: 1px solid var(--rule);
+  z-index: 10;
+}
+
+.sos-check-control { width: auto; font-size: 13px; }
+.sos-check-control.mastered { color: var(--pass); border-color: var(--pass); font-weight: 600; }
+
 .sos-number-entry {
   padding: var(--s3) var(--s2);
   border-bottom: 1px solid var(--rule);
@@ -1539,7 +1576,11 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 }
 .sos-number-mark {
   font-family: var(--code);
+  font-weight: 700;
   color: var(--mark);
+  background: rgba(239, 68, 68, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

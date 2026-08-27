@@ -7372,11 +7372,64 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
   );
 }
 
+function highlightNumbersAndUnits(text) {
+  if (!text) return text;
+  const parts = String(text).split(/((?:≥|≤|>|<|=)?\s*\d+(?:[\.,]\d+)?(?:\s*[-–—]\s*\d+(?:[\.,]\d+)?)?\s*(?:mg(?:\/day|\/d)?|mEq\/L|μg\/L|ng\/mL|mg\/dL|mm³|ms|%|έτη|εβδομάδες|μήνες|ημέρες|ώρες|kg|BMI)?\b)/g);
+
+  if (parts.length <= 1) return text;
+
+  return parts.map((part, i) => {
+    if (/\d+/.test(part) && /(?:mg|mEq|μg|ng|mm³|ms|%|έτη|εβδομάδες|μήνες|ημέρες|ANC|QTc|BMI|≥|≤|>|<)/i.test(part)) {
+      return <span key={i} className="sos-number-mark">{part}</span>;
+    }
+    return part;
+  });
+}
+
+function renderStructuredSosContent(text) {
+  if (!text) return null;
+  const paragraphs = String(text).split(/\n\n+/).filter(Boolean);
+
+  return paragraphs.map((para, pIdx) => {
+    const lines = para.split(/\n+/).filter(Boolean);
+    if (lines.length > 1) {
+      return (
+        <div key={pIdx} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {lines.map((line, lIdx) => {
+            const trimmed = line.trim();
+            const isBullet = trimmed.startsWith("•") || trimmed.startsWith("-") || /^\d+[\.\)]/.test(trimmed);
+            return (
+              <p key={lIdx} className={isBullet ? "oral-bullet-item" : "oral-para"} style={{ margin: 0 }}>
+                {highlightNumbersAndUnits(trimmed)}
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <p key={pIdx} className="oral-para" style={{ margin: 0 }}>
+        {highlightNumbersAndUnits(para)}
+      </p>
+    );
+  });
+}
+
 function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHome }) {
   const [shuffledTables, setShuffledTables] = useState(() => shuffleItems(tables));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showMastered, setShowMastered] = useState(false);
+  const [showJumper, setShowJumper] = useState(false);
+  const [studyMode, setStudyMode] = useState(() => {
+    try {
+      return localStorage.getItem("psych_sos_study_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
+
   const mastered = normalizeSosProgress(sosProgress).mastered.high_yield || {};
   const summary = summarizeSosProgress(sosProgress, "high_yield", tables);
   const visibleTables = useMemo(
@@ -7384,6 +7437,7 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
     [mastered, showMastered, shuffledTables]
   );
   const entry = visibleTables[currentIndex];
+  const isAnswerVisible = studyMode || showAnswer;
 
   useEffect(() => {
     if (currentIndex >= visibleTables.length) setCurrentIndex(Math.max(0, visibleTables.length - 1));
@@ -7408,6 +7462,30 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
     setShowAnswer(false);
   };
 
+  useWindowKeydown(event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.tagName === "BUTTON")
+    ) {
+      return;
+    }
+    if (event.key === " " && !studyMode) {
+      event.preventDefault();
+      setShowAnswer(shown => !shown);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      navigate(currentIndex + 1);
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      navigate(currentIndex - 1);
+    }
+  });
+
   return (
     <div className="sos-screen">
       <div className="screen-topbar">
@@ -7423,6 +7501,20 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
       </div>
       <div className="sos-focus-toolbar">
         <div className="sos-focus-toggles">
+          <button
+            type="button"
+            className={`oral-mode-toggle ${studyMode ? "study" : ""}`}
+            onClick={() => {
+              const next = !studyMode;
+              setStudyMode(next);
+              try {
+                localStorage.setItem("psych_sos_study_mode", String(next));
+              } catch {}
+            }}
+            title="Εναλλαγή λειτουργίας: Μελέτη (ανοιχτή) vs Αυτοεξέταση (κρυφή)"
+          >
+            {studyMode ? "📚 Μελέτη (Ανοιχτή)" : "🧠 Αυτοεξέταση"}
+          </button>
           <label className="sos-check-control">
             <input type="checkbox" checked={showMastered} onChange={event => { setShowMastered(event.target.checked); setCurrentIndex(0); setShowAnswer(false); }} />
             Εμφάνιση mastered
@@ -7431,6 +7523,40 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         </div>
         <button className="sos-shuffle-btn" type="button" onClick={reshuffle}>Ανακάτεμα</button>
       </div>
+
+      {showJumper && (
+        <div className="oral-jumper-overlay" role="dialog" aria-modal="true" onClick={() => setShowJumper(false)}>
+          <div className="oral-jumper-card" onClick={e => e.stopPropagation()}>
+            <div className="oral-jumper-head">
+              <strong>Πλοηγός Καρτών SOS ({visibleTables.length})</strong>
+              <button type="button" className="nav-btn" onClick={() => setShowJumper(false)}>Κλείσιμο</button>
+            </div>
+            <div className="oral-jumper-list">
+              {visibleTables.map((item, idx) => {
+                const isItemMastered = Boolean(mastered[item.id]);
+                const isCurrent = idx === currentIndex;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
+                    onClick={() => {
+                      setCurrentIndex(idx);
+                      setShowAnswer(false);
+                      setShowJumper(false);
+                    }}
+                  >
+                    <span className="oral-jumper-num">#{idx + 1}</span>
+                    <span className="oral-jumper-text">{item.prompt}</span>
+                    {isItemMastered && <span style={{ color: "var(--accent)", flex: "none" }}><Icons.Check /></span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {!entry ? (
         <div className="sos-focus-empty">
           <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
@@ -7438,14 +7564,24 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         </div>
       ) : <>
       <div className="sos-focus-meta">
-        <span>Κάρτα {currentIndex + 1} / {visibleTables.length}</span>
-        <span>{showAnswer ? "Απάντηση" : "Ερώτηση"}</span>
+        <button
+          type="button"
+          className="oral-q-jumper-btn"
+          onClick={() => setShowJumper(open => !open)}
+          title="Άμεση μετάβαση σε οποιαδήποτε κάρτα"
+        >
+          <span>Κάρτα {currentIndex + 1} / {visibleTables.length}</span>
+          <span className="oral-jumper-caret">▼</span>
+        </button>
+        <span style={{ fontSize: "var(--t-micro)" }}>{isAnswerVisible ? "Απάντηση" : "Ερώτηση"}</span>
       </div>
       <section className="sos-focus-card" aria-live="polite">
         <div className="sos-card-kicker">Ερώτηση</div>
         <div className="sos-focus-prompt">{entry.prompt}</div>
-        {showAnswer ? (
-          <div className="sos-focus-answer">{entry.answer}</div>
+        {isAnswerVisible ? (
+          <div className="sos-focus-answer">
+            {renderStructuredSosContent(entry.answer)}
+          </div>
         ) : (
           <button className="sos-focus-reveal" type="button" onClick={() => setShowAnswer(true)}>Εμφάνιση απάντησης</button>
         )}
@@ -7455,8 +7591,8 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         </label>
       </section>
       <div className="sos-focus-nav">
-        <button type="button" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
-        <button type="button" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === visibleTables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
+        <button type="button" className="nav-btn" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
+        <button type="button" className="nav-btn" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === visibleTables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
       </div>
       </>}
     </div>
@@ -7701,6 +7837,14 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   const [showDrillAnswer, setShowDrillAnswer] = useState(false);
   const [shuffledEntries, setShuffledEntries] = useState(() => entries);
   const [showMasteredInDrill, setShowMasteredInDrill] = useState(true);
+  const [showJumper, setShowJumper] = useState(false);
+  const [studyMode, setStudyMode] = useState(() => {
+    try {
+      return localStorage.getItem("psych_sos_study_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   const normalizedProgress = normalizeSosProgress(sosProgress);
   const mastered = normalizedProgress.mastered[section] || {};
@@ -7714,6 +7858,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   }, [mastered, showMasteredInDrill, shuffledEntries]);
 
   const currentDrillEntry = drillList[drillIndex] || drillList[0];
+  const isDrillAnswerVisible = studyMode || showDrillAnswer;
 
   useEffect(() => {
     if (drillIndex >= drillList.length) setDrillIndex(Math.max(0, drillList.length - 1));
@@ -7750,6 +7895,40 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   const goPrev = () => setSelectedIndex(index => Math.max(0, index - 1));
   const goNext = () => setSelectedIndex(index => Math.min(entries.length - 1, index + 1));
 
+  useWindowKeydown(event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.tagName === "BUTTON")
+    ) {
+      return;
+    }
+    if (selectedEntry) {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goNext();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goPrev();
+      }
+    } else if (viewMode === "flashcards") {
+      if (event.key === " " && !studyMode) {
+        event.preventDefault();
+        setShowDrillAnswer(shown => !shown);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        navigateDrill(drillIndex + 1);
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        navigateDrill(drillIndex - 1);
+      }
+    }
+  });
+
   if (selectedEntry) {
     const isMastered = Boolean(mastered[selectedEntry.id]);
     return (
@@ -7761,13 +7940,55 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         </div>
         <div className="sheet-head">
           <div className="sheet-head-text">
-            <span className="sheet-eyebrow">{title} · {selectedIndex + 1} / {entries.length}</span>
+            <button
+              type="button"
+              className="oral-q-jumper-btn"
+              style={{ marginBottom: "var(--s2)" }}
+              onClick={() => setShowJumper(open => !open)}
+              title="Άμεση μετάβαση σε οποιοδήποτε θέμα"
+            >
+              <span>{title} · {selectedIndex + 1} / {entries.length}</span>
+              <span className="oral-jumper-caret">▼</span>
+            </button>
             <h2>{selectedEntry.title}</h2>
           </div>
           <div className="sheet-head-actions">
             <span className="plate">{summary.mastered}/{summary.total} mastered</span>
           </div>
         </div>
+
+        {showJumper && (
+          <div className="oral-jumper-overlay" role="dialog" aria-modal="true" onClick={() => setShowJumper(false)}>
+            <div className="oral-jumper-card" onClick={e => e.stopPropagation()}>
+              <div className="oral-jumper-head">
+                <strong>Πλοηγός: {title} ({entries.length})</strong>
+                <button type="button" className="nav-btn" onClick={() => setShowJumper(false)}>Κλείσιμο</button>
+              </div>
+              <div className="oral-jumper-list">
+                {entries.map((item, idx) => {
+                  const isItemMastered = Boolean(mastered[item.id]);
+                  const isCurrent = idx === selectedIndex;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
+                      onClick={() => {
+                        setSelectedIndex(idx);
+                        setShowJumper(false);
+                      }}
+                    >
+                      <span className="oral-jumper-num">#{idx + 1}</span>
+                      <span className="oral-jumper-text">{item.title}</span>
+                      {isItemMastered && <span style={{ color: "var(--accent)", flex: "none" }}><Icons.Check /></span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
           className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
           aria-pressed={isMastered}
@@ -7776,8 +7997,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           <Icons.Check />
           {isMastered ? "Κατακτημένο" : "Σημείωσέ το ως κατακτημένο"}
         </button>
-        <div className="sos-detail-answer">{renderAnswer ? renderAnswer(selectedEntry) : selectedEntry.answer}</div>
-        <div className="nav-bar">
+        <div className="sos-detail-answer">
+          {renderAnswer ? renderAnswer(selectedEntry) : renderStructuredSosContent(selectedEntry.answer)}
+        </div>
+        <div className="nav-bar actionbar">
           <button className="nav-btn" onClick={goPrev} disabled={selectedIndex === 0}>
             <Icons.ChevronLeft /> Προηγούμενο
           </button>
@@ -7832,6 +8055,20 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         <>
           <div className="sos-focus-toolbar">
             <div className="sos-focus-toggles">
+              <button
+                type="button"
+                className={`oral-mode-toggle ${studyMode ? "study" : ""}`}
+                onClick={() => {
+                  const next = !studyMode;
+                  setStudyMode(next);
+                  try {
+                    localStorage.setItem("psych_sos_study_mode", String(next));
+                  } catch {}
+                }}
+                title="Εναλλαγή: Μελέτη (ανοιχτή) vs Αυτοεξέταση (κρυφή)"
+              >
+                {studyMode ? "📚 Μελέτη (Ανοιχτή)" : "🧠 Αυτοεξέταση"}
+              </button>
               <label className="sos-check-control">
                 <input type="checkbox" checked={showMasteredInDrill} onChange={event => { setShowMasteredInDrill(event.target.checked); setDrillIndex(0); setShowDrillAnswer(false); }} />
                 Εμφάνιση mastered
@@ -7841,6 +8078,39 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             <button className="sos-shuffle-btn" type="button" onClick={reshuffleDrill}>Ανακάτεμα</button>
           </div>
 
+          {showJumper && (
+            <div className="oral-jumper-overlay" role="dialog" aria-modal="true" onClick={() => setShowJumper(false)}>
+              <div className="oral-jumper-card" onClick={e => e.stopPropagation()}>
+                <div className="oral-jumper-head">
+                  <strong>Πλοηγός Flashcards ({drillList.length})</strong>
+                  <button type="button" className="nav-btn" onClick={() => setShowJumper(false)}>Κλείσιμο</button>
+                </div>
+                <div className="oral-jumper-list">
+                  {drillList.map((item, idx) => {
+                    const isItemMastered = Boolean(mastered[item.id]);
+                    const isCurrent = idx === drillIndex;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
+                        onClick={() => {
+                          setDrillIndex(idx);
+                          setShowDrillAnswer(false);
+                          setShowJumper(false);
+                        }}
+                      >
+                        <span className="oral-jumper-num">#{idx + 1}</span>
+                        <span className="oral-jumper-text">{item.title}</span>
+                        {isItemMastered && <span style={{ color: "var(--accent)", flex: "none" }}><Icons.Check /></span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
           {!currentDrillEntry ? (
             <div className="sos-focus-empty">
               <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
@@ -7849,15 +8119,23 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
           ) : (
             <>
               <div className="sos-focus-meta">
-                <span>Κάρτα {drillIndex + 1} / {drillList.length}</span>
-                <span>{showDrillAnswer ? "Απάντηση" : "Ερώτηση / Θέμα"}</span>
+                <button
+                  type="button"
+                  className="oral-q-jumper-btn"
+                  onClick={() => setShowJumper(open => !open)}
+                  title="Άμεση μετάβαση σε οποιαδήποτε κάρτα"
+                >
+                  <span>Κάρτα {drillIndex + 1} / {drillList.length}</span>
+                  <span className="oral-jumper-caret">▼</span>
+                </button>
+                <span style={{ fontSize: "var(--t-micro)" }}>{isDrillAnswerVisible ? "Απάντηση" : "Ερώτηση / Θέμα"}</span>
               </div>
               <section className="sos-focus-card" aria-live="polite">
                 <div className="sos-card-kicker">{title}</div>
                 <div className="sos-focus-prompt" style={{ fontWeight: 700 }}>{currentDrillEntry.title}</div>
-                {showDrillAnswer ? (
+                {isDrillAnswerVisible ? (
                   <div className="sos-focus-answer">
-                    {renderAnswer ? renderAnswer(currentDrillEntry) : currentDrillEntry.answer}
+                    {renderAnswer ? renderAnswer(currentDrillEntry) : renderStructuredSosContent(currentDrillEntry.answer)}
                   </div>
                 ) : (
                   <button className="sos-focus-reveal" type="button" onClick={() => setShowDrillAnswer(true)}>
@@ -7870,10 +8148,10 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
                 </label>
               </section>
               <div className="sos-focus-nav">
-                <button type="button" onClick={() => navigateDrill(drillIndex - 1)} disabled={drillIndex === 0}>
+                <button type="button" className="nav-btn" onClick={() => navigateDrill(drillIndex - 1)} disabled={drillIndex === 0}>
                   <Icons.ChevronLeft /> Προηγούμενη
                 </button>
-                <button type="button" onClick={() => navigateDrill(drillIndex + 1)} disabled={drillIndex === drillList.length - 1}>
+                <button type="button" className="nav-btn" onClick={() => navigateDrill(drillIndex + 1)} disabled={drillIndex === drillList.length - 1}>
                   Επόμενη <Icons.ChevronRight />
                 </button>
               </div>
