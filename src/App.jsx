@@ -752,12 +752,17 @@ function createStudyProfile(
     mcqProgress: normalizeMcqProgress(mcqProgress),
     oralProgress: normalizeOralProgress(oralProgress),
     sosProgress: normalizeSosProgress(sosProgress),
-    themePreference: "light",
+    themePreference: normalizeThemePreference(null),
   };
 }
 
 function normalizeThemePreference(value) {
-  return value === "dark" ? "dark" : "light";
+  if (value === "dark" || value === "light") return value;
+  try {
+    const stored = window.localStorage.getItem("psych_theme");
+    if (stored === "dark" || stored === "light") return stored;
+  } catch {}
+  return "dark";
 }
 
 function loadProfileStore() {
@@ -812,7 +817,7 @@ function profileFromRemoteRow(row) {
     mcqProgress: normalizeMcqProgress(row.mcq_progress),
     oralProgress: normalizeOralProgress(row.oral_progress),
     sosProgress: createEmptySosProgress(),
-    themePreference: normalizeThemePreference(row.theme_preference),
+    themePreference: row.theme_preference === "dark" || row.theme_preference === "light" ? row.theme_preference : null,
   };
 }
 
@@ -8401,13 +8406,18 @@ export default function App() {
     : null;
   const hasAdminAccess = Boolean(activeProfile && isAdminProfile(activeProfile) && adminUnlocked);
   const handleThemePreferenceChange = useCallback((nextTheme) => {
+    const normalized = normalizeThemePreference(nextTheme);
+    try {
+      window.localStorage.setItem("psych_theme", normalized);
+    } catch {}
+
     const profileId = profileStore.activeProfileId;
     const profile = profileId ? profileStore.profiles[profileId] : null;
     if (!profile) return;
 
     const nextProfile = {
       ...profile,
-      themePreference: normalizeThemePreference(nextTheme),
+      themePreference: normalized,
     };
     setProfileStore(prev => ({
       ...prev,
@@ -8744,16 +8754,26 @@ export default function App() {
       try {
         const remoteStore = await loadRemoteProfileStore(profileStore.activeProfileId);
         if (cancelled) return;
-        setProfileStore(prev => ({
-          version: 1,
-          profiles: {
-            ...prev.profiles,
-            ...remoteStore.profiles,
-          },
-          activeProfileId: (prev.profiles[prev.activeProfileId] || remoteStore.profiles[prev.activeProfileId])
+        setProfileStore(prev => {
+          const mergedProfiles = { ...prev.profiles };
+          for (const [id, remoteProfile] of Object.entries(remoteStore.profiles || {})) {
+            const localProfile = prev.profiles[id];
+            const themePreference = remoteProfile.themePreference || localProfile?.themePreference || normalizeThemePreference(null);
+            mergedProfiles[id] = {
+              ...localProfile,
+              ...remoteProfile,
+              themePreference,
+            };
+          }
+          const activeProfileId = (mergedProfiles[prev.activeProfileId])
             ? prev.activeProfileId
-            : remoteStore.activeProfileId,
-        }));
+            : remoteStore.activeProfileId;
+          return {
+            version: 1,
+            profiles: mergedProfiles,
+            activeProfileId,
+          };
+        });
         setSyncStatus("online");
       } catch {
         if (!cancelled) setSyncStatus("offline");

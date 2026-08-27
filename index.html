@@ -12,9 +12,20 @@
       (function () {
         try {
           var t = localStorage.getItem('psych_theme');
-          if (t === 'light' || t === 'dark') {
-            document.documentElement.setAttribute('data-theme', t);
+          if (!t || (t !== 'light' && t !== 'dark')) {
+            var raw = localStorage.getItem('psych_study_profiles_v1');
+            if (raw) {
+              var parsed = JSON.parse(raw);
+              if (parsed && parsed.activeProfileId && parsed.profiles && parsed.profiles[parsed.activeProfileId]) {
+                t = parsed.profiles[parsed.activeProfileId].themePreference;
+              }
+            }
           }
+          if (t !== 'light' && t !== 'dark') {
+            t = 'dark';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.style.colorScheme = t;
         } catch (e) {}
       })();
     </script>
