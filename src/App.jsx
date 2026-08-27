@@ -7246,34 +7246,38 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     setViewer({ ...viewer, index: viewer.index + 1 });
   };
 
-  const renderShell = (children) => {
+  const renderShell = (children, isRoot = false) => {
     const hasQuery = Boolean(normalizeGreekSearch(query));
     return (
     <div className="pinakakia-screen">
-      <div className="pinakakia-topbar">
-        <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-      </div>
-      <div className="pinakakia-search-wrap">
-        <label className="sr-only" htmlFor="pinakakia-search">Αναζήτηση σε πινακάκια</label>
-        <input
-          id="pinakakia-search"
-          name="pinakakia-search"
-          type="search"
-          className="pinakakia-search"
-          value={query}
-          onChange={event => setQuery(event.target.value)}
-          placeholder="Αναζήτηση σε πινακάκια…"
-          autoComplete="off"
-        />
-      </div>
-      {hasQuery && (
+      {!isRoot && (
+        <div className="pinakakia-topbar">
+          <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
+            <Icons.ChevronLeft /> Πίσω
+          </button>
+        </div>
+      )}
+      {!isRoot && (
+        <div className="pinakakia-search-wrap">
+          <label className="sr-only" htmlFor="pinakakia-search">Αναζήτηση σε πινακάκια</label>
+          <input
+            id="pinakakia-search"
+            name="pinakakia-search"
+            type="search"
+            className="pinakakia-search"
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder="Αναζήτηση σε πινακάκια…"
+            autoComplete="off"
+          />
+        </div>
+      )}
+      {hasQuery && !isRoot && (
         <div className="pinakakia-search-summary" role="status" aria-live="polite">
           {searchResults.length ? `${searchResults.length} αποτελέσματα` : "Χωρίς αποτελέσματα"}
         </div>
       )}
-      {hasQuery && (
+      {hasQuery && !isRoot && (
         <div className="pinakakia-results" style={{ marginBottom: 28 }}>
           {searchResults.length ? searchResults.map(box => (
             <button key={`${box.sourceKey}-${box.id}`} className="pinakakia-row" onClick={() => openSearchResult(box)}>
@@ -7289,7 +7293,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           )}
         </div>
       )}
-      {!hasQuery && children}
+      {(!hasQuery || isRoot) && children}
     </div>
     );
   };
@@ -7303,7 +7307,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           <div className="sheet-head-text">
             <span className="sheet-eyebrow">Ενότητα</span>
             <h2>Πινακάκια</h2>
-            <span className="sheet-sub">Γρήγορη αναζήτηση σε πλαίσια αναφοράς από τα δύο εγχειρίδια</span>
+            <span className="sheet-sub">Πλαίσια αναφοράς από τα δύο εγχειρίδια</span>
           </div>
         </div>
         <div className="hub-row-grid">
@@ -7334,7 +7338,8 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             </button>
           )}
         </div>
-      </>
+      </>,
+      true
     );
   }
 
