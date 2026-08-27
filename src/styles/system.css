@@ -527,14 +527,16 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
 .modal-overlay {
   position: fixed; inset: 0; z-index: 150;
   background: rgba(6, 8, 11, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: grid; place-items: center;
   padding: var(--s4);
 }
 .modal {
   background: var(--field);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r-lg);
-  box-shadow: var(--lift-modal);
+  border: 1px solid rgba(233, 231, 226, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.75), 0 8px 18px -8px rgba(0, 0, 0, 0.5);
   padding: var(--s6);
   width: min(560px, 100%);
   max-height: 86vh; overflow-y: auto;
@@ -548,16 +550,18 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
 
 .palette-overlay {
   position: fixed; inset: 0; z-index: 180;
-  background: rgba(6, 8, 11, 0.7);
+  background: rgba(6, 8, 11, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: grid; align-items: start; justify-items: center;
   padding: clamp(var(--s4), 8vh, 96px) var(--s4) var(--s4);
 }
 .palette {
   width: min(680px, 100%);
   background: var(--field);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r-lg);
-  box-shadow: var(--lift-modal);
+  border: 1px solid rgba(233, 231, 226, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.75), 0 8px 18px -8px rgba(0, 0, 0, 0.5);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   max-height: min(560px, 78vh);

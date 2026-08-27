@@ -92,10 +92,25 @@
   display: flex; flex-wrap: wrap;
   border-top: 1px solid var(--rule);
 }
-/* Home already separates Update from the figures with whitespace and
-   different content types — the rule there was a redundant third divider. */
-.home .figures { border-top: none; }
-.home .figure { padding-top: var(--s2); padding-bottom: var(--s2); }
+/* Home stats grid */
+.home .figures {
+  border-top: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--s2);
+  margin-top: var(--s3);
+  margin-bottom: var(--s2);
+}
+.home .figure {
+  padding: 10px 14px;
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .figure {
   flex: 0 0 auto;
   min-width: 84px;
@@ -137,11 +152,17 @@
   text-align: left;
   background: var(--module-quiet);
   border: 1px solid var(--module-rule);
-  border-radius: var(--r-lg);
+  border-top: 3px solid var(--module);
+  border-radius: 12px;
   color: var(--ink);
-  transition: border-color 0.12s var(--ease), transform 0.12s var(--ease);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
-.home-module:hover { border-color: var(--module); transform: translateY(-2px); }
+.home-module:hover {
+  border-color: var(--module);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+}
 .home-module-icon {
   display: flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; flex: none;
@@ -704,14 +725,14 @@
 .mode-btn.option, .options-list > button, .DSM5-options > button,
 .structured-option, .option-btn {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: flex-start; gap: var(--s3);
   width: 100%; text-align: left;
   padding: 12px 14px;
   min-height: 48px;
   background: var(--field);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-md);
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
   color: var(--ink);
   font-size: var(--t-item); line-height: 1.5;
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease), box-shadow 0.12s var(--ease);
@@ -725,18 +746,28 @@
 }
 
 .option-letter, .structured-option-letter, .DSM5-option-text::before {
-  font-family: var(--code); font-size: var(--t-body); font-weight: 600;
+  width: 26px; height: 26px; min-width: 26px; min-height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  font-family: var(--ui); font-size: 13px; font-weight: 700;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
-  margin-top: 1px; padding-top: 0;
+  margin-top: 1px; padding: 0;
+  transition: all 0.12s var(--ease);
 }
 
 /* Chosen but not yet submitted: the mark in the margin, as on a paper sheet. */
 .option-btn.selected:not(.correct):not(.incorrect) {
-  border-color: var(--ink-3);
-  background: var(--raised);
+  border-color: var(--focus);
+  background: var(--focus-quiet, rgba(90, 169, 214, 0.1));
   box-shadow: inset 3px 0 0 var(--focus, #3b82f6);
 }
-.option-btn.selected:not(.correct):not(.incorrect) .option-letter { color: var(--ink); }
+.option-btn.selected:not(.correct):not(.incorrect) .option-letter {
+  background: var(--focus);
+  color: #ffffff;
+  border-color: var(--focus);
+}
 
 .option-btn.locked { cursor: default; }
 .option-btn.locked:not(.correct):not(.incorrect) { opacity: 0.55; }
@@ -754,8 +785,8 @@
 .option-btn.correct:hover,
 .option-btn.correct:focus {
   border-color: #22c55e !important;
-  background: rgba(34, 197, 94, 0.16) !important;
-  box-shadow: inset 0 0 0 1.5px rgba(34, 197, 94, 0.65), 0 0 12px rgba(34, 197, 94, 0.2) !important;
+  background: rgba(34, 197, 94, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.5), 0 0 10px rgba(34, 197, 94, 0.15) !important;
   color: var(--ink) !important;
   opacity: 1 !important;
 }
@@ -765,7 +796,9 @@
 .structured-option.correct .structured-option-letter,
 .option-btn.correct .option-letter,
 .option-btn.correct:hover .option-letter {
-  color: #22c55e !important;
+  background: #22c55e !important;
+  color: #ffffff !important;
+  border-color: #22c55e !important;
   font-weight: 700 !important;
 }
 
@@ -789,8 +822,8 @@
 .option-btn.incorrect:hover,
 .option-btn.incorrect:focus {
   border-color: #ef4444 !important;
-  background: rgba(239, 68, 68, 0.16) !important;
-  box-shadow: inset 0 0 0 1.5px rgba(239, 68, 68, 0.65), 0 0 12px rgba(239, 68, 68, 0.2) !important;
+  background: rgba(239, 68, 68, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.15) !important;
   color: var(--ink) !important;
   opacity: 1 !important;
 }
@@ -800,7 +833,9 @@
 .structured-option.incorrect .structured-option-letter,
 .option-btn.incorrect .option-letter,
 .option-btn.incorrect:hover .option-letter {
-  color: #ef4444 !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
   font-weight: 700 !important;
 }
 
@@ -831,12 +866,15 @@
   font-size: var(--t-body); line-height: 1.48;
 }
 .test-container .explanation-box {
-  /* Wider than the 66ch reading cap: more width trades for fewer lines,
-     which is the point here. */
   max-width: none;
-  margin-top: var(--s3);
-  padding: var(--s2) 0 var(--s2) var(--s3);
+  margin-top: var(--s4);
+  padding: var(--s3) var(--s4);
   font-size: var(--t-body); line-height: 1.65;
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--focus);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 .test-container .point-breakdown { margin-top: 6px; }
 
@@ -851,6 +889,16 @@
   max-width: var(--measure-read);
   color: var(--ink);
   text-align: left;
+}
+
+.explanation-box strong,
+.DSM5-explanation strong {
+  display: block;
+  font-family: var(--ui);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: var(--s2);
+  color: var(--ink);
 }
 .explanation-box p + p, .answer-content p + p,
 .oral-model-answer p + p, .oral-quick-answer p + p { margin-top: 0.8em; }
