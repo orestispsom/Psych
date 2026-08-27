@@ -308,5 +308,125 @@ All answer keys, option order, and option counts were preserved.
 
 IDs 1,401–1,500.
 
+## Batch 015 — IDs 1,401–1,500
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1401, 1403, 1407, 1409, 1411, 1414, 1420, 1421, 1424, 1425, 1428, 1433, 1434, 1435, 1438, 1440, 1447, 1449, 1450, 1457, 1464, 1465, 1466, 1469, 1480, 1483, 1484, 1485, and 1489: expanded diagnostic and pharmacological abbreviations and naturalised English and hybrid phrases (`PTSD`, `ΗΕΓ / CJD`, `dementia praecox / manic-depressive insanity / folie à deux / paraphrenia`, `folie imposée`, `shaken baby / abusive head trauma`, `TCA`, `lead-pipe`, `IVIG`, `post-LP`, `COMT`, `ACE inhibitors / ARBs`, `light-near dissociation`, `washout`, `SNRI`, `cingulotomy / ERP / CBT`, `ECT`, `Z-drugs`, `REM sleep behavior disorder`, `naltrexone typo`, `amaurosis fugax`, `orbitofrontal`, `ALS`, `video-EEG`, `AIDS-related`, `prion / fatal familial insomnia`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1407: historical nomenclature (Kraepelin's dementia praecox vs Bleuler's schizophrenia) retained with canonical historical terminology.
+- ID 1449: anterior cingulotomy for treatment-refractory OCD represents a specialized neurosurgical historical/refractory treatment option; preserved source context.
+
+### Next batch
+
+IDs 1,501–1,600.
+
+## Batch 016 — IDs 1,501–1,600
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1507, 1508, 1512, 1520, 1528, 1530, 1533, 1537, 1539, 1546, 1547, 1551, 1552, 1554, 1555, 1559, 1562, 1563, 1565, 1566, 1567, 1573, 1574, 1578, 1579, 1583, 1586, 1590, 1594, 1597, 1598, and 1600: naturalised loanwords, transliterated foreign terms, and expanded abbreviations (`ceiling effect`, `alcohol blackouts`, `nucleus basalis of Meynert`, `HPA axis`, `γ-GT/CDT`, `amyloid precursor protein`, `MAOI/depot`, `BPRS`, `Stevens–Johnson`, `slow-wave sleep`, `brief psychotic / schizophreniform disorder`, `EPS`, `illness anxiety disorder`, `DLB / REM sleep behavior disorder`, `carbohydrate-deficient transferrin`, `formal operations`, `Lewy body disease`, `HAND`, `MCA`, `alexia without agraphia`, `ECT`, `prodrug / poor vs ultrarapid metabolizers`, `first-pass metabolism`, `Bell's palsy`, `stiff-person syndrome`, `habituation`, `rTMS`, `DIC`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1547: the classification correspondence between ICD-10 acute schizophreniform disorder and DSM-5 diagnostic categories correctly retains "None of the above" due to distinct duration criteria.
+- ID 1556: circular causality concept in family therapy correctly targets iterative patterns of interaction.
+
+### Next batch
+
+IDs 1,601–1,700.
+
+## Batch 017 — IDs 1,601–1,700
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1601, 1602, 1607, 1612, 1618, 1630, 1633, 1634, 1635, 1649, 1652, 1653, 1656, 1658, 1672, 1676, 1692, 1693, and 1699: expanded acronyms and naturalised hybrid English terminology (`BMI/appreciation`, `Z-drug / REM sleep behavior disorder`, `GAD`, `ECT`, `delirium tremens / opioid-free`, `myasthenia gravis`, `aging of acetylcholinesterase`, `CBT`, `QT interval`, `café-au-lait`, `gap junctions`, `ipecac syrup`, `cranial nerve VI palsy`, `BDNF`, `VMAT2`, `MAOI`, `QTc interval`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1608: presence of bizarre delusions solely within a severe depressive episode maintains diagnostic continuity as depression with psychotic features rather than schizophrenia.
+- ID 1621 & 1683: Schema Therapy and Strategic Family Therapy theoretical constructs reflect authoritative curriculum literature.
+
+### Next batch
+
+IDs 1,701–1,800.
+
+## Batch 018 — IDs 1,701–1,800
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1701, 1707, 1708, 1720, 1722, 1729, 1739, 1764, 1772, 1781, and 1784: expanded clinical and diagnostic abbreviations and naturalised English terms (`OCD-tic`, `ANC`, `schema modes`, `ARFID`, `CBT-E/CBT-BN`, `QT-prolonging / torsades de pointes`, `TCAs`, `washout`, `SARI`, `fight or flight`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1755: long-acting injectable risperidone requires ~4 injections (around 2 months at 2-week intervals) to reach steady state, necessitating oral overlap during initiation.
+- ID 1775: multimodal pharmacology of vortioxetine accurately distinguishes it from classic SSRIs.
+
+### Next batch
+
+IDs 1,801–1,900.
+
+## Batch 019 — IDs 1,801–1,900
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1823, 1840, 1848, 1861, and 1900: expanded clinical acronyms and naturalised phrasing (`ECT`, `lead-pipe rigidity`, `postpartum OCD`, `NSAIDs / ΜΣΑΦ`, `THC`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1802: meal requirement (≥350 kcal) for lurasidone absorption accurately maintained.
+- ID 1806 & 1808: classical psychopathology distinctions between opposition/gegenhalten and active vs passive negativism correctly formulated.
+
+### Next batch
+
+IDs 1,901–2,000.
+
+## Batch 020 — IDs 1,901–2,000
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1919, 1949, 1952, 1956, 1984, 1985, and 1986: expanded clinical terminology and fixed duplicated phrases (`delirium tremens`, `overkill in forensic psychiatry`, cleaned duplicated phrasing for long-acting injectable risperidone in stem 1952, `TMS/ECT non-invasive vs DBS/VNS`, `MRI`, `ECT/ΗΣΘ`, `MAOI`).
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1931: DSM-5 "with mixed features" specifier can be applied to major depressive disorder (unipolar) as well as bipolar disorders.
+- ID 1944, 1945, 1946 & 1949: forensic psychiatry questions properly assess mens rea / temporal relationship between psychotic state, cognitive impairment, and offending behaviour.
+
+### Next batch
+
+IDs 2,001–2,100.
+
+
+
+
+
+
+
 
 
