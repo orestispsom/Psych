@@ -54,16 +54,24 @@ h3 { font-size: var(--t-item); }
   font-feature-settings: "tnum" 1;
 }
 
-/* The ring gets its own ink. Stock is invisible on the primary action, which
-   is itself inverted stock; --mark already means "wrong", so a mark-coloured
-   ring makes focus read as an error. The 2px offset puts the ring on the page
-   ground, so it contrasts everywhere. */
-/* [tabindex="-1"] is excluded: it marks a programmatic-focus target (the
-   route's <main>, moved there on navigation for screen readers), never a
-   keyboard stop, so it should never draw a ring. Without this, every route
-   change on a wide viewport left main's outline's bottom edge visible as a
-   stray horizontal line below the fold — the ring's other three sides were
-   simply off-screen. */
+/* ─── Focus Management: Never draw focus outlines on containers or main ─── */
+main, [tabindex="-1"], #main-content, .workspace, .app-shell, .sheet, .test-container, .mcq-layout-wrap {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+main:focus,
+main:focus-visible,
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible,
+#main-content:focus,
+#main-content:focus-visible,
+.workspace:focus,
+.workspace:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 :where(button, a, input, textarea, select, summary, [tabindex]):not([tabindex="-1"]):focus-visible {
   outline: none;
 }
