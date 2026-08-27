@@ -6251,15 +6251,54 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
   );
 }
 
+function renderStructuredOralAnswer(text) {
+  if (!text) return null;
+  const paragraphs = String(text).split(/\n\n+/).filter(Boolean);
+
+  return paragraphs.map((para, pIdx) => {
+    const lines = para.split(/\n+/).filter(Boolean);
+    if (lines.length > 1) {
+      return (
+        <div key={pIdx} className="oral-answer-block" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {lines.map((line, lIdx) => {
+            const trimmed = line.trim();
+            const isBullet = trimmed.startsWith("•") || trimmed.startsWith("-") || /^\d+[\.\)]/.test(trimmed);
+            return (
+              <p key={lIdx} className={isBullet ? "oral-bullet-item" : "oral-para"}>
+                {trimmed}
+              </p>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <p key={pIdx} className="oral-para">
+        {para}
+      </p>
+    );
+  });
+}
+
 function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, onQuestionMastered, onBack, onHome }) {
   const [currentIdx, setCurrentIdx] = useState(() => Math.min(Math.max(0, initialIndex), questions.length - 1));
   const [showAnswer, setShowAnswer] = useState(false);
+  const [showJumper, setShowJumper] = useState(false);
+  const [studyMode, setStudyMode] = useState(() => {
+    try {
+      return localStorage.getItem("psych_oral_study_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   const q = questions[currentIdx];
   const total = questions.length;
   const normalizedOralProgress = normalizeOralProgress(oralProgress);
   const sectionSummary = summarizeOralProgress(normalizedOralProgress, questions);
-  const isMastered = Boolean(normalizedOralProgress.mastered[q.id]);
+  const isMastered = Boolean(normalizedOralProgress.mastered[q?.id]);
+  const isAnswerVisible = studyMode || showAnswer;
 
   const goPrev = () => {
     if (currentIdx > 0) {
@@ -6277,30 +6316,30 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
 
   // Space reveals, arrows move. Recall practice works best hands-on-keyboard.
   useWindowKeydown(event => {
-    {
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable ||
-          target.tagName === "BUTTON")
-      ) {
-        return;
-      }
-      if (event.key === " ") {
-        event.preventDefault();
-        setShowAnswer(shown => !shown);
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        goNext();
-      } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        goPrev();
-      }
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.tagName === "BUTTON")
+    ) {
+      return;
+    }
+    if (event.key === " " && !studyMode) {
+      event.preventDefault();
+      setShowAnswer(shown => !shown);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      goNext();
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      goPrev();
     }
   });
+
+  if (!q) return null;
 
   return (
     <div className="oral-viewer">
@@ -6313,6 +6352,20 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
       <div className="oral-viewer-head">
         <span className="sheet-eyebrow">{title}</span>
         <div className="oral-viewer-head-side">
+          <button
+            type="button"
+            className={`oral-mode-toggle ${studyMode ? "study" : ""}`}
+            onClick={() => {
+              const next = !studyMode;
+              setStudyMode(next);
+              try {
+                localStorage.setItem("psych_oral_study_mode", String(next));
+              } catch {}
+            }}
+            title="Εναλλαγή: Μελέτη (πάντα ανοιχτή απάντηση) vs Αυτοεξέταση (κρυφή απάντηση)"
+          >
+            {studyMode ? "📚 Μελέτη (Ανοιχτή)" : "🧠 Αυτοεξέταση"}
+          </button>
           <ScaleStrip
             level={sectionSummary.total ? Math.round((sectionSummary.mastered / sectionSummary.total) * 5) : 0}
             label="Πρόοδος ενότητας"
@@ -6322,14 +6375,71 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
       </div>
 
       <div className="oral-q-block">
-        <span className="oral-q-position">
+        <button
+          type="button"
+          className="oral-q-jumper-btn"
+          onClick={() => setShowJumper(open => !open)}
+          title="Πλοηγός: Άμεση μετάβαση σε οποιαδήποτε ερώτηση"
+        >
           <span className="oral-q-position-now">{currentIdx + 1}</span>
           <span className="oral-q-position-total">/ {total}</span>
-        </span>
+          <span className="oral-jumper-caret">{showJumper ? "▲" : "▼"}</span>
+        </button>
         <p className="oral-q-text">{q.text}</p>
       </div>
 
-      {!showAnswer ? (
+      {showJumper && (
+        <div
+          className="oral-jumper-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowJumper(false)}
+        >
+          <div
+            className="oral-jumper-card"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="oral-jumper-head">
+              <strong>Πλοηγός Ερωτήσεων ({total})</strong>
+              <button
+                type="button"
+                className="nav-btn"
+                onClick={() => setShowJumper(false)}
+              >
+                Κλείσιμο
+              </button>
+            </div>
+            <div className="oral-jumper-list">
+              {questions.map((item, idx) => {
+                const itemMastered = Boolean(normalizedOralProgress.mastered[item.id]);
+                const isCurrent = idx === currentIdx;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
+                    onClick={() => {
+                      setCurrentIdx(idx);
+                      setShowAnswer(false);
+                      setShowJumper(false);
+                    }}
+                  >
+                    <span className="oral-jumper-num">#{idx + 1}</span>
+                    <span className="oral-jumper-text">{item.text}</span>
+                    {itemMastered && (
+                      <span style={{ color: "var(--accent)", flex: "none" }}>
+                        <Icons.Check />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isAnswerVisible ? (
         <div className="oral-answer-prompt">
           <button className="oral-answer-reveal" onClick={() => setShowAnswer(true)}>
             <Icons.Eye />
@@ -6341,22 +6451,17 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
         <section className="oral-answer-panel">
           <div className="oral-answer-toolbar">
             <span className="oral-answer-kicker">Απάντηση</span>
-            <button className="oral-answer-hide" onClick={() => setShowAnswer(false)}>Απόκρυψη</button>
+            {!studyMode && (
+              <button className="oral-answer-hide" onClick={() => setShowAnswer(false)}>Απόκρυψη</button>
+            )}
           </div>
           <div className="oral-quick-answer">
-            {String(q.answer || "")
-              .split(/\n\n+/)
-              .filter(Boolean)
-              .map((paragraph, pIdx) => (
-                <p key={pIdx}>{paragraph}</p>
-              ))}
-            {q.source && <div className="oral-legacy-source">Συμπληρωματική πηγή: {q.source}</div>}
+            {renderStructuredOralAnswer(q.answer)}
+            {q.source && <div className="oral-legacy-source" style={{ marginTop: "var(--s3)", fontSize: "var(--t-meta)", color: "var(--ink-3)" }}>Συμπληρωματική πηγή: {q.source}</div>}
           </div>
         </section>
       )}
 
-      {/* Mark and move: the verdict on this question belongs with the
-          controls that leave it, not stranded under the question text. */}
       <div className="oral-viewer-foot">
         <button className="nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
           <Icons.ChevronLeft /> Προηγούμενη
