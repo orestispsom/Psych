@@ -3408,6 +3408,19 @@ function normalizeDSM5CorrectIndex(question) {
   return -1;
 }
 
+function isShortcutIgnoredTarget(target) {
+  return target instanceof HTMLElement && (
+    target.tagName === "INPUT" ||
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT" ||
+    target.isContentEditable
+  );
+}
+
+function isSubmitOrAdvanceKey(event) {
+  return event.key === "Enter" || event.code === "Space";
+}
+
 function buildDSM5Session(sourceType, chapter = null, dsm5trSelfExamQuestions = []) {
   const sourceQuestions = sourceType === "random"
     ? dsm5trSelfExamQuestions
@@ -3478,6 +3491,39 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
     }
   };
 
+  const selectAnswer = (optionIndex) => {
+    if (!question || isLocked) return;
+    setAnswers(prev => ({ ...prev, [question.id]: optionIndex }));
+  };
+
+  useWindowKeydown(event => {
+    if (event.ctrlKey || event.metaKey || event.altKey || isShortcutIgnoredTarget(event.target)) return;
+    if (result || reviewWrong || !question) return;
+
+    if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !isLocked) {
+      const order = getStoredOptionOrder(question, optionOrders);
+      if (!order.length) return;
+      event.preventDefault();
+      const selectedPosition = order.indexOf(selected);
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      const nextPosition = selectedPosition < 0
+        ? (step > 0 ? 0 : order.length - 1)
+        : (selectedPosition + step + order.length) % order.length;
+      selectAnswer(order[nextPosition]);
+      return;
+    }
+
+    if (isSubmitOrAdvanceKey(event)) {
+      event.preventDefault();
+      if (event.repeat) return;
+      if (!isLocked && selected !== undefined) {
+        lockAnswer();
+      } else if (isLocked && currentIdx < questions.length - 1) {
+        setCurrentIdx(index => index + 1);
+      }
+    }
+  });
+
   const renderQuestion = (
     rowQuestion = question,
     rowSelected = selected,
@@ -3510,7 +3556,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
                 type="button"
                 className={cls}
                 disabled={lockedView}
-                onClick={() => setAnswers(prev => ({ ...prev, [rowQuestion.id]: option.originalIndex }))}
+                onClick={() => selectAnswer(option.originalIndex)}
               >
                 <span className="structured-option-letter">{OPTION_LETTERS[displayIndex] || displayIndex + 1}</span>
                 <span className="DSM5-option-text">{option.text}</span>
@@ -4407,20 +4453,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   };
 
   // Keyboard: answering thousands of MCQs should not require the mouse.
-  // 1–5 pick a displayed option, Enter submits then advances, arrows navigate.
+  // 1–5 and Up/Down pick an option; Enter/Space submit, then advance.
   useWindowKeydown(event => {
     {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
+      if (isShortcutIgnoredTarget(event.target)) return;
       if (writtenResult || !q) return;
 
       if (event.key >= "1" && event.key <= "9") {
@@ -4432,8 +4469,21 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         return;
       }
 
-      if (event.key === "Enter") {
+      if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !isLocked) {
+        if (!currentOptionOrder.length) return;
         event.preventDefault();
+        const selectedPosition = currentOptionOrder.indexOf(selected);
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        const nextPosition = selectedPosition < 0
+          ? (step > 0 ? 0 : currentOptionOrder.length - 1)
+          : (selectedPosition + step + currentOptionOrder.length) % currentOptionOrder.length;
+        selectOption(currentOptionOrder[nextPosition]);
+        return;
+      }
+
+      if (isSubmitOrAdvanceKey(event)) {
+        event.preventDefault();
+        if (event.repeat) return;
         if (!isLocked && selected !== undefined && selected !== null && mode !== "written") {
           submitAnswer();
         } else if (nextIdx >= 0 && nextIdx < totalQ) {
