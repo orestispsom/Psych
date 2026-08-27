@@ -268,3 +268,25 @@ All answer keys, option order, and option counts were preserved.
 
 IDs 1,201–1,300.
 
+## Batch 013 — IDs 1,201–1,300
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1202, 1208, 1210, 1213, 1214, 1216, 1222, 1227, 1240, 1242, 1250, 1255, 1257, 1260, 1265, 1270, 1273, 1277, 1279, 1283, 1285, 1286, 1290, 1291, 1298, 1299, and 1300: naturalised foreign terminology and expanded clinical acronyms (`kainate`, `myasthenia gravis`, `Tensilon`, `IVIG`, `cross-dressing`, `frotteuristic disorder`, `exam-style`, `dementia praecox`, `TCA`, `skin picking`, `Saturday night palsy`, `case formulation`, `befloxatone`, `affect`, `locus coeruleus`, `locked-in syndrome`, `assertive community treatment`, `Horner/Wallenberg`, `parachute reaction`, `rooting`, `JC virus/PML`, `EPS`, `PR/QRS`, `foot drop`, `ACA`, `Virchow–Robin`, `Cohen's kappa`, `MRI/EEG`).
+- IDs 1209, 1229, 1232, 1274, and 1282: standardized neurological, sleep, and trauma terminology (`ΗΕΓ / spike-and-wave`, `REM latency / REM density`, `PTSD`, `status epilepticus`, `PRL/NE/GH`).
+- IDs 1258 and 1281: rewritten ungrammatical conversational stems and option sets into formal clinical Greek without changing patient vignettes or answer keys.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1233: the item contrasts the 19th-century use of lithium by William A. Hammond with John Cade's landmark 1949 publication; historical attribution is noted.
+- ID 1274: the complex neuroendocrine challenge profile in PTSD represents specialized research findings; retained exact-source framing.
+
+### Next batch
+
+IDs 1,301–1,400.
+
+
