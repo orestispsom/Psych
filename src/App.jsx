@@ -3452,8 +3452,14 @@ function toggleSelection(selected, value, allowMultiple) {
 }
 
 function getVignetteLabel(vignette) {
+  if (!vignette) return "Σενάριο";
+  if (vignette.title) {
+    const cleanTitle = vignette.title.replace(/^Κλινικό\s*σενάριο\s*\d+\s*[-–:]\s*/i, "").trim();
+    if (cleanTitle) return cleanTitle;
+  }
+  if (vignette.topic) return vignette.topic;
   const match = String(vignette?.id || "").match(/(\d+)$/);
-  return match ? `Vignette ${Number(match[1])}` : "Vignette";
+  return match ? `Σενάριο ${Number(match[1])}` : "Σενάριο";
 }
 
 function getAvailableMatchingSets(matchingSets = []) {
@@ -3915,10 +3921,10 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         </div>
         <h2 aria-hidden="true">Vignettes</h2>
         <div className="vignette-list">
-          {availableVignettes.map(item => {
+          {availableVignettes.map((item, index) => {
             const completed = Boolean(completedVignettes[item.id]?.completed || completedVignettes[item.id] === true);
             const label = getVignetteLabel(item);
-            const number = label.match(/\d+/)?.[0] || "";
+            const number = String(index + 1).padStart(2, "0");
             return (
               <div key={item.id} className={`vignette-row ${completed ? "completed" : ""}`}>
                 <button
@@ -3927,7 +3933,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
                   onClick={() => selectVignette(item.id)}
                 >
                   <span className="choice-id">{number}</span>
-                  <span>{label}</span>
+                  <span style={{ fontWeight: 600 }}>{label}</span>
                 </button>
                 <button
                   type="button"
