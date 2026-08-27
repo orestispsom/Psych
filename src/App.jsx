@@ -10,6 +10,7 @@ import SupportWidget from "./components/SupportWidget.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
+import { useSwipeGesture } from "./lib/useSwipeGesture.js";
 
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
@@ -3692,6 +3693,22 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
     );
   };
 
+  const dsm5Swipe = useSwipeGesture({
+    onSwipeLeft: () => {
+      if (isLocked && currentIdx < questions.length - 1) {
+        setCurrentIdx(index => index + 1);
+      } else if (!isLocked && selected !== undefined) {
+        lockAnswer();
+      }
+    },
+    onSwipeRight: () => {
+      if (currentIdx > 0) {
+        setCurrentIdx(index => index - 1);
+      }
+    },
+    enabled: Boolean(question && !result && !reviewWrong),
+  });
+
   if (reviewWrong) {
     return (
       <div className="structured-mcq">
@@ -3757,7 +3774,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
   }
 
   return (
-    <div className="structured-mcq">
+    <div className="structured-mcq" {...dsm5Swipe}>
       <div className="structured-top">
         <button className="back-link" onClick={backToDSM5Home}>
           <Icons.ChevronLeft /> DSM5 Menu
@@ -4395,6 +4412,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [simSeconds, setSimSeconds] = useState(0);
   const [showSimTimer, setShowSimTimer] = useState(true);
   const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
+  const [practiceWrittenWrongActive, setPracticeWrittenWrongActive] = useState(false);
+  const [showPracticeWrongCompleteModal, setShowPracticeWrongCompleteModal] = useState(false);
+  const savedWrittenResultRef = useRef(null);
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
@@ -4429,14 +4449,48 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     ? questions.filter(question => answers[question.id] !== undefined && answers[question.id] !== null).length
     : 0;
   const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
-  const modeTitle = {
-    daily: "Αδύναμα Θέματα",
-    random: "Τυχαία Θέματα",
-    sprint: "Mini-test",
-    weakness: "Αδυναμίες",
-    written: "Προσομοίωση με 100 Πολλαπλής",
-    category: sessionTitle || "\u0395\u03c1\u03c9\u03c4\u03ae\u03c3\u03b5\u03b9\u03c2 \u03b1\u03bd\u03ac \u039a\u03b1\u03c4\u03b7\u03b3\u03bf\u03c1\u03af\u03b1",
-  }[mode] || "MCQ";
+  const modeTitle = practiceWrittenWrongActive
+    ? "Εξάσκηση Λαθών Προσομοίωσης"
+    : {
+        daily: "Αδύναμα Θέματα",
+        random: "Τυχαία Θέματα",
+        sprint: "Mini-test",
+        weakness: "Αδυναμίες",
+        written: "Προσομοίωση με 100 Πολλαπλής",
+        category: sessionTitle || "Ερωτήσεις ανά Κατηγορία",
+      }[mode] || "MCQ";
+
+  const startPracticeWrittenWrong = useCallback(() => {
+    if (!writtenResult?.wrongItems?.length) return;
+    const wrongQuestions = writtenResult.wrongItems.map(item => item.question);
+    savedWrittenResultRef.current = writtenResult;
+    sessionIdRef.current = `written-wrong-${Date.now()}`;
+    questionViewEffectKeyRef.current = null;
+    setQuestions(wrongQuestions);
+    setOptionOrders(createOptionOrders(wrongQuestions));
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setLastBreakdown(null);
+    setWrittenResult(null);
+    setReviewWrittenWrong(false);
+    setReviewWrittenAll(false);
+    setWrittenReviewIndex(0);
+    setWrittenWrongFullItem(null);
+    setPracticeWrittenWrongActive(true);
+    setShowPracticeWrongCompleteModal(false);
+    setSessionStats({ correct: 0, incorrect: 0, total: 0, currentStreak: 0, maxStreak: 0, points: 0 });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [writtenResult]);
+
+  const exitPracticeWrittenWrong = useCallback(() => {
+    if (savedWrittenResultRef.current) {
+      setWrittenResult(savedWrittenResultRef.current);
+    }
+    setPracticeWrittenWrongActive(false);
+    setShowPracticeWrongCompleteModal(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const buildCurrentWrittenDraft = useCallback((overrides = {}) => {
     const draftQuestions = overrides.questions || questions;
@@ -4594,7 +4648,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [nextIdx]);
 
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
-    if (mode === "written") return;
+    if (mode === "written" && !practiceWrittenWrongActive) return;
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
 
@@ -4621,8 +4675,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     if (mode === "sprint" && currentIdx === totalQ - 1) {
       setShowSprintCompleteModal(true);
     }
+    if (practiceWrittenWrongActive && currentIdx === totalQ - 1) {
+      setShowPracticeWrongCompleteModal(true);
+    }
     onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
-      mode,
+      mode: practiceWrittenWrongActive ? "weakness" : mode,
       confidence: inferredConfidence,
       timeTakenMs,
       pointsAwarded,
@@ -4630,14 +4687,14 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       sessionId: sessionIdRef.current,
       streakPosition: nextStreak,
     }));
-  }, [selected, isLocked, q, sessionStats, mode, onProgressChange, currentIdx, totalQ]);
+  }, [selected, isLocked, q, sessionStats, mode, practiceWrittenWrongActive, onProgressChange, currentIdx, totalQ]);
 
   const selectOption = (idx) => {
-    if (isLocked || writtenResult || !q) return;
+    if (isLocked || (writtenResult && !practiceWrittenWrongActive) || !q) return;
     const nextAnswers = { ...answers, [q.id]: idx };
     setAnswers(nextAnswers);
 
-    if (mode === "written") {
+    if (mode === "written" && !practiceWrittenWrongActive) {
       const draft = buildCurrentWrittenDraft({ answers: nextAnswers });
       if (!draft) return;
 
@@ -4652,7 +4709,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
-      if (writtenResult || !q) return;
+      if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
 
       if (event.key >= "1" && event.key <= "9") {
         const displayedIndex = Number(event.key) - 1;
@@ -4678,10 +4735,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       if (isSubmitOrAdvanceKey(event)) {
         event.preventDefault();
         if (event.repeat) return;
-        if (!isLocked && selected !== undefined && selected !== null && mode !== "written") {
+        if (!isLocked && selected !== undefined && selected !== null && (mode !== "written" || practiceWrittenWrongActive)) {
           submitAnswer();
         } else if (nextIdx >= 0 && nextIdx < totalQ) {
-          if (mode === "written") goToWrittenIndex(nextIdx);
+          if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(nextIdx);
           else goToNextQuestion();
         }
         return;
@@ -4689,17 +4746,46 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       if (event.key === "ArrowRight" && nextIdx >= 0 && nextIdx < totalQ) {
         event.preventDefault();
-        if (mode === "written") goToWrittenIndex(nextIdx);
+        if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(nextIdx);
         else goToNextQuestion();
         return;
       }
 
       if (event.key === "ArrowLeft" && prevIdx >= 0) {
         event.preventDefault();
-        if (mode === "written") goToWrittenIndex(prevIdx);
+        if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(prevIdx);
         else setCurrentIdx(prevIdx);
       }
     }
+  });
+
+  const handleMcqSwipeLeft = useCallback(() => {
+    if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
+    if (mode === "written" && !practiceWrittenWrongActive) {
+      if (nextIdx >= 0 && nextIdx < totalQ) goToWrittenIndex(nextIdx);
+    } else {
+      if (isLocked && nextIdx >= 0 && nextIdx < totalQ) {
+        goToNextQuestion();
+      } else if (!isLocked && selected !== undefined && selected !== null) {
+        submitAnswer();
+      } else if (nextIdx >= 0 && nextIdx < totalQ) {
+        goToNextQuestion();
+      }
+    }
+  }, [goToNextQuestion, goToWrittenIndex, isLocked, mode, nextIdx, practiceWrittenWrongActive, q, selected, submitAnswer, totalQ, writtenResult]);
+
+  const handleMcqSwipeRight = useCallback(() => {
+    if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
+    if (prevIdx >= 0) {
+      if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(prevIdx);
+      else setCurrentIdx(prevIdx);
+    }
+  }, [goToWrittenIndex, mode, practiceWrittenWrongActive, prevIdx, q, writtenResult]);
+
+  const mcqSwipe = useSwipeGesture({
+    onSwipeLeft: handleMcqSwipeLeft,
+    onSwipeRight: handleMcqSwipeRight,
+    enabled: (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
   });
 
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
@@ -5391,8 +5477,17 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         )}
 
         <div className="results-actions">
+          {writtenResult.wrongItems?.length > 0 && (
+            <button
+              className="results-btn primary"
+              style={{ fontWeight: 700 }}
+              onClick={startPracticeWrittenWrong}
+            >
+              <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({writtenResult.wrong})
+            </button>
+          )}
           <button
-            className="results-btn primary"
+            className="results-btn"
             onClick={() => {
               setWrittenReviewIndex(0);
               setReviewWrittenAll(true);
@@ -5400,8 +5495,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           >
             Προβολή όλων των απαντήσεων
           </button>
-          <button className="results-btn primary" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
-            Review all wrong answers
+          <button className="results-btn" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
+            Ανασκόπηση λαθών
           </button>
           <button className="results-btn" onClick={restartWrittenExam}>
             Νέα προσομοίωση
@@ -5455,11 +5550,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }
 
   return (
-    <div className="test-container mcq-layout-wrap">
+    <div className="test-container mcq-layout-wrap" {...mcqSwipe}>
       <div className="mcq-main-pane">
         <div className="mcq-top-nav">
-          <button className="back-link" onClick={onBack} style={{ margin: 0 }}>
-            <Icons.ChevronLeft /> Μενού MCQ
+          <button className="back-link" onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack} style={{ margin: 0 }}>
+            <Icons.ChevronLeft /> {practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
           </button>
           {flaggedIds.size > 0 && (
             <span className="mcq-top-flag-badge">
@@ -5483,7 +5578,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
 
           <div className="mcq-q-actions">
-            {mode === "written" && (
+            {mode === "written" && !practiceWrittenWrongActive && (
               <button
                 type="button"
                 className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
@@ -5502,7 +5597,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             {feedbackStatus.message}
           </div>
         )}
-        {mode === "written" && writtenSubmitError && (
+        {mode === "written" && !practiceWrittenWrongActive && writtenSubmitError && (
           <div className="mcq-feedback-message error">
             {writtenSubmitError}
           </div>
@@ -5553,7 +5648,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </p>
         )}
 
-        {isLocked && mode !== "written" && (
+        {isLocked && (mode !== "written" || practiceWrittenWrongActive) && (
           <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
             <strong>Επεξήγηση</strong>{q.explanation}
             {getQuestionExamLesson(q) && (
@@ -5565,7 +5660,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
         )}
 
-        {mode === "written" ? (
+        {mode === "written" && !practiceWrittenWrongActive ? (
           <div className="nav-bar actionbar">
             <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
               <Icons.ChevronLeft /> Προηγούμενη
@@ -5575,6 +5670,20 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             </button>
             <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
               Υποβολή εξέτασης
+            </button>
+          </div>
+        ) : practiceWrittenWrongActive && currentIdx === totalQ - 1 ? (
+          <div className="nav-bar actionbar">
+            <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+              <Icons.ChevronLeft /> Προηγούμενη
+            </button>
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+                <Icons.Lock /> Καταχώρηση
+              </button>
+            )}
+            <button className="nav-btn primary" type="button" onClick={exitPracticeWrittenWrong}>
+              Αποτελέσματα
             </button>
           </div>
         ) : mode === "sprint" && currentIdx === totalQ - 1 ? (
@@ -5757,6 +5866,61 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                 onClick={() => setShowSprintCompleteModal(false)}
               >
                 Ανασκόπηση ερωτήσεων
+              </button>
+              <button
+                type="button"
+                className="results-btn"
+                onClick={onBack}
+              >
+                Μενού MCQ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {practiceWrittenWrongActive && showPracticeWrongCompleteModal && (
+        <div className="sprint-summary-overlay" role="dialog" aria-modal="true">
+          <div className="sprint-summary-card">
+            <div className="sheet-eyebrow">Εξάσκηση Λαθών Προσομοίωσης</div>
+            <div className="sprint-score-badge">
+              {sessionStats.correct} <small>/ {totalQ}</small>
+            </div>
+            <p style={{ color: "var(--ink-2)", margin: 0 }}>
+              Ευστοχία: <strong>{Math.round((sessionStats.correct / (totalQ || 1)) * 100)}%</strong>
+              {sessionStats.incorrect > 0 ? ` · ${sessionStats.incorrect} ερωτήσεις χρειάζονται ακόμη επανάληψη` : " · Όλα τα λάθη κατακτήθηκαν!"}
+            </p>
+            <div className="modal-actions" style={{ width: "100%", marginTop: "var(--s2)" }}>
+              {sessionStats.incorrect > 0 && (
+                <button
+                  type="button"
+                  className="results-btn primary"
+                  onClick={() => {
+                    const remainingWrong = questions.filter(item => answers[item.id] !== item.correct);
+                    if (remainingWrong.length > 0) {
+                      setQuestions(remainingWrong);
+                      setOptionOrders(createOptionOrders(remainingWrong));
+                      setCurrentIdx(0);
+                      setAnswers({});
+                      setLocked({});
+                      setSessionStats({ correct: 0, incorrect: 0, total: 0, currentStreak: 0, maxStreak: 0, points: 0 });
+                      setShowPracticeWrongCompleteModal(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                >
+                  <Icons.Bolt /> Επανάληψη των υπόλοιπων {sessionStats.incorrect} λαθών
+                </button>
+              )}
+              <button
+                type="button"
+                className="results-btn primary"
+                onClick={() => {
+                  setShowPracticeWrongCompleteModal(false);
+                  exitPracticeWrittenWrong();
+                }}
+              >
+                Επιστροφή στα αποτελέσματα
               </button>
               <button
                 type="button"
@@ -6230,8 +6394,14 @@ function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const swipeHandlers = useSwipeGesture({
+    onSwipeLeft: () => navigate(currentIdx + 1),
+    onSwipeRight: () => navigate(currentIdx - 1),
+    enabled: Boolean(source),
+  });
+
   return (
-    <div className="oral-viewer">
+    <div className="oral-viewer" {...swipeHandlers}>
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Ευρετήριο
@@ -6351,10 +6521,16 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
     }
   });
 
+  const swipeHandlers = useSwipeGesture({
+    onSwipeLeft: goNext,
+    onSwipeRight: goPrev,
+    enabled: Boolean(q),
+  });
+
   if (!q) return null;
 
   return (
-    <div className="oral-viewer">
+    <div className="oral-viewer" {...swipeHandlers}>
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> Πίσω
@@ -8011,10 +8187,22 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
     }
   });
 
+  const sosSwipe = useSwipeGesture({
+    onSwipeLeft: () => {
+      if (selectedEntry) goNext();
+      else if (viewMode === "flashcards") navigateDrill(drillIndex + 1);
+    },
+    onSwipeRight: () => {
+      if (selectedEntry) goPrev();
+      else if (viewMode === "flashcards") navigateDrill(drillIndex - 1);
+    },
+    enabled: Boolean(selectedEntry || viewMode === "flashcards"),
+  });
+
   if (selectedEntry) {
     const isMastered = Boolean(mastered[selectedEntry.id]);
     return (
-      <div className="sos-screen">
+      <div className="sos-screen" {...sosSwipe}>
         <div className="screen-topbar">
           <button className="back-link" onClick={() => setSelectedIndex(null)}>
             <Icons.ChevronLeft /> {title}
@@ -8095,7 +8283,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
   }
 
   return (
-    <div className="sos-screen">
+    <div className="sos-screen" {...sosSwipe}>
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> SOS

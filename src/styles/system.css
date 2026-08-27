@@ -663,7 +663,10 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .tabbar-btn .icon { width: 20px; height: 20px; }
 
   /* Study surfaces keep the primary action in the thumb zone */
-  .actionbar {
+  .actionbar,
+  .DSM5-nav-row,
+  .structured-actions,
+  .oral-viewer .nav-bar {
     position: fixed; left: 0; right: 0; bottom: var(--tabbar); z-index: 90;
     display: flex; align-items: center; gap: var(--s2);
     padding: var(--s2) var(--s4);
@@ -674,15 +677,30 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
     padding-bottom: calc(var(--s4) + env(safe-area-inset-bottom, 0));
   }
   /* One row, always: a wrapped action bar eats a third of a phone screen. */
-  .actionbar { flex-wrap: nowrap; }
+  .actionbar,
+  .DSM5-nav-row,
+  .structured-actions,
+  .oral-viewer .nav-bar { flex-wrap: nowrap; margin-top: 0; }
   .actionbar .btn,
   .actionbar .nav-btn,
-  .actionbar button {
+  .actionbar button,
+  .DSM5-nav-row .btn,
+  .DSM5-nav-row .nav-btn,
+  .DSM5-nav-row button,
+  .structured-actions .btn,
+  .structured-actions .nav-btn,
+  .structured-actions button,
+  .oral-viewer .nav-bar .btn,
+  .oral-viewer .nav-bar .nav-btn,
+  .oral-viewer .nav-bar button {
     flex: 1 1 0; min-width: 0; justify-content: center;
     padding: 0 var(--s2); font-size: var(--t-micro);
     white-space: nowrap; overflow: hidden;
   }
-  .actionbar .nav-btn .icon { width: 16px; height: 16px; }
+  .actionbar .nav-btn .icon,
+  .DSM5-nav-row .nav-btn .icon,
+  .structured-actions .nav-btn .icon,
+  .oral-viewer .nav-bar .nav-btn .icon { width: 16px; height: 16px; }
 
   .item { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }
   .item-section {
