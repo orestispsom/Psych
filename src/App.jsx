@@ -3197,14 +3197,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'sprint', title: 'Mini-test' },
-    { id: 'daily', title: 'Αδύναμα Θέματα' },
-    { id: 'random', title: 'Τυχαία Θέματα' },
-    { id: 'category', title: 'Ερωτήσεις ανά Κατηγορία' },
-    { id: 'written', title: 'Προσομοίωση 100 Πολλαπλής' },
-    { id: 'vignettes', title: 'Vignettes' },
-    { id: 'matching', title: 'Αντιστοίχηση' },
-    { id: 'DSM5', title: 'DSM-5-TR' },
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: `Γρήγορο τεστ ${SPRINT_SESSION_SIZE} ερωτήσεων.` },
+    { id: 'daily', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Οι ερωτήσεις που έχεις χάσει ή έχεις σε επανάληψη.' },
+    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Τυχαία επιλογή από όλη την τράπεζα ερωτήσεων.' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: 'Επίλεξε μία από τις 21 κατηγορίες για εξάσκηση.' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση 100 Πολλαπλής', detail: 'Πλήρης γραπτή εξέταση, με δυνατότητα συνέχισης.' },
+    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια σε ενιαία εκφώνηση.' },
+    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Συνδύασε όρους και ορισμούς.' },
+    { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR', detail: 'Αυτοεξέταση πάνω στα κριτήρια DSM-5-TR.' },
   ];
 
   const renderModes = () => (
@@ -3215,7 +3215,11 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           className="mode-tile"
           onClick={() => onStart(mode.id)}
         >
-          <span className="mode-tile-title">{mode.title}</span>
+          <span className="mode-tile-icon hub-row-icon" aria-hidden="true">{mode.icon}</span>
+          <span className="mode-tile-body">
+            <span className="mode-tile-title">{mode.title}</span>
+            <span className="mode-tile-detail">{mode.detail}</span>
+          </span>
         </button>
       ))}
     </div>
@@ -7035,6 +7039,236 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
   );
 }
 
+function parseDifferential(answer, title) {
+  const result = {
+    title,
+    axisTitle: 'Κεντρικός Άξονας Διάκρισης',
+    axisContent: '',
+    comparisonTitle: 'Συγκριτική Ανάλυση',
+    comparisonBlocks: [],
+    treatmentTitle: null,
+    treatmentContent: '',
+    trap: null,
+    keyPhrase: null,
+  };
+
+  const sections = answer.split('\n\n').map(s => s.trim()).filter(Boolean);
+
+  for (const sec of sections) {
+    if (sec.startsWith('Κεντρικός Άξονας Διάκρισης:')) {
+      result.axisContent = sec.replace(/^Κεντρικός Άξονας Διάκρισης:\s*/, '').trim();
+    } else if (sec.startsWith('Εξεταστική Φράση-Κλειδί:')) {
+      result.keyPhrase = sec.replace(/^Εξεταστική Φράση-Κλειδί:\s*/, '').trim();
+    } else if (sec.startsWith('Εξεταστική Παγίδα:')) {
+      result.trap = sec.replace(/^Εξεταστική Παγίδα:\s*/, '').trim();
+    } else if (sec.startsWith('Θεραπευτική Αντιπαραβολή:') || sec.startsWith('Θεραπευτική Σημασία:')) {
+      const firstLineEnd = sec.indexOf('\n');
+      if (firstLineEnd !== -1) {
+        result.treatmentTitle = sec.slice(0, firstLineEnd).replace(/:$/, '').trim();
+        result.treatmentContent = sec.slice(firstLineEnd + 1).trim();
+      } else {
+        result.treatmentTitle = sec.replace(/:$/, '').trim();
+      }
+    } else {
+      const firstLineEnd = sec.indexOf('\n');
+      if (firstLineEnd !== -1 && (sec.startsWith('Συγκριτικ') || sec.startsWith('Διαγνωστικ') || sec.startsWith('Διαφοροδιαγνωστικ') || sec.startsWith('Ενδείξεις'))) {
+        result.comparisonTitle = sec.slice(0, firstLineEnd).replace(/:$/, '').trim();
+        const body = sec.slice(firstLineEnd + 1).trim();
+        result.comparisonBlocks = parseComparisonItems(body);
+      } else {
+        result.comparisonBlocks = parseComparisonItems(sec);
+      }
+    }
+  }
+
+  return result;
+}
+
+function parseComparisonItems(text) {
+  const items = [];
+  const lines = text.split('\n');
+  let currentItem = null;
+
+  for (const line of lines) {
+    const numMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (numMatch) {
+      if (currentItem) items.push(currentItem);
+      currentItem = {
+        num: numMatch[1],
+        header: numMatch[2],
+        bullets: [],
+        rawLines: []
+      };
+    } else if (currentItem) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+        currentItem.bullets.push(trimmed.replace(/^[-•]\s*/, ''));
+      } else if (trimmed) {
+        currentItem.rawLines.push(trimmed);
+      }
+    } else {
+      const trimmed = line.trim();
+      if (trimmed) {
+        items.push({ num: '', header: trimmed, bullets: [], rawLines: [] });
+      }
+    }
+  }
+  if (currentItem) items.push(currentItem);
+  return items;
+}
+
+function DifferentialDiagnosisCard({ entry }) {
+  const [viewMode, setViewMode] = useState("compare");
+  const parsed = useMemo(() => parseDifferential(entry.answer, entry.title), [entry.answer, entry.title]);
+  const entities = useMemo(() => entry.title.split(/\s+vs\s+/i), [entry.title]);
+
+  return (
+    <div className="diff-view">
+      <div className="diff-entities-bar">
+        <span className="diff-entities-label">Σύγκριση:</span>
+        <div className="diff-entities-list">
+          {entities.map((name, i) => (
+            <span key={i} className={`diff-entity-tag diff-tag-${i % 4}`}>
+              {name.trim()}
+            </span>
+          ))}
+        </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: "var(--s1)" }}>
+          <button
+            type="button"
+            className={`btn btn-sm ${viewMode === "compare" ? "primary" : "btn-quiet"}`}
+            style={{ padding: "4px 10px", fontSize: "var(--t-micro)", minHeight: 30 }}
+            onClick={() => setViewMode("compare")}
+          >
+            <Icons.Columns /> Σύγκριση
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${viewMode === "text" ? "primary" : "btn-quiet"}`}
+            style={{ padding: "4px 10px", fontSize: "var(--t-micro)", minHeight: 30 }}
+            onClick={() => setViewMode("text")}
+          >
+            <Icons.FileText /> Κείμενο
+          </button>
+        </div>
+      </div>
+
+      {viewMode === "text" ? (
+        <div style={{ whiteSpace: "pre-wrap", fontFamily: "var(--read)", fontSize: 15, lineHeight: 1.7, marginTop: "var(--s3)" }}>
+          {entry.answer}
+        </div>
+      ) : (
+        <>
+          {parsed.axisContent && (
+            <section className="diff-section diff-axis-card">
+              <div className="diff-card-kicker">
+                <Icons.Target /> {parsed.axisTitle}
+              </div>
+              <div className="diff-axis-text">
+                {parsed.axisContent.split('\n').map((line, idx) => {
+                  const trimmed = line.trim();
+                  if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
+                    return (
+                      <div key={idx} className="diff-axis-bullet">
+                        <span className="diff-bullet-dot" aria-hidden="true" />
+                        <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
+                      </div>
+                    );
+                  }
+                  return <p key={idx} style={{ margin: 0 }}>{trimmed}</p>;
+                })}
+              </div>
+            </section>
+          )}
+
+          <section className="diff-section">
+            <div className="diff-section-header">
+              <Icons.Columns />
+              <h3>{parsed.comparisonTitle}</h3>
+            </div>
+            <div className="diff-grid">
+              {parsed.comparisonBlocks.map((block, idx) => {
+                const hasColon = block.header.includes(':');
+                const [headline, ...restHeader] = hasColon ? block.header.split(':') : [block.header, ''];
+                const subtitle = restHeader.join(':').trim();
+
+                return (
+                  <div key={idx} className={`diff-column-card diff-col-${idx % 4}`}>
+                    <div className="diff-column-header">
+                      <span className="diff-column-badge">
+                        {block.num ? `${block.num}` : (idx + 1)}
+                      </span>
+                      <div className="diff-column-title-wrap">
+                        <h4 className="diff-column-title">{headline.trim()}</h4>
+                        {subtitle && <span className="diff-column-subtitle">{subtitle}</span>}
+                      </div>
+                    </div>
+                    <div className="diff-column-body">
+                      {block.bullets.length > 0 ? (
+                        <ul className="diff-bullet-list">
+                          {block.bullets.map((bullet, bIdx) => (
+                            <li key={bIdx} className="diff-bullet-item">
+                              <span>{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {block.rawLines.map((line, rIdx) => (
+                        <p key={rIdx} className="diff-raw-line">{line}</p>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {parsed.treatmentTitle && (
+            <section className="diff-section diff-treatment-card">
+              <div className="diff-card-kicker">
+                <Icons.Zap /> {parsed.treatmentTitle}
+              </div>
+              <div className="diff-treatment-body">
+                {parsed.treatmentContent.split('\n').map((line, idx) => {
+                  const trimmed = line.trim();
+                  if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
+                    return (
+                      <div key={idx} className="diff-treatment-row">
+                        <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
+                      </div>
+                    );
+                  }
+                  return <p key={idx} style={{ margin: 0 }}>{trimmed}</p>;
+                })}
+              </div>
+            </section>
+          )}
+
+          {parsed.trap && (
+            <div className="diff-trap-card">
+              <div className="diff-trap-kicker">
+                <Icons.AlertTriangle /> Εξεταστική Παγίδα
+              </div>
+              <p className="diff-trap-text">{parsed.trap}</p>
+            </div>
+          )}
+
+          {parsed.keyPhrase && (
+            <div className="diff-key-card">
+              <div className="diff-key-kicker">
+                <Icons.Key /> Εξεταστική Φράση-Κλειδί
+              </div>
+              <blockquote className="diff-key-quote">
+                {parsed.keyPhrase}
+              </blockquote>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώρηση", "καταχωρήσεις"], countNoun = ["καταχώρηση", "καταχωρήσεις"] }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [query, setQuery] = useState("");
@@ -8300,6 +8534,9 @@ export default function App() {
             onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
+            renderAnswer={entry => <DifferentialDiagnosisCard entry={entry} />}
+            searchNoun={['θέμα διαφοροδιάγνωσης', 'θέματα διαφοροδιάγνωσης']}
+            countNoun={['διαφοροδιάγνωση', 'διαφοροδιαγνώσεις']}
           />
         )}
         {activeProfile && screen === 'home' && showOpeningRequest && (
