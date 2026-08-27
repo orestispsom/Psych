@@ -226,3 +226,22 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 1,001–1,100.
+
+## Batch 011 — IDs 1,001–1,100
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1010, 1012, 1015, 1057, 1062, 1063, and 1081: replaced residual English terminology and learner-facing hybrid phrasing with natural Greek.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1017: the statement about benzodiazepines and long-term outcome must cite the current NICE recommendation and specify the disorder/clinical context.
+- ID 1012: CDT should not be presented as determinative in a child-protection assessment; it needs wording that makes its supportive, not dispositive, role explicit.
+
+### Next batch
+
+IDs 1,101–1,200.
