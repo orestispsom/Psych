@@ -666,6 +666,7 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .actionbar,
   .DSM5-nav-row,
   .structured-actions,
+  .sos-focus-nav,
   .oral-viewer .nav-bar {
     position: fixed; left: 0; right: 0; bottom: var(--tabbar); z-index: 90;
     display: flex; align-items: center; gap: var(--s2);
@@ -680,6 +681,7 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .actionbar,
   .DSM5-nav-row,
   .structured-actions,
+  .sos-focus-nav,
   .oral-viewer .nav-bar { flex-wrap: nowrap; margin-top: 0; }
   .actionbar .btn,
   .actionbar .nav-btn,
@@ -690,6 +692,9 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .structured-actions .btn,
   .structured-actions .nav-btn,
   .structured-actions button,
+  .sos-focus-nav .btn,
+  .sos-focus-nav .nav-btn,
+  .sos-focus-nav button,
   .oral-viewer .nav-bar .btn,
   .oral-viewer .nav-bar .nav-btn,
   .oral-viewer .nav-bar button {
@@ -700,6 +705,7 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .actionbar .nav-btn .icon,
   .DSM5-nav-row .nav-btn .icon,
   .structured-actions .nav-btn .icon,
+  .sos-focus-nav .nav-btn .icon,
   .oral-viewer .nav-bar .nav-btn .icon { width: 16px; height: 16px; }
 
   .item { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }

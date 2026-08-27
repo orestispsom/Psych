@@ -3933,8 +3933,11 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
                   type="button"
                   className={`vignette-complete-toggle ${completed ? "active" : ""}`}
                   onClick={() => setVignetteCompleted(item.id, !completed)}
+                  title={completed ? "Ολοκληρωμένο (κλικ για αποεπιλογή)" : "Σήμανση ως ολοκληρωμένο"}
+                  aria-label={completed ? "Ολοκληρωμένο" : "Σήμανση ως ολοκληρωμένο"}
                 >
-                  {completed ? "Ολοκληρώθηκε" : "Σήμανση ολοκλήρωσης"}
+                  <Icons.Check />
+                  <span>{completed ? "Ολοκληρωμένο" : "Ολοκλήρωση"}</span>
                 </button>
               </div>
             );
@@ -6343,6 +6346,24 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
         />
       </div>
 
+      {!isFiltered && (
+        <div className="crucial-chapter-pills" role="navigation" aria-label="Γρήγορη μετάβαση σε κεφάλαιο">
+          {CRUCIAL_CHAPTERS.map(ch => (
+            <button
+              key={`${ch.from}-${ch.to}`}
+              type="button"
+              className="review-filter-pill"
+              onClick={() => {
+                const el = document.getElementById(`crucial-chap-${ch.from}`);
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              {ch.title} <small style={{ opacity: 0.6 }}>({ch.from}–{ch.to})</small>
+            </button>
+          ))}
+        </div>
+      )}
+
       {!questions ? (
         <div className="crucial-loading" role="status">Φόρτωση ευρετηρίου…</div>
       ) : (
@@ -6354,7 +6375,7 @@ function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
           </div>
           {visibleQuestions.length > 0 ? (
             groups.map((chapter, chapterIndex) => (
-              <div key={`${chapter.from}-${chapter.to}`}>
+              <div key={`${chapter.from}-${chapter.to}`} id={`crucial-chap-${chapter.from}`}>
                 {!isFiltered && (
                   <div className="subscale" style={chapterIndex === 0 ? { marginTop: 0 } : undefined}>
                     <h3 className="subscale-title">{chapter.title}</h3>
@@ -7720,8 +7741,14 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
     }
   });
 
+  const hySwipe = useSwipeGesture({
+    onSwipeLeft: () => navigate(currentIndex + 1),
+    onSwipeRight: () => navigate(currentIndex - 1),
+    enabled: Boolean(entry),
+  });
+
   return (
-    <div className="sos-screen">
+    <div className="sos-screen" {...hySwipe}>
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
           <Icons.ChevronLeft /> SOS
@@ -7827,6 +7854,11 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
       <div className="sos-focus-nav">
         <button type="button" className="nav-btn" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
         <button type="button" className="nav-btn" onClick={() => navigate(currentIndex + 1)} disabled={currentIndex === visibleTables.length - 1}>Επόμενη <Icons.ChevronRight /></button>
+      </div>
+      <div className="desktop-keyboard-hint" aria-hidden="true">
+        <span><kbd>Space</kbd> {!isAnswerVisible ? "Αποκάλυψη" : "Απόκρυψη"}</span>
+        <span>·</span>
+        <span><kbd>←</kbd> <kbd>→</kbd> Πλοήγηση</span>
       </div>
       </>}
     </div>
