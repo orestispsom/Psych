@@ -355,10 +355,10 @@ const MCQ_TOPIC_CATEGORIES = [
   "\u0399\u03c3\u03c4\u03bf\u03c1\u03af\u03b1, \u03ad\u03c1\u03b5\u03c5\u03bd\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7"
 ];
 const MCQ_FEEDBACK_OPTIONS = [
-  { value: "duplicate", label: "Duplicate" },
-  { value: "too_easy_wording", label: "Υπερβολικά Εύκολη" },
+  { value: "duplicate", label: "Διπλότυπη ερώτηση" },
+  { value: "too_easy_wording", label: "Υπερβολικά εύκολη" },
   { value: "wrong_terminology", label: "Λάθος ορολογία" },
-  { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη Απάντηση" },
+  { value: "wrong_or_uncertain_answer", label: "Λάθος/Αμφίβολη απάντηση" },
 ];
 const MCQ_QUALITY_FEEDBACK = {
   up: "quality_up",
@@ -4299,13 +4299,10 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
     <div className="structured-mcq">
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
-            <Icons.ChevronLeft /> Μενού MCQ
-        </button>
-        <button className="nav-btn" type="button" onClick={goToRandomMatchingSet}>
-          Νέο σετ
+          <Icons.ChevronLeft /> Μενού MCQ
         </button>
         <button className="nav-btn" type="button" onClick={openSetMenu}>
-          Επιλογή σετ
+          📋 Επιλογή σετ
         </button>
       </div>
       <div className="structured-card compact" style={{ marginBottom: 16 }}>
@@ -4820,8 +4817,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             setFeedbackStatus(null);
           }}
           disabled={Boolean(feedbackSavingType)}
+          title="Σχόλιο ή επισήμανση για αυτή την ερώτηση"
         >
-          Feedback
+          💬 Σχόλιο
         </button>
         {feedbackMenuOpen && (
           <div className="mcq-feedback-menu">
@@ -4833,7 +4831,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                 onClick={() => submitMcqFeedback(option.value, "", feedbackQuestion)}
                 disabled={Boolean(feedbackSavingType)}
               >
-                {feedbackSavingType === option.value ? "Saving..." : option.label}
+                {feedbackSavingType === option.value ? "Αποθήκευση…" : option.label}
               </button>
             ))}
             <button
@@ -5470,7 +5468,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         )}
 
         <div className="results-actions">
-          {writtenResult.wrongItems?.length > 0 && (
+          {writtenResult.wrongItems?.length > 0 ? (
             <button
               className="results-btn primary"
               style={{ fontWeight: 700 }}
@@ -5478,21 +5476,21 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             >
               <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({writtenResult.wrong})
             </button>
-          )}
+          ) : null}
           <button
-            className="results-btn"
+            className={`results-btn ${!writtenResult.wrongItems?.length ? "primary" : ""}`}
             onClick={() => {
               setWrittenReviewIndex(0);
               setReviewWrittenAll(true);
             }}
           >
-            Προβολή όλων των απαντήσεων
+            📋 Προβολή όλων των απαντήσεων
           </button>
           <button className="results-btn" onClick={() => setReviewWrittenWrong(true)} disabled={writtenResult.wrongItems.length === 0}>
-            Ανασκόπηση λαθών
+            🔍 Ανασκόπηση λαθών
           </button>
           <button className="results-btn" onClick={restartWrittenExam}>
-            Νέα προσομοίωση
+            🔄 Νέα προσομοίωση
           </button>
           <button className="results-btn" onClick={onHome}>
             <Icons.Home /> Αρχική
@@ -5958,7 +5956,7 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
       id: "past",
       icon: <Icons.BookOpen />,
       title: "Σημαντικά Θέματα",
-      stat: `${overallSummary.mastered}/${overallSummary.total} κατακτημένα`,
+      stat: `${overallSummary.mastered}/${overallSummary.total} mastered`,
       onOpen: onOpenPast,
     },
     {
@@ -6679,12 +6677,14 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
           <Icons.ChevronLeft /> Προηγούμενη
         </button>
         <button
+          type="button"
           className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
           aria-pressed={isMastered}
           onClick={() => onQuestionMastered(q.id, !isMastered)}
+          title={isMastered ? "Mastered (κλικ για αποεπιλογή)" : "Mastered"}
+          aria-label={isMastered ? "Mastered" : "Mark as mastered"}
         >
           <Icons.Check />
-          {isMastered ? "Κατακτημένη" : "Σήμανση ως κατακτημένη"}
         </button>
         <button className="nav-btn" onClick={goNext} disabled={currentIdx === total - 1}>
           Επόμενη <Icons.ChevronRight />
@@ -6842,7 +6842,7 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
                         <ScaleStrip
                           level={isMastered ? 1 : 0}
                           max={1}
-                          label="Κατοχή"
+                          label="Mastered"
                           onSet={next => onQuestionMastered(question.id, next === 1)}
                         />
                       </span>
@@ -7820,7 +7820,7 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
 
       {!entry ? (
         <div className="sos-focus-empty">
-          <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
+          <strong>Όλες οι κάρτες είναι mastered.</strong>
           <span>Ενεργοποίησε την εμφάνιση mastered για επανάληψη.</span>
         </div>
       ) : <>
@@ -7846,10 +7846,15 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
         ) : (
           <button className="sos-focus-reveal" type="button" onClick={() => setShowAnswer(true)}>Εμφάνιση απάντησης</button>
         )}
-        <label className={`sos-check-control ${mastered[entry.id] ? "mastered" : ""}`}>
-          <input type="checkbox" checked={Boolean(mastered[entry.id])} onChange={event => toggleCurrentMastery(event.target.checked)} />
-          Mastered
-        </label>
+        <button
+          type="button"
+          className={`sos-mastery-toggle ${mastered[entry.id] ? "mastered" : ""}`}
+          onClick={() => toggleCurrentMastery(!mastered[entry.id])}
+          title={mastered[entry.id] ? "Mastered (κλικ για αποεπιλογή)" : "Mastered"}
+          aria-label={mastered[entry.id] ? "Mastered" : "Mark as mastered"}
+        >
+          <Icons.Check />
+        </button>
       </section>
       <div className="sos-focus-nav">
         <button type="button" className="nav-btn" onClick={() => navigate(currentIndex - 1)} disabled={currentIndex === 0}><Icons.ChevronLeft /> Προηγούμενη</button>
@@ -8268,12 +8273,14 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         )}
 
         <button
-          className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
+          type="button"
+          className={`sos-mastery-toggle ${isMastered ? "mastered" : ""}`}
           aria-pressed={isMastered}
           onClick={() => onToggleMastery(section, selectedEntry.id, !isMastered)}
+          title={isMastered ? "Mastered (κλικ για αποεπιλογή)" : "Mastered"}
+          aria-label={isMastered ? "Mastered" : "Mark as mastered"}
         >
           <Icons.Check />
-          {isMastered ? "Κατακτημένο" : "Σημείωσέ το ως κατακτημένο"}
         </button>
         <div className="sos-detail-answer">
           {renderAnswer ? renderAnswer(selectedEntry) : renderStructuredSosContent(selectedEntry.answer)}
@@ -8394,7 +8401,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
 
           {!currentDrillEntry ? (
             <div className="sos-focus-empty">
-              <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
+              <strong>Όλες οι κάρτες είναι mastered.</strong>
               <span>Ενεργοποίησε την εμφάνιση mastered για επανάληψη.</span>
             </div>
           ) : (
@@ -8423,10 +8430,15 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
                     Εμφάνιση ανάλυσης
                   </button>
                 )}
-                <label className={`sos-check-control ${mastered[currentDrillEntry.id] ? "mastered" : ""}`}>
-                  <input type="checkbox" checked={Boolean(mastered[currentDrillEntry.id])} onChange={event => toggleDrillMastery(event.target.checked)} />
-                  Mastered
-                </label>
+                <button
+                  type="button"
+                  className={`sos-mastery-toggle ${mastered[currentDrillEntry.id] ? "mastered" : ""}`}
+                  onClick={() => toggleDrillMastery(!mastered[currentDrillEntry.id])}
+                  title={mastered[currentDrillEntry.id] ? "Mastered (κλικ για αποεπιλογή)" : "Mastered"}
+                  aria-label={mastered[currentDrillEntry.id] ? "Mastered" : "Mark as mastered"}
+                >
+                  <Icons.Check />
+                </button>
               </section>
               <div className="sos-focus-nav">
                 <button type="button" className="nav-btn" onClick={() => navigateDrill(drillIndex - 1)} disabled={drillIndex === 0}>
@@ -8489,7 +8501,7 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
                       <ScaleStrip
                         level={entryMastered ? 1 : 0}
                         max={1}
-                        label="Κατοχή"
+                        label="Mastered"
                         onSet={next => onToggleMastery(section, entry.id, next === 1)}
                       />
                     </span>

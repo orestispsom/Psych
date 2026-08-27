@@ -119,12 +119,12 @@ describe("golden path smoke tests", () => {
     await user.click(firstEntry);
 
     const masteryToggle = await screen.findByRole("button", {
-      name: /Σημείωσέ το ως κατακτημένο/,
+      name: /mastered/i,
     });
     await user.click(masteryToggle);
 
     expect(
-      await screen.findByRole("button", { name: "Κατακτημένο" })
+      await screen.findByRole("button", { name: /mastered/i })
     ).toBeInTheDocument();
 
     await waitFor(() => {

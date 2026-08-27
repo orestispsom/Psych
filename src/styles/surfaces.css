@@ -925,14 +925,50 @@
 }
 .results-btn.primary:hover { background: var(--stock-hover); }
 
-.mcq-feedback-btn.up[aria-pressed="true"], .oral-mastery-toggle[aria-pressed="true"],
-.vignette-complete-toggle[aria-pressed="true"], .sos-check-control[aria-pressed="true"] {
+.mcq-feedback-btn.up[aria-pressed="true"],
+.vignette-complete-toggle[aria-pressed="true"] {
   color: var(--pass); border-color: var(--pass);
 }
 .mcq-feedback-btn.down[aria-pressed="true"] { color: var(--mark); border-color: var(--mark); }
 
-.oral-mastery-toggle { color: var(--ink-3); }
-.oral-mastery-toggle.mastered { color: var(--pass); border-color: var(--pass); }
+.oral-mastery-toggle,
+.sos-mastery-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-3);
+  background: var(--ground);
+  transition: all 0.12s var(--ease);
+}
+
+.oral-mastery-toggle:hover,
+.sos-mastery-toggle:hover {
+  color: var(--ink);
+  background: var(--raised);
+  border-color: var(--ink-3);
+}
+
+.oral-mastery-toggle.mastered,
+.sos-mastery-toggle.mastered,
+.oral-mastery-toggle[aria-pressed="true"],
+.sos-mastery-toggle[aria-pressed="true"] {
+  color: var(--ground);
+  background: var(--pass);
+  border-color: var(--pass);
+}
+
+.oral-mastery-toggle svg,
+.sos-mastery-toggle svg {
+  width: 20px;
+  height: 20px;
+}
 
 .mcq-feedback-btn.compact, .mcq-quality-btn.compact { min-height: 36px; padding: 0 var(--s2); }
 
@@ -1463,7 +1499,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 @media (max-width: 599px) {
   .oral-q-block { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
   .oral-q-text { max-width: none; }
-  .oral-viewer-foot .oral-mastery-toggle { order: -1; width: 100%; }
 }
 /* The examiner's topic tag: a label above the question, not a second
    question — distinct weight and size from .oral-q-text below it. */
