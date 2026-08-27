@@ -17,6 +17,26 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ─── Minimal Ergonomic Scrollbars ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-3);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
 button, input, textarea, select { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; touch-action: manipulation; }
 ul, ol { list-style: none; }
@@ -373,19 +393,20 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
    where mastery is user-set.                                     */
 
 .scale {
-  display: inline-flex; align-items: center; gap: 3px;
+  display: inline-flex; align-items: center; gap: 4px;
   flex: none;
 }
 .scale-box {
-  width: 13px; height: 18px;
+  width: 10px; height: 16px;
   border: 1.5px solid var(--rule-strong);
-  border-radius: var(--r-box);
+  border-radius: 4px;
   background: transparent;
   position: relative;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 .scale-box.is-marked {
-  background: var(--mark);
-  border-color: var(--mark);
+  background: var(--due);
+  border-color: var(--due);
 }
 .scale-box.is-full { background: var(--pass); border-color: var(--pass); }
 
@@ -403,7 +424,7 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
    small; the hit area is expanded to 44px with an overlay so the mark keeps
    its instrument proportions without becoming a thumb-hostile target. */
 button.scale-box { cursor: pointer; position: relative; }
-button.scale-box:hover { border-color: var(--mark); }
+button.scale-box:hover { border-color: var(--due); }
 button.scale-box::after {
   content: "";
   position: absolute;
@@ -415,7 +436,7 @@ button.scale-box::after {
    row height so the overlays sit side by side rather than stacked. */
 .scale:has(button) { min-height: 44px; }
 
-.scale-lg .scale-box { width: 17px; height: 23px; }
+.scale-lg .scale-box { width: 14px; height: 20px; border-radius: 5px; }
 
 /* ═══ STENCIL — a stencilled label, never a pill ══════════════ */
 

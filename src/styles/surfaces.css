@@ -2042,7 +2042,8 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   background: var(--field);
   border: 1px solid var(--accent, var(--rule-strong));
   border-left: 4px solid var(--accent);
-  border-radius: var(--r-md);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   display: grid;
   gap: var(--s2);
 }
@@ -2095,10 +2096,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   flex-direction: column;
   background: var(--field);
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r-lg);
+  border-radius: 10px;
   padding: var(--s4);
   gap: var(--s3);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
@@ -2194,7 +2195,9 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   padding: var(--s4) var(--s5);
   background: var(--field);
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r-md);
+  border-left: 4px solid var(--pass);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   display: grid;
   gap: var(--s3);
 }
@@ -2211,15 +2214,16 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   padding: var(--s2) var(--s3);
   background: var(--raised);
   border-radius: var(--r-sm);
-  border-left: 3px solid var(--ink-3);
+  border-left: 3px solid var(--pass);
 }
 
 .diff-trap-card {
   padding: var(--s4) var(--s5);
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.09);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-left: 4px solid #f59e0b;
-  border-radius: var(--r-md);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   display: grid;
   gap: var(--s2);
 }
@@ -2247,8 +2251,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .diff-key-card {
   padding: var(--s4) var(--s5);
   background: var(--raised);
-  border: 1px solid var(--accent, var(--rule-strong));
-  border-radius: var(--r-md);
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--due);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   display: grid;
   gap: var(--s2);
 }
@@ -2262,7 +2268,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent);
+  color: var(--due);
 }
 
 .diff-key-quote {
@@ -2697,6 +2703,11 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .mcq-rail-stat-card.flagged {
   border-color: var(--due);
   background: rgba(220, 130, 40, 0.08);
+}
+
+.mcq-rail-stat-card.mcq-streak-card {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(248, 113, 113, 0.12));
+  border-color: rgba(251, 146, 60, 0.35);
 }
 
 @media (max-width: 899px) {

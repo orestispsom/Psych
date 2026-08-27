@@ -5809,9 +5809,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <strong style={{ color: "var(--mark)" }}>{sessionStats.incorrect}</strong>
             </div>
             {sessionStats.currentStreak > 0 && (
-              <div className="mcq-rail-stat-card">
+              <div className="mcq-rail-stat-card mcq-streak-card">
                 <span>Σερί</span>
-                <strong>🔥 {sessionStats.currentStreak}</strong>
+                <strong style={{ color: "#fb923c" }}>🔥 {sessionStats.currentStreak}</strong>
               </div>
             )}
           </div>
