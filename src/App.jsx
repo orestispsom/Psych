@@ -4626,11 +4626,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     });
   };
 
+  const blurActiveElement = () => {
+    if (typeof document !== "undefined" && document.activeElement && typeof document.activeElement.blur === "function") {
+      document.activeElement.blur();
+    }
+  };
+
   const goToNextQuestion = useCallback(() => {
+    blurActiveElement();
     setCurrentIdx(nextIdx);
   }, [nextIdx]);
 
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
+    blurActiveElement();
     if (mode === "written" && !practiceWrittenWrongActive) return;
     if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
     if (isLocked || !q) return;
@@ -4673,6 +4681,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [selected, isLocked, q, sessionStats, mode, practiceWrittenWrongActive, onProgressChange, currentIdx, totalQ]);
 
   const selectOption = (idx) => {
+    blurActiveElement();
     if (isLocked || (writtenResult && !practiceWrittenWrongActive) || !q) return;
     const nextAnswers = { ...answers, [q.id]: idx };
     setAnswers(nextAnswers);
@@ -4717,6 +4726,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       if (isSubmitOrAdvanceKey(event)) {
         event.preventDefault();
+        blurActiveElement();
         if (event.repeat) return;
         if (!isLocked && selected !== undefined && selected !== null && (mode !== "written" || practiceWrittenWrongActive)) {
           submitAnswer();
@@ -4729,6 +4739,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       if (event.key === "ArrowRight" && nextIdx >= 0 && nextIdx < totalQ) {
         event.preventDefault();
+        blurActiveElement();
         if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(nextIdx);
         else goToNextQuestion();
         return;
@@ -4736,6 +4747,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
       if (event.key === "ArrowLeft" && prevIdx >= 0) {
         event.preventDefault();
+        blurActiveElement();
         if (mode === "written" && !practiceWrittenWrongActive) goToWrittenIndex(prevIdx);
         else setCurrentIdx(prevIdx);
       }

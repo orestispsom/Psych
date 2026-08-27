@@ -54,26 +54,21 @@ h3 { font-size: var(--t-item); }
   font-feature-settings: "tnum" 1;
 }
 
-/* ─── Focus Management: Never draw focus outlines on containers or main ─── */
-main, [tabindex="-1"], #main-content, .workspace, .app-shell, .sheet, .test-container, .mcq-layout-wrap {
+/* ─── Global Focus Management: Completely eliminate browser white/blue outline frames ─── */
+*, *::before, *::after {
   outline: none !important;
-  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
-main:focus,
-main:focus-visible,
-[tabindex="-1"]:focus,
-[tabindex="-1"]:focus-visible,
-#main-content:focus,
-#main-content:focus-visible,
-.workspace:focus,
-.workspace:focus-visible {
+*:focus,
+*:focus-visible,
+*:focus-within {
   outline: none !important;
-  box-shadow: none !important;
 }
 
-:where(button, a, input, textarea, select, summary, [tabindex]):not([tabindex="-1"]):focus-visible {
-  outline: none;
+html, body, #root, .app, .app-shell, .workspace, .sheet, main, #main-content, .test-container, .mcq-layout-wrap, [tabindex] {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .sr-only {

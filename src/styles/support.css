@@ -93,8 +93,7 @@
 }
 .support-widget-cta:hover { background: #ff9a5f; }
 .support-widget-cta:focus-visible {
-  outline: 3px solid #ff813f;
-  outline-offset: 2px;
+  box-shadow: 0 0 0 3px #ff813f;
 }
 
 /* Clear the mobile tab bar (and any study-screen action bar above it). */
