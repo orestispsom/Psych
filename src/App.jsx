@@ -4408,17 +4408,6 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
-  const latestAttempt = q
-    ? (progress.attempts || []).find(attempt =>
-        attempt.sessionId === sessionIdRef.current && attempt.questionId === q.id
-      )
-    : null;
-  const displayedBreakdown = mode === "sprint" ? null : (lastBreakdown || latestAttempt?.pointBreakdown || null);
-  const pointTier = displayedBreakdown?.total >= 250
-    ? "high"
-    : displayedBreakdown?.total >= 100
-      ? "medium"
-      : "low";
   const writtenAnsweredCount = mode === "written"
     ? questions.filter(question => answers[question.id] !== undefined && answers[question.id] !== null).length
     : 0;
@@ -5727,14 +5716,6 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <div className="exam-takeaway-card">
               <strong>Τι κρατάμε</strong>
               {getQuestionExamLesson(q)}
-            </div>
-          )}
-          {displayedBreakdown && (
-            <div className={`point-breakdown ${pointTier}`}>
-              <span className="point-pill">Σωστό +{displayedBreakdown.base}</span>
-              {mode === "sprint" && <span className="point-pill">Ταχύτητα +{displayedBreakdown.speed}</span>}
-              <span className="point-pill">Σερί +{displayedBreakdown.streak}</span>
-              <span className="point-pill total">Σύνολο +{displayedBreakdown.total}</span>
             </div>
           )}
         </div>
@@ -8731,23 +8712,6 @@ export default function App() {
     if (mode !== "category") setSelectedMcqTopic(null);
     setTestMode(mode);
   }, [setSelectedMcqTopic, setTestMode]);
-
-  if (activeProfile && questionBankStatus !== "ready") {
-    return (
-      <div className="app">
-        <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
-        <main id="main-content" tabIndex={-1}>
-          <div className="sheet">
-            <QuestionBankLoading
-              error={questionBankError}
-              onRetry={() => setQuestionBankStatus("idle")}
-              onSwitchProfile={switchProfile}
-            />
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   if (!activeProfile) {
     return (
