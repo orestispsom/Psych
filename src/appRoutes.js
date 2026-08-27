@@ -34,10 +34,8 @@ const MCQ_MODES = new Set([
 
 const TABLE_PATHS = {
   sources: "/tables",
-  "oxford-modes": "/tables/oxford",
-  "oxford-chapters": "/tables/oxford/chapters",
-  "crash-modes": "/tables/crash-course",
-  "crash-list": "/tables/crash-course/list",
+  "oxford-chapters": "/tables/oxford",
+  "crash-list": "/tables/crash-course",
   viewer: "/tables/viewer",
 };
 
@@ -94,13 +92,11 @@ export function parseAppPath(pathname) {
 
   if (segments[0] === "tables") {
     if (segments.length === 1) return { valid: true, screen: "pinakakia", tableScreen: "sources" };
-    if (path === "/tables/oxford") return { valid: true, screen: "pinakakia", tableScreen: "oxford-modes" };
-    if (path === "/tables/oxford/chapters") return { valid: true, screen: "pinakakia", tableScreen: "oxford-chapters" };
+    if (path === "/tables/oxford" || path === "/tables/oxford/chapters") return { valid: true, screen: "pinakakia", tableScreen: "oxford-chapters" };
     if (segments.length === 4 && segments[1] === "oxford" && segments[2] === "chapters") {
       return { valid: true, screen: "pinakakia", tableScreen: "oxford-boxes", tableChapter: segments[3] };
     }
-    if (path === "/tables/crash-course") return { valid: true, screen: "pinakakia", tableScreen: "crash-modes" };
-    if (path === "/tables/crash-course/list") return { valid: true, screen: "pinakakia", tableScreen: "crash-list" };
+    if (path === "/tables/crash-course" || path === "/tables/crash-course/list") return { valid: true, screen: "pinakakia", tableScreen: "crash-list" };
     if (path === "/tables/viewer") return { valid: true, screen: "pinakakia", tableScreen: "viewer" };
     return { valid: false, screen: "pinakakia", tableScreen: "sources" };
   }

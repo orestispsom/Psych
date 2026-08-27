@@ -1806,13 +1806,29 @@ function summarizeStoredMcqProgress(progress) {
   };
 }
 
+function getRecentSprintQuestionIds(progress, sessionCount = 20) {
+  const sprintSessions = Array.isArray(progress?.sprintSessions) ? progress.sprintSessions : [];
+  const sessionQuestionIds = sprintSessions
+    .slice(0, sessionCount)
+    .flatMap(session => Array.isArray(session.questionIds) ? session.questionIds : []);
+
+  const recentSprintAttempts = (progress?.attempts || [])
+    .filter(attempt => attempt?.mode === "sprint")
+    .slice(0, sessionCount * SPRINT_SESSION_SIZE)
+    .map(attempt => attempt.questionId);
+
+  return new Set([...sessionQuestionIds, ...recentSprintAttempts].filter(Boolean).map(String));
+}
+
 function selectSprintQuestions(progress, count = SPRINT_SESSION_SIZE, qualitySignals = {}) {
   const records = progress.questions || {};
+  const recentSprintIds = getRecentSprintQuestionIds(progress, 20);
   return selectAdaptiveQuestionOrder({
     questions: QUESTIONS,
     count,
     records,
     qualitySignals,
+    isRecent: question => recentSprintIds.has(String(question.id)),
     hasSeen: hasSeenQuestion,
     getSeenCount,
     isMastered: isQuestionMastered,
@@ -2021,13 +2037,14 @@ function scoreQuestionForWrittenExam(question, progress, qualitySignals = {}, no
   const daysSinceWritten = getDaysSince(latestWrittenAttempt?.attemptedAt, now);
   let score = getMcqQualityPreference(question, qualitySignals, "written") + Math.random() * 8;
 
-  if (daysSinceAnswer !== null && daysSinceAnswer <= 3) score -= 18;
-  else if (daysSinceAnswer !== null && daysSinceAnswer <= 7) score -= 8;
+  // Day-based anti-recency penalty for any recent answer (smoothly decays over 14 days)
+  if (daysSinceAnswer !== null && daysSinceAnswer < 14) {
+    score -= Math.round(20 * (1 - daysSinceAnswer / 14));
+  }
 
-  if (daysSinceWritten !== null) {
-    if (daysSinceWritten <= 7) score -= 120;
-    else if (daysSinceWritten <= 21) score -= 70;
-    else if (daysSinceWritten <= 45) score -= 28;
+  // Day-based anti-recency penalty for previous written exam mocks (smoothly decays over 45 days)
+  if (daysSinceWritten !== null && daysSinceWritten < 45) {
+    score -= Math.round(120 * (1 - daysSinceWritten / 45));
   }
 
   return score;
@@ -2097,32 +2114,21 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
-  const conceptCounts = new Map();
   const recentWrittenIds = getRecentWrittenExamQuestionIds(progress, 2);
 
-  const canUseQuestion = (question, { respectConceptCaps = true } = {}) => {
+  const canUseQuestion = (question) => {
     if (!question || usedIds.has(question.id)) return false;
     const signature = getQuestionSignature(question);
     if (usedSignatures.has(signature)) return false;
     if (isNearDuplicateQuestion(question, selected)) return false;
-    if (respectConceptCaps) {
-      const conceptTags = getQuestionConceptTags(question);
-      for (const tag of conceptTags) {
-        const cap = WRITTEN_CONCEPT_CAPS[tag];
-        if (Number.isInteger(cap) && (conceptCounts.get(tag) || 0) >= cap) return false;
-      }
-    }
     return true;
   };
 
-  const pushQuestion = (question, options = {}) => {
-    if (!canUseQuestion(question, options)) return false;
+  const pushQuestion = (question) => {
+    if (!canUseQuestion(question)) return false;
     const signature = getQuestionSignature(question);
     usedIds.add(question.id);
     usedSignatures.add(signature);
-    getQuestionConceptTags(question).forEach(tag => {
-      conceptCounts.set(tag, (conceptCounts.get(tag) || 0) + 1);
-    });
     selected.push(question);
     return true;
   };
@@ -4359,6 +4365,20 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [mode, onProgressChange, qualitySignals]);
 
   useEffect(() => {
+    if (mode !== "sprint" || !questions?.length) return;
+    onProgressChange(prev => {
+      const existing = (prev.sprintSessions || []).some(s => s.id === sessionIdRef.current);
+      if (existing) return prev;
+      return recordSprintSession(prev, {
+        id: sessionIdRef.current,
+        questionIds: questions.map(item => item.id),
+        startedAt: new Date(startedAtRef.current).toISOString(),
+        completedAt: null,
+      });
+    });
+  }, [mode, questions, onProgressChange]);
+
+  useEffect(() => {
     setOptionOrders(currentOrders => createOptionOrders(questions, currentOrders));
   }, [questions]);
 
@@ -4791,8 +4811,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   };
 
   const startNewSprint = () => {
+    const nextSessionId = `sprint-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const nextQuestions = getSessionQuestions("sprint", progress, qualitySignals);
-    sessionIdRef.current = `sprint-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    sessionIdRef.current = nextSessionId;
     startedAtRef.current = Date.now();
     questionViewEffectKeyRef.current = null;
     setQuestions(nextQuestions);
@@ -4806,6 +4827,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackStatus(null);
     setFeedbackCommentOpen(false);
     setFeedbackCommentText("");
+    onProgressChange(prev => recordSprintSession(prev, {
+      id: nextSessionId,
+      questionIds: nextQuestions.map(item => item.id),
+      startedAt: new Date().toISOString(),
+      completedAt: null,
+    }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -6376,13 +6403,65 @@ function OralTable({ rows, onBack, onHome }) {
   );
 }
 
+const OXFORD_CHAPTER_TITLES = {
+  1: "Ψυχοπαθολογία (Συμπτώματα & Σημεία)",
+  2: "Ψυχιατρική Εκτίμηση & Ιστορικό",
+  3: "Διαγνωστικά Συστήματα & Ταξινόμηση",
+  4: "Ηθική & Ψυχιατρική Νομοθεσία",
+  5: "Νευροβιολογία & Βασικές Επιστήμες",
+  6: "Εργαστηριακός Έλεγχος & Απεικόνιση",
+  7: "Ψυχολογικές Αντιδράσεις & Μηχανισμοί",
+  8: "Αγχώδεις Διαταραχές & ΙΨΔ",
+  9: "Καταθλιπτικές Διαταραχές",
+  10: "Διπολική Διαταραχή & Μανία",
+  11: "Σχιζοφρένεια & Ψυχωσικές Διαταραχές",
+  12: "Παραληρητικές & Παρανοϊκές Διαταραχές",
+  13: "Διαταραχές Πρόσληψης Τροφής & Σωματόμορφες",
+  14: "Οργανικά Ψυχικά Σύνδρομα & Ντελίριο",
+  15: "Διαταραχές Προσωπικότητας",
+  16: "Παιδοψυχιατρική & Εφηβεία",
+  17: "Διαταραχές Διανοητικής Ανάπτυξης",
+  18: "Δικαστική Ψυχιατρική",
+  19: "Ψυχογηριατρική & Άνοια",
+  20: "Χρήση Ουσιών & Εξαρτήσεις",
+  21: "Επείγουσα Ψυχιατρική & Αυτοκτονικότητα",
+  22: "Διασυνδετική Ψυχιατρική",
+  23: "Διαπολιτισμική Ψυχική Υγεία",
+  24: "Ψυχοθεραπείες",
+  25: "Ψυχοφαρμακολογία & Σωματικές Θεραπείες",
+  26: "Κοινοτική Ψυχιατρική & Υπηρεσίες",
+};
+
+const CRASH_COURSE_CHAPTER_TITLES = {
+  1: "Ψυχιατρική Εκτίμηση & Ιστορικό",
+  2: "Ψυχοφαρμακολογία & Σωματικές Θεραπείες",
+  3: "Ψυχολογικές Θεραπείες & Μηχανισμοί Άμυνας",
+  6: "Επείγουσα Ψυχιατρική & Αυτοκτονικότητα",
+  7: "Οργανικά Ψυχικά Σύνδρομα & Άνοια",
+  8: "Κατάχρηση Ουσιών & Αλκοόλ",
+  9: "Σχιζοφρένεια & Ψυχώσεις",
+  10: "Διπολική Συναισθηματική Διαταραχή",
+  11: "Καταθλιπτικές Διαταραχές",
+  12: "Αγχώδεις Διαταραχές & Φοβίες",
+  13: "Ιδεοψυχαναγκαστική Διαταραχή",
+  14: "Σωματόμορφες & Λειτουργικές Διαταραχές",
+  16: "Διαταραχές Πρόσληψης Τροφής",
+  20: "Εξαρτήσεις από Οπιοειδή",
+  22: "Κλινική Διαχείριση Κατάθλιψης",
+  24: "Σύνδρομο Επανασίτισης",
+  25: "Διαταραχές Ύπνου",
+  27: "Περιγεννητική Ψυχιατρική",
+  30: "Παιδοψυχιατρική & Προσκόλληση",
+  31: "Ψυχογηριατρική & Φαρμακοκινητική",
+  32: "Δικαστική Ψυχιατρική & Επικινδυνότητα",
+};
+
 function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate, referenceSources }) {
   const [screen, setLocalScreen] = useState(routeScreen);
   const [sourceKey, setSourceKey] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(routeChapter);
   const [query, setQuery] = useState("");
   const [viewer, setViewer] = useState(null);
-  const [revealed, setRevealed] = useState(false);
 
   const setScreen = useCallback((nextScreen, nextChapter = selectedChapter) => {
     setLocalScreen(nextScreen);
@@ -6443,7 +6522,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
       backScreen: options.backScreen || "sources",
       backChapter: options.backChapter ?? null,
     });
-    setRevealed(false);
     setScreen("viewer");
   };
 
@@ -6452,7 +6530,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const index = getRandomBoxIndex(boxes);
     openViewer(nextSourceKey, boxes, index, {
       randomMode: true,
-      backScreen: backScreen || (nextSourceKey === "crash" ? "crash-modes" : "oxford-modes"),
+      backScreen: backScreen || (nextSourceKey === "crash" ? "crash-list" : "oxford-chapters"),
     });
   };
 
@@ -6465,28 +6543,17 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     if (screen === "viewer" && viewer) {
       setScreen(viewer.backScreen || "sources");
       setSelectedChapter(viewer.backChapter ?? null);
-      setRevealed(false);
       return;
     }
 
-    if (screen === "oxford-modes" || screen === "crash-modes") {
+    if (screen === "oxford-chapters" || screen === "crash-list" || screen === "oxford-modes" || screen === "crash-modes") {
       setScreen("sources");
       setSourceKey(null);
       return;
     }
 
-    if (screen === "oxford-chapters") {
-      setScreen("oxford-modes");
-      return;
-    }
-
     if (screen === "oxford-boxes") {
       setScreen("oxford-chapters");
-      return;
-    }
-
-    if (screen === "crash-list") {
-      setScreen("crash-modes");
       return;
     }
 
@@ -6507,12 +6574,10 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
       if (viewer.historyIndex <= 0) return;
       const nextHistoryIndex = viewer.historyIndex - 1;
       setViewer({ ...viewer, index: viewer.history[nextHistoryIndex], historyIndex: nextHistoryIndex });
-      setRevealed(false);
       return;
     }
     if (viewer.index <= 0) return;
     setViewer({ ...viewer, index: viewer.index - 1 });
-    setRevealed(false);
   };
 
   const goViewerRandom = () => {
@@ -6528,7 +6593,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
       history,
       historyIndex: history.length - 1,
     });
-    setRevealed(false);
   };
 
   const goViewerNext = () => {
@@ -6539,7 +6603,6 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     }
     if (viewer.index >= viewer.boxes.length - 1) return;
     setViewer({ ...viewer, index: viewer.index + 1 });
-    setRevealed(false);
   };
 
   const renderShell = (children) => {
@@ -6603,7 +6666,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           </div>
         </div>
         <div className="hub-row-grid">
-          <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-modes"); }}>
+          <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-chapters"); }}>
             <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
             <span className="hub-row-body">
               <span className="hub-row-title">Oxford</span>
@@ -6612,7 +6675,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             </span>
             <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-          <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-modes"); }}>
+          <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-list"); }}>
             <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
             <span className="hub-row-body">
               <span className="hub-row-title">Crash Course</span>
@@ -6626,69 +6689,44 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     );
   }
 
-  if (screen === "oxford-modes") {
+  if (screen === "oxford-chapters" || screen === "oxford-modes") {
     const boxes = boxesForSource("oxford");
     return renderShell(
       <>
         <div className="sheet-head">
           <div className="sheet-head-text">
-            <span className="sheet-eyebrow">Πινακάκια</span>
-            <h2>Oxford</h2>
-            <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")} σε {oxfordChapterGroups.length} κεφάλαια</span>
-          </div>
-        </div>
-        <div className="hub-row-grid">
-          <button className="hub-row" onClick={() => setScreen("oxford-chapters")}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Κεφάλαια</span>
-              <span className="hub-row-detail">Περιήγηση με τη σειρά του βιβλίου.</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-          <button className="hub-row" disabled={!boxes.length} onClick={() => openRandom("oxford", "oxford-modes")}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.Globe /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Τυχαία</span>
-              <span className="hub-row-detail">Ένα τυχαίο πινακάκιο κάθε φορά, για γρήγορη ανασκόπηση.</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-        </div>
-        {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Oxford.</div>}
-      </>
-    );
-  }
-
-  if (screen === "oxford-chapters") {
-    return renderShell(
-      <>
-        <div className="sheet-head">
-          <div className="sheet-head-text">
-            <span className="sheet-eyebrow">Oxford</span>
+            <span className="sheet-eyebrow">Oxford Handbook</span>
             <h2>Κεφάλαια</h2>
+            <span className="sheet-sub">{oxfordChapterGroups.length} κεφάλαια · {plural(boxes.length, "πινακάκιο", "πινακάκια")}</span>
           </div>
         </div>
         <div className="items">
-          {oxfordChapterGroups.map(([chapter, boxes]) => (
-            <button
-              key={chapter}
-              className="item"
-              onClick={() => {
-                setSelectedChapter(chapter);
-                setScreen("oxford-boxes", chapter);
-              }}
-            >
-              <span className="item-num">{String(chapter).padStart(2, "0")}</span>
-              <span className="item-body">
-                <span className="item-title">Κεφάλαιο {chapter}</span>
-                <span className="item-meta"><span>{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span></span>
-              </span>
-              <span className="item-side">
-                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
-              </span>
-            </button>
-          ))}
+          {oxfordChapterGroups.map(([chapter, chapterBoxes]) => {
+            const title = OXFORD_CHAPTER_TITLES[chapter] || `Κεφάλαιο ${chapter}`;
+            return (
+              <button
+                key={chapter}
+                className="item"
+                onClick={() => {
+                  setSelectedChapter(chapter);
+                  setScreen("oxford-boxes", chapter);
+                }}
+              >
+                <span className="item-num">{String(chapter).padStart(2, "0")}</span>
+                <span className="item-body">
+                  <span className="item-title">{title}</span>
+                  <span className="item-meta">
+                    <span>Κεφάλαιο {chapter}</span>
+                    <span>·</span>
+                    <span>{plural(chapterBoxes.length, "πινακάκιο", "πινακάκια")}</span>
+                  </span>
+                </span>
+                <span className="item-side">
+                  <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+                </span>
+              </button>
+            );
+          })}
         </div>
         {!oxfordChapterGroups.length && <div className="pinakakia-empty">Δεν έχουν προστεθεί ακόμα κεφάλαια.</div>}
       </>
@@ -6697,11 +6735,12 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
 
   if (screen === "oxford-boxes") {
     const boxes = boxesForSource("oxford").filter(box => Number(box.chapter) === Number(selectedChapter));
+    const chapterName = OXFORD_CHAPTER_TITLES[selectedChapter];
     return renderShell(
       <>
         <div className="sheet-head">
           <div className="sheet-head-text">
-            <span className="sheet-eyebrow">Oxford · Κεφάλαιο {selectedChapter}</span>
+            <span className="sheet-eyebrow">Oxford · Κεφάλαιο {selectedChapter}{chapterName ? `: ${chapterName}` : ""}</span>
             <h2>{plural(boxes.length, "πινακάκιο", "πινακάκια")}</h2>
           </div>
         </div>
@@ -6727,67 +6766,40 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     );
   }
 
-  if (screen === "crash-modes") {
-    const boxes = boxesForSource("crash");
-    return renderShell(
-      <>
-        <div className="sheet-head">
-          <div className="sheet-head-text">
-            <span className="sheet-eyebrow">Πινακάκια</span>
-            <h2>Crash Course</h2>
-            <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span>
-          </div>
-        </div>
-        <div className="hub-row-grid">
-          <button className="hub-row" onClick={() => setScreen("crash-list")}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Με σειρά</span>
-              <span className="hub-row-detail">Περιήγηση με τη σειρά του βιβλίου.</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-          <button className="hub-row" disabled={!boxes.length} onClick={() => openRandom("crash", "crash-modes")}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.Globe /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Τυχαία</span>
-              <span className="hub-row-detail">Ένα τυχαίο πινακάκιο κάθε φορά, για γρήγορη ανασκόπηση.</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-        </div>
-        {!boxes.length && <div className="pinakakia-empty" style={{ marginTop: 16 }}>Δεν έχουν προστεθεί ακόμα πινακάκια Crash Course.</div>}
-      </>
-    );
-  }
-
-  if (screen === "crash-list") {
+  if (screen === "crash-list" || screen === "crash-modes") {
     const boxes = boxesForSource("crash");
     return renderShell(
       <>
         <div className="sheet-head">
           <div className="sheet-head-text">
             <span className="sheet-eyebrow">Crash Course</span>
-            <h2>Με σειρά</h2>
+            <h2>Πινακάκια Αναφοράς</h2>
+            <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span>
           </div>
         </div>
         <div className="items">
-          {boxes.map((box, index) => (
-            <button
-              key={box.id}
-              className="item"
-              onClick={() => openViewer("crash", boxes, index, { backScreen: "crash-list" })}
-            >
-              <span className="item-num">{box.boxNumber}</span>
-              <span className="item-body">
-                <span className="item-title">{box.title}</span>
-                {box.page && <span className="item-meta"><span>pg. {box.page}</span></span>}
-              </span>
-              <span className="item-side">
-                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
-              </span>
-            </button>
-          ))}
+          {boxes.map((box, index) => {
+            const chapterTitle = CRASH_COURSE_CHAPTER_TITLES[box.chapter];
+            return (
+              <button
+                key={box.id}
+                className="item"
+                onClick={() => openViewer("crash", boxes, index, { backScreen: "crash-list" })}
+              >
+                <span className="item-num">{box.boxNumber}</span>
+                <span className="item-body">
+                  <span className="item-title">{box.title}</span>
+                  <span className="item-meta">
+                    {box.chapter && <span>Κεφ. {box.chapter}{chapterTitle ? `: ${chapterTitle}` : ""}</span>}
+                    {box.page && <span>pg. {box.page}</span>}
+                  </span>
+                </span>
+                <span className="item-side">
+                  <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+                </span>
+              </button>
+            );
+          })}
         </div>
         {!boxes.length && <div className="pinakakia-empty">Δεν έχουν προστεθεί ακόμα πινακάκια.</div>}
       </>
@@ -6799,48 +6811,42 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const canGoPrev = viewer.randomMode ? viewer.historyIndex > 0 : viewer.index > 0;
     const canGoNext = viewer.randomMode || viewer.index < viewer.boxes.length - 1;
     const contentLines = getBoxContentLines(box.content, viewer.sourceKey);
+    const chapterName = viewer.sourceKey === "oxford"
+      ? OXFORD_CHAPTER_TITLES[box.chapter]
+      : CRASH_COURSE_CHAPTER_TITLES[box.chapter];
 
     return renderShell(
       <div className="pinakakia-viewer">
         <div className="pinakakia-viewer-meta">
           <span>{box.source || sourceLabel}</span>
           <span>Box {box.boxNumber}</span>
-          {box.chapter && <span>Κεφάλαιο {box.chapter}</span>}
+          {box.chapter && <span>Κεφάλαιο {box.chapter}{chapterName ? ` (${chapterName})` : ""}</span>}
           {box.page && <span>pg. {box.page}</span>}
         </div>
-        <button className="pinakakia-reveal" onClick={() => setRevealed(value => !value)}>
-          <div className={`pinakakia-book-box ${viewer.sourceKey}`}>
-            <div className="pinakakia-book-header">
-              <span>Box {box.boxNumber}</span>
-              <span className="pinakakia-book-header-title">{box.title}</span>
-              {box.page && <span className="pinakakia-book-header-page">pg. {box.page}</span>}
-            </div>
-            <div className="pinakakia-book-body">
-              {revealed ? (
-                <>
-                  <div className="pinakakia-hide-note">Πάτησε για απόκρυψη</div>
-                  <div className="pinakakia-content-text">
-                    {contentLines.map((line, index) => {
-  const indent = line.indentLevel || 0;
-  const style = { paddingLeft: `${indent * 20}px` };
-  let cls = "pinakakia-content-line";
-  if (line.kind === "heading") cls += " heading";
-  else if (line.kind === "subsection-heading") cls += " subsection-heading";
-  else cls += " entry";
-  return (
-    <div className={cls} style={style} key={`${box.id}-line-${index}`}>
-  <span dangerouslySetInnerHTML={{ __html: line.text }} />
-</div>
-  );
-})}
+        <div className={`pinakakia-book-box ${viewer.sourceKey}`}>
+          <div className="pinakakia-book-header">
+            <span className="pinakakia-book-header-num">Box {box.boxNumber}</span>
+            <span className="pinakakia-book-header-title">{box.title}</span>
+            {box.page && <span className="pinakakia-book-header-page">pg. {box.page}</span>}
+          </div>
+          <div className="pinakakia-book-body">
+            <div className="pinakakia-content-text">
+              {contentLines.map((line, index) => {
+                const indent = line.indentLevel || 0;
+                const style = indent ? { paddingLeft: `${indent * 18}px` } : undefined;
+                let cls = "pinakakia-content-line";
+                if (line.kind === "heading") cls += " heading";
+                else if (line.kind === "subsection-heading") cls += " subsection-heading";
+                else cls += " entry";
+                return (
+                  <div className={cls} style={style} key={`${box.id}-line-${index}`}>
+                    <span dangerouslySetInnerHTML={{ __html: line.text }} />
                   </div>
-                </>
-              ) : (
-                <div className="pinakakia-reveal-placeholder">Πάτησε για εμφάνιση</div>
-              )}
+                );
+              })}
             </div>
           </div>
-        </button>
+        </div>
         <div className="pinakakia-viewer-nav">
           <button className="nav-btn" onClick={goViewerPrev} disabled={!canGoPrev}>
             <Icons.ChevronLeft /> Προηγούμενο

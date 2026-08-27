@@ -33,7 +33,7 @@ export function getMcqQualityPreference(question, qualitySignals = {}, mode = "s
   const upvotes = Math.min(Number(signal.up) || 0, 3);
   const downvotes = Math.min(Number(signal.down) || 0, 3);
   const written = mode === "written";
-  let score = upvotes * (written ? 30 : 20) - downvotes * (written ? 24 : 18);
+  let score = upvotes * (written ? 4 : 3) - downvotes * (written ? 4 : 3);
 
   if (question?.qualityStatus === "good") score += written ? 10 : 5;
   else if (question?.qualityStatus === "needs_review") score -= written ? 12 : 6;
@@ -115,6 +115,7 @@ export function selectAdaptiveQuestionOrder({
   count = questions.length,
   records = {},
   qualitySignals = {},
+  isRecent = () => false,
   hasSeen,
   getSeenCount,
   isMastered,
@@ -124,45 +125,106 @@ export function selectAdaptiveQuestionOrder({
   random = Math.random,
 }) {
   const limit = Math.min(count, questions.length);
-  const unseen = rankQuestionsWithQuality(
-    questions.filter(question => !hasSeen(records[question.id])),
+
+  const shuffle = (array) => {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  const unseenPool = shuffle(questions.filter(question => !hasSeen(records[question.id])));
+  const unseenFresh = rankQuestionsWithQuality(
+    unseenPool.filter(question => !isRecent(question)),
     () => 0,
     qualitySignals,
-    { random, jitter: 5 }
+    { random, jitter: 12 }
   );
-  const lightlySeen = rankQuestionsWithQuality(
-    questions.filter(question => {
-      const record = records[question.id];
-      return hasSeen(record) && getSeenCount(record) <= 1 && !isMastered(record);
-    }),
+  const unseenAll = rankQuestionsWithQuality(
+    unseenPool,
+    () => 0,
+    qualitySignals,
+    { random, jitter: 12 }
+  );
+
+  const lightlySeenPool = shuffle(questions.filter(question => {
+    const record = records[question.id];
+    return hasSeen(record) && getSeenCount(record) <= 1 && !isMastered(record);
+  }));
+  const lightlySeenFresh = rankQuestionsWithQuality(
+    lightlySeenPool.filter(question => !isRecent(question)),
     scoreStudy,
-    qualitySignals,
-    { random, jitter: 5 }
-  );
-  const review = rankQuestionsWithQuality(
-    questions.filter(question => Number.isFinite(scoreReview(question))),
-    scoreReview,
-    qualitySignals,
-    { random, jitter: 4 }
-  );
-  const broadReview = rankQuestionsWithQuality(
-    questions.filter(question => hasSeen(records[question.id])),
-    question => scoreStudy(question) + (isDue(records[question.id]) ? 10 : 0),
     qualitySignals,
     { random, jitter: 8 }
   );
+  const lightlySeenAll = rankQuestionsWithQuality(
+    lightlySeenPool,
+    scoreStudy,
+    qualitySignals,
+    { random, jitter: 8 }
+  );
+
+  const reviewPool = shuffle(questions.filter(question => Number.isFinite(scoreReview(question))));
+  const reviewFresh = rankQuestionsWithQuality(
+    reviewPool.filter(question => !isRecent(question)),
+    scoreReview,
+    qualitySignals,
+    { random, jitter: 6 }
+  );
+  const reviewAll = rankQuestionsWithQuality(
+    reviewPool,
+    scoreReview,
+    qualitySignals,
+    { random, jitter: 6 }
+  );
+
+  const broadReviewPool = shuffle(questions.filter(question => hasSeen(records[question.id])));
+  const broadReviewFresh = rankQuestionsWithQuality(
+    broadReviewPool.filter(question => !isRecent(question)),
+    question => scoreStudy(question) + (isDue(records[question.id]) ? 10 : 0),
+    qualitySignals,
+    { random, jitter: 10 }
+  );
+  const broadReviewAll = rankQuestionsWithQuality(
+    broadReviewPool,
+    question => scoreStudy(question) + (isDue(records[question.id]) ? 10 : 0),
+    qualitySignals,
+    { random, jitter: 10 }
+  );
+
   const selected = [];
   const usedIds = new Set();
 
-  appendUnique(selected, unseen, usedIds, limit);
-  appendUnique(selected, lightlySeen, usedIds, limit);
-  appendUnique(selected, blendQueues(review, broadReview, questions.length), usedIds, limit);
+  // First pass: Select exclusively from non-recent (fresh) items
+  appendUnique(selected, unseenFresh, usedIds, limit);
+  appendUnique(selected, lightlySeenFresh, usedIds, limit);
+  appendUnique(selected, blendQueues(reviewFresh, broadReviewFresh, questions.length), usedIds, limit);
   appendUnique(
     selected,
-    rankQuestionsWithQuality(questions, scoreStudy, qualitySignals, { random, jitter: 10 }),
+    rankQuestionsWithQuality(
+      questions.filter(question => !isRecent(question)),
+      scoreStudy,
+      qualitySignals,
+      { random, jitter: 15 }
+    ),
     usedIds,
     limit
   );
+
+  // Fallback pass: If not enough non-recent candidates exist, backfill from remaining items
+  if (selected.length < limit) {
+    appendUnique(selected, unseenAll, usedIds, limit);
+    appendUnique(selected, lightlySeenAll, usedIds, limit);
+    appendUnique(selected, blendQueues(reviewAll, broadReviewAll, questions.length), usedIds, limit);
+    appendUnique(
+      selected,
+      rankQuestionsWithQuality(questions, scoreStudy, qualitySignals, { random, jitter: 15 }),
+      usedIds,
+      limit
+    );
+  }
 
   return selected;
 }
@@ -182,10 +244,10 @@ export function selectWrittenExamByTopic({
     .map(question => ({ question, score: scoreQuestion(question) }))
     .sort((left, right) => right.score - left.score || String(left.question.id).localeCompare(String(right.question.id)))
     .map(item => item.question);
-  const pickFrom = (candidates, topicLimit, options = {}) => {
+  const pickFrom = (candidates, topicLimit) => {
     for (const question of candidates) {
       if (getSelected().length >= targetCount || getSelected().length >= topicLimit) break;
-      trySelect(question, options);
+      trySelect(question);
     }
   };
 
@@ -199,7 +261,6 @@ export function selectWrittenExamByTopic({
 
   pickFrom(rank(eligible.filter(question => !isRecent(question))), targetCount);
   pickFrom(rank(eligible), targetCount);
-  pickFrom(rank(eligible), targetCount, { respectConceptCaps: false });
 
   return shuffle(getSelected());
 }

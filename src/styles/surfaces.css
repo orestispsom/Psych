@@ -618,6 +618,14 @@
   position: relative;
   display: grid; gap: 10px; max-width: 760px; margin: 0 auto;
 }
+/* On desktop the sheet reserves 84px of top clearance for the fixed
+   back/home/search row, but this screen's content is centered well clear
+   of it horizontally — so it doesn't need the full reserve. Pulled up
+   locally rather than lowering .sheet's own padding, so every other
+   (edge-to-edge) screen keeps its full clearance. */
+@media (min-width: 900px) {
+  .test-container { margin-top: calc(var(--s5) - 84px); }
+}
 
 .test-header {
   display: grid;
@@ -807,7 +815,7 @@
 .mcq-feedback-controls { display: flex; align-items: center; gap: var(--s1); }
 .mcq-feedback-btn, .mcq-quality-btn, .vignette-open-btn, .sos-shuffle-btn,
 .oral-expand-all, .wrong-full-btn, .vignette-modal-close, .oral-answer-reveal,
-.pinakakia-reveal, .sos-focus-reveal, .oral-mastery-toggle, .vignette-complete-toggle,
+.sos-focus-reveal, .oral-mastery-toggle, .vignette-complete-toggle,
 .sos-check-control, .results-btn, .admin-pin-key, .oral-verdict {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
   min-height: 44px; padding: 0 var(--s4);
@@ -817,7 +825,7 @@
 }
 .mcq-feedback-btn:hover, .mcq-quality-btn:hover, .vignette-open-btn:hover,
 .sos-shuffle-btn:hover, .oral-expand-all:hover, .wrong-full-btn:hover,
-.oral-answer-reveal:hover, .pinakakia-reveal:hover, .sos-focus-reveal:hover,
+.oral-answer-reveal:hover, .sos-focus-reveal:hover,
 .results-btn:hover, .oral-mastery-toggle:hover, .oral-verdict:hover {
   color: var(--ink); border-color: var(--ink-3); background: var(--raised);
 }
@@ -1362,50 +1370,55 @@ input.crucial-search::placeholder { color: var(--ink-3); }
    with no separating whitespace in the markup — a gap, not adjacency. */
 .pinakakia-viewer-meta {
   display: flex; flex-wrap: wrap; gap: var(--s3);
-  font-size: var(--t-micro); color: var(--ink-3);
+  font-family: var(--ui); font-size: var(--t-meta); color: var(--ink-3);
 }
-/* The reveal wraps a whole reference card, not a short label, so it needs
-   the card's own padding and the section's accent border rather than the
-   generic pill button it shares a base rule with. */
-.pinakakia-reveal {
-  display: block; width: 100%; height: auto;
+
+.pinakakia-book-box {
+  display: grid; gap: var(--s4);
   padding: var(--s5);
   border: 1px solid var(--accent, var(--rule-strong));
   border-radius: var(--r-lg);
-  background: var(--accent-quiet, transparent);
-  text-align: left;
+  background: var(--field);
 }
-.pinakakia-reveal:hover { background: var(--accent-quiet, var(--raised)); }
-.pinakakia-book-box { display: grid; gap: var(--s3); }
 .pinakakia-book-header {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--s3); padding-bottom: var(--s2);
+  gap: var(--s3); padding-bottom: var(--s3);
   border-bottom: 1px solid var(--rule-strong);
 }
-.pinakakia-book-header-title { font-size: var(--t-section); font-weight: 600; }
-.pinakakia-book-header-page { font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3); }
+.pinakakia-book-header-num {
+  font-family: var(--code); font-size: var(--t-meta); font-weight: 600;
+  color: var(--accent, var(--ink-2));
+  white-space: nowrap;
+}
+.pinakakia-book-header-title {
+  font-family: var(--ui); font-size: var(--t-item); font-weight: 600;
+  color: var(--ink); line-height: 1.35; flex: 1;
+}
+.pinakakia-book-header-page {
+  font-family: var(--code); font-size: var(--t-micro); color: var(--ink-3);
+  white-space: nowrap;
+}
 .pinakakia-book-body, .pinakakia-content-text {
-  font-family: var(--read); font-size: var(--t-read); line-height: 1.7;
+  font-family: var(--read); font-size: 15px; line-height: 1.65;
   max-width: var(--measure-read);
 }
-.pinakakia-content-text { display: grid; gap: var(--s2); }
-/* Never styled before: a bare div per line with no rules of its own — worse,
-   the default variant carried the shared list-row class ".item" and
-   inherited its 44px numbered-gutter grid, wrapping every line to one word
-   per row. Real, distinct rules for headings vs body lines instead. */
+.pinakakia-content-text { display: grid; gap: 6px; }
 .pinakakia-content-line.heading {
-  font-family: var(--ui); font-size: var(--t-label); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--ui); font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
   color: var(--accent, var(--ink-2));
   margin-top: var(--s3);
 }
 .pinakakia-content-line.heading:first-child { margin-top: 0; }
 .pinakakia-content-line.subsection-heading {
-  font-family: var(--ui); font-size: var(--t-meta); font-weight: 700;
+  font-family: var(--ui); font-size: 14px; font-weight: 600;
   color: var(--ink-2);
   margin-top: var(--s2);
 }
-.pinakakia-content-line.entry { color: var(--ink); }
+.pinakakia-content-line.entry {
+  color: var(--ink);
+  font-size: 15px;
+}
 
 /* ═══ VIGNETTES / STRUCTURED ══════════════════════════════════ */
 

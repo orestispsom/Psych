@@ -45,9 +45,7 @@ h3 { font-size: var(--t-item); }
    stray horizontal line below the fold — the ring's other three sides were
    simply off-screen. */
 :where(button, a, input, textarea, select, summary, [tabindex]):not([tabindex="-1"]):focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: var(--r-sm);
+  outline: none;
 }
 
 .sr-only {
