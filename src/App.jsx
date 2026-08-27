@@ -5443,333 +5443,250 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }
 
   return (
-    <div className="test-container">
-      <button className="back-link" onClick={onBack}>
-        <Icons.ChevronLeft /> Μενού MCQ
-      </button>
+    <div className="test-container mcq-layout-wrap">
+      <div className="mcq-main-pane">
+        <div className="mcq-top-nav">
+          <button className="back-link" onClick={onBack} style={{ margin: 0 }}>
+            <Icons.ChevronLeft /> Μενού MCQ
+          </button>
+        </div>
 
-      {mode === "written" ? (
-        <div className="sim-hud-wrap">
-          <div className="sim-hud-top">
-            <div
-              className="sim-timer-badge"
-              onClick={() => setShowSimTimer(t => !t)}
-              title="Χρόνος εξέτασης (κλικ για εναλλαγή)"
-              style={{ cursor: "pointer" }}
-            >
-              ⏱️ {showSimTimer ? formatSimTime(simSeconds) : "••:••"}
-            </div>
-            <button
-              type="button"
-              className="sim-tray-toggle-btn"
-              onClick={() => setShowSimTray(open => !open)}
-            >
-              📋 Πλοηγός ({writtenAnsweredCount}/{totalQ}) {showSimTray ? "▲" : "▼"}
-            </button>
-            {flaggedIds.size > 0 && (
-              <span className="sim-flag-badge" style={{ fontSize: "var(--t-micro)", color: "var(--due)", fontWeight: 700 }}>
-                🚩 {flaggedIds.size} για έλεγχο
+        <div className="mcq-question-header">
+          <div className="mcq-q-info">
+            <span className="mcq-q-index">Ερώτηση {currentIdx + 1} <small>/ {totalQ}</small></span>
+            <span className="mcq-q-id">#{q.id}</span>
+            {mode !== "written" && questionStatus && (
+              <span className={`question-status ${questionStatus.toLowerCase()}`}>
+                {questionStatus}
               </span>
+            )}
+            {mode !== "written" && dailyReason && (
+              <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>
             )}
           </div>
 
-          <div className="game-hud">
-            <div className="hud-stat">
-              <span className="hud-value">{currentIdx + 1}</span>
-              <span className="hud-label">Τρέχουσα</span>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-value">{writtenAnsweredCount}</span>
-              <span className="hud-label">Απαντημένες</span>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-value">{writtenUnansweredCount}</span>
-              <span className="hud-label">Αναπάντητες</span>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-value">{totalQ}</span>
-              <span className="hud-label">Σύνολο</span>
-            </div>
+          <div className="mcq-q-actions">
+            {mode === "written" && (
+              <button
+                type="button"
+                className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
+                onClick={() => toggleFlag(q.id)}
+                title={flaggedIds.has(q.id) ? "Αφαίρεση σημαίας ελέγχου" : "Σημείωση για επανέλεγχο"}
+              >
+                🚩 {flaggedIds.has(q.id) ? "Σημειωμένη" : "Έλεγχος"}
+              </button>
+            )}
+            {renderMcqFeedbackControls(q)}
           </div>
-
-          {showSimTray && (
-            <div className="review-q-grid" style={{ marginBottom: 0 }}>
-              {questions.map((item, idx) => {
-                const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
-                const isFlagged = flaggedIds.has(item.id);
-                const isCurrent = currentIdx === idx;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
-                    onClick={() => {
-                      goToWrittenIndex(idx);
-                    }}
-                    title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
-      ) : null}
 
-      {mode === "written" && (
-        <div className="test-header">
-          <span className="progress-text">
-            Απαντημένες {writtenAnsweredCount}/{totalQ}
-          </span>
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{
-                width: `${totalQ > 0 ? (writtenAnsweredCount / totalQ) * 100 : 0}%`,
-              }}
-            />
+        {feedbackStatus && (
+          <div className={`mcq-feedback-message ${feedbackStatus.type}`} role="status" aria-live="polite">
+            {feedbackStatus.message}
           </div>
-          <span className="progress-text">
-            {modeTitle} {currentIdx + 1}/{totalQ}
-          </span>
-        </div>
-      )}
-
-      <div className={mode === "written" ? "question-num" : "mcq-session-strip"}>
-        {mode !== "written" && <span className="mcq-session-primary">{modeTitle} {currentIdx + 1}/{totalQ}</span>}
-        {mode !== "written" && <span className="mcq-session-secondary">{plural(sessionStats.correct, "σωστή", "σωστές")} · {plural(sessionStats.incorrect, "λάθος", "λάθη")}</span>}
-        <span className="mcq-session-question">#{q.id}</span>
-        {mode === "written" && (
-          <button
-            type="button"
-            className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
-            onClick={() => toggleFlag(q.id)}
-            title={flaggedIds.has(q.id) ? "Αφαίρεση σημαίας ελέγχου" : "Σημείωση για επανέλεγχο"}
-          >
-            🚩 {flaggedIds.has(q.id) ? "Σημειωμένη" : "Έλεγχος"}
-          </button>
         )}
-        {mode !== "written" && <span className={`question-status ${questionStatus.toLowerCase()}`}>{questionStatus}</span>}
-        {mode !== "written" && dailyReason && <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>}
-        <div className="mcq-feedback-controls">
-          <div className="mcq-feedback">
-            <button
-              type="button"
-              className="mcq-feedback-btn"
-              onClick={() => {
-                if (feedbackMenuOpen) {
-                  setFeedbackCommentOpen(false);
-                  setFeedbackCommentText("");
-                }
-                setFeedbackMenuOpen(open => !open);
-                setFeedbackStatus(null);
-              }}
-              disabled={Boolean(feedbackSavingType)}
-            >
-              Feedback
-            </button>
-            {feedbackMenuOpen && (
-              <div className="mcq-feedback-menu">
-                {MCQ_FEEDBACK_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className="mcq-feedback-option"
-                    onClick={() => submitMcqFeedback(option.value)}
-                    disabled={Boolean(feedbackSavingType)}
-                  >
-                    {feedbackSavingType === option.value ? "Saving..." : option.label}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="mcq-feedback-option"
-                  onClick={() => {
-                    setFeedbackCommentOpen(open => !open);
-                    setFeedbackStatus(null);
-                  }}
-                  disabled={Boolean(feedbackSavingType)}
-                >
-                  Σχόλιο
-                </button>
-                {feedbackCommentOpen && (
-                  <div className="mcq-feedback-comment">
-                    <textarea
-                      value={feedbackCommentText}
-                      onChange={event => setFeedbackCommentText(event.target.value.slice(0, 500))}
-                      placeholder="Σύντομο σχόλιο..."
-                      maxLength={500}
-                      disabled={Boolean(feedbackSavingType)}
-                    />
-                    <div className="mcq-feedback-comment-actions">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFeedbackCommentOpen(false);
-                          setFeedbackCommentText("");
-                        }}
-                        disabled={Boolean(feedbackSavingType)}
-                      >
-                        Άκυρο
-                      </button>
-                      <button
-                        type="button"
-                        className="primary"
-                        onClick={() => submitMcqFeedback("comment", feedbackCommentText)}
-                        disabled={Boolean(feedbackSavingType) || !feedbackCommentText.trim()}
-                      >
-                        {feedbackSavingType === "comment" ? "Saving..." : "Αποθήκευση"}
-                      </button>
-                    </div>
-                  </div>
-                )}
+        {mode === "written" && writtenSubmitError && (
+          <div className="mcq-feedback-message error">
+            {writtenSubmitError}
+          </div>
+        )}
+        <div className="question-stem" id="mcq-question-stem">{getMcqStem(q)}</div>
+
+        <div className="options-list">
+          {displayedOptions.map((option, i) => {
+            const originalIndex = option.originalIndex;
+            const letter = String.fromCharCode(913 + i);
+            let cls = 'option-btn';
+            if (isLocked) {
+              cls += ' locked';
+              if (originalIndex === q.correct)                                  cls += ' correct';
+              else if (originalIndex === selected && originalIndex !== q.correct) cls += ' incorrect';
+            } else if (originalIndex === selected) cls += ' selected';
+            return (
+              <button
+                key={originalIndex}
+                className={cls}
+                onClick={() => selectOption(originalIndex)}
+                aria-pressed={originalIndex === selected}
+                aria-describedby="mcq-question-stem"
+              >
+                <span className="option-letter" aria-hidden="true">{letter}</span>
+                <span>{option.text}</span>
+                <span className="answer-glyph" aria-hidden="true">
+                  {isLocked && originalIndex === q.correct ? <Icons.Check /> :
+                   isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : null}
+                </span>
+                <span className="sr-only">
+                  {isLocked && originalIndex === q.correct
+                    ? `Επιλογή ${letter}. Σωστή απάντηση.`
+                    : isLocked && originalIndex === selected
+                      ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
+                      : `Επιλογή ${letter}.`}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {isLocked && (
+          <p className="answer-verdict sr-only" role="status">
+            {selected === q.correct
+              ? "Σωστή απάντηση."
+              : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
+          </p>
+        )}
+
+        {isLocked && mode !== "written" && (
+          <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
+            <strong>Επεξήγηση</strong>{q.explanation}
+            {getQuestionExamLesson(q) && (
+              <div className="exam-takeaway-card">
+                <strong>Τι κρατάμε</strong>
+                {getQuestionExamLesson(q)}
               </div>
             )}
           </div>
-          <button
-            type="button"
-            className="mcq-quality-btn up"
-            title="Καλή ερώτηση"
-            aria-label="Καλή ερώτηση"
-            onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.up)}
-            disabled={Boolean(feedbackSavingType)}
-          >
-            <Icons.ThumbsUp />
-          </button>
-          <button
-            type="button"
-            className="mcq-quality-btn down"
-            title="Προβληματική ερώτηση"
-            aria-label="Προβληματική ερώτηση"
-            onClick={() => submitMcqFeedback(MCQ_QUALITY_FEEDBACK.down)}
-            disabled={Boolean(feedbackSavingType)}
-          >
-            <Icons.ThumbsDown />
-          </button>
-          <button
-            type="button"
-            className={`mcq-quality-btn bookmark ${Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "active" : ""}`}
-            title={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
-            aria-label={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
-            onClick={() => toggleBookmark(q.id)}
-          >
-            <Icons.Bookmark filled={Boolean(progress?.bookmarks?.[q.id] || progress?.bookmarks?.[String(q.id)])} />
-          </button>
-        </div>
-      </div>
-      {feedbackStatus && (
-        <div className={`mcq-feedback-message ${feedbackStatus.type}`} role="status" aria-live="polite">
-          {feedbackStatus.message}
-        </div>
-      )}
-      {mode === "written" && writtenSubmitError && (
-        <div className="mcq-feedback-message error">
-          {writtenSubmitError}
-        </div>
-      )}
-      <div className="question-stem" id="mcq-question-stem">{getMcqStem(q)}</div>
+        )}
 
-      <div className="options-list">
-        {displayedOptions.map((option, i) => {
-          const originalIndex = option.originalIndex;
-          const letter = String.fromCharCode(913 + i);
-          let cls = 'option-btn';
-          if (isLocked) {
-            cls += ' locked';
-            if (originalIndex === q.correct)                                  cls += ' correct';
-            else if (originalIndex === selected && originalIndex !== q.correct) cls += ' incorrect';
-          } else if (originalIndex === selected) cls += ' selected';
-          return (
+        {mode === "written" ? (
+          <div className="nav-bar actionbar">
+            <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+              <Icons.ChevronLeft /> Προηγούμενη
+            </button>
+            <button className="nav-btn" onClick={() => goToWrittenIndex(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ} aria-label="Επόμενη ερώτηση">
+              Επόμενη <Icons.ChevronRight />
+            </button>
+            <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
+              Υποβολή εξέτασης
+            </button>
+          </div>
+        ) : mode === "sprint" && currentIdx === totalQ - 1 ? (
+          <div className="nav-bar actionbar">
+            <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+              <Icons.ChevronLeft /> Προηγούμενη
+            </button>
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={() => { submitAnswer(); setShowSprintCompleteModal(true); }} disabled={selected === undefined}>
+                <Icons.Lock /> Καταχώρηση
+              </button>
+            )}
+            <button className="nav-btn primary" type="button" onClick={startNewSprint}>Νέο mini-test</button>
+          </div>
+        ) : (
+          <div className="nav-bar actionbar">
+            <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
+              <Icons.ChevronLeft /> Προηγούμενη
+            </button>
+            {!isLocked && (
+              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+                <Icons.Lock /> Καταχώρηση
+              </button>
+            )}
             <button
-              key={originalIndex}
-              className={cls}
-              onClick={() => selectOption(originalIndex)}
-              aria-pressed={originalIndex === selected}
-              aria-describedby="mcq-question-stem"
+              className="nav-btn"
+              onClick={goToNextQuestion}
+              disabled={nextIdx < 0 || nextIdx >= totalQ}
+              aria-label="Επόμενη ερώτηση"
             >
-              <span className="option-letter" aria-hidden="true">{letter}</span>
-              <span>{option.text}</span>
-              <span className="answer-glyph" aria-hidden="true">
-                {isLocked && originalIndex === q.correct ? <Icons.Check /> :
-                 isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : null}
-              </span>
-              <span className="sr-only">
-                {isLocked && originalIndex === q.correct
-                  ? `Επιλογή ${letter}. Σωστή απάντηση.`
-                  : isLocked && originalIndex === selected
-                    ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
-                    : `Επιλογή ${letter}.`}
-              </span>
+              Επόμενη <Icons.ChevronRight />
             </button>
-          );
-        })}
+          </div>
+        )}
       </div>
 
-      {isLocked && (
-        <p className="answer-verdict sr-only" role="status">
-          {selected === q.correct
-            ? "Σωστή απάντηση."
-            : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
-        </p>
-      )}
-
-      {isLocked && mode !== "written" && (
-        <div ref={explanationRef} className="explanation-box" role="status" aria-live="polite">
-          <strong>Επεξήγηση</strong>{q.explanation}
-          {getQuestionExamLesson(q) && (
-            <div className="exam-takeaway-card">
-              <strong>Τι κρατάμε</strong>
-              {getQuestionExamLesson(q)}
-            </div>
-          )}
-        </div>
-      )}
-
-      {mode === "written" ? (
-        <div className="nav-bar actionbar">
-          <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
-            <Icons.ChevronLeft /> Προηγούμενη
-          </button>
-          <button className="nav-btn" onClick={() => goToWrittenIndex(nextIdx)} disabled={nextIdx < 0 || nextIdx >= totalQ} aria-label="Επόμενη ερώτηση">
-            Επόμενη <Icons.ChevronRight />
-          </button>
-          <button className="nav-btn primary" type="button" onClick={() => submitWrittenExam(false)}>
-            Υποβολή εξέτασης
-          </button>
-        </div>
-      ) : mode === "sprint" && currentIdx === totalQ - 1 ? (
-        <div className="nav-bar actionbar">
-          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
-            <Icons.ChevronLeft /> Προηγούμενη
-          </button>
-          {!isLocked && (
-            <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-              <Icons.Lock /> Καταχώρηση
-            </button>
-          )}
-          <button className="nav-btn primary" type="button" onClick={startNewSprint}>Νέο mini-test</button>
-        </div>
-      ) : (
-        <div className="nav-bar actionbar">
-          <button className="nav-btn" onClick={() => setCurrentIdx(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
-            <Icons.ChevronLeft /> Προηγούμενη
-          </button>
-          {!isLocked && (
-            <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
-              <Icons.Lock /> Καταχώρηση
-            </button>
-          )}
-          <button
-            className="nav-btn"
-            onClick={goToNextQuestion}
-            disabled={nextIdx < 0 || nextIdx >= totalQ}
-            aria-label="Επόμενη ερώτηση"
+      <aside className="mcq-side-rail" aria-label="Πρόοδος εξέτασης">
+        <div className="mcq-rail-header">
+          <span className="sheet-eyebrow" style={{ margin: 0 }}>{modeTitle}</span>
+          <div
+            className="mcq-rail-timer"
+            onClick={() => setShowSimTimer(t => !t)}
+            title="Χρόνος (κλικ για εναλλαγή)"
           >
-            Επόμενη <Icons.ChevronRight />
-          </button>
+            ⏱️ {showSimTimer ? formatSimTime(simSeconds) : "••:••"}
+          </div>
         </div>
-      )}
+
+        <div className="mcq-rail-progress-box">
+          <div className="mcq-rail-stat-row">
+            <span className="mcq-rail-stat-label">Πρόοδος</span>
+            <strong className="mcq-rail-stat-val">{currentIdx + 1} / {totalQ}</strong>
+          </div>
+          <div className="progress-bar" style={{ marginTop: 4, height: 6 }}>
+            <div
+              className="progress-fill"
+              style={{
+                width: `${totalQ > 0 ? ((currentIdx + 1) / totalQ) * 100 : 0}%`,
+              }}
+            />
+          </div>
+        </div>
+
+        {mode === "written" ? (
+          <div className="mcq-rail-sim-stats">
+            <div className="mcq-rail-stat-card">
+              <span>Απαντημένες</span>
+              <strong>{writtenAnsweredCount} <small>/ {totalQ}</small></strong>
+            </div>
+            <div className="mcq-rail-stat-card">
+              <span>Αναπάντητες</span>
+              <strong>{writtenUnansweredCount}</strong>
+            </div>
+            {flaggedIds.size > 0 && (
+              <div className="mcq-rail-stat-card flagged">
+                <span>Σημειωμένες</span>
+                <strong>🚩 {flaggedIds.size}</strong>
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="sim-tray-toggle-btn"
+              style={{ width: "100%", justifyContent: "center", marginTop: "var(--s2)" }}
+              onClick={() => setShowSimTray(open => !open)}
+            >
+              📋 Πλοηγός 1–100 {showSimTray ? "▲" : "▼"}
+            </button>
+
+            {showSimTray && (
+              <div className="review-q-grid" style={{ marginTop: "var(--s3)", maxHeight: "280px", overflowY: "auto", padding: "4px" }}>
+                {questions.map((item, idx) => {
+                  const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
+                  const isFlagged = flaggedIds.has(item.id);
+                  const isCurrent = currentIdx === idx;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
+                      onClick={() => goToWrittenIndex(idx)}
+                      title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mcq-rail-sim-stats">
+            <div className="mcq-rail-stat-card">
+              <span>Σωστές</span>
+              <strong style={{ color: "var(--accent)" }}>{sessionStats.correct}</strong>
+            </div>
+            <div className="mcq-rail-stat-card">
+              <span>Λάθη</span>
+              <strong style={{ color: "var(--mark)" }}>{sessionStats.incorrect}</strong>
+            </div>
+            {sessionStats.currentStreak > 0 && (
+              <div className="mcq-rail-stat-card">
+                <span>Σερί</span>
+                <strong>🔥 {sessionStats.currentStreak}</strong>
+              </div>
+            )}
+          </div>
+        )}
+      </aside>
 
       {showWrittenSubmitWarning && (
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Επιβεβαίωση υποβολής γραπτής εξέτασης" onKeyDown={event => { if (event.key === "Escape") setShowWrittenSubmitWarning(false); }}>
