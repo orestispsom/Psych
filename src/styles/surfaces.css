@@ -2419,28 +2419,65 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .mcq-q-index {
   font-family: var(--ui);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .mcq-q-index small {
   font-size: 13px;
   font-weight: 400;
   color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .mcq-q-id {
   font-family: var(--code);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--ink-3);
-  padding: 1px 6px;
-  border-radius: var(--r-sm);
-  background: var(--raised);
+  opacity: 0.7;
+  padding: 1px 5px;
+  border-radius: var(--r-box);
+  background: transparent;
   border: 1px solid var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+
+.desktop-keyboard-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  margin-top: var(--s3);
+  font-family: var(--code);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.desktop-keyboard-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: var(--raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-box);
+  color: var(--ink-2);
+  box-shadow: 0 1px 0 var(--rule-strong);
+}
+
+@media (max-width: 899px) {
+  .desktop-keyboard-hint { display: none; }
 }
 
 .mcq-q-actions {

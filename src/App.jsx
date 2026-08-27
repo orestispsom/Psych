@@ -3332,11 +3332,6 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
 
   const filteredAndSortedTopics = useMemo(() => {
     let list = [...MCQ_TOPIC_CATEGORIES];
-    const query = normalizeGreekSearch(searchQuery);
-
-    if (query) {
-      list = list.filter(topic => normalizeGreekSearch(topic).includes(query));
-    }
 
     if (sortFilter === "needWork") {
       list.sort((a, b) => {
@@ -3353,7 +3348,7 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
     }
 
     return list;
-  }, [searchQuery, sortFilter, topicMastery, topicCounts]);
+  }, [sortFilter, topicMastery, topicCounts]);
 
   return (
     <div className="mcq-select">
@@ -3369,17 +3364,6 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
           <h2 aria-hidden="true">Ερωτήσεις ανά Κατηγορία</h2>
           <span className="sheet-sub">{MCQ_TOPIC_CATEGORIES.length} κατηγορίες</span>
         </div>
-      </div>
-
-      <div className="category-search-bar">
-        <input
-          type="search"
-          className="category-search-input"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Αναζήτηση σε 21 κατηγορίες…"
-          aria-label="Αναζήτηση κατηγορίας"
-        />
       </div>
 
       <div className="category-sort-bar">
@@ -3413,13 +3397,7 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
         </button>
       </div>
 
-      {filteredAndSortedTopics.length === 0 ? (
-        <div className="explanation-box" style={{ marginTop: "var(--s3)" }}>
-          <strong>Δεν βρέθηκε κατηγορία</strong>
-          Δεν υπάρχει κατηγορία που να ταιριάζει με την αναζήτηση «{searchQuery}».
-        </div>
-      ) : (
-        <div className="items items-plain">
+      <div className="items items-plain">
           {filteredAndSortedTopics.map(topic => {
             const count = topicCounts.get(topic) || 0;
             const mastery = topicMastery.get(topic) || { mastered: 0, total: 0 };
@@ -3455,7 +3433,6 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
             );
           })}
         </div>
-      )}
     </div>
   );
 }
@@ -6692,6 +6669,11 @@ function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, 
           Επόμενη <Icons.ChevronRight />
         </button>
       </div>
+      <div className="desktop-keyboard-hint" aria-hidden="true">
+        <span><kbd>Space</kbd> {!isAnswerVisible ? "Αποκάλυψη" : "Απόκρυψη"}</span>
+        <span>·</span>
+        <span><kbd>←</kbd> <kbd>→</kbd> Πλοήγηση</span>
+      </div>
     </div>
   );
 }
@@ -7273,54 +7255,17 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   };
 
   const renderShell = (children, isRoot = false) => {
-    const hasQuery = Boolean(normalizeGreekSearch(query));
     return (
-    <div className="pinakakia-screen">
-      {!isRoot && (
-        <div className="pinakakia-topbar">
-          <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
-            <Icons.ChevronLeft /> Πίσω
-          </button>
-        </div>
-      )}
-      {!isRoot && (
-        <div className="pinakakia-search-wrap">
-          <label className="sr-only" htmlFor="pinakakia-search">Αναζήτηση σε πινακάκια</label>
-          <input
-            id="pinakakia-search"
-            name="pinakakia-search"
-            type="search"
-            className="pinakakia-search"
-            value={query}
-            onChange={event => setQuery(event.target.value)}
-            placeholder="Αναζήτηση σε πινακάκια…"
-            autoComplete="off"
-          />
-        </div>
-      )}
-      {hasQuery && !isRoot && (
-        <div className="pinakakia-search-summary" role="status" aria-live="polite">
-          {searchResults.length ? `${searchResults.length} αποτελέσματα` : "Χωρίς αποτελέσματα"}
-        </div>
-      )}
-      {hasQuery && !isRoot && (
-        <div className="pinakakia-results" style={{ marginBottom: 28 }}>
-          {searchResults.length ? searchResults.map(box => (
-            <button key={`${box.sourceKey}-${box.id}`} className="pinakakia-row" onClick={() => openSearchResult(box)}>
-              <span className="pinakakia-row-title">Box {box.boxNumber} — {box.title}</span>
-              <span className="pinakakia-row-meta">
-                <span>{box.source}</span>
-                {box.chapter && <span>Κεφάλαιο {box.chapter}</span>}
-                {box.page && <span>pg. {box.page}</span>}
-              </span>
+      <div className="pinakakia-screen">
+        {!isRoot && (
+          <div className="pinakakia-topbar">
+            <button className="back-link" style={{ marginBottom: 0 }} onClick={handleBack}>
+              <Icons.ChevronLeft /> Πίσω
             </button>
-          )) : (
-            <div className="pinakakia-empty">Δεν βρέθηκαν αποτελέσματα.</div>
-          )}
-        </div>
-      )}
-      {(!hasQuery || isRoot) && children}
-    </div>
+          </div>
+        )}
+        {children}
+      </div>
     );
   };
 
@@ -8309,6 +8254,9 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
             Επόμενο <Icons.ChevronRight />
           </button>
         </div>
+        <div className="desktop-keyboard-hint" aria-hidden="true">
+          <span><kbd>←</kbd> <kbd>→</kbd> Πλοήγηση</span>
+        </div>
       </div>
     );
   }
@@ -8455,6 +8403,11 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
                 <button type="button" className="nav-btn" onClick={() => navigateDrill(drillIndex + 1)} disabled={drillIndex === drillList.length - 1}>
                   Επόμενη <Icons.ChevronRight />
                 </button>
+              </div>
+              <div className="desktop-keyboard-hint" aria-hidden="true">
+                <span><kbd>Space</kbd> {!isDrillAnswerVisible ? "Αποκάλυψη" : "Απόκρυψη"}</span>
+                <span>·</span>
+                <span><kbd>←</kbd> <kbd>→</kbd> Πλοήγηση</span>
               </div>
             </>
           )}
