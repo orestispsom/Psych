@@ -80,16 +80,13 @@ export default function AppShell({
       <nav className="rail" aria-label="Κύρια πλοήγηση">
         <button
           type="button"
-          className="rail-search"
-          onClick={onOpenSearch}
-          aria-label="Αναζήτηση υλικού"
+          className="rail-home"
+          onClick={onHome}
+          aria-label="Αρχική"
+          title="Αρχική"
         >
-          <Icons.Search />
-          {!collapsed && (
-            <span className="rail-search-key" aria-hidden="true">
-              Ctrl K
-            </span>
-          )}
+          <Icons.Home />
+          {!collapsed && <span>Αρχική</span>}
         </button>
 
         <div className="rail-group">
