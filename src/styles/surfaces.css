@@ -2522,7 +2522,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 @media (min-width: 900px) {
   .mcq-layout-wrap {
-    margin-top: calc(var(--s5) - 84px);
+    margin-top: -64px;
   }
 }
 
@@ -2530,22 +2530,14 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--s3);
-}
-
-.mcq-top-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--s1);
-  min-height: 36px;
+  gap: var(--s2);
 }
 
 .mcq-top-flag-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--s1);
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: var(--r-full);
   background: rgba(220, 130, 40, 0.12);
   border: 1px solid var(--due);
@@ -2560,7 +2552,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s3);
+  gap: var(--s2);
   padding-bottom: var(--s2);
   border-bottom: 1px solid var(--rule);
   flex-wrap: wrap;

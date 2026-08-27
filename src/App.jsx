@@ -5548,18 +5548,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   return (
     <div className="test-container mcq-layout-wrap" {...mcqSwipe}>
-      <div className="mcq-main-pane">
-        <div className="mcq-top-nav">
-          <button className="back-link" onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack} style={{ margin: 0 }}>
-            <Icons.ChevronLeft /> {practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
-          </button>
-          {flaggedIds.size > 0 && (
-            <span className="mcq-top-flag-badge">
-              🚩 {flaggedIds.size} για έλεγχο
-            </span>
-          )}
-        </div>
+      <button className="back-link" onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack}>
+        <Icons.ChevronLeft /> {practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
+      </button>
 
+      <div className="mcq-main-pane">
         <div className="mcq-question-header">
           <div className="mcq-q-info">
             <span className="mcq-q-index">Ερώτηση {currentIdx + 1} <small>/ {totalQ}</small></span>
@@ -5571,6 +5564,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             )}
             {mode !== "written" && dailyReason && (
               <span className="question-status seen">{getDailyReasonLabel(dailyReason)}</span>
+            )}
+            {flaggedIds.size > 0 && (
+              <span className="mcq-top-flag-badge">
+                🚩 {flaggedIds.size}
+              </span>
             )}
           </div>
 
