@@ -30,6 +30,7 @@ const MCQ_MODES = new Set([
   "vignettes",
   "matching",
   "DSM5",
+  "bookmarks",
 ]);
 
 const TABLE_PATHS = {

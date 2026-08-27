@@ -1849,3 +1849,113 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   padding-left: var(--s3);
   border-left: 3px solid var(--accent);
 }
+
+/* ═══ MCQ BOOKMARKING & REVIEW EXTENSIONS ═════════════════════ */
+
+.mcq-quality-btn.bookmark {
+  color: var(--ink-3);
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.mcq-quality-btn.bookmark:hover {
+  color: var(--due, #c08a3e);
+  border-color: var(--due, #c08a3e);
+}
+
+.mcq-quality-btn.bookmark.active {
+  color: var(--due, #c08a3e);
+  border-color: var(--due, #c08a3e);
+  background: var(--due-quiet, rgba(192, 138, 62, 0.18));
+}
+
+.review-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+
+.review-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--rule-strong);
+  background: var(--field);
+  color: var(--ink-2);
+  font-family: var(--ui);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.review-filter-pill:hover {
+  color: var(--ink);
+  background: var(--raised);
+  border-color: var(--ink-3);
+}
+
+.review-filter-pill.active {
+  background: var(--stock);
+  color: var(--stock-ink);
+  border-color: var(--stock);
+}
+
+.review-q-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: var(--s3);
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  margin-bottom: var(--s5);
+}
+
+.review-q-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  font-family: var(--code);
+  font-size: var(--t-micro);
+  font-weight: 700;
+  border: 1px solid var(--rule);
+  background: var(--ground);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.review-q-chip:hover {
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+
+.review-q-chip.correct {
+  border-color: var(--pass);
+  background: var(--pass-quiet);
+  color: var(--pass);
+}
+
+.review-q-chip.incorrect {
+  border-color: var(--mark);
+  background: var(--mark-quiet);
+  color: var(--mark);
+}
+
+.review-q-chip.unanswered {
+  border-color: var(--rule-strong);
+  background: var(--raised);
+  color: var(--ink-3);
+}
+
+.review-q-chip.current {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}

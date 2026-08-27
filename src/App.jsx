@@ -631,6 +631,7 @@ function createEmptyMcqProgress() {
     sprintSessions: [],
     writtenExamSessions: [],
     writtenExamDraft: null,
+    bookmarks: {},
     vignettes: { completed: {}, updatedAt: null },
     updatedAt: null,
   };
@@ -650,6 +651,9 @@ function normalizeMcqProgress(progress) {
     sprintSessions: Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [],
     writtenExamSessions: Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [],
     writtenExamDraft: normalizeWrittenExamDraft(progress.writtenExamDraft),
+    bookmarks: progress.bookmarks && typeof progress.bookmarks === "object"
+      ? Object.fromEntries(Object.entries(progress.bookmarks).filter(([, v]) => Boolean(v)))
+      : {},
     vignettes: {
       completed: progress.vignettes?.completed && typeof progress.vignettes.completed === "object"
         ? progress.vignettes.completed
@@ -2204,7 +2208,15 @@ function ensureDailyChallenge(progress, dateKey = getLocalDateKey(), qualitySign
   };
 }
 
+function selectBookmarkedQuestions(progress, allQuestions = QUESTIONS) {
+  const bookmarks = progress?.bookmarks || {};
+  return allQuestions.filter(question => Boolean(bookmarks[question.id] || bookmarks[String(question.id)]));
+}
+
 function getSessionQuestions(mode, progress, qualitySignals = {}) {
+  if (mode === "bookmarks") {
+    return selectBookmarkedQuestions(progress);
+  }
   if (mode === "daily") {
     return createDailyChallenge(progress, getLocalDateKey(), qualitySignals).questionIds
       .map(id => QUESTIONS.find(question => question.id === id))
@@ -2979,18 +2991,16 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
-      detail: `${plural(mcqProgressSummary.total, "ερώτηση", "ερωτήσεις")} · ${mcqProgressSummary.mastered} mastered`,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
-      detail: `${plural(oralProgressSummary.total, "θέμα", "θέματα")} · ${oralProgressSummary.mastered} mastered`,
     },
     {
       id: 'sos',
       icon: <Icons.Bolt />,
-      title: 'SOS Ψυχιατρικής',
+      title: 'SOS',
     },
     {
       id: 'pinakakia',
@@ -3198,13 +3208,13 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 
   const modes = [
     { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: `Γρήγορο τεστ ${SPRINT_SESSION_SIZE} ερωτήσεων.` },
-    { id: 'daily', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Οι ερωτήσεις που έχεις χάσει ή έχεις σε επανάληψη.' },
     { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Τυχαία επιλογή από όλη την τράπεζα ερωτήσεων.' },
     { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: 'Επίλεξε μία από τις 21 κατηγορίες για εξάσκηση.' },
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση 100 Πολλαπλής', detail: 'Πλήρης γραπτή εξέταση, με δυνατότητα συνέχισης.' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: 'Πλήρης γραπτή εξέταση 100 ερωτήσεων.' },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Κύκλος επανάληψης σημειωμένων ερωτήσεων.' },
     { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια σε ενιαία εκφώνηση.' },
     { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Συνδύασε όρους και ορισμούς.' },
-    { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR', detail: 'Αυτοεξέταση πάνω στα κριτήρια DSM-5-TR.' },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Οι ερωτήσεις που έχεις χάσει ή έχεις σε επανάληψη.' },
   ];
 
   const renderModes = () => (
@@ -4261,6 +4271,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
   const [reviewWrittenAll, setReviewWrittenAll] = useState(false);
   const [writtenReviewIndex, setWrittenReviewIndex] = useState(0);
+  const [writtenReviewFilter, setWrittenReviewFilter] = useState("all");
   const [writtenWrongFullItem, setWrittenWrongFullItem] = useState(null);
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
@@ -4422,6 +4433,26 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     return () => window.cancelAnimationFrame(frame);
   }, [isLocked, mode, q?.id]);
 
+  const toggleBookmark = (questionId = q?.id) => {
+    if (!questionId) return;
+    const current = Boolean(progress?.bookmarks?.[questionId] || progress?.bookmarks?.[String(questionId)]);
+    onProgressChange?.(previous => {
+      const base = normalizeMcqProgress(previous);
+      const nextBookmarks = { ...base.bookmarks };
+      if (current) {
+        delete nextBookmarks[questionId];
+        delete nextBookmarks[String(questionId)];
+      } else {
+        nextBookmarks[questionId] = true;
+      }
+      return {
+        ...base,
+        bookmarks: nextBookmarks,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
   const goToNextQuestion = useCallback(() => {
     setCurrentIdx(nextIdx);
   }, [nextIdx]);
@@ -4548,10 +4579,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         subtopic: firstQuestionField(feedbackQuestion, ["subtopic", "subTopic", "sub_topic"]),
         feedbackComment: normalizedComment,
       });
+      setFeedbackStatus({
+        type: "success",
+        message: feedbackType === "comment"
+          ? "Το σχόλιο καταχωρήθηκε."
+          : feedbackType === MCQ_QUALITY_FEEDBACK.up
+            ? "Καταγράφηκε ως καλή ερώτηση."
+            : feedbackType === MCQ_QUALITY_FEEDBACK.down
+              ? "Καταγράφηκε ως προβληματική ερώτηση."
+              : "Η παρατήρηση καταχωρήθηκε.",
+      });
       setFeedbackMenuOpen(false);
       setFeedbackCommentOpen(false);
       setFeedbackCommentText("");
-      setFeedbackStatus({ type: "success", message: "Το σχόλιο αποθηκεύτηκε." });
     } catch (error) {
       console.error("MCQ feedback save failed", error);
       setFeedbackStatus({ type: "error", message: getMcqFeedbackErrorMessage(error) });
@@ -4655,6 +4695,15 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         disabled={Boolean(feedbackSavingType)}
       >
         <Icons.ThumbsDown />
+      </button>
+      <button
+        type="button"
+        className={`mcq-quality-btn bookmark ${Boolean(progress?.bookmarks?.[feedbackQuestion.id] || progress?.bookmarks?.[String(feedbackQuestion.id)]) ? "active" : ""}`}
+        title={Boolean(progress?.bookmarks?.[feedbackQuestion.id] || progress?.bookmarks?.[String(feedbackQuestion.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
+        aria-label={Boolean(progress?.bookmarks?.[feedbackQuestion.id] || progress?.bookmarks?.[String(feedbackQuestion.id)]) ? "Αφαίρεση από τα σημειωμένα" : "Προσθήκη στα σημειωμένα"}
+        onClick={() => toggleBookmark(feedbackQuestion.id)}
+      >
+        <Icons.Bookmark filled={Boolean(progress?.bookmarks?.[feedbackQuestion.id] || progress?.bookmarks?.[String(feedbackQuestion.id)])} />
       </button>
     </div>
   );
@@ -4892,12 +4941,22 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }
 
   if (mode === "written" && writtenResult && reviewWrittenAll) {
-    const reviewItems = writtenResult.items || [];
-    const reviewItem = reviewItems[writtenReviewIndex] || reviewItems[0];
+    const allReviewItems = writtenResult.items || [];
+    const filteredReviewItems = allReviewItems.filter(item => {
+      if (writtenReviewFilter === "wrong") return item.selected !== item.question.correct && item.selected !== undefined && item.selected !== null;
+      if (writtenReviewFilter === "correct") return item.selected === item.question.correct;
+      if (writtenReviewFilter === "unanswered") return item.selected === undefined || item.selected === null;
+      if (writtenReviewFilter === "bookmarked") return Boolean(progress?.bookmarks?.[item.question.id] || progress?.bookmarks?.[String(item.question.id)]);
+      return true;
+    });
+
+    const safeReviewIndex = Math.min(writtenReviewIndex, Math.max(0, filteredReviewItems.length - 1));
+    const reviewItem = filteredReviewItems[safeReviewIndex] || filteredReviewItems[0];
+    const bookmarkedCount = allReviewItems.filter(item => Boolean(progress?.bookmarks?.[item.question.id] || progress?.bookmarks?.[String(item.question.id)])).length;
 
     return (
       <div className="test-container written-review">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 20 }}>
           <button
             className="back-link"
             style={{ marginBottom: 0 }}
@@ -4912,33 +4971,111 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <Icons.ChevronLeft /> Αποτελέσματα
           </button>
         </div>
-        <h2>Όλες οι απαντήσεις</h2>
+
+        <div className="sheet-head" style={{ marginBottom: "var(--s4)" }}>
+          <div className="sheet-head-text">
+            <span className="sheet-eyebrow">Ανασκόπηση Προσομοίωσης</span>
+            <h2>Ανάλυση Ερωτήσεων</h2>
+          </div>
+        </div>
+
+        <div className="review-filter-bar">
+          <button
+            type="button"
+            className={`review-filter-pill ${writtenReviewFilter === "all" ? "active" : ""}`}
+            onClick={() => { setWrittenReviewFilter("all"); setWrittenReviewIndex(0); }}
+          >
+            Όλες ({allReviewItems.length})
+          </button>
+          <button
+            type="button"
+            className={`review-filter-pill ${writtenReviewFilter === "wrong" ? "active" : ""}`}
+            onClick={() => { setWrittenReviewFilter("wrong"); setWrittenReviewIndex(0); }}
+          >
+            <Icons.X /> Λάθη ({writtenResult.wrong})
+          </button>
+          <button
+            type="button"
+            className={`review-filter-pill ${writtenReviewFilter === "correct" ? "active" : ""}`}
+            onClick={() => { setWrittenReviewFilter("correct"); setWrittenReviewIndex(0); }}
+          >
+            <Icons.Check /> Σωστές ({writtenResult.correct})
+          </button>
+          {writtenResult.unanswered > 0 && (
+            <button
+              type="button"
+              className={`review-filter-pill ${writtenReviewFilter === "unanswered" ? "active" : ""}`}
+              onClick={() => { setWrittenReviewFilter("unanswered"); setWrittenReviewIndex(0); }}
+            >
+              Αναπάντητες ({writtenResult.unanswered})
+            </button>
+          )}
+          <button
+            type="button"
+            className={`review-filter-pill ${writtenReviewFilter === "bookmarked" ? "active" : ""}`}
+            onClick={() => { setWrittenReviewFilter("bookmarked"); setWrittenReviewIndex(0); }}
+          >
+            <Icons.Bookmark filled={writtenReviewFilter === "bookmarked"} /> Σημειωμένες ({bookmarkedCount})
+          </button>
+        </div>
+
+        <div className="review-q-grid">
+          {allReviewItems.map((item, idx) => {
+            const isCorrect = item.selected === item.question.correct;
+            const isUnanswered = item.selected === undefined || item.selected === null;
+            const isItemInFilter = filteredReviewItems.includes(item);
+            const isCurrent = reviewItem && reviewItem.question.id === item.question.id;
+            const statusClass = isUnanswered ? "unanswered" : isCorrect ? "correct" : "incorrect";
+
+            return (
+              <button
+                key={item.question.id}
+                type="button"
+                className={`review-q-chip ${statusClass} ${isCurrent ? "current" : ""}`}
+                style={{ opacity: isItemInFilter ? 1 : 0.35 }}
+                title={`Ερώτηση ${idx + 1} (${isUnanswered ? "Αναπάντητη" : isCorrect ? "Σωστή" : "Λάθος"})`}
+                onClick={() => {
+                  const targetFilteredIdx = filteredReviewItems.indexOf(item);
+                  if (targetFilteredIdx >= 0) {
+                    setWrittenReviewIndex(targetFilteredIdx);
+                  } else {
+                    setWrittenReviewFilter("all");
+                    setWrittenReviewIndex(idx);
+                  }
+                }}
+              >
+                {idx + 1}
+              </button>
+            );
+          })}
+        </div>
+
         {reviewItem ? (
           <>
             {renderLockedWrittenQuestion(reviewItem)}
-            <div className="structured-actions">
+            <div className="structured-actions" style={{ marginTop: "var(--s4)" }}>
               <button
                 className="nav-btn"
                 onClick={() => setWrittenReviewIndex(index => Math.max(0, index - 1))}
-                disabled={writtenReviewIndex === 0}
+                disabled={safeReviewIndex === 0}
               >
-                <Icons.ChevronLeft />
+                <Icons.ChevronLeft /> Προηγούμενη
               </button>
               <span className="structured-progress">
-                {writtenReviewIndex + 1}/{reviewItems.length}
+                {safeReviewIndex + 1} / {filteredReviewItems.length}
               </span>
               <button
                 className="nav-btn"
-                onClick={() => setWrittenReviewIndex(index => Math.min(reviewItems.length - 1, index + 1))}
-                disabled={writtenReviewIndex >= reviewItems.length - 1}
+                onClick={() => setWrittenReviewIndex(index => Math.min(filteredReviewItems.length - 1, index + 1))}
+                disabled={safeReviewIndex >= filteredReviewItems.length - 1}
               >
-                <Icons.ChevronRight />
+                Επόμενη <Icons.ChevronRight />
               </button>
             </div>
           </>
         ) : (
           <div className="explanation-box">
-            <strong>Δεν υπάρχουν απαντήσεις</strong>
+            <strong>Δεν υπάρχουν ερωτήσεις στο επιλεγμένο φίλτρο</strong>
           </div>
         )}
       </div>
@@ -5138,6 +5275,32 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }
 
   if (!q) {
+    if (mode === "bookmarks") {
+      return (
+        <div className="test-container">
+          <button className="back-link" onClick={onBack}>
+            <Icons.ChevronLeft /> Μενού MCQ
+          </button>
+          <div className="sheet-head" style={{ marginTop: "var(--s3)" }}>
+            <div className="sheet-head-text">
+              <span className="sheet-eyebrow">Πολλαπλής Επιλογής</span>
+              <h2>Σημειωμένες Ερωτήσεις</h2>
+              <span className="sheet-sub">Δεν υπάρχουν ακόμα σημειωμένες ερωτήσεις</span>
+            </div>
+          </div>
+          <div className="explanation-box" style={{ marginTop: "var(--s4)" }}>
+            <strong>Πώς λειτουργεί:</strong>
+            Κατά τη διάρκεια οποιουδήποτε τεστ (Mini-test, Τυχαία, Προσομοίωση, κλπ) ή κατά την ανασκόπηση, πάτησε το κουμπί σελιδοδείκτη (<Icons.Bookmark filled style={{ verticalAlign: "middle" }} />) για να προσθέσεις μία ερώτηση στις σημειωμένες.
+          </div>
+          <div className="results-actions" style={{ marginTop: "var(--s5)" }}>
+            <button className="results-btn primary" onClick={onBack}>
+              Επιστροφή στο Μενού MCQ
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="test-container">
         <button className="back-link" onClick={onBack}>
@@ -6460,7 +6623,7 @@ const CRASH_COURSE_CHAPTER_TITLES = {
   32: "Δικαστική Ψυχιατρική & Επικινδυνότητα",
 };
 
-function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate, referenceSources }) {
+function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter = null, onNavigate, referenceSources, isAdmin = false, onOpenDsm5 }) {
   const [screen, setLocalScreen] = useState(routeScreen);
   const [sourceKey, setSourceKey] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(routeChapter);
@@ -6688,6 +6851,17 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             </span>
             <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
+          {isAdmin && (
+            <button className="hub-row" onClick={() => onOpenDsm5?.()}>
+              <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
+              <span className="hub-row-body">
+                <span className="hub-row-title">DSM-5-TR Self-Exam (Admin)</span>
+                <span className="hub-row-detail">Ερωτήσεις αυτοεξέτασης βασισμένες στα διαγνωστικά κριτήρια DSM-5-TR.</span>
+                <span className="hub-row-stat">528 ερωτήσεις</span>
+              </span>
+              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
+            </button>
+          )}
         </div>
       </>
     );
@@ -6916,7 +7090,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       <div className="sheet-head">
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
-          <h2>SOS Ψυχιατρικής</h2>
+          <h2>SOS</h2>
           <span className="sheet-sub">Γρήγορη ανάκληση λίγο πριν την εξέταση</span>
         </div>
         <div className="sheet-head-actions">
@@ -6988,12 +7162,12 @@ function SosHighYieldTables({ tables, sosProgress, onToggleMastery, onBack, onHo
     <div className="sos-screen">
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Ψυχιατρικής
+          <Icons.ChevronLeft /> SOS
         </button>
       </div>
       <div className="sheet-head">
         <div className="sheet-head-text">
-          <span className="sheet-eyebrow">SOS Ψυχιατρικής</span>
+          <span className="sheet-eyebrow">SOS</span>
           <h2>Γρήγορα SOS</h2>
         </div>
       </div>
@@ -7272,10 +7446,46 @@ function DifferentialDiagnosisCard({ entry }) {
 function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώρηση", "καταχωρήσεις"], countNoun = ["καταχώρηση", "καταχωρήσεις"] }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [query, setQuery] = useState("");
+  const [viewMode, setViewMode] = useState("list"); // "list" | "flashcards"
+  const [drillIndex, setDrillIndex] = useState(0);
+  const [showDrillAnswer, setShowDrillAnswer] = useState(false);
+  const [shuffledEntries, setShuffledEntries] = useState(() => entries);
+  const [showMasteredInDrill, setShowMasteredInDrill] = useState(true);
+
   const normalizedProgress = normalizeSosProgress(sosProgress);
   const mastered = normalizedProgress.mastered[section] || {};
   const summary = summarizeSosProgress(normalizedProgress, section, entries);
   const selectedEntry = Number.isInteger(selectedIndex) ? entries[selectedIndex] : null;
+
+  const drillList = useMemo(() => {
+    return showMasteredInDrill
+      ? shuffledEntries
+      : shuffledEntries.filter(item => !mastered[item.id]);
+  }, [mastered, showMasteredInDrill, shuffledEntries]);
+
+  const currentDrillEntry = drillList[drillIndex] || drillList[0];
+
+  useEffect(() => {
+    if (drillIndex >= drillList.length) setDrillIndex(Math.max(0, drillList.length - 1));
+  }, [drillIndex, drillList.length]);
+
+  const reshuffleDrill = () => {
+    setShuffledEntries(shuffleItems(entries));
+    setDrillIndex(0);
+    setShowDrillAnswer(false);
+  };
+
+  const navigateDrill = (nextIndex) => {
+    if (nextIndex < 0 || nextIndex >= drillList.length) return;
+    setDrillIndex(nextIndex);
+    setShowDrillAnswer(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const toggleDrillMastery = (nextMastered) => {
+    if (!currentDrillEntry) return;
+    onToggleMastery(section, currentDrillEntry.id, nextMastered);
+  };
 
   // Keep the original index so numbering and prev/next stay stable while filtering.
   const visibleEntries = useMemo(() => {
@@ -7333,12 +7543,12 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
     <div className="sos-screen">
       <div className="screen-topbar">
         <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> SOS Ψυχιατρικής
+          <Icons.ChevronLeft /> SOS
         </button>
       </div>
       <div className="sheet-head">
         <div className="sheet-head-text">
-          <span className="sheet-eyebrow">SOS Ψυχιατρικής</span>
+          <span className="sheet-eyebrow">SOS</span>
           <h2>{title}</h2>
         </div>
         <div className="sheet-head-actions">
@@ -7346,57 +7556,135 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
         </div>
       </div>
 
-      <div className="oral-index-controls">
-        <div className="oral-search">
-          <input
-            type="search"
-            value={query}
-            onChange={event => setQuery(event.target.value)}
-            placeholder={`Αναζήτηση σε ${plural(entries.length, searchNoun[0], searchNoun[1])}…`}
-            aria-label={`Αναζήτηση σε ${title}`}
-          />
-        </div>
-        <div className="oral-index-count">
-          {visibleEntries.length === entries.length
-            ? plural(entries.length, countNoun[0], countNoun[1])
-            : `${visibleEntries.length} από ${plural(entries.length, countNoun[0], countNoun[1])}`}
+      <div className="diff-entities-bar" style={{ marginBottom: "var(--s4)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span className="diff-entities-label">Λειτουργία Προβολής:</span>
+        <div style={{ display: "flex", gap: "var(--s1)" }}>
+          <button
+            type="button"
+            className={`btn btn-sm ${viewMode === "list" ? "primary" : "btn-quiet"}`}
+            style={{ padding: "4px 10px", fontSize: "var(--t-micro)", minHeight: 30 }}
+            onClick={() => setViewMode("list")}
+          >
+            <Icons.Table /> Λίστα
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${viewMode === "flashcards" ? "primary" : "btn-quiet"}`}
+            style={{ padding: "4px 10px", fontSize: "var(--t-micro)", minHeight: 30 }}
+            onClick={() => { setViewMode("flashcards"); setDrillIndex(0); setShowDrillAnswer(false); }}
+          >
+            <Icons.Bolt /> Flashcards
+          </button>
         </div>
       </div>
 
-      {visibleEntries.length === 0 ? (
-        <div className="state">
-          <span className="state-title">Καμία αντιστοίχιση</span>
-          <span className="state-body">Δεν βρέθηκε καταχώρηση για «{query}».</span>
-          <button type="button" className="btn btn-quiet btn-sm" onClick={() => setQuery("")}>
-            Καθαρισμός αναζήτησης
-          </button>
-        </div>
-      ) : (
-        <div className="items">
-          {visibleEntries.map(({ entry, index }) => {
-            const entryMastered = Boolean(mastered[entry.id]);
-            return (
-              <div className="item" key={entry.id}>
-                <span className="item-num">{String(index + 1).padStart(2, "0")}</span>
-                <button
-                  className="item-body sos-list-open"
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                >
-                  <span className="item-title">{entry.title}</span>
-                </button>
-                <span className="item-side">
-                  <ScaleStrip
-                    level={entryMastered ? 1 : 0}
-                    max={1}
-                    label="Κατοχή"
-                    onSet={next => onToggleMastery(section, entry.id, next === 1)}
-                  />
-                </span>
+      {viewMode === "flashcards" ? (
+        <>
+          <div className="sos-focus-toolbar">
+            <div className="sos-focus-toggles">
+              <label className="sos-check-control">
+                <input type="checkbox" checked={showMasteredInDrill} onChange={event => { setShowMasteredInDrill(event.target.checked); setDrillIndex(0); setShowDrillAnswer(false); }} />
+                Εμφάνιση mastered
+              </label>
+              <span className="oral-progress-pill">{summary.mastered}/{summary.total} mastered</span>
+            </div>
+            <button className="sos-shuffle-btn" type="button" onClick={reshuffleDrill}>Ανακάτεμα</button>
+          </div>
+
+          {!currentDrillEntry ? (
+            <div className="sos-focus-empty">
+              <strong>Όλες οι κάρτες έχουν κατακτηθεί.</strong>
+              <span>Ενεργοποίησε την εμφάνιση mastered για επανάληψη.</span>
+            </div>
+          ) : (
+            <>
+              <div className="sos-focus-meta">
+                <span>Κάρτα {drillIndex + 1} / {drillList.length}</span>
+                <span>{showDrillAnswer ? "Απάντηση" : "Ερώτηση / Θέμα"}</span>
               </div>
-            );
-          })}
-        </div>
+              <section className="sos-focus-card" aria-live="polite">
+                <div className="sos-card-kicker">{title}</div>
+                <div className="sos-focus-prompt" style={{ fontWeight: 700 }}>{currentDrillEntry.title}</div>
+                {showDrillAnswer ? (
+                  <div className="sos-focus-answer">
+                    {renderAnswer ? renderAnswer(currentDrillEntry) : currentDrillEntry.answer}
+                  </div>
+                ) : (
+                  <button className="sos-focus-reveal" type="button" onClick={() => setShowDrillAnswer(true)}>
+                    Εμφάνιση ανάλυσης
+                  </button>
+                )}
+                <label className={`sos-check-control ${mastered[currentDrillEntry.id] ? "mastered" : ""}`}>
+                  <input type="checkbox" checked={Boolean(mastered[currentDrillEntry.id])} onChange={event => toggleDrillMastery(event.target.checked)} />
+                  Mastered
+                </label>
+              </section>
+              <div className="sos-focus-nav">
+                <button type="button" onClick={() => navigateDrill(drillIndex - 1)} disabled={drillIndex === 0}>
+                  <Icons.ChevronLeft /> Προηγούμενη
+                </button>
+                <button type="button" onClick={() => navigateDrill(drillIndex + 1)} disabled={drillIndex === drillList.length - 1}>
+                  Επόμενη <Icons.ChevronRight />
+                </button>
+              </div>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="oral-index-controls">
+            <div className="oral-search">
+              <input
+                type="search"
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder={`Αναζήτηση σε ${plural(entries.length, searchNoun[0], searchNoun[1])}…`}
+                aria-label={`Αναζήτηση σε ${title}`}
+              />
+            </div>
+            <div className="oral-index-count">
+              {visibleEntries.length === entries.length
+                ? plural(entries.length, countNoun[0], countNoun[1])
+                : `${visibleEntries.length} από ${plural(entries.length, countNoun[0], countNoun[1])}`}
+            </div>
+          </div>
+
+          {visibleEntries.length === 0 ? (
+            <div className="state">
+              <span className="state-title">Καμία αντιστοίχιση</span>
+              <span className="state-body">Δεν βρέθηκε καταχώρηση για «{query}».</span>
+              <button type="button" className="btn btn-quiet btn-sm" onClick={() => setQuery("")}>
+                Καθαρισμός αναζήτησης
+              </button>
+            </div>
+          ) : (
+            <div className="items">
+              {visibleEntries.map(({ entry, index }) => {
+                const entryMastered = Boolean(mastered[entry.id]);
+                return (
+                  <div className="item" key={entry.id}>
+                    <span className="item-num">{String(index + 1).padStart(2, "0")}</span>
+                    <button
+                      className="item-body sos-list-open"
+                      type="button"
+                      onClick={() => setSelectedIndex(index)}
+                    >
+                      <span className="item-title">{entry.title}</span>
+                    </button>
+                    <span className="item-side">
+                      <ScaleStrip
+                        level={entryMastered ? 1 : 0}
+                        max={1}
+                        label="Κατοχή"
+                        onSet={next => onToggleMastery(section, entry.id, next === 1)}
+                      />
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -8319,6 +8607,8 @@ export default function App() {
             routeScreen={route.tableScreen}
             routeChapter={route.tableChapter}
             referenceSources={referenceSources}
+            isAdmin={isAdmin}
+            onOpenDsm5={() => startMcqMode('DSM5')}
             onNavigate={(nextScreen, chapter, options = {}) => navigate(
               pathForTableScreen(nextScreen, chapter),
               { ...options, state: nextScreen === "viewer" ? { tableViewer: true } : null }
