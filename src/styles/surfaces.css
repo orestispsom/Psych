@@ -308,18 +308,17 @@
   display: flex; align-items: center; justify-content: center;
   text-align: center;
   min-height: 136px; padding: var(--s5);
-  background: linear-gradient(145deg, #eaf6ff 0%, #d9edfb 100%);
-  border: 1px solid #9ec7df;
-  border-top: 4px solid #2b85b9;
+  background: #e1f0fa;
+  border: 1px solid #a9c7d7;
   border-radius: var(--r-lg);
   color: #17324a;
-  box-shadow: 0 8px 18px -13px rgba(33, 85, 119, 0.58), 0 2px 5px -3px rgba(33, 85, 119, 0.34);
+  box-shadow: 0 5px 12px -10px rgba(33, 85, 119, 0.38), 0 1px 3px -2px rgba(33, 85, 119, 0.22);
   transition: background 0.12s var(--ease), border-color 0.12s var(--ease), box-shadow 0.12s var(--ease), transform 0.12s var(--ease);
 }
 .mcq-hub .mode-tile:hover {
-  background: #cde8fa;
-  border-color: #5c9fc7;
-  box-shadow: 0 14px 24px -16px rgba(33, 85, 119, 0.72), 0 4px 9px -5px rgba(33, 85, 119, 0.38);
+  background: #d5eaf6;
+  border-color: #7faec7;
+  box-shadow: 0 9px 18px -13px rgba(33, 85, 119, 0.48), 0 3px 6px -4px rgba(33, 85, 119, 0.26);
   transform: translateY(-2px);
 }
 .mcq-hub .mode-tile:focus-visible { outline-color: #1f6f9c; }
