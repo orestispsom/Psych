@@ -245,3 +245,26 @@ All answer keys, option order, and option counts were preserved.
 ### Next batch
 
 IDs 1,101–1,200.
+
+## Batch 012 — IDs 1,101–1,200
+
+Status: reviewed on 2026-08-27.
+
+### Applied high-confidence corrections
+
+- IDs 1101, 1120, 1121, 1123, 1152, 1162, 1163, 1170, 1182, 1194, and 1197: expanded or naturalised clinical acronyms and terminology (`SSRIs`, `CBT`, `Stevens–Johnson`, `SJS`, `bonding`, `washout`, `operant conditioning`, `TCA`, `DBT`) in learner-facing explanatory prose and stems.
+- IDs 1138, 1139, 1140, and 1141: expanded `ECT` in biological-treatment question stems to `ηλεκτροσπασμοθεραπεία (ECT)`.
+- IDs 1177, 1178, and 1190: translated and naturalised psychometric and neurological test and disease options (`Draw-a-person`, `MMPI`, `sentence completion`, `TAT`, `Rorschach`, `Halstead–Reitan`, `Trail Making Test`, `myasthenia gravis`).
+- IDs 1179, 1183, 1184, 1188, and 1199: replaced hybrid or untranslated medical terms (`ALS`, `spike-and-wave/EEG`, `REM`, `hamartomas/café-au-lait`, `affect`) with established Greek clinical phrasing.
+
+All answer keys, option order, and option counts were preserved.
+
+### Question-quality review — unchanged pending adjudication
+
+- ID 1132: the keyed response rate (`~30%`) for clozapine in treatment-resistant schizophrenia is the classic Kane (1988) benchmark; modern literature and guidelines often report broader ranges (30–60%) depending on criteria, but the classic exam key was left unchanged.
+- IDs 1138 and 1139: the twice-weekly ECT schedule and 3–8 weeks duration represent standard UK/European practice (Shorter Oxford), whereas North American protocols often use 3 times weekly; the questions reflect their British/European source frame.
+
+### Next batch
+
+IDs 1,201–1,300.
+
