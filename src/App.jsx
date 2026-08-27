@@ -6993,6 +6993,34 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     setQuery("");
   };
 
+  const [showJumper, setShowJumper] = useState(false);
+
+  useWindowKeydown(event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable ||
+        target.tagName === "BUTTON")
+    ) {
+      return;
+    }
+    if (screen === "viewer" && viewer) {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goViewerNext();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goViewerPrev();
+      } else if (event.key === "r" || event.key === "R" || event.key === " ") {
+        event.preventDefault();
+        goViewerRandom();
+      }
+    }
+  });
+
   const goViewerPrev = () => {
     if (!viewer) return;
     if (viewer.randomMode) {
@@ -7251,11 +7279,53 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     return renderShell(
       <div className="pinakakia-viewer">
         <div className="pinakakia-viewer-meta">
-          <span>{box.source || sourceLabel}</span>
-          <span>Box {box.boxNumber}</span>
-          {box.chapter && <span>Κεφάλαιο {box.chapter}{chapterName ? ` (${chapterName})` : ""}</span>}
-          {box.page && <span>pg. {box.page}</span>}
+          <button
+            type="button"
+            className="oral-q-jumper-btn"
+            onClick={() => setShowJumper(open => !open)}
+            title="Άμεση μετάβαση σε οποιοδήποτε πινακάκιο"
+          >
+            <span>Box {box.boxNumber} ({viewer.index + 1} / {viewer.boxes.length})</span>
+            <span className="oral-jumper-caret">▼</span>
+          </button>
+          <div style={{ display: "flex", gap: "var(--s3)", alignItems: "center" }}>
+            <span>{box.source || sourceLabel}</span>
+            {box.chapter && <span>Κεφ. {box.chapter}{chapterName ? ` (${chapterName})` : ""}</span>}
+            {box.page && <span>pg. {box.page}</span>}
+          </div>
         </div>
+
+        {showJumper && (
+          <div className="oral-jumper-overlay" role="dialog" aria-modal="true" onClick={() => setShowJumper(false)}>
+            <div className="oral-jumper-card" onClick={e => e.stopPropagation()}>
+              <div className="oral-jumper-head">
+                <strong>Πλοηγός: {sourceLabel} ({viewer.boxes.length})</strong>
+                <button type="button" className="nav-btn" onClick={() => setShowJumper(false)}>Κλείσιμο</button>
+              </div>
+              <div className="oral-jumper-list">
+                {viewer.boxes.map((item, idx) => {
+                  const isCurrent = idx === viewer.index;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
+                      onClick={() => {
+                        setViewer({ ...viewer, index: idx });
+                        setShowJumper(false);
+                      }}
+                    >
+                      <span className="oral-jumper-num">Box {item.boxNumber}</span>
+                      <span className="oral-jumper-text">{item.title}</span>
+                      {item.page && <span style={{ fontSize: "11px", color: "var(--ink-3)", flex: "none" }}>p. {item.page}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className={`pinakakia-book-box ${viewer.sourceKey}`}>
           <div className="pinakakia-book-header">
             <span className="pinakakia-book-header-num">Box {box.boxNumber}</span>
@@ -7285,7 +7355,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             <Icons.ChevronLeft /> Προηγούμενο
           </button>
           <button className="nav-btn primary" onClick={goViewerRandom}>
-            Τυχαίο
+            Τυχαίο (R)
           </button>
           <button className="nav-btn" onClick={goViewerNext} disabled={!canGoNext}>
             Επόμενο <Icons.ChevronRight />
@@ -9136,7 +9206,7 @@ export default function App() {
             routeScreen={route.tableScreen}
             routeChapter={route.tableChapter}
             referenceSources={referenceSources}
-            isAdmin={isAdmin}
+            isAdmin={hasAdminAccess}
             onOpenDsm5={() => startMcqMode('DSM5')}
             onNavigate={(nextScreen, chapter, options = {}) => navigate(
               pathForTableScreen(nextScreen, chapter),
