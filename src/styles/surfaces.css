@@ -733,8 +733,11 @@
 
 .question-stem, .DSM5-question-stem, .structured-question,
 .wrong-question-stem, .written-full-question {
-  font-size: var(--t-read);
-  line-height: 1.6;
+  font-family: var(--ui);
+  font-size: 16.5px;
+  font-weight: 450;
+  line-height: 1.58;
+  letter-spacing: -0.01em;
   max-width: var(--measure-item);
   color: var(--ink);
 }
@@ -749,7 +752,7 @@
 .mcq-session-question { display: inline-block; min-width: 4.5ch; }
 
 .options-list, .DSM5-options, .structured-options, .sticky-choices {
-  display: grid; gap: var(--s2); margin-top: var(--s4);
+  display: grid; gap: 8px; margin-top: var(--s3);
   /* Held to the stem's own measure: an answer row stretched to the full
      sheet makes the eye travel past the end of short options. */
   max-width: var(--measure-item);
@@ -762,13 +765,17 @@
   grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: flex-start; gap: var(--s3);
   width: 100%; text-align: left;
-  padding: 12px 14px;
-  min-height: 48px;
+  padding: 11px 14px;
+  min-height: 46px;
   background: var(--field);
   border: 1px solid var(--rule-strong);
   border-radius: 8px;
   color: var(--ink);
-  font-size: var(--t-item); line-height: 1.5;
+  font-family: var(--ui);
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 1.48;
+  letter-spacing: -0.005em;
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease), box-shadow 0.12s var(--ease);
 }
 
@@ -890,20 +897,35 @@
 .answer-glyph .icon, .answer-glyph svg { width: 18px; height: 18px; }
 
 /* Readable, well-paced Greek clinical stem and options */
-.test-container .question-stem { font-size: 18px; line-height: 1.6; }
+.test-container .question-stem {
+  font-family: var(--ui);
+  font-size: 16.5px;
+  font-weight: 450;
+  line-height: 1.58;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
 .test-container .options-list {
-  gap: 6px; margin-top: var(--s3);
+  gap: 8px;
+  margin-top: var(--s3);
 }
 .test-container .options-list > button {
-  padding: 11px var(--s3);
+  padding: 11px 14px;
   min-height: 46px;
-  font-size: var(--t-body); line-height: 1.48;
+  font-family: var(--ui);
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 1.48;
+  letter-spacing: -0.005em;
 }
 .test-container .explanation-box {
   max-width: none;
-  margin-top: var(--s4);
+  margin-top: var(--s3);
   padding: var(--s3) var(--s4);
-  font-size: var(--t-body); line-height: 1.65;
+  font-family: var(--ui);
+  font-size: 15px;
+  line-height: 1.62;
+  letter-spacing: 0;
   background: var(--field);
   border: 1px solid var(--rule-strong);
   border-left: 4px solid var(--focus);
@@ -2833,22 +2855,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   height: 5px;
   border-radius: 50%;
   background: var(--due);
-}
-
-/* ─── Question Card Typography & Takeaways ─── */
-.question-stem {
-  font-size: 1.08rem;
-  line-height: 1.6;
-  color: var(--ink);
-  margin-bottom: var(--s4);
-}
-
-.option-btn {
-  padding: 12px 16px;
-  min-height: 48px;
-  font-size: 0.98rem;
-  line-height: 1.45;
-  border-radius: var(--r-md);
 }
 
 .exam-takeaway-card {
