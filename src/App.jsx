@@ -7359,8 +7359,8 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   };
 
   if (screen === "sources") {
-    const oxfordCount = boxesForSource("oxford").length;
-    const crashCount = boxesForSource("crash").length;
+    const oxfordCount = boxesForSource("oxford").length || 258;
+    const crashCount = boxesForSource("crash").length || 41;
     return renderShell(
       <>
         <div className="sheet-head">
@@ -7629,6 +7629,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Γρήγορα SOS",
       section: "high_yield",
       entries: data?.highYieldTables,
+      defaultTotal: 80,
     },
     {
       id: "numbers",
@@ -7636,6 +7637,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Αριθμοί",
       section: "numbers",
       entries: data?.numbers,
+      defaultTotal: 78,
     },
     {
       id: "critical",
@@ -7643,6 +7645,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Κρίσιμα Θέματα",
       section: "critical_topics",
       entries: data?.criticalTopics,
+      defaultTotal: 55,
     },
     {
       id: "differential",
@@ -7650,13 +7653,14 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       title: "Διαφοροδιάγνωση",
       section: "differential_diagnosis",
       entries: data?.differentialDiagnosis,
+      defaultTotal: 20,
     },
   ];
 
-  const overallTotal = sections.reduce((sum, s) => sum + (s.entries?.length || 0), 0);
+  const overallTotal = sections.reduce((sum, s) => sum + (s.entries?.length || s.defaultTotal || 0), 0);
   const overallMastered = sections.reduce((sum, s) => {
     if (!sosProgress) return sum;
-    return sum + summarizeSosProgress(sosProgress, s.section, s.entries || []).mastered;
+    return sum + summarizeSosProgress(sosProgress, s.section, s.entries || null).mastered;
   }, 0);
 
   return (
@@ -7674,10 +7678,10 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
 
       <div className="hub-row-grid">
         {sections.map(section => {
-          const total = section.entries?.length || 0;
           const summary = sosProgress
-            ? summarizeSosProgress(sosProgress, section.section, section.entries || [])
+            ? summarizeSosProgress(sosProgress, section.section, section.entries || null)
             : null;
+          const total = section.entries?.length || section.defaultTotal;
           const mastered = summary?.mastered || 0;
           return (
             <button key={section.id} className="hub-row" onClick={() => onOpenSection(section.id)}>
@@ -8670,7 +8674,7 @@ export default function App() {
   const [questionBankStatus, setQuestionBankStatus] = useState("idle");
   const [questionBankError, setQuestionBankError] = useState(null);
   const [showOpeningRequest, setShowOpeningRequest] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState(DEFAULT_UPDATE_MESSAGE);
+  const [updateMessage, setUpdateMessage] = useState(() => loadLocalUpdateMessage());
   const [updateMessageStatus, setUpdateMessageStatus] = useState(ONLINE_PROFILES_ENABLED ? "loading" : "local");
   // Seeded from local storage even when a remote value will follow: if the
   // remote write ever silently fails (missing table, RLS), this device's
@@ -8981,10 +8985,11 @@ export default function App() {
         const message = await loadRemoteUpdateMessage();
         if (cancelled) return;
         setUpdateMessage(message);
+        saveLocalUpdateMessage(message);
         setUpdateMessageStatus("online");
       } catch {
         if (cancelled) return;
-        setUpdateMessage(DEFAULT_UPDATE_MESSAGE);
+        setUpdateMessage(loadLocalUpdateMessage());
         setUpdateMessageStatus("offline");
       }
     }
