@@ -80,7 +80,7 @@ export default function SupportWidget({ delayMinutes = DEFAULT_DELAY_MIN }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Κέρασέ με έναν καφέ
+        Υποστήριξη
       </a>
     </div>
   );

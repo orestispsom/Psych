@@ -66,20 +66,20 @@
    are always as big as the viewport allows. */
 @media (min-width: 900px) {
   .sheet:has(.home) {
-    padding-top: var(--s4);
-    padding-bottom: var(--s4);
+    padding-top: var(--s6);
+    padding-bottom: var(--s6);
   }
   .home {
-    margin-top: -50px;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
     height: auto;
-    gap: var(--s2);
+    gap: var(--s3);
   }
   .home-modules-section {
     display: flex;
     flex-direction: column;
-    margin-top: var(--s1);
+    margin-top: var(--s2);
   }
 }
 
