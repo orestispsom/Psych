@@ -3327,20 +3327,20 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
         { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
         { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
-        { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
+        { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων', isFeatured: true },
       ]
     },
     {
-      title: "Ειδικές Μορφές Εξετάσεων & Διαγνωστικά",
+      title: "Ειδικές Μορφές Εξετάσεων",
       modes: [
         { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
         { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
-        { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
       ]
     },
     {
-      title: "Στοχευμένη Επανάληψη",
+      title: "Στοχευμένη Επανάληψη & Διαγνωστικά",
       modes: [
+        { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
         { id: 'due', icon: <Icons.RotateCcw />, title: 'Επανάληψη Μνήμης', detail: `${progressSummary.review} ερωτήσεις έτοιμες για επανάληψη` },
         { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
         { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
@@ -6104,33 +6104,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // MCQ hub's own split between "pick a mode" and "the mode itself".
 function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAccessCrucialQuestions, oralProgress }) {
   const overallSummary = summarizeOralProgress(normalizeOralProgress(oralProgress));
+  const percent = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 100) : 0;
   const level = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 5) : 0;
-
-  const modes = [
-    {
-      id: "past",
-      icon: <Icons.BookOpen />,
-      title: "Σημαντικά Θέματα",
-      stat: `${overallSummary.mastered}/${overallSummary.total} mastered`,
-      onOpen: onOpenPast,
-    },
-    {
-      id: "simulator",
-      icon: <Icons.Mic />,
-      title: "Προφορική Εξέταση",
-      stat: "Νέα εξέταση κάθε φορά",
-      onOpen: onOpenSimulator,
-    },
-  ];
-  if (canAccessCrucialQuestions) {
-    modes.push({
-      id: "crucial",
-      icon: <Icons.FileText />,
-      title: "100 Κρίσιμα Θέματα",
-      stat: "100 θέματα σε 16 κεφάλαια",
-      onOpen: onOpenCrucialQuestions,
-    });
-  }
 
   return (
     <div className="oral-container oral-hub-screen">
@@ -6138,33 +6113,70 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
           <h2>Προφορικά</h2>
-          <span className="sheet-sub">Προετοιμασία για την προφορική εξέταση</span>
+          <span className="sheet-sub">Ολοκληρωμένη προετοιμασία για την προφορική εξέταση ειδικότητας</span>
         </div>
         <div className="sheet-head-actions">
           <ScaleStrip size="lg" level={level} label="Πρόοδος προφορικών" />
-          <span className="plate">{overallSummary.mastered}/{overallSummary.total}</span>
+          <span className="plate">{overallSummary.mastered}/{overallSummary.total} ({percent}%)</span>
         </div>
       </div>
 
+      <div className="oral-hero-card" onClick={onOpenSimulator} role="button" tabIndex={0}>
+        <div className="oral-hero-badge">
+          <span className="oral-hero-badge-dot" />
+          <span>Διαδραστική Προσομοίωση</span>
+        </div>
+        <div className="oral-hero-main">
+          <div className="oral-hero-icon" aria-hidden="true"><Icons.Mic /></div>
+          <div className="oral-hero-text">
+            <h3 className="oral-hero-title">Προσομοιωτής Προφορικής Εξέτασης</h3>
+            <p className="oral-hero-desc">
+              Ρεαλιστική προσομοίωση εξέτασης με τυχαία επιλογή κεντρικού θέματος, κλινική ανάλυση και διαδοχικές διευκρινιστικές ερωτήσεις από την επιτροπή.
+            </p>
+          </div>
+        </div>
+        <div className="oral-hero-footer">
+          <span className="oral-hero-meta">✨ Νέα κλινική υπόθεση κάθε φορά</span>
+          <button type="button" className="btn btn-primary btn-sm oral-hero-btn" onClick={(e) => { e.stopPropagation(); onOpenSimulator(); }}>
+            Έναρξη Εξέτασης <Icons.ArrowRight />
+          </button>
+        </div>
+      </div>
+
+      <div className="subscale" style={{ margin: "var(--s5) 0 var(--s3)" }}>
+        <h3 className="subscale-title">Ύλη & Θεματικές Ενότητες</h3>
+        <span className="subscale-rule" />
+      </div>
+
       <div className="oral-hub-grid">
-        {modes.map(mode => (
-          <button key={mode.id} type="button" className="oral-hub-tile" onClick={mode.onOpen}>
-            <span className="oral-hub-icon" aria-hidden="true">{mode.icon}</span>
+        <button type="button" className="oral-hub-tile" onClick={onOpenPast}>
+          <span className="oral-hub-icon" aria-hidden="true"><Icons.BookOpen /></span>
+          <span className="oral-hub-body">
+            <span className="oral-hub-title">Σημαντικά Θέματα Εξετάσεων</span>
+            <span className="oral-hub-stat">
+              {overallSummary.mastered}/{overallSummary.total} mastered ({percent}%)
+            </span>
+            <span className="oral-hub-desc">Περιήγηση ανά κλινική βαρύτητα (Levels 1–5) και κεφάλαιο</span>
+          </span>
+          <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
+        </button>
+
+        {canAccessCrucialQuestions && (
+          <button type="button" className="oral-hub-tile" onClick={onOpenCrucialQuestions}>
+            <span className="oral-hub-icon" aria-hidden="true"><Icons.FileText /></span>
             <span className="oral-hub-body">
-              <span className="oral-hub-title">{mode.title}</span>
-              <span className="oral-hub-stat">{mode.stat}</span>
+              <span className="oral-hub-title">100 Κρίσιμα Θέματα (Admin)</span>
+              <span className="oral-hub-stat">100 θέματα σε 16 κεφάλαια</span>
+              <span className="oral-hub-desc">Εμπεριστατωμένες απαντήσεις υψηλής απόδοσης</span>
             </span>
             <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-        ))}
+        )}
       </div>
     </div>
   );
 }
 
-// The dataset carries raw framework-default hexes. The bands are an ordered
-// severity scale, so they are drawn from the themed ramp instead — which also
-// keeps them legible in both themes.
 function getGravityColor(gravity) {
   const step = Math.min(Math.max(Number(gravity?.id) || 1, 1), 5);
   return `var(--sev-${step})`;
@@ -7631,32 +7643,51 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             )}
           </div>
         ) : (
-          <div className="hub-row-grid">
-            <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-chapters"); }}>
-              <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
-              <span className="hub-row-body">
-                <span className="hub-row-title">Oxford Handbook of Psychiatry</span>
-                <span className="hub-row-stat">{plural(oxfordCount, "πινακάκιο", "πινακάκια")} σε 26 κεφάλαια</span>
-              </span>
-              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-            </button>
-            <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-list"); }}>
-              <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
-              <span className="hub-row-body">
-                <span className="hub-row-title">Crash Course Psychiatry</span>
-                <span className="hub-row-stat">{plural(crashCount, "πινακάκιο", "πινακάκια")} υψηλής απόδοσης</span>
-              </span>
-              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-            </button>
-            {isAdmin && (
-              <button className="hub-row" onClick={() => onOpenDsm5?.()}>
-                <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
-                <span className="hub-row-body">
-                  <span className="hub-row-title">DSM-5-TR Self-Exam (Admin)</span>
-                  <span className="hub-row-stat">528 ερωτήσεις</span>
+          <div className="pinakakia-sources-grid">
+            <div className="pinakakia-source-card oxford" onClick={() => { setSourceKey("oxford"); setScreen("oxford-chapters"); }} role="button" tabIndex={0}>
+              <div className="pinakakia-source-badge">
+                <Icons.BookOpen /> Oxford Handbook
+              </div>
+              <h3 className="pinakakia-source-title">Oxford Handbook of Psychiatry</h3>
+              <p className="pinakakia-source-desc">
+                258 επίσημα πλαίσια αναφοράς, κλινικά κριτήρια, κλίμακες και αλγόριθμοι ταξινομημένα σε 26 κεφάλαια.
+              </p>
+              <div className="pinakakia-source-footer">
+                <span className="pinakakia-source-count">258 πινακάκια · 26 κεφάλαια</span>
+                <span className="pinakakia-source-btn">
+                  Περιήγηση <Icons.ChevronRight />
                 </span>
-                <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-              </button>
+              </div>
+            </div>
+
+            <div className="pinakakia-source-card crash" onClick={() => { setSourceKey("crash"); setScreen("crash-list"); }} role="button" tabIndex={0}>
+              <div className="pinakakia-source-badge">
+                <Icons.FileText /> Crash Course
+              </div>
+              <h3 className="pinakakia-source-title">Crash Course Psychiatry</h3>
+              <p className="pinakakia-source-desc">
+                41 συνοπτικοί πίνακες υψηλής απόδοσης, θεραπευτικά σχήματα και πίνακες διαφοροδιάγνωσης.
+              </p>
+              <div className="pinakakia-source-footer">
+                <span className="pinakakia-source-count">41 πινακάκια υψηλής απόδοσης</span>
+                <span className="pinakakia-source-btn">
+                  Περιήγηση <Icons.ChevronRight />
+                </span>
+              </div>
+            </div>
+
+            {isAdmin && (
+              <div className="pinakakia-source-card admin" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0} style={{ gridColumn: "1 / -1" }}>
+                <div className="pinakakia-source-badge">
+                  <Icons.Table /> DSM-5-TR Self-Exam (Admin)
+                </div>
+                <h3 className="pinakakia-source-title">DSM-5-TR Self-Exam Bank</h3>
+                <p className="pinakakia-source-desc">528 ερωτήσεις αυτοαξιολόγησης ανά διαγνωστικό κεφάλαιο.</p>
+                <div className="pinakakia-source-footer">
+                  <span className="pinakakia-source-count">528 ερωτήσεις</span>
+                  <span className="pinakakia-source-btn">Έναρξη <Icons.ChevronRight /></span>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -7923,6 +7954,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       id: "highyield",
       icon: <Icons.Bolt />,
       title: "Γρήγορα SOS",
+      desc: "Κλινικά high-yield σημεία για άμεση ανάκληση",
       section: "high_yield",
       entries: data?.highYieldTables,
       defaultTotal: 80,
@@ -7930,7 +7962,8 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
     {
       id: "numbers",
       icon: <Icons.FileText />,
-      title: "Αριθμοί",
+      title: "Αριθμοί & Όρια",
+      desc: "Δοσολογίες, χρόνοι ημιζωής, θεραπευτικά παράθυρα & cutoffs",
       section: "numbers",
       entries: data?.numbers,
       defaultTotal: 78,
@@ -7939,6 +7972,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       id: "critical",
       icon: <Icons.Brain />,
       title: "Κρίσιμα Θέματα",
+      desc: "Εξεταστικές παγίδες και SOS διαγνωστικές έννοιες",
       section: "critical_topics",
       entries: data?.criticalTopics,
       defaultTotal: 55,
@@ -7947,6 +7981,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       id: "differential",
       icon: <Icons.Globe />,
       title: "Διαφοροδιάγνωση",
+      desc: "Συγκριτικοί πίνακες & διαγνωστικοί άξονες (DDx)",
       section: "differential_diagnosis",
       entries: data?.differentialDiagnosis,
       defaultTotal: 20,
@@ -7958,35 +7993,44 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
     if (!sosProgress) return sum;
     return sum + summarizeSosProgress(sosProgress, s.section, s.entries || null).mastered;
   }, 0);
+  const overallPercent = overallTotal ? Math.round((overallMastered / overallTotal) * 100) : 0;
 
   return (
     <div className="sos-screen">
       <div className="sheet-head">
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
-          <h2>SOS</h2>
-          <span className="sheet-sub">Γρήγορη ανάκληση λίγο πριν την εξέταση</span>
+          <h2>SOS Ψυχιατρικής</h2>
+          <span className="sheet-sub">Συμπυκνωμένη γνώση ταχείας ανάκλησης για τις εξετάσεις</span>
         </div>
         <div className="sheet-head-actions">
-          <span className="plate">{overallMastered}/{overallTotal} mastered</span>
+          <span className="plate">{overallMastered}/{overallTotal} mastered ({overallPercent}%)</span>
         </div>
       </div>
 
-      <div className="hub-row-grid">
+      <div className="sos-deck-grid">
         {sections.map(section => {
           const summary = sosProgress
             ? summarizeSosProgress(sosProgress, section.section, section.entries || null)
             : null;
           const total = section.entries?.length || section.defaultTotal;
           const mastered = summary?.mastered || 0;
+          const percent = total ? Math.round((mastered / total) * 100) : 0;
+
           return (
-            <button key={section.id} className="hub-row" onClick={() => onOpenSection(section.id)}>
-              <span className="hub-row-icon" aria-hidden="true">{section.icon}</span>
-              <span className="hub-row-body">
-                <span className="hub-row-title">{section.title}</span>
-                <span className="hub-row-stat">{mastered}/{total} mastered</span>
-              </span>
-              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
+            <button key={section.id} type="button" className="sos-deck-card" onClick={() => onOpenSection(section.id)}>
+              <div className="sos-deck-head">
+                <span className="sos-deck-icon" aria-hidden="true">{section.icon}</span>
+                <div className="sos-deck-head-text">
+                  <h3 className="sos-deck-title">{section.title}</h3>
+                  <span className="sos-deck-stat">{mastered}/{total} mastered ({percent}%)</span>
+                </div>
+                <span className="sos-deck-go" aria-hidden="true"><Icons.ChevronRight /></span>
+              </div>
+              <p className="sos-deck-desc">{section.desc}</p>
+              <div className="sos-deck-progress-track">
+                <div className="sos-deck-progress-fill" style={{ width: `${percent}%` }} />
+              </div>
             </button>
           );
         })}

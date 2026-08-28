@@ -3173,3 +3173,291 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 }
 
 
+
+/* ═══ Oral Hub Hero Card & Layout ═══ */
+.oral-hero-card {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(217, 119, 6, 0.04));
+  border: 1px solid var(--sec-oral);
+  border-radius: var(--r-lg, 12px);
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease), border-color 0.15s var(--ease);
+  margin-top: var(--s2);
+}
+.oral-hero-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(217, 119, 6, 0.2);
+  border-color: var(--mark);
+}
+.oral-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--sec-oral);
+  width: fit-content;
+  padding: 3px 8px;
+  background: rgba(217, 119, 6, 0.15);
+  border-radius: var(--r-sm, 4px);
+}
+.oral-hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sec-oral);
+  animation: pulse 2s infinite ease-in-out;
+}
+.oral-hero-main {
+  display: flex;
+  gap: var(--s4);
+  align-items: flex-start;
+}
+.oral-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md, 8px);
+  background: var(--sec-oral);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.oral-hero-icon .icon {
+  width: 28px;
+  height: 28px;
+}
+.oral-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.oral-hero-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.oral-hero-desc {
+  font-size: var(--t-ui);
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin: 0;
+}
+.oral-hero-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s3);
+  margin-top: var(--s2);
+}
+.oral-hero-meta {
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.oral-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.oral-hub-desc {
+  display: block;
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+/* ═══ SOS Hub 2x2 Deck Grid ═══ */
+.sos-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s3);
+}
+@media (max-width: 699px) {
+  .sos-deck-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+}
+.sos-deck-card {
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--sec-sos);
+  border-radius: var(--r-lg, 12px);
+  padding: var(--s4);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.sos-deck-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sec-sos);
+  box-shadow: 0 8px 24px rgba(225, 29, 72, 0.18);
+}
+.sos-deck-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.sos-deck-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md, 8px);
+  background: rgba(225, 29, 72, 0.15);
+  color: var(--sec-sos);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sos-deck-head-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sos-deck-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.sos-deck-stat {
+  font-size: var(--t-micro);
+  font-family: var(--code);
+  color: var(--sec-sos);
+  font-weight: 600;
+}
+.sos-deck-go {
+  color: var(--ink-3);
+  display: flex;
+}
+.sos-deck-desc {
+  font-size: var(--t-meta);
+  color: var(--ink-2);
+  margin: 0;
+  line-height: 1.45;
+  flex: 1;
+}
+.sos-deck-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(125, 125, 125, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: var(--s2);
+}
+.sos-deck-progress-fill {
+  height: 100%;
+  background: var(--sec-sos);
+  border-radius: 999px;
+  transition: width 0.3s var(--ease);
+}
+
+/* ═══ Pinakakia 2-Column Sources Grid ═══ */
+.pinakakia-sources-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s3);
+}
+@media (max-width: 699px) {
+  .pinakakia-sources-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+}
+.pinakakia-source-card {
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--sec-boxes);
+  border-radius: var(--r-lg, 12px);
+  padding: var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.pinakakia-source-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sec-boxes);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.18);
+}
+.pinakakia-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--sec-boxes);
+  background: rgba(13, 148, 136, 0.12);
+  padding: 3px 8px;
+  border-radius: var(--r-sm, 4px);
+  width: fit-content;
+}
+.pinakakia-source-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.pinakakia-source-desc {
+  font-size: var(--t-ui);
+  color: var(--ink-2);
+  line-height: 1.45;
+  margin: 0;
+  flex: 1;
+}
+.pinakakia-source-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s3);
+  margin-top: var(--s2);
+}
+.pinakakia-source-count {
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  font-weight: 600;
+  font-family: var(--code);
+}
+.pinakakia-source-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--t-ui);
+  font-weight: 600;
+  color: var(--sec-boxes);
+}
+
+/* Full Width Search Input Styling */
+.pinakakia-controls .search-bar {
+  width: 100%;
+}
+.pinakakia-controls .search-input {
+  width: 100%;
+  font-size: var(--t-ui);
+  padding: 10px 14px 10px 38px;
+}
