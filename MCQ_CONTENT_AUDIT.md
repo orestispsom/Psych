@@ -1,5 +1,7 @@
 # MCQ Content Audit Log
 
+> Historical incremental log. Its “pending adjudication” entries and interim totals are superseded by `MCQ_FINAL_AUDIT.md` (2026-08-27). This file remains as an audit trail, not as the current completion statement.
+
 This log records the incremental review of the canonical Greek MCQ bank for language, answer-key integrity, and question/explanation quality. It complements `MCQ_TRANSLATION_AUDIT.md`.
 
 ## Batch 001 — IDs 1–100

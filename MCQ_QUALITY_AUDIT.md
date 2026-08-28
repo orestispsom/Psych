@@ -1,5 +1,7 @@
 # MCQ Quality Audit
 
+> Historical partial log. The review recorded here stopped before the end of the bank and is superseded for current status by `MCQ_FINAL_AUDIT.md` (2026-08-27).
+
 This file tracks editorial and content-quality review of `src/data/questions.js`.
 
 ## Review Criteria
