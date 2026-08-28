@@ -316,7 +316,24 @@ const ONLINE_PROFILES_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const SUPABASE_PROFILE_TABLE = "study_profiles";
 const SUPABASE_APP_SETTINGS_TABLE = "app_settings";
 const UPDATE_MESSAGE_SETTING_KEY = "home_update_message";
-const DEFAULT_UPDATE_MESSAGE = "\u039c\u03bf\u03b9\u03c1\u03b1\u03c3\u03c4\u03b5\u03af\u03c4\u03b5 \u03c4\u03b7\u03bd \u03b5\u03c6\u03b1\u03c1\u03bc\u03bf\u03b3\u03ae \u03c5\u03c0\u03b5\u03cd\u03b8\u03b7\u03bd\u03b1.";
+const DEFAULT_UPDATE_MESSAGE = "Στις προβληματικές ερωτήσεις πατήστε το Feedback για διορθώσεις.";
+const UPDATE_MESSAGE_LOCAL_KEY = "psych_home_update_message";
+
+function loadLocalUpdateMessage() {
+  if (typeof window === "undefined") return DEFAULT_UPDATE_MESSAGE;
+  try {
+    return window.localStorage.getItem(UPDATE_MESSAGE_LOCAL_KEY) || DEFAULT_UPDATE_MESSAGE;
+  } catch {
+    return DEFAULT_UPDATE_MESSAGE;
+  }
+}
+
+function saveLocalUpdateMessage(message) {
+  if (typeof window === "undefined" || !message) return;
+  try {
+    window.localStorage.setItem(UPDATE_MESSAGE_LOCAL_KEY, String(message).trim());
+  } catch {}
+}
 const SUPPORT_WIDGET_SETTING_KEY = "support_widget_enabled";
 const SUPPORT_WIDGET_LOCAL_KEY = "psych_support_widget_enabled";
 const SUPPORT_WIDGET_DELAY_SETTING_KEY = "support_widget_delay_min";
@@ -448,11 +465,26 @@ function normalizeSosProgress(progress) {
   };
 }
 
-function summarizeSosProgress(sosProgress, section, entries) {
-  const mastered = normalizeSosProgress(sosProgress).mastered[section] || {};
+const DEFAULT_SOS_SECTION_TOTALS = {
+  high_yield: 80,
+  numbers: 78,
+  critical_topics: 55,
+  differential_diagnosis: 20,
+};
+
+function summarizeSosProgress(sosProgress, section, entries = null) {
+  const masteredMap = normalizeSosProgress(sosProgress).mastered[section] || {};
+  if (Array.isArray(entries) && entries.length > 0) {
+    return {
+      mastered: entries.reduce((sum, entry) => sum + (masteredMap[entry.id] ? 1 : 0), 0),
+      total: entries.length,
+    };
+  }
+  const masteredCount = Object.values(masteredMap).filter(Boolean).length;
+  const total = DEFAULT_SOS_SECTION_TOTALS[section] || 0;
   return {
-    mastered: entries.reduce((sum, entry) => sum + (mastered[entry.id] ? 1 : 0), 0),
-    total: entries.length,
+    mastered: masteredCount,
+    total,
   };
 }
 
@@ -971,11 +1003,12 @@ async function loadRemoteUpdateMessage() {
   const value = rows?.[0]?.value;
   return typeof value === "string" && value.trim()
     ? value.trim()
-    : DEFAULT_UPDATE_MESSAGE;
+    : loadLocalUpdateMessage();
 }
 
 async function saveRemoteUpdateMessage(message) {
   const value = String(message || "").trim() || DEFAULT_UPDATE_MESSAGE;
+  saveLocalUpdateMessage(value);
   await supabaseTableRequest(
     SUPABASE_APP_SETTINGS_TABLE,
     { on_conflict: "key" },
@@ -1475,14 +1508,33 @@ function getQuestionRecord(records, questionId) {
   return records[questionId] || records[String(questionId)] || records[Number(questionId)] || {};
 }
 
+const TOTAL_MCQ_COUNT = 1858;
+
 function summarizeMcqProgress(progress) {
   const records = progress?.questions || {};
-  const total = QUESTIONS.length;
-  const seen = QUESTIONS.filter(q => hasSeenQuestion(getQuestionRecord(records, q.id))).length;
-  const attempted = QUESTIONS.filter(q => getAttemptsCount(getQuestionRecord(records, q.id)) > 0).length;
-  const mastered = QUESTIONS.filter(q => isQuestionMastered(getQuestionRecord(records, q.id))).length;
-  const correct = QUESTIONS.reduce((sum, q) => sum + (getQuestionRecord(records, q.id)?.correctCount || 0), 0);
-  const attempts = QUESTIONS.reduce((sum, q) => sum + getAttemptsCount(getQuestionRecord(records, q.id)), 0);
+  const total = QUESTIONS.length || TOTAL_MCQ_COUNT;
+
+  let seen = 0;
+  let attempted = 0;
+  let mastered = 0;
+  let correct = 0;
+  let attempts = 0;
+
+  if (QUESTIONS.length > 0) {
+    seen = QUESTIONS.filter(q => hasSeenQuestion(getQuestionRecord(records, q.id))).length;
+    attempted = QUESTIONS.filter(q => getAttemptsCount(getQuestionRecord(records, q.id)) > 0).length;
+    mastered = QUESTIONS.filter(q => isQuestionMastered(getQuestionRecord(records, q.id))).length;
+    correct = QUESTIONS.reduce((sum, q) => sum + (getQuestionRecord(records, q.id)?.correctCount || 0), 0);
+    attempts = QUESTIONS.reduce((sum, q) => sum + getAttemptsCount(getQuestionRecord(records, q.id)), 0);
+  } else {
+    for (const record of Object.values(records)) {
+      if (hasSeenQuestion(record)) seen++;
+      if (getAttemptsCount(record) > 0) attempted++;
+      if (isQuestionMastered(record)) mastered++;
+      correct += record?.correctCount || 0;
+      attempts += getAttemptsCount(record);
+    }
+  }
 
   return {
     total,
