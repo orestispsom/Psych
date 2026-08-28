@@ -3037,3 +3037,139 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   }
 }
 
+/* ═══ Home Module Multi-Modal Progress ═══ */
+.home-module-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.home-module-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+.home-module-stat {
+  font-size: var(--t-micro);
+  color: var(--ink-2);
+  font-weight: 500;
+  font-family: var(--code);
+  letter-spacing: -0.01em;
+}
+.home-module-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(125, 125, 125, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.home-module-bar-fill {
+  height: 100%;
+  background: var(--module);
+  border-radius: 999px;
+  transition: width 0.3s var(--ease);
+}
+
+/* ═══ MCQ Hub Due Banner & Grouping ═══ */
+.mcq-due-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: rgba(234, 88, 12, 0.08);
+  border: 1px solid var(--due);
+  border-radius: var(--r-md);
+  margin: var(--s3) 0 var(--s2);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.mcq-due-banner:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+}
+.mcq-due-banner-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--due);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mcq-due-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mcq-due-banner-title {
+  font-size: var(--t-ui);
+  color: var(--ink);
+  font-weight: 700;
+}
+.mcq-due-banner-sub {
+  font-size: var(--t-micro);
+  color: var(--ink-2);
+}
+.mcq-due-banner-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ═══ Pinakakia Bookmark & Category Pills ═══ */
+.table-pin-toggle {
+  background: transparent;
+  border: none;
+  font-size: 1.15rem;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  transition: color 0.15s var(--ease), transform 0.15s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.table-pin-toggle:hover {
+  color: var(--mark);
+  transform: scale(1.15);
+}
+.table-pin-toggle.pinned {
+  color: var(--mark);
+}
+.table-pin-toggle.in-viewer {
+  font-size: var(--t-micro);
+  font-family: var(--ui);
+  font-weight: 600;
+  padding: 3px 8px;
+  background: rgba(125, 125, 125, 0.08);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-box);
+}
+.table-pin-toggle.in-viewer.pinned {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--mark);
+  color: var(--mark);
+}
+
+/* ═══ SOS Numbers Highlight ═══ */
+.sos-number-mark {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--ink);
+  font-weight: 700;
+  font-family: var(--code);
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--rule-strong);
+  display: inline-block;
+}
+
+

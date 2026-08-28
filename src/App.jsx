@@ -3033,7 +3033,7 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
 // dispatch point, not a list of study items.
 const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
 
-function HomeModuleCard({ id, icon, title, detail, onOpen }) {
+function HomeModuleCard({ id, icon, title, progressStat, progressPercent, onOpen }) {
   return (
     <button
       type="button"
@@ -3041,8 +3041,22 @@ function HomeModuleCard({ id, icon, title, detail, onOpen }) {
       onClick={() => onOpen(id)}
     >
       <span className="home-module-icon" aria-hidden="true">{icon}</span>
-      <span className="home-module-title">{title}</span>
-      {detail && <span className="home-module-detail">{detail}</span>}
+      <div className="home-module-main">
+        <span className="home-module-title">{title}</span>
+        {progressStat && (
+          <div className="home-module-meta">
+            <span className="home-module-stat">{progressStat}</span>
+            {progressPercent !== undefined && progressPercent !== null && (
+              <div className="home-module-bar-wrap">
+                <div
+                  className="home-module-bar-fill"
+                  style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <span className="home-module-chevron" aria-hidden="true">
         <Icons.ChevronRight />
       </span>
@@ -3050,32 +3064,62 @@ function HomeModuleCard({ id, icon, title, detail, onOpen }) {
   );
 }
 
-function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch }) {
+function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, sosProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
+
+  const pinnedTablesCount = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("psych_pinned_tables_v1");
+      return raw ? JSON.parse(raw).length : 0;
+    } catch {
+      return 0;
+    }
+  }, []);
+
+  const mcqTotal = mcqProgressSummary.total || 1913;
+  const mcqMastered = mcqProgressSummary.mastered || 0;
+  const mcqPercent = mcqTotal ? Math.round((mcqMastered / mcqTotal) * 100) : 0;
+
+  const oralTotal = oralProgressSummary?.total || 180;
+  const oralMastered = oralProgressSummary?.mastered || 0;
+  const oralPercent = oralTotal ? Math.round((oralMastered / oralTotal) * 100) : 0;
+
+  const sosTotal = sosProgressSummary?.total || 233;
+  const sosMastered = sosProgressSummary?.mastered || 0;
+  const sosPercent = sosTotal ? Math.round((sosMastered / sosTotal) * 100) : 0;
+
   const sections = [
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
+      progressStat: `${mcqMastered} / ${mcqTotal} Mastered (${mcqPercent}%)`,
+      progressPercent: mcqPercent,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
+      progressStat: `${oralMastered} / ${oralTotal} Mastered (${oralPercent}%)`,
+      progressPercent: oralPercent,
     },
     {
       id: 'sos',
       icon: <Icons.Bolt />,
       title: 'SOS',
+      progressStat: `${sosMastered} / ${sosTotal} Mastered (${sosPercent}%)`,
+      progressPercent: sosPercent,
     },
     {
       id: 'pinakakia',
       icon: <Icons.Table />,
       title: 'Πινακάκια',
+      progressStat: pinnedTablesCount > 0 ? `${pinnedTablesCount} Αγαπημένα ★` : 'Πλαίσια & Πίνακες',
+      progressPercent: pinnedTablesCount > 0 ? Math.min(100, pinnedTablesCount * 10) : null,
     },
   ];
 
@@ -3177,7 +3221,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
                 onClick={onResume}
                 title={resumePosition.title}
               >
-                Συνέχεια <Icons.ArrowRight />
+                Συνέχεια: {resumePosition.title.length > 25 ? `${resumePosition.title.slice(0, 25)}…` : resumePosition.title} <Icons.ArrowRight />
               </button>
               <button
                 type="button"
@@ -3276,35 +3320,33 @@ function AdminOptionsScreen({
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
-  const modes = [
-    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
-    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
-    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
-    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
-    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
-    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
+  const modeGroups = [
+    {
+      title: "Βασική Εξάσκηση",
+      modes: [
+        { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
+        { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
+        { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
+        { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
+      ]
+    },
+    {
+      title: "Ειδικές Μορφές Εξετάσεων & Διαγνωστικά",
+      modes: [
+        { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
+        { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
+        { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
+      ]
+    },
+    {
+      title: "Στοχευμένη Επανάληψη",
+      modes: [
+        { id: 'due', icon: <Icons.RotateCcw />, title: 'Επανάληψη Μνήμης', detail: `${progressSummary.review} ερωτήσεις έτοιμες για επανάληψη` },
+        { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
+        { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
+      ]
+    }
   ];
-
-  const renderModes = () => (
-    <div className="mode-tile-grid">
-      {modes.map(mode => (
-        <button
-          key={mode.id}
-          className="mode-tile"
-          onClick={() => onStart(mode.id)}
-        >
-          <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
-          <span className="mode-tile-body">
-            <span className="mode-tile-title">{mode.title}</span>
-            <span className="mode-tile-detail">{mode.detail}</span>
-          </span>
-          <span className="mode-tile-go" aria-hidden="true"><Icons.ChevronRight /></span>
-        </button>
-      ))}
-    </div>
-  );
 
   return (
     <div className="mcq-select mcq-hub">
@@ -3335,7 +3377,50 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         </div>
       </div>
 
-      {renderModes()}
+      {progressSummary.review > 0 && (
+        <button
+          type="button"
+          className="mcq-due-banner"
+          onClick={() => onStart('due')}
+        >
+          <div className="mcq-due-banner-icon" aria-hidden="true"><Icons.RotateCcw /></div>
+          <div className="mcq-due-banner-text">
+            <strong className="mcq-due-banner-title">{progressSummary.review} ερωτήσεις έτοιμες για επανάληψη</strong>
+            <span className="mcq-due-banner-sub">Spaced repetition σύστημα για διατήρηση στη μακροπρόθεσμη μνήμη</span>
+          </div>
+          <span className="btn btn-primary btn-sm mcq-due-banner-btn">
+            Έναρξη <Icons.ArrowRight />
+          </span>
+        </button>
+      )}
+
+      <div className="mcq-groups-container">
+        {modeGroups.map((group, gIdx) => (
+          <div key={gIdx} className="mcq-mode-group">
+            <div className="subscale" style={{ margin: "var(--s4) 0 var(--s2)" }}>
+              <h3 className="subscale-title">{group.title}</h3>
+              <span className="subscale-rule" />
+            </div>
+            <div className="mode-tile-grid">
+              {group.modes.map(mode => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  className="mode-tile"
+                  onClick={() => onStart(mode.id)}
+                >
+                  <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
+                  <span className="mode-tile-body">
+                    <span className="mode-tile-title">{mode.title}</span>
+                    <span className="mode-tile-detail">{mode.detail}</span>
+                  </span>
+                  <span className="mode-tile-go" aria-hidden="true"><Icons.ChevronRight /></span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
 
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
@@ -7173,7 +7258,29 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   const [sourceKey, setSourceKey] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(routeChapter);
   const [query, setQuery] = useState("");
+  const [activePill, setActivePill] = useState("all"); // "all", "pharm", "neuro", "scales", "diag", "pinned"
   const [viewer, setViewer] = useState(null);
+  const [showJumper, setShowJumper] = useState(false);
+
+  const [pinnedIds, setPinnedIds] = useState(() => {
+    try {
+      const raw = localStorage.getItem("psych_pinned_tables_v1");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const togglePin = useCallback((boxId, e) => {
+    if (e) e.stopPropagation();
+    setPinnedIds(prev => {
+      const next = prev.includes(boxId) ? prev.filter(id => id !== boxId) : [...prev, boxId];
+      try {
+        localStorage.setItem("psych_pinned_tables_v1", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const setScreen = useCallback((nextScreen, nextChapter = selectedChapter) => {
     setLocalScreen(nextScreen);
@@ -7203,11 +7310,46 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     ...boxesForSource("crash").map(box => ({ ...box, sourceKey: "crash" })),
   ]), [boxesForSource]);
 
-  const searchResults = useMemo(() => {
-    const normalized = normalizeGreekSearch(query);
-    if (!normalized) return [];
-    return allBoxes.filter(box => getBoxSearchText(box).includes(normalized)).slice(0, 40);
-  }, [allBoxes, query]);
+  const categoryFilteredBoxes = useMemo(() => {
+    let list = allBoxes;
+    if (activePill === "pinned") {
+      list = allBoxes.filter(box => pinnedIds.includes(box.id));
+    } else if (activePill === "pharm") {
+      const pharmKeywords = ["φαρμακ", "αντιψυχ", "αντικαταθ", "λιθι", "βαλπρ", "cyp", "υποδοχ", "παρενεργ", "washout", "κλοζαπιν", "clozapine", "lithium", "qtc", "ssri", "snri", "benzo", "depot"];
+      list = allBoxes.filter(box => {
+        const text = getBoxSearchText(box);
+        const ch = Number(box.chapter) || 0;
+        return (box.sourceKey === "oxford" && ch === 25) || (box.sourceKey === "crash" && ch === 2) || pharmKeywords.some(k => text.includes(k));
+      });
+    } else if (activePill === "neuro") {
+      const neuroKeywords = ["νευρο", "εγκεφαλ", "ηεγ", "cjd", "επιληψ", "παραληρ", "ανοια", "parkinson", "delirium", "dementia", "huntington", "lewy", "prion"];
+      list = allBoxes.filter(box => {
+        const text = getBoxSearchText(box);
+        const ch = Number(box.chapter) || 0;
+        return (box.sourceKey === "oxford" && (ch === 5 || ch === 14 || ch === 19)) || (box.sourceKey === "crash" && ch === 7) || neuroKeywords.some(k => text.includes(k));
+      });
+    } else if (activePill === "scales") {
+      const scaleKeywords = ["κλιμακ", "scale", "mmse", "moca", "ham", "bprs", "panss", "madrs", "phq", "gad", "βαθμολογ", "cgi", "hcr-20"];
+      list = allBoxes.filter(box => {
+        const text = getBoxSearchText(box);
+        return scaleKeywords.some(k => text.includes(k));
+      });
+    } else if (activePill === "diag") {
+      const diagKeywords = ["dsm", "icd", "κριτηρι", "διαφοροδιαγνωσ", "συμπτωμ", "διαγνωστικ", "ταξινομ"];
+      list = allBoxes.filter(box => {
+        const text = getBoxSearchText(box);
+        const ch = Number(box.chapter) || 0;
+        return (box.sourceKey === "oxford" && ch === 3) || diagKeywords.some(k => text.includes(k));
+      });
+    }
+
+    if (query.trim()) {
+      const normalized = normalizeGreekSearch(query);
+      list = list.filter(box => getBoxSearchText(box).includes(normalized));
+    }
+
+    return list;
+  }, [allBoxes, activePill, pinnedIds, query]);
 
   const oxfordChapterGroups = useMemo(() => {
     const groups = new Map();
@@ -7277,10 +7419,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const boxes = boxesForSource(nextSourceKey);
     const index = boxes.findIndex(item => item.id === box.id);
     openViewer(nextSourceKey, boxes, index, { backScreen: screen, backChapter: selectedChapter });
-    setQuery("");
   };
-
-  const [showJumper, setShowJumper] = useState(false);
 
   useWindowKeydown(event => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
@@ -7363,43 +7502,164 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
   if (screen === "sources") {
     const oxfordCount = boxesForSource("oxford").length || 258;
     const crashCount = boxesForSource("crash").length || 41;
+    const isFiltering = activePill !== "all" || query.trim().length > 0;
+
     return renderShell(
       <>
         <div className="sheet-head">
           <div className="sheet-head-text">
             <span className="sheet-eyebrow">Ενότητα</span>
-            <h2>Πινακάκια</h2>
-            <span className="sheet-sub">Πλαίσια αναφοράς από τα δύο εγχειρίδια</span>
+            <h2>Πινακάκια & Πηγές</h2>
+            <span className="sheet-sub">{plural(allBoxes.length, "πινακάκιο", "πινακάκια")} από Oxford Handbook & Crash Course</span>
           </div>
         </div>
-        <div className="hub-row-grid">
-          <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-chapters"); }}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Oxford</span>
-              <span className="hub-row-stat">{plural(oxfordCount, "πινακάκιο", "πινακάκια")}</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-          <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-list"); }}>
-            <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
-            <span className="hub-row-body">
-              <span className="hub-row-title">Crash Course</span>
-              <span className="hub-row-stat">{plural(crashCount, "πινακάκιο", "πινακάκια")}</span>
-            </span>
-            <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-          {isAdmin && (
-            <button className="hub-row" onClick={() => onOpenDsm5?.()}>
-              <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
+
+        <div className="pinakakia-controls" style={{ marginBottom: "var(--s4)" }}>
+          <div className="search-bar" style={{ marginBottom: "var(--s3)" }}>
+            <span className="search-icon" aria-hidden="true"><Icons.Search /></span>
+            <input
+              type="text"
+              placeholder="Αναζήτηση σε 300+ πίνακες και πλαίσια..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              className="search-input"
+            />
+            {query && (
+              <button
+                type="button"
+                className="search-clear"
+                onClick={() => setQuery("")}
+                aria-label="Καθαρισμός αναζήτησης"
+              >
+                <Icons.X />
+              </button>
+            )}
+          </div>
+
+          <div className="category-sort-bar">
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "all" ? "active" : ""}`}
+              onClick={() => setActivePill("all")}
+            >
+              📚 Εγχειρίδια
+            </button>
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "pharm" ? "active" : ""}`}
+              onClick={() => setActivePill("pharm")}
+            >
+              💊 Ψυχοφαρμακολογία
+            </button>
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "neuro" ? "active" : ""}`}
+              onClick={() => setActivePill("neuro")}
+            >
+              🧠 Νευρολογία
+            </button>
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "scales" ? "active" : ""}`}
+              onClick={() => setActivePill("scales")}
+            >
+              📊 Κλίμακες
+            </button>
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "diag" ? "active" : ""}`}
+              onClick={() => setActivePill("diag")}
+            >
+              📋 Διαγνωστικά
+            </button>
+            <button
+              type="button"
+              className={`review-filter-pill ${activePill === "pinned" ? "active" : ""}`}
+              onClick={() => setActivePill("pinned")}
+            >
+              ★ Αγαπημένα ({pinnedIds.length})
+            </button>
+          </div>
+        </div>
+
+        {isFiltering ? (
+          <div className="items">
+            {categoryFilteredBoxes.length > 0 ? (
+              categoryFilteredBoxes.map((box, index) => {
+                const isPinned = pinnedIds.includes(box.id);
+                const chapterTitle = box.sourceKey === "oxford"
+                  ? OXFORD_CHAPTER_TITLES[box.chapter]
+                  : CRASH_COURSE_CHAPTER_TITLES[box.chapter];
+                return (
+                  <button
+                    key={box.id}
+                    type="button"
+                    className="item"
+                    onClick={() => openSearchResult(box)}
+                  >
+                    <span className="item-num">{box.sourceKey === "oxford" ? "OX" : "CC"}-{box.boxNumber}</span>
+                    <span className="item-body">
+                      <span className="item-title">{box.title}</span>
+                      <span className="item-meta">
+                        <span>{box.sourceKey === "oxford" ? "Oxford Handbook" : "Crash Course"}</span>
+                        {box.chapter && <span>· Κεφ. {box.chapter}{chapterTitle ? ` (${chapterTitle})` : ""}</span>}
+                        {box.page && <span>· p. {box.page}</span>}
+                      </span>
+                    </span>
+                    <span className="item-side">
+                      <button
+                        type="button"
+                        className={`table-pin-toggle ${isPinned ? "pinned" : ""}`}
+                        onClick={(e) => togglePin(box.id, e)}
+                        title={isPinned ? "Αφαίρεση από τα αγαπημένα" : "Προσθήκη στα αγαπημένα"}
+                      >
+                        {isPinned ? "★" : "☆"}
+                      </button>
+                      <span style={{ color: "var(--ink-3)", display: "flex", marginLeft: 6 }} aria-hidden="true">
+                        <Icons.ChevronRight />
+                      </span>
+                    </span>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="pinakakia-empty">
+                {activePill === "pinned"
+                  ? "Δεν έχεις αποθηκεύσει ακόμα αγαπημένους πίνακες. Πάτησε το αστέρι (☆) σε οποιονδήποτε πίνακα για άμεση πρόσβαση."
+                  : "Δεν βρέθηκαν πινακάκια με τα συγκεκριμένα κριτήρια αναζήτησης."}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="hub-row-grid">
+            <button className="hub-row" onClick={() => { setSourceKey("oxford"); setScreen("oxford-chapters"); }}>
+              <span className="hub-row-icon" aria-hidden="true"><Icons.BookOpen /></span>
               <span className="hub-row-body">
-                <span className="hub-row-title">DSM-5-TR Self-Exam (Admin)</span>
-                <span className="hub-row-stat">528 ερωτήσεις</span>
+                <span className="hub-row-title">Oxford Handbook of Psychiatry</span>
+                <span className="hub-row-stat">{plural(oxfordCount, "πινακάκιο", "πινακάκια")} σε 26 κεφάλαια</span>
               </span>
               <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
             </button>
-          )}
-        </div>
+            <button className="hub-row" onClick={() => { setSourceKey("crash"); setScreen("crash-list"); }}>
+              <span className="hub-row-icon" aria-hidden="true"><Icons.FileText /></span>
+              <span className="hub-row-body">
+                <span className="hub-row-title">Crash Course Psychiatry</span>
+                <span className="hub-row-stat">{plural(crashCount, "πινακάκιο", "πινακάκια")} υψηλής απόδοσης</span>
+              </span>
+              <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
+            </button>
+            {isAdmin && (
+              <button className="hub-row" onClick={() => onOpenDsm5?.()}>
+                <span className="hub-row-icon" aria-hidden="true"><Icons.Table /></span>
+                <span className="hub-row-body">
+                  <span className="hub-row-title">DSM-5-TR Self-Exam (Admin)</span>
+                  <span className="hub-row-stat">528 ερωτήσεις</span>
+                </span>
+                <span className="hub-row-go" aria-hidden="true"><Icons.ChevronRight /></span>
+              </button>
+            )}
+          </div>
+        )}
       </>,
       true
     );
@@ -7461,23 +7721,37 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           </div>
         </div>
         <div className="items">
-          {boxes.map((box, index) => (
-            <button
-              key={box.id}
-              className="item"
-              onClick={() => openViewer("oxford", boxes, index, { backScreen: "oxford-boxes", backChapter: selectedChapter })}
-            >
-              <span className="item-num">{box.boxNumber}</span>
-              <span className="item-body">
-                <span className="item-title">{box.title}</span>
-                {box.page && <span className="item-meta"><span>pg. {box.page}</span></span>}
-              </span>
-              <span className="item-side">
-                <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
-              </span>
-            </button>
-          ))}
+          {boxes.map((box, index) => {
+            const isPinned = pinnedIds.includes(box.id);
+            return (
+              <button
+                key={box.id}
+                className="item"
+                onClick={() => openViewer("oxford", boxes, index, { backScreen: "oxford-boxes", backChapter: selectedChapter })}
+              >
+                <span className="item-num">{box.boxNumber}</span>
+                <span className="item-body">
+                  <span className="item-title">{box.title}</span>
+                  {box.page && <span className="item-meta">pg. {box.page}</span>}
+                </span>
+                <span className="item-side">
+                  <button
+                    type="button"
+                    className={`table-pin-toggle ${isPinned ? "pinned" : ""}`}
+                    onClick={(e) => togglePin(box.id, e)}
+                    title={isPinned ? "Αφαίρεση από τα αγαπημένα" : "Προσθήκη στα αγαπημένα"}
+                  >
+                    {isPinned ? "★" : "☆"}
+                  </button>
+                  <span style={{ color: "var(--ink-3)", display: "flex", marginLeft: 6 }} aria-hidden="true">
+                    <Icons.ChevronRight />
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </div>
+        {!boxes.length && <div className="pinakakia-empty">Δεν υπάρχουν πινακάκια για αυτό το κεφάλαιο.</div>}
       </>
     );
   }
@@ -7488,14 +7762,15 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
       <>
         <div className="sheet-head">
           <div className="sheet-head-text">
-            <span className="sheet-eyebrow">Crash Course</span>
-            <h2>Πινακάκια Αναφοράς</h2>
+            <span className="sheet-eyebrow">Crash Course Psychiatry</span>
+            <h2>Όλα τα Πινακάκια</h2>
             <span className="sheet-sub">{plural(boxes.length, "πινακάκιο", "πινακάκια")}</span>
           </div>
         </div>
         <div className="items">
           {boxes.map((box, index) => {
             const chapterTitle = CRASH_COURSE_CHAPTER_TITLES[box.chapter];
+            const isPinned = pinnedIds.includes(box.id);
             return (
               <button
                 key={box.id}
@@ -7511,7 +7786,17 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
                   </span>
                 </span>
                 <span className="item-side">
-                  <span style={{ color: "var(--ink-3)", display: "flex" }} aria-hidden="true"><Icons.ChevronRight /></span>
+                  <button
+                    type="button"
+                    className={`table-pin-toggle ${isPinned ? "pinned" : ""}`}
+                    onClick={(e) => togglePin(box.id, e)}
+                    title={isPinned ? "Αφαίρεση από τα αγαπημένα" : "Προσθήκη στα αγαπημένα"}
+                  >
+                    {isPinned ? "★" : "☆"}
+                  </button>
+                  <span style={{ color: "var(--ink-3)", display: "flex", marginLeft: 6 }} aria-hidden="true">
+                    <Icons.ChevronRight />
+                  </span>
                 </span>
               </button>
             );
@@ -7530,6 +7815,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
     const chapterName = viewer.sourceKey === "oxford"
       ? OXFORD_CHAPTER_TITLES[box.chapter]
       : CRASH_COURSE_CHAPTER_TITLES[box.chapter];
+    const isPinned = pinnedIds.includes(box.id);
 
     return renderShell(
       <div className="pinakakia-viewer">
@@ -7547,6 +7833,14 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
             <span>{box.source || sourceLabel}</span>
             {box.chapter && <span>Κεφ. {box.chapter}{chapterName ? ` (${chapterName})` : ""}</span>}
             {box.page && <span>pg. {box.page}</span>}
+            <button
+              type="button"
+              className={`table-pin-toggle in-viewer ${isPinned ? "pinned" : ""}`}
+              onClick={(e) => togglePin(box.id, e)}
+              title={isPinned ? "Αφαίρεση από τα αγαπημένα" : "Προσθήκη στα αγαπημένα"}
+            >
+              {isPinned ? "★ Αποθηκευμένο" : "☆ Αποθήκευση"}
+            </button>
           </div>
         </div>
 
@@ -8739,6 +9033,17 @@ export default function App() {
     [mcqProgress, questionBankStatus]
   );
   const oralProgressSummary = useMemo(() => summarizeOralProgress(oralProgress), [oralProgress]);
+  const sosProgressSummary = useMemo(() => {
+    const sections = ['high_yield', 'numbers', 'critical_topics', 'differential_diagnosis'];
+    let mastered = 0;
+    let total = 0;
+    sections.forEach(s => {
+      const sum = summarizeSosProgress(sosProgress, s);
+      mastered += sum.mastered;
+      total += sum.total;
+    });
+    return { mastered, total: total || 233 };
+  }, [sosProgress]);
   const selectedMcqTopicQuestions = useMemo(
     () => selectedMcqTopic
       ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals)
@@ -9489,6 +9794,7 @@ export default function App() {
             onSaveUpdateMessage={handleSaveUpdateMessage}
             mcqProgressSummary={mcqProgressSummary}
             oralProgressSummary={oralProgressSummary}
+            sosProgressSummary={sosProgressSummary}
             resumePosition={resumePosition}
             onResume={() => navigate(resumePosition.path)}
             onDismissResume={() => {
