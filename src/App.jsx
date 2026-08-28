@@ -3277,14 +3277,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: '100 ερωτήσεις · Επίσημο format' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες' },
-    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις' },
-    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από όλη την ύλη' },
-    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & κενά' },
-    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις' },
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
+    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
     { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
     { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
   ];
 
   const renderModes = () => (

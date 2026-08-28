@@ -342,63 +342,80 @@
 .mode-tile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s2);
-  max-width: 1040px;
+  gap: var(--s4);
+  max-width: 1120px;
 }
 .mcq-hub .mode-tile {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--s3);
+  gap: var(--s4);
   text-align: left;
-  min-height: 64px;
-  padding: 10px var(--s4);
+  min-height: 102px;
+  padding: 18px var(--s5);
   background: var(--accent-quiet, var(--sec-mcq-quiet));
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r-md);
+  border-radius: 14px;
   color: var(--ink);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  transition: border-color 0.12s var(--ease), background 0.12s var(--ease), transform 0.12s var(--ease);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 .mcq-hub .mode-tile:hover {
   border-color: var(--accent, var(--sec-mcq));
-  background: color-mix(in srgb, var(--accent, var(--sec-mcq)) 14%, var(--field));
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--accent, var(--sec-mcq)) 20%, var(--field));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px -4px rgba(0, 0, 0, 0.4);
 }
 .mcq-hub .mode-tile:focus-visible { border-color: var(--accent, var(--sec-mcq)); }
 .mcq-hub .mode-tile-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-md);
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   background: var(--accent, var(--sec-mcq));
   color: var(--stock-ink);
   flex: none;
 }
-.mcq-hub .mode-tile-icon .icon { width: 20px; height: 20px; }
-.mcq-hub .mode-tile-body { display: grid; gap: 2px; min-width: 0; }
+.mcq-hub .mode-tile-icon .icon { width: 26px; height: 26px; }
+.mcq-hub .mode-tile-body { display: grid; gap: 4px; min-width: 0; }
 .mcq-hub .mode-tile-title {
-  font-size: 16.5px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.25;
   color: var(--ink);
 }
 .mcq-hub .mode-tile-detail {
-  font-size: 12.5px;
+  font-size: 14px;
   color: var(--ink-2);
-  line-height: 1.3;
+  line-height: 1.4;
 }
 .mcq-hub .mode-tile-go {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   color: var(--accent, var(--ink-3));
+  background: rgba(255, 255, 255, 0.04);
   flex: none;
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.mcq-hub .mode-tile:hover .mode-tile-go {
+  transform: translateX(4px);
+  background: var(--accent, var(--sec-mcq));
+  color: var(--stock-ink);
 }
 @media (max-width: 699px) {
-  .mode-tile-grid { grid-template-columns: 1fr; }
-  .mcq-hub .mode-tile { min-height: 60px; padding: 10px var(--s3); }
+  .mode-tile-grid { grid-template-columns: 1fr; gap: var(--s3); }
+  .mcq-hub .mode-tile { min-height: 76px; padding: var(--s3) var(--s4); gap: var(--s3); }
+  .mcq-hub .mode-tile-icon { width: 44px; height: 44px; }
+  .mcq-hub .mode-tile-icon .icon { width: 22px; height: 22px; }
+  .mcq-hub .mode-tile-title { font-size: 17px; }
+  .mcq-hub .mode-tile-detail { font-size: 13px; }
 }
 
 /* A hub of 2–4 functions reads as clean, scan-friendly rows with full-width
@@ -1175,7 +1192,12 @@
 }
 .DSM5-review-list { display: grid; }
 
-.written-history { display: grid; }
+.written-history {
+  display: grid;
+  margin-top: 64px;
+  padding-top: var(--s5);
+  border-top: 1px solid var(--rule);
+}
 
 /* Dense, multi-column list: date and the graded score are the only two
    facts that matter here, so the row is as thin as a table line. */
