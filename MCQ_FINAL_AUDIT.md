@@ -19,17 +19,36 @@ When conventions differed, the newest audited `Psychiatry-Exams` material contro
 ## Scope and result
 
 - Canonical bank: `src/data/questions.js`
-- Questions: **1,843**
+- Questions: **1,891**
 - Topics: **21**
-- ID span: **1–3000** (IDs are intentionally sparse)
-- Final quality state: **1,843 `good`; 0 `unchecked`**
-- Source-provenance labels: **1,138 `exact`; 631 `near_exact`; 74 `fabricated`**
-- Final bank SHA-256: `efd75198b0dc2a1f9ffffb3fcf943abce76581c35f35c93332bcb5829da78ab0`
+- ID span: **1–3073** (IDs are intentionally sparse)
+- Final quality state: **1,891 `good`; 0 `unchecked`**
+- Source-provenance labels: **1,138 `exact`; 679 `near_exact`; 74 `fabricated`**
+- Final bank SHA-256: `602243988756b18d63ed56ca29eb3180c2f4ddb773233069dda0a61a4041ac24`
 - Strict validator result: **0 structural errors; 0 editorial findings**
 
 The 292 questions that entered this pass as `unchecked` were individually adjudicated. In total, 303 question objects changed: those 292 plus 11 items that had already been labelled `good` but still needed correction. The whole bank was also scanned for structural defects, duplicate stems/options, invalid keys, composite answer choices, empty lead-ins, encoding defects, answer-key metadiscourse, and terminology problems. High-risk clinical, legal, numerical, pregnancy, suicide, and drug-safety items received targeted source checks and rewording where needed.
 
-This result does **not** mean that every factual sentence in all 1,843 items was independently re-derived from primary literature during this single pass. Existing `good` items retained the benefit—and limitations—of earlier audits. `sourceStatus` describes provenance fidelity, not an independent guarantee of factual truth.
+This result does **not** mean that every factual sentence in all 1,891 items was independently re-derived from primary literature during a single pass. Existing `good` items retained the benefit—and limitations—of earlier audits. `sourceStatus` describes provenance fidelity, not an independent guarantee of factual truth.
+
+## Supplemental audit — incoming IDs 3001–3073
+
+Seventy new questions entered the bank after the original final audit. All 70 had four options and therefore failed the canonical five-option structural rule despite being labelled `good` and `exact`.
+
+The supplemental audit retained and substantively reworked **48** items and removed **22**. Every retained item now has five same-domain options, no correct-answer length cue above the tranche threshold, a revised explanation, and `sourceStatus: near_exact` to reflect the rewrite.
+
+Removed IDs: **3004, 3008, 3011, 3014, 3016, 3023–3027, 3030, 3032, 3039, 3050, 3059–3062, 3064, 3069–3071**.
+
+Removal grounds included:
+
+- duplication of already audited pregnancy, breastfeeding, neurobiology, or basic diagnostic content;
+- unstable numerical or jurisdiction-specific claims framed too categorically;
+- outdated recommendations, including routine antenatal vitamin K wording;
+- low-yield nomenclature or historical trivia;
+- oversimplified constructs such as “depressive pseudodementia” as a clean diagnostic discriminator;
+- questions whose correct answer remained obvious from implausible distractors even after a reasonable edit.
+
+The retained tranche adds focused coverage of Greek involuntary-admission safeguards, criminal responsibility, decision-making capacity, perinatal psychopharmacology, psychiatry of older adults, research methods, functional neurological symptoms, autoimmune encephalitis, ARIA, and rapidly progressive dementia. High-risk legal wording was reconciled with the audited Greek-law material in `Psychiatry-Exams`; current pharmacology for xanomeline–trospium was checked against the FDA prescribing information.
 
 ## Material corrections
 
@@ -93,10 +112,11 @@ Final local validation against the audited tree:
 - FDA citalopram label: dose-related safety limitation — <https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/215428s002lbl.pdf>
 - AASM restless legs syndrome guideline: current position on routine pramipexole use — <https://aasm.org/wp-content/uploads/2024/03/Treatment-of-RLS-and-PLMD-CPG.pdf>
 - Greek Law 2071/1992: statutory mental-health provisions — <https://www.e-nomothesia.gr/inner.php/kat-ygeia/n-2071-1992.html%3Fprint%3D1>
+- FDA prescribing information for xanomeline–trospium (Cobenfy): adult schizophrenia indication and muscarinic mechanism — <https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22COBENFY%22&limit=1>
 - WHO suicide data and Greece profile — <https://data.who.int/dashboards/ucn/overview> and <https://www.who.int/data/gho/data/countries/country-details/GHO/greece?countryProfileId=755737fb-b3e4-782c-cb3d-401434b6989f>
 
 ## Known limitations and next decision
 
-Topic coverage is uneven: psychopharmacology has 324 questions, whereas psychiatry of older adults has 11 and catatonia/movement disorders has 14. That is a blueprint/design limitation, not a defect that could safely be corrected by inventing questions during a final audit.
+Topic coverage remains uneven: psychopharmacology has 325 questions, whereas psychiatry of older adults has 20 and catatonia/movement disorders has 14. The new tranche improved older-adult coverage but did not justify padding the bank with weak items merely to equalise topic counts.
 
 Before publication, review the cumulative diff with particular attention to the safety-sensitive items above and the remaining house-style terms. If approved, rerun the strict audit, tests, and production build against the exact reviewed tree; then commit only the audit changes, push without rewriting history, and verify GitHub and Vercel production status.
