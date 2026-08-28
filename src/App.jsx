@@ -3320,32 +3320,17 @@ function AdminOptionsScreen({
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
   const recentWrittenExamSessions = writtenExamSessions;
 
-  const modeGroups = [
-    {
-      title: "Βασική Εξάσκηση",
-      modes: [
-        { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
-        { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
-        { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
-        { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων', isFeatured: true },
-      ]
-    },
-    {
-      title: "Ειδικές Μορφές Εξετάσεων",
-      modes: [
-        { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
-        { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
-      ]
-    },
-    {
-      title: "Στοχευμένη Επανάληψη & Διαγνωστικά",
-      modes: [
-        { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
-        { id: 'due', icon: <Icons.RotateCcw />, title: 'Επανάληψη Μνήμης', detail: `${progressSummary.review} ερωτήσεις έτοιμες για επανάληψη` },
-        { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
-        { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
-      ]
-    }
+  const modes = [
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
+    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
+    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
+    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
+    { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
+    { id: 'due', icon: <Icons.RotateCcw />, title: 'Επανάληψη Μνήμης', detail: `${progressSummary.review} ερωτήσεις για επανάληψη` },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
   ];
 
   return (
@@ -3377,48 +3362,21 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         </div>
       </div>
 
-      {progressSummary.review > 0 && (
-        <button
-          type="button"
-          className="mcq-due-banner"
-          onClick={() => onStart('due')}
-        >
-          <div className="mcq-due-banner-icon" aria-hidden="true"><Icons.RotateCcw /></div>
-          <div className="mcq-due-banner-text">
-            <strong className="mcq-due-banner-title">{progressSummary.review} ερωτήσεις έτοιμες για επανάληψη</strong>
-            <span className="mcq-due-banner-sub">Spaced repetition σύστημα για διατήρηση στη μακροπρόθεσμη μνήμη</span>
-          </div>
-          <span className="btn btn-primary btn-sm mcq-due-banner-btn">
-            Έναρξη <Icons.ArrowRight />
-          </span>
-        </button>
-      )}
-
-      <div className="mcq-groups-container">
-        {modeGroups.map((group, gIdx) => (
-          <div key={gIdx} className="mcq-mode-group">
-            <div className="subscale" style={{ margin: "var(--s4) 0 var(--s2)" }}>
-              <h3 className="subscale-title">{group.title}</h3>
-              <span className="subscale-rule" />
-            </div>
-            <div className="mode-tile-grid">
-              {group.modes.map(mode => (
-                <button
-                  key={mode.id}
-                  type="button"
-                  className="mode-tile"
-                  onClick={() => onStart(mode.id)}
-                >
-                  <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
-                  <span className="mode-tile-body">
-                    <span className="mode-tile-title">{mode.title}</span>
-                    <span className="mode-tile-detail">{mode.detail}</span>
-                  </span>
-                  <span className="mode-tile-go" aria-hidden="true"><Icons.ChevronRight /></span>
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="mode-tile-grid">
+        {modes.map(mode => (
+          <button
+            key={mode.id}
+            type="button"
+            className="mode-tile"
+            onClick={() => onStart(mode.id)}
+          >
+            <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
+            <span className="mode-tile-body">
+              <span className="mode-tile-title">{mode.title}</span>
+              <span className="mode-tile-detail">{mode.detail}</span>
+            </span>
+            <span className="mode-tile-go" aria-hidden="true"><Icons.ChevronRight /></span>
+          </button>
         ))}
       </div>
 
