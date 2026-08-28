@@ -1008,7 +1008,9 @@ report.secondPass = {
     valproatePregnancy: 'https://www.ema.europa.eu/en/news/new-measures-avoid-valproate-exposure-pregnancy-endorsed',
   },
   outcomes: {
-    provisionalKeepsRetained: report.counts.keep - 1,
+    provisionalKeepsRetained: report.reviewed.filter(
+      (entry) => entry.decision === 'keep' && !rejectedAfterSecondPass.has(entry.question.id),
+    ).length,
     provisionalKeepsRefined: [...refinedKeepIds].sort((a, b) => a - b),
     revisedAndRestored: restoredRevisionIds.length,
     rejectedAfterSecondPass: [...rejectedAfterSecondPass].sort((a, b) => a - b),
