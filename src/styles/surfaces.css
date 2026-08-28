@@ -56,9 +56,80 @@
 
 .home { display: grid; gap: var(--s3); }
 
-.home-header { display: grid; gap: var(--s2); }
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  min-height: 44px;
+}
 .home-title { font-size: var(--t-title); }
 .home-logo { display: none; }
+
+.home-resume-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-full, 999px);
+  padding: 2px 4px 2px 12px;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.home-resume-badge:hover {
+  border-color: var(--mark);
+  background: var(--raised);
+}
+.home-resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-size: var(--t-meta);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.home-resume-btn span {
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.home-resume-btn strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.home-resume-btn .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--mark);
+}
+.home-resume-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.home-resume-dismiss:hover {
+  background: var(--field);
+  color: var(--ink);
+}
+.home-resume-dismiss .icon {
+  width: 12px;
+  height: 12px;
+}
 
 /* On desktop the home screen is a fixed composition, never a scroll: the
    fixed-height blocks (title, update, figures, "Ενότητες" head) take their
@@ -91,16 +162,6 @@
     margin-top: var(--s2);
   }
 }
-
-.home-section-heading {
-  font-size: var(--t-label); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.09em;
-  color: var(--ink-2);
-}
-
-/* Resume — a small button living in the "Ενότητες" header row itself
-   (the subscale head's trailing slot) rather than a whole dedicated row. */
-.home-resume-inline { display: flex; align-items: center; gap: var(--s1); }
 
 /* Today's figures — secondary context, not the reason the trainee opened
    this screen. Hugs its own content instead of stretching to fill a wide
@@ -151,83 +212,135 @@
 .home-sections { display: grid; }
 
 /* ═══ HOME MODULES — the one deliberate exception to "no cards" ═══
-   Four functions, one dispatch point: each gets a big, colour-coded plate
-   instead of a list row, so the choice reads before the trainee reads. */
+   Four functions, one dispatch point: generous, eloquent, beautifully illuminated portals. */
 .home-modules {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--s4);
-  max-width: 760px;
+  max-width: 940px;
 }
-/* Fixed height, not min-height: all four read as one set regardless of
-   which ones happen to carry a detail line, so the grid is visibly even. */
 .home-module {
   position: relative;
-  display: flex; flex-direction: column;
-  gap: var(--s3);
-  height: 144px;
-  padding: var(--s4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 124px;
+  height: 132px;
+  padding: var(--s4) var(--s5);
   text-align: left;
-  background: var(--module-quiet);
-  border: 1px solid var(--module-rule);
-  border-top: 3px solid var(--module);
-  border-radius: 12px;
+  background: radial-gradient(130% 130% at 0% 0%, color-mix(in srgb, var(--module) 14%, var(--field)) 0%, color-mix(in srgb, var(--module) 3%, var(--field)) 100%);
+  border: 1px solid color-mix(in srgb, var(--module) 22%, var(--rule-strong));
+  border-radius: var(--r-xl, 16px);
   color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
+  cursor: pointer;
 }
 .home-module:hover {
   border-color: var(--module);
+  background: radial-gradient(130% 130% at 0% 0%, color-mix(in srgb, var(--module) 22%, var(--field)) 0%, color-mix(in srgb, var(--module) 5%, var(--field)) 100%);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 14px 32px -4px color-mix(in srgb, var(--module) 28%, rgba(0, 0, 0, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.home-module:focus-visible {
+  outline: 2px solid var(--module);
+  outline-offset: 2px;
+}
+.home-module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 .home-module-icon {
-  display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px; flex: none;
-  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 13px;
   background: var(--module);
-  color: var(--stock-ink);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--module) 40%, transparent);
 }
-.home-module-icon .icon { width: 22px; height: 22px; }
+.home-module-icon .icon {
+  width: 24px;
+  height: 24px;
+}
+.home-module-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--module) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--module) 24%, transparent);
+  color: var(--module);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s var(--ease);
+}
+.home-module-arrow .icon {
+  width: 15px;
+  height: 15px;
+}
+.home-module:hover .home-module-arrow {
+  background: var(--module);
+  color: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--module) 40%, transparent);
+}
 .home-module-title {
   display: block;
-  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
-  min-width: 0; overflow-wrap: anywhere;
-}
-.home-module-detail {
-  display: block; margin-top: -4px;
-  font-size: var(--t-micro); color: var(--ink-2);
-  min-width: 0; overflow-wrap: anywhere;
-}
-.home-module-chevron {
-  position: absolute; top: var(--s4); right: var(--s4);
-  display: flex; color: var(--module);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  line-height: 1.25;
+  margin-top: auto;
+  padding-top: var(--s2);
 }
 .home-module-mcq { --module: var(--sec-mcq); --module-quiet: var(--sec-mcq-quiet); --module-rule: var(--rule-strong); }
 .home-module-oral { --module: var(--sec-oral); --module-quiet: var(--sec-oral-quiet); --module-rule: var(--rule-strong); }
 .home-module-sos { --module: var(--sec-sos); --module-quiet: var(--sec-sos-quiet); --module-rule: var(--rule-strong); }
 .home-module-boxes { --module: var(--sec-boxes); --module-quiet: var(--sec-boxes-quiet); --module-rule: var(--rule-strong); }
+
 @media (max-width: 699px) {
-  .home-modules { grid-template-columns: 1fr; max-width: none; }
-  .home-module { height: auto; min-height: 116px; }
+  .home-modules {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+  .home-module {
+    min-height: 100px;
+    height: auto;
+    padding: 14px var(--s4);
+  }
+  .home-module-icon {
+    width: 42px;
+    height: 42px;
+  }
+  .home-module-icon .icon {
+    width: 22px;
+    height: 22px;
+  }
+  .home-module-title {
+    font-size: 1.15rem;
+  }
 }
-/* ≥900px: the grid fills whatever room the flexed section leaves, both
-   axes — the cards are exactly as big as the fixed-height blocks allow. */
 @media (min-width: 900px) {
   .home-modules-section .home-modules {
     max-width: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s3);
+    gap: var(--s4);
   }
   .home-modules-section .home-module {
-    height: 126px;
-    padding: var(--s3) var(--s4);
-    gap: var(--s2);
-    justify-content: center;
+    height: 136px;
+    min-height: 136px;
+    padding: var(--s4) var(--s5);
   }
-  .home-modules-section .home-module-icon { width: 44px; height: 44px; }
-  .home-modules-section .home-module-icon .icon { width: 22px; height: 22px; }
-  .home-modules-section .home-module-title { font-size: 19px; }
-  .home-modules-section .home-module-detail { font-size: var(--t-meta); margin-top: 0; }
+  .home-modules-section .home-module-icon { width: 50px; height: 50px; }
+  .home-modules-section .home-module-icon .icon { width: 26px; height: 26px; }
+  .home-modules-section .home-module-title { font-size: 1.3rem; }
 }
 .home-update-note {
   display: grid; gap: 2px; padding: var(--s2) 0;
@@ -1894,7 +2007,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 /* ═══ ΠΙΝΑΚΑΚΙΑ ═══════════════════════════════════════════════ */
 
-.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s5); position: relative; }
+.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s3); position: relative; }
 .pinakakia-search-wrap { display: grid; gap: var(--s2); }
 .pinakakia-search-summary { font-size: var(--t-micro); color: var(--ink-3); }
 
@@ -3037,40 +3150,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   }
 }
 
-/* ═══ Home Module Multi-Modal Progress ═══ */
-.home-module-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-}
-.home-module-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 2px;
-}
-.home-module-stat {
-  font-size: var(--t-micro);
-  color: var(--ink-2);
-  font-weight: 500;
-  font-family: var(--code);
-  letter-spacing: -0.01em;
-}
-.home-module-bar-wrap {
-  width: 100%;
-  height: 4px;
-  background: rgba(125, 125, 125, 0.15);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.home-module-bar-fill {
-  height: 100%;
-  background: var(--module);
-  border-radius: 999px;
-  transition: width 0.3s var(--ease);
-}
+
 
 /* ═══ MCQ Hub Due Banner & Grouping ═══ */
 .mcq-due-banner {
@@ -3371,14 +3451,14 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   transition: width 0.3s var(--ease);
 }
 
-/* ═══ Pinakakia 2-Column Sources Grid ═══ */
+/* ═══ Pinakakia 3-Column Sources Grid ═══ */
 .pinakakia-sources-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s4);
-  margin-top: var(--s3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s2);
 }
-@media (max-width: 699px) {
+@media (max-width: 899px) {
   .pinakakia-sources-grid {
     grid-template-columns: 1fr;
     gap: var(--s3);
@@ -3389,10 +3469,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   border: 1px solid var(--rule-strong);
   border-top: 3px solid var(--sec-boxes);
   border-radius: var(--r-lg, 12px);
-  padding: var(--s5);
+  padding: var(--s3) var(--s4);
   display: flex;
   flex-direction: column;
-  gap: var(--s3);
+  gap: var(--s2);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
@@ -3405,27 +3485,28 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .pinakakia-source-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--t-micro);
+  gap: 5px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
   color: var(--sec-boxes);
   background: rgba(13, 148, 136, 0.12);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: var(--r-sm, 4px);
   width: fit-content;
 }
 .pinakakia-source-title {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ink);
   margin: 0;
+  line-height: 1.3;
 }
 .pinakakia-source-desc {
-  font-size: var(--t-ui);
+  font-size: var(--t-meta);
   color: var(--ink-2);
-  line-height: 1.45;
+  line-height: 1.4;
   margin: 0;
   flex: 1;
 }
@@ -3434,8 +3515,8 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--rule);
-  padding-top: var(--s3);
-  margin-top: var(--s2);
+  padding-top: var(--s2);
+  margin-top: auto;
 }
 .pinakakia-source-count {
   font-size: var(--t-micro);
@@ -3447,17 +3528,72 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--t-ui);
+  font-size: var(--t-meta);
   font-weight: 600;
   color: var(--sec-boxes);
 }
 
-/* Full Width Search Input Styling */
+/* Squeezed & Compact Search & Filter Controls */
+.pinakakia-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--s2);
+}
 .pinakakia-controls .search-bar {
   width: 100%;
+  margin-bottom: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 .pinakakia-controls .search-input {
   width: 100%;
-  font-size: var(--t-ui);
-  padding: 10px 14px 10px 38px;
+  height: 36px;
+  font-size: var(--t-meta);
+  padding: 6px 12px 6px 34px;
+  border-radius: var(--r-md, 8px);
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+}
+.pinakakia-controls .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.pinakakia-controls .search-icon .icon {
+  width: 15px;
+  height: 15px;
+}
+.pinakakia-controls .search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 4px;
+}
+.pinakakia-controls .category-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+.pinakakia-controls .review-filter-pill {
+  padding: 3px 9px;
+  font-size: var(--t-micro);
+  border-radius: var(--r-full);
 }

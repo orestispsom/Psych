@@ -3033,33 +3033,20 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
 // dispatch point, not a list of study items.
 const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
 
-function HomeModuleCard({ id, icon, title, progressStat, progressPercent, onOpen }) {
+function HomeModuleCard({ id, icon, title, onOpen }) {
   return (
     <button
       type="button"
       className={`home-module home-module-${HOME_MODULE_ACCENT[id]}`}
       onClick={() => onOpen(id)}
     >
-      <span className="home-module-icon" aria-hidden="true">{icon}</span>
-      <div className="home-module-main">
-        <span className="home-module-title">{title}</span>
-        {progressStat && (
-          <div className="home-module-meta">
-            <span className="home-module-stat">{progressStat}</span>
-            {progressPercent !== undefined && progressPercent !== null && (
-              <div className="home-module-bar-wrap">
-                <div
-                  className="home-module-bar-fill"
-                  style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
-                />
-              </div>
-            )}
-          </div>
-        )}
+      <div className="home-module-head">
+        <span className="home-module-icon" aria-hidden="true">{icon}</span>
+        <span className="home-module-arrow" aria-hidden="true">
+          <Icons.ArrowRight />
+        </span>
       </div>
-      <span className="home-module-chevron" aria-hidden="true">
-        <Icons.ChevronRight />
-      </span>
+      <span className="home-module-title">{title}</span>
     </button>
   );
 }
@@ -3071,55 +3058,26 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
 
-  const pinnedTablesCount = useMemo(() => {
-    try {
-      const raw = localStorage.getItem("psych_pinned_tables_v1");
-      return raw ? JSON.parse(raw).length : 0;
-    } catch {
-      return 0;
-    }
-  }, []);
-
-  const mcqTotal = mcqProgressSummary.total || 1913;
-  const mcqMastered = mcqProgressSummary.mastered || 0;
-  const mcqPercent = mcqTotal ? Math.round((mcqMastered / mcqTotal) * 100) : 0;
-
-  const oralTotal = oralProgressSummary?.total || 180;
-  const oralMastered = oralProgressSummary?.mastered || 0;
-  const oralPercent = oralTotal ? Math.round((oralMastered / oralTotal) * 100) : 0;
-
-  const sosTotal = sosProgressSummary?.total || 233;
-  const sosMastered = sosProgressSummary?.mastered || 0;
-  const sosPercent = sosTotal ? Math.round((sosMastered / sosTotal) * 100) : 0;
-
   const sections = [
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
-      progressStat: `${mcqMastered} / ${mcqTotal} Mastered (${mcqPercent}%)`,
-      progressPercent: mcqPercent,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
-      progressStat: `${oralMastered} / ${oralTotal} Mastered (${oralPercent}%)`,
-      progressPercent: oralPercent,
     },
     {
       id: 'sos',
       icon: <Icons.Bolt />,
       title: 'SOS',
-      progressStat: `${sosMastered} / ${sosTotal} Mastered (${sosPercent}%)`,
-      progressPercent: sosPercent,
     },
     {
       id: 'pinakakia',
       icon: <Icons.Table />,
       title: 'Πινακάκια',
-      progressStat: pinnedTablesCount > 0 ? `${pinnedTablesCount} Αγαπημένα ★` : 'Πλαίσια & Πίνακες',
-      progressPercent: pinnedTablesCount > 0 ? Math.min(100, pinnedTablesCount * 10) : null,
     },
   ];
 
@@ -3158,6 +3116,29 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
     <div className="home">
       <div className="home-header">
         <h1 className="home-title">Επανάληψη Ψυχιατρικής</h1>
+        {resumePosition && (
+          <div className="home-resume-badge">
+            <button
+              type="button"
+              className="home-resume-btn"
+              onClick={onResume}
+              title={resumePosition.title}
+            >
+              <span>Συνέχεια:</span>
+              <strong>{resumePosition.title.length > 25 ? `${resumePosition.title.slice(0, 25)}…` : resumePosition.title}</strong>
+              <Icons.ArrowRight />
+            </button>
+            <button
+              type="button"
+              className="home-resume-dismiss"
+              onClick={onDismissResume}
+              aria-label="Καθαρισμός σημείου μελέτης"
+              title="Απόκρυψη"
+            >
+              <Icons.X />
+            </button>
+          </div>
+        )}
       </div>
 
       <div>
@@ -3213,26 +3194,6 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         <div className="subscale">
           <h2 className="subscale-title">Ενότητες</h2>
           <span className="subscale-rule" />
-          {resumePosition ? (
-            <span className="home-resume-inline">
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={onResume}
-                title={resumePosition.title}
-              >
-                Συνέχεια: {resumePosition.title.length > 25 ? `${resumePosition.title.slice(0, 25)}…` : resumePosition.title} <Icons.ArrowRight />
-              </button>
-              <button
-                type="button"
-                className="btn btn-quiet btn-sm btn-icon"
-                onClick={onDismissResume}
-                aria-label="Καθαρισμός σημείου μελέτης"
-              >
-                <Icons.X />
-              </button>
-            </span>
-          ) : <span />}
         </div>
         <div className="home-modules">
           {sections.map(section => (
@@ -7465,8 +7426,8 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           </div>
         </div>
 
-        <div className="pinakakia-controls" style={{ marginBottom: "var(--s4)" }}>
-          <div className="search-bar" style={{ marginBottom: "var(--s3)" }}>
+        <div className="pinakakia-controls">
+          <div className="search-bar">
             <span className="search-icon" aria-hidden="true"><Icons.Search /></span>
             <input
               type="text"
@@ -7615,7 +7576,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
               </div>
             </div>
 
-            <div className="pinakakia-source-card dsm5" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0} style={{ gridColumn: "1 / -1" }}>
+            <div className="pinakakia-source-card dsm5" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0}>
               <div className="pinakakia-source-badge">
                 <Icons.Table /> DSM-5-TR Self-Exam
               </div>
