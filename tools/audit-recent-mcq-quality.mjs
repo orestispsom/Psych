@@ -41,6 +41,15 @@ const positionSpread = Math.max(...answerPositions) - Math.min(...answerPosition
 if (positionSpread > 1) {
   findings.push(`Correct-answer positions are imbalanced: ${answerPositions.join('/')}.`);
 }
+if (correctLongest / questions.length > 0.4) {
+  findings.push(`Correct option is longest in ${correctLongest}/${questions.length} recent MCQs (>40%).`);
+}
+if (lengthRatio125 / questions.length > 0.15) {
+  findings.push(`Correct option is at least 1.25× mean distractor length in ${lengthRatio125}/${questions.length} recent MCQs (>15%).`);
+}
+if (clusteredCues / questions.length > 0.1) {
+  findings.push(`Absolute-word cue clusters occur in ${clusteredCues}/${questions.length} recent MCQs (>10%).`);
+}
 
 const summary = {
   questions: questions.length,
