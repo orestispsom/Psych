@@ -3040,11 +3040,13 @@ function HomeModuleCard({ id, icon, title, onOpen }) {
       className={`home-module home-module-${HOME_MODULE_ACCENT[id]}`}
       onClick={() => onOpen(id)}
     >
-      <span className="home-module-icon" aria-hidden="true">{icon}</span>
+      <div className="home-module-head">
+        <span className="home-module-icon" aria-hidden="true">{icon}</span>
+        <span className="home-module-arrow" aria-hidden="true">
+          <Icons.ArrowRight />
+        </span>
+      </div>
       <span className="home-module-title">{title}</span>
-      <span className="home-module-chevron" aria-hidden="true">
-        <Icons.ChevronRight />
-      </span>
     </button>
   );
 }
@@ -3114,6 +3116,29 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
     <div className="home">
       <div className="home-header">
         <h1 className="home-title">Επανάληψη Ψυχιατρικής</h1>
+        {resumePosition && (
+          <div className="home-resume-badge">
+            <button
+              type="button"
+              className="home-resume-btn"
+              onClick={onResume}
+              title={resumePosition.title}
+            >
+              <span>Συνέχεια:</span>
+              <strong>{resumePosition.title.length > 25 ? `${resumePosition.title.slice(0, 25)}…` : resumePosition.title}</strong>
+              <Icons.ArrowRight />
+            </button>
+            <button
+              type="button"
+              className="home-resume-dismiss"
+              onClick={onDismissResume}
+              aria-label="Καθαρισμός σημείου μελέτης"
+              title="Απόκρυψη"
+            >
+              <Icons.X />
+            </button>
+          </div>
+        )}
       </div>
 
       <div>
@@ -3169,26 +3194,6 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         <div className="subscale">
           <h2 className="subscale-title">Ενότητες</h2>
           <span className="subscale-rule" />
-          {resumePosition ? (
-            <span className="home-resume-inline">
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={onResume}
-                title={resumePosition.title}
-              >
-                Συνέχεια: {resumePosition.title.length > 25 ? `${resumePosition.title.slice(0, 25)}…` : resumePosition.title} <Icons.ArrowRight />
-              </button>
-              <button
-                type="button"
-                className="btn btn-quiet btn-sm btn-icon"
-                onClick={onDismissResume}
-                aria-label="Καθαρισμός σημείου μελέτης"
-              >
-                <Icons.X />
-              </button>
-            </span>
-          ) : <span />}
         </div>
         <div className="home-modules">
           {sections.map(section => (

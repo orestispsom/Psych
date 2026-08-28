@@ -56,9 +56,80 @@
 
 .home { display: grid; gap: var(--s3); }
 
-.home-header { display: grid; gap: var(--s2); }
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  min-height: 44px;
+}
 .home-title { font-size: var(--t-title); }
 .home-logo { display: none; }
+
+.home-resume-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-full, 999px);
+  padding: 2px 4px 2px 12px;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.home-resume-badge:hover {
+  border-color: var(--mark);
+  background: var(--raised);
+}
+.home-resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-size: var(--t-meta);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.home-resume-btn span {
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.home-resume-btn strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.home-resume-btn .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--mark);
+}
+.home-resume-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.home-resume-dismiss:hover {
+  background: var(--field);
+  color: var(--ink);
+}
+.home-resume-dismiss .icon {
+  width: 12px;
+  height: 12px;
+}
 
 /* On desktop the home screen is a fixed composition, never a scroll: the
    fixed-height blocks (title, update, figures, "Ενότητες" head) take their
@@ -91,16 +162,6 @@
     margin-top: var(--s2);
   }
 }
-
-.home-section-heading {
-  font-size: var(--t-label); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.09em;
-  color: var(--ink-2);
-}
-
-/* Resume — a small button living in the "Ενότητες" header row itself
-   (the subscale head's trailing slot) rather than a whole dedicated row. */
-.home-resume-inline { display: flex; align-items: center; gap: var(--s1); }
 
 /* Today's figures — secondary context, not the reason the trainee opened
    this screen. Hugs its own content instead of stretching to fill a wide
@@ -151,74 +212,93 @@
 .home-sections { display: grid; }
 
 /* ═══ HOME MODULES — the one deliberate exception to "no cards" ═══
-   Four functions, one dispatch point: clean, eloquent, beautifully balanced. */
+   Four functions, one dispatch point: generous, eloquent, beautifully illuminated portals. */
 .home-modules {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s3);
+  gap: var(--s4);
   max-width: 940px;
 }
 .home-module {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: var(--s4);
-  min-height: 74px;
-  padding: 14px var(--s4);
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 124px;
+  height: 132px;
+  padding: var(--s4) var(--s5);
   text-align: left;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--module) 10%, var(--field)), color-mix(in srgb, var(--module) 3%, var(--field)));
-  border: 1px solid color-mix(in srgb, var(--module) 28%, var(--rule-strong));
-  border-radius: var(--r-lg, 12px);
+  background: radial-gradient(130% 130% at 0% 0%, color-mix(in srgb, var(--module) 14%, var(--field)) 0%, color-mix(in srgb, var(--module) 3%, var(--field)) 100%);
+  border: 1px solid color-mix(in srgb, var(--module) 22%, var(--rule-strong));
+  border-radius: var(--r-xl, 16px);
   color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease), background 0.15s var(--ease);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
   cursor: pointer;
 }
 .home-module:hover {
   border-color: var(--module);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--module) 16%, var(--field)), color-mix(in srgb, var(--module) 6%, var(--field)));
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px color-mix(in srgb, var(--module) 25%, rgba(0, 0, 0, 0.3));
+  background: radial-gradient(130% 130% at 0% 0%, color-mix(in srgb, var(--module) 22%, var(--field)) 0%, color-mix(in srgb, var(--module) 5%, var(--field)) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -4px color-mix(in srgb, var(--module) 28%, rgba(0, 0, 0, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .home-module:focus-visible {
   outline: 2px solid var(--module);
   outline-offset: 2px;
 }
+.home-module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
 .home-module-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-  border-radius: var(--r-md, 10px);
+  border-radius: 13px;
   background: var(--module);
   color: #fff;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--module) 30%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--module) 40%, transparent);
 }
 .home-module-icon .icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+}
+.home-module-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--module) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--module) 24%, transparent);
+  color: var(--module);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s var(--ease);
+}
+.home-module-arrow .icon {
+  width: 15px;
+  height: 15px;
+}
+.home-module:hover .home-module-arrow {
+  background: var(--module);
+  color: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--module) 40%, transparent);
 }
 .home-module-title {
   display: block;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--ink);
-  flex: 1;
-  min-width: 0;
-}
-.home-module-chevron {
-  display: flex;
-  align-items: center;
-  color: var(--module);
-  flex-shrink: 0;
-  margin-left: auto;
-  transition: transform 0.15s var(--ease);
-}
-.home-module:hover .home-module-chevron {
-  transform: translateX(3px);
+  line-height: 1.25;
+  margin-top: auto;
+  padding-top: var(--s2);
 }
 .home-module-mcq { --module: var(--sec-mcq); --module-quiet: var(--sec-mcq-quiet); --module-rule: var(--rule-strong); }
 .home-module-oral { --module: var(--sec-oral); --module-quiet: var(--sec-oral-quiet); --module-rule: var(--rule-strong); }
@@ -231,36 +311,36 @@
     gap: var(--s3);
   }
   .home-module {
-    min-height: 66px;
-    padding: 12px var(--s3);
-    gap: var(--s3);
+    min-height: 100px;
+    height: auto;
+    padding: 14px var(--s4);
   }
   .home-module-icon {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
   }
   .home-module-icon .icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
   .home-module-title {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
 }
 @media (min-width: 900px) {
   .home-modules-section .home-modules {
     max-width: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s3);
+    gap: var(--s4);
   }
   .home-modules-section .home-module {
-    height: 76px;
-    min-height: 76px;
-    padding: 14px var(--s4);
+    height: 136px;
+    min-height: 136px;
+    padding: var(--s4) var(--s5);
   }
-  .home-modules-section .home-module-icon { width: 44px; height: 44px; }
-  .home-modules-section .home-module-icon .icon { width: 22px; height: 22px; }
-  .home-modules-section .home-module-title { font-size: 1.15rem; }
+  .home-modules-section .home-module-icon { width: 50px; height: 50px; }
+  .home-modules-section .home-module-icon .icon { width: 26px; height: 26px; }
+  .home-modules-section .home-module-title { font-size: 1.3rem; }
 }
 .home-update-note {
   display: grid; gap: 2px; padding: var(--s2) 0;
