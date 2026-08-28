@@ -1894,7 +1894,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 /* ═══ ΠΙΝΑΚΑΚΙΑ ═══════════════════════════════════════════════ */
 
-.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s5); position: relative; }
+.pinakakia-screen, .pinakakia-viewer, .pinakakia-results { display: grid; gap: var(--s3); position: relative; }
 .pinakakia-search-wrap { display: grid; gap: var(--s2); }
 .pinakakia-search-summary { font-size: var(--t-micro); color: var(--ink-3); }
 
@@ -3371,14 +3371,14 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   transition: width 0.3s var(--ease);
 }
 
-/* ═══ Pinakakia 2-Column Sources Grid ═══ */
+/* ═══ Pinakakia 3-Column Sources Grid ═══ */
 .pinakakia-sources-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s4);
-  margin-top: var(--s3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s2);
 }
-@media (max-width: 699px) {
+@media (max-width: 899px) {
   .pinakakia-sources-grid {
     grid-template-columns: 1fr;
     gap: var(--s3);
@@ -3389,10 +3389,10 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   border: 1px solid var(--rule-strong);
   border-top: 3px solid var(--sec-boxes);
   border-radius: var(--r-lg, 12px);
-  padding: var(--s5);
+  padding: var(--s3) var(--s4);
   display: flex;
   flex-direction: column;
-  gap: var(--s3);
+  gap: var(--s2);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
@@ -3405,27 +3405,28 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 .pinakakia-source-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--t-micro);
+  gap: 5px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
   color: var(--sec-boxes);
   background: rgba(13, 148, 136, 0.12);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: var(--r-sm, 4px);
   width: fit-content;
 }
 .pinakakia-source-title {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ink);
   margin: 0;
+  line-height: 1.3;
 }
 .pinakakia-source-desc {
-  font-size: var(--t-ui);
+  font-size: var(--t-meta);
   color: var(--ink-2);
-  line-height: 1.45;
+  line-height: 1.4;
   margin: 0;
   flex: 1;
 }
@@ -3434,8 +3435,8 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--rule);
-  padding-top: var(--s3);
-  margin-top: var(--s2);
+  padding-top: var(--s2);
+  margin-top: auto;
 }
 .pinakakia-source-count {
   font-size: var(--t-micro);
@@ -3447,17 +3448,72 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--t-ui);
+  font-size: var(--t-meta);
   font-weight: 600;
   color: var(--sec-boxes);
 }
 
-/* Full Width Search Input Styling */
+/* Squeezed & Compact Search & Filter Controls */
+.pinakakia-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--s2);
+}
 .pinakakia-controls .search-bar {
   width: 100%;
+  margin-bottom: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 .pinakakia-controls .search-input {
   width: 100%;
-  font-size: var(--t-ui);
-  padding: 10px 14px 10px 38px;
+  height: 36px;
+  font-size: var(--t-meta);
+  padding: 6px 12px 6px 34px;
+  border-radius: var(--r-md, 8px);
+  background: var(--field);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+}
+.pinakakia-controls .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.pinakakia-controls .search-icon .icon {
+  width: 15px;
+  height: 15px;
+}
+.pinakakia-controls .search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 4px;
+}
+.pinakakia-controls .category-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+.pinakakia-controls .review-filter-pill {
+  padding: 3px 9px;
+  font-size: var(--t-micro);
+  border-radius: var(--r-full);
 }

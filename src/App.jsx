@@ -7465,8 +7465,8 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
           </div>
         </div>
 
-        <div className="pinakakia-controls" style={{ marginBottom: "var(--s4)" }}>
-          <div className="search-bar" style={{ marginBottom: "var(--s3)" }}>
+        <div className="pinakakia-controls">
+          <div className="search-bar">
             <span className="search-icon" aria-hidden="true"><Icons.Search /></span>
             <input
               type="text"
@@ -7615,7 +7615,7 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
               </div>
             </div>
 
-            <div className="pinakakia-source-card dsm5" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0} style={{ gridColumn: "1 / -1" }}>
+            <div className="pinakakia-source-card dsm5" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0}>
               <div className="pinakakia-source-badge">
                 <Icons.Table /> DSM-5-TR Self-Exam
               </div>
