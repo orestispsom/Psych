@@ -6077,33 +6077,6 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
         </div>
       </div>
 
-      <div className="oral-hero-card" onClick={onOpenSimulator} role="button" tabIndex={0}>
-        <div className="oral-hero-badge">
-          <span className="oral-hero-badge-dot" />
-          <span>Διαδραστική Προσομοίωση</span>
-        </div>
-        <div className="oral-hero-main">
-          <div className="oral-hero-icon" aria-hidden="true"><Icons.Mic /></div>
-          <div className="oral-hero-text">
-            <h3 className="oral-hero-title">Προσομοιωτής Προφορικής Εξέτασης</h3>
-            <p className="oral-hero-desc">
-              Ρεαλιστική προσομοίωση εξέτασης με τυχαία επιλογή κεντρικού θέματος, κλινική ανάλυση και διαδοχικές διευκρινιστικές ερωτήσεις από την επιτροπή.
-            </p>
-          </div>
-        </div>
-        <div className="oral-hero-footer">
-          <span className="oral-hero-meta">✨ Νέα κλινική υπόθεση κάθε φορά</span>
-          <button type="button" className="btn btn-primary btn-sm oral-hero-btn" onClick={(e) => { e.stopPropagation(); onOpenSimulator(); }}>
-            Έναρξη Εξέτασης <Icons.ArrowRight />
-          </button>
-        </div>
-      </div>
-
-      <div className="subscale" style={{ margin: "var(--s5) 0 var(--s3)" }}>
-        <h3 className="subscale-title">Ύλη & Θεματικές Ενότητες</h3>
-        <span className="subscale-rule" />
-      </div>
-
       <div className="oral-hub-grid">
         <button type="button" className="oral-hub-tile" onClick={onOpenPast}>
           <span className="oral-hub-icon" aria-hidden="true"><Icons.BookOpen /></span>
@@ -6113,6 +6086,16 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
               {overallSummary.mastered}/{overallSummary.total} mastered ({percent}%)
             </span>
             <span className="oral-hub-desc">Περιήγηση ανά κλινική βαρύτητα (Levels 1–5) και κεφάλαιο</span>
+          </span>
+          <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
+        </button>
+
+        <button type="button" className="oral-hub-tile" onClick={onOpenSimulator}>
+          <span className="oral-hub-icon" aria-hidden="true"><Icons.Mic /></span>
+          <span className="oral-hub-body">
+            <span className="oral-hub-title">Προσομοιωτής Προφορικής Εξέτασης</span>
+            <span className="oral-hub-stat">Νέα κλινική υπόθεση κάθε φορά</span>
+            <span className="oral-hub-desc">Ρεαλιστική προσομοίωση εξέτασης με τυχαία επιλογή κεντρικού θέματος, κλινική ανάλυση και διαδοχικές διευκρινιστικές ερωτήσεις</span>
           </span>
           <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
         </button>

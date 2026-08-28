@@ -69,12 +69,12 @@
   .sheet:has(.sos-screen),
   .sheet:has(.oral-hub-screen),
   .sheet:has(.mcq-hub),
-  .sheet:has(.pinakakia-screen > .hub-row-grid),
+  .sheet:has(.pinakakia-screen),
   .sheet:has(.hub-row-grid) {
     padding-top: var(--s5);
     padding-bottom: var(--s5);
   }
-  .sheet:has(.home, .sos-screen, .oral-hub-screen, .mcq-hub, .hub-row-grid) .sheet-head {
+  .sheet:has(.home, .sos-screen, .oral-hub-screen, .mcq-hub, .pinakakia-screen, .hub-row-grid) .sheet-head {
     margin-bottom: var(--s3);
     padding-bottom: var(--s3);
   }
