@@ -3191,13 +3191,13 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       </div>
 
       <div className="figures">
-        <div className="figure figure-due">
-          <span className="figure-value">{mcqProgressSummary.review}</span>
-          <span className="figure-label">Για επανάληψη</span>
-        </div>
         <div className="figure figure-pass">
           <span className="figure-value">{mcqProgressSummary.mastered}</span>
           <span className="figure-label">Mastered</span>
+        </div>
+        <div className="figure">
+          <span className="figure-value">{mcqProgressSummary.attempted}</span>
+          <span className="figure-label">Απαντημένες</span>
         </div>
         <div className="figure">
           <span className="figure-value">{mcqProgressSummary.unseen}</span>
@@ -3327,8 +3327,6 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
     { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
     { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
     { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
-    { id: 'DSM5', icon: <Icons.Table />, title: 'DSM-5-TR Self-Exam', detail: '528 ερωτήσεις αυτοαξιολόγησης ανά κεφάλαιο' },
-    { id: 'due', icon: <Icons.RotateCcw />, title: 'Επανάληψη Μνήμης', detail: `${progressSummary.review} ερωτήσεις για επανάληψη` },
     { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
     { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
   ];
@@ -3349,8 +3347,8 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           <span className="mcq-memory-label">Mastered</span>
         </div>
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value" style={{ color: 'var(--due)' }}>{progressSummary.review}</span>
-          <span className="mcq-memory-label">Επανάληψη</span>
+          <span className="mcq-memory-value">{progressSummary.attempted}</span>
+          <span className="mcq-memory-label">Απαντημένες</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.unseen}</span>
@@ -7634,19 +7632,17 @@ function PinakakiaModule({ onBack, onHome, routeScreen = "sources", routeChapter
               </div>
             </div>
 
-            {isAdmin && (
-              <div className="pinakakia-source-card admin" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0} style={{ gridColumn: "1 / -1" }}>
-                <div className="pinakakia-source-badge">
-                  <Icons.Table /> DSM-5-TR Self-Exam (Admin)
-                </div>
-                <h3 className="pinakakia-source-title">DSM-5-TR Self-Exam Bank</h3>
-                <p className="pinakakia-source-desc">528 ερωτήσεις αυτοαξιολόγησης ανά διαγνωστικό κεφάλαιο.</p>
-                <div className="pinakakia-source-footer">
-                  <span className="pinakakia-source-count">528 ερωτήσεις</span>
-                  <span className="pinakakia-source-btn">Έναρξη <Icons.ChevronRight /></span>
-                </div>
+            <div className="pinakakia-source-card dsm5" onClick={() => onOpenDsm5?.()} role="button" tabIndex={0} style={{ gridColumn: "1 / -1" }}>
+              <div className="pinakakia-source-badge">
+                <Icons.Table /> DSM-5-TR Self-Exam
               </div>
-            )}
+              <h3 className="pinakakia-source-title">DSM-5-TR Self-Exam Bank</h3>
+              <p className="pinakakia-source-desc">528 ερωτήσεις αυτοαξιολόγησης και διαγνωστικών κριτηρίων ταξινομημένες ανά διαγνωστικό κεφάλαιο.</p>
+              <div className="pinakakia-source-footer">
+                <span className="pinakakia-source-count">528 ερωτήσεις · Διαγνωστικά Κεφάλαια</span>
+                <span className="pinakakia-source-btn">Έναρξη <Icons.ChevronRight /></span>
+              </div>
+            </div>
           </div>
         )}
       </>,
