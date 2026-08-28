@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "audit:mcq": "node tools/audit-mcq-bank.mjs",
-    "audit:mcq:strict": "node tools/audit-mcq-bank.mjs --strict"
+    "audit:mcq:strict": "node tools/audit-mcq-bank.mjs --strict",
+    "audit:mcq:recent": "node tools/audit-recent-mcq-quality.mjs"
   },
   "keywords": [],
   "author": "",

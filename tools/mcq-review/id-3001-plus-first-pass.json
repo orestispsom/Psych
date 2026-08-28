@@ -3311,5 +3311,84 @@
         "explanation": "Τα σαφή και συνεπή όρια προστατεύουν τη θεραπεία και δεν αποκλείουν την ενσυναισθητική διερεύνηση του θυμού ή του φόβου εγκατάλειψης. Οι διαδικασίες για πραγματικά επείγουσες καταστάσεις πρέπει να είναι επίσης ξεκάθαρες."
       }
     }
-  ]
+  ],
+  "secondPass": {
+    "authority": {
+      "primary": "orestispsom/Psychiatry-Exams@4768d8687f36c6a687974c69da46189b7dc88c9b",
+      "secondary": "orestispsom/btb-production@4eea4d20ebf373468826dc0fa3dc313b856025f7",
+      "productionBank": "orestispsom/Psych"
+    },
+    "currentSourceChecks": {
+      "checkedOn": "2026-08-28",
+      "greekLaw": "Psychiatry-Exams/oral/100-crucial-questions/answers/source-packets/Q008-Q009-current-greek-law.md",
+      "cobenfy": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/216158s000lbl.pdf",
+      "antiAmyloidAria": "https://www.fda.gov/drugs/drug-safety-communications/fda-recommend-additional-earlier-mri-monitoring-patients-alzheimers-disease-taking-leqembi-lecanemab",
+      "valproatePregnancy": "https://www.ema.europa.eu/en/news/new-measures-avoid-valproate-exposure-pregnancy-endorsed"
+    },
+    "outcomes": {
+      "provisionalKeepsRetained": 55,
+      "provisionalKeepsRefined": [
+        3043,
+        3045,
+        3046,
+        3173
+      ],
+      "revisedAndRestored": 74,
+      "rejectedAfterSecondPass": [
+        3052,
+        3053,
+        3057,
+        3117,
+        3118,
+        3120,
+        3121,
+        3127,
+        3133,
+        3136,
+        3137,
+        3152,
+        3153,
+        3171,
+        3186,
+        3193,
+        3196,
+        3205
+      ],
+      "rejectionReasons": {
+        "3052": "Near-duplicate of the stronger clinical Hoover-sign item 3124.",
+        "3053": "Near-duplicate of the stronger functional-tremor item 3125.",
+        "3057": "Still reduced to safeguarding versus delay despite redesign.",
+        "3117": "Duplicate PMDD confirmation target already tested more competitively in 3021.",
+        "3118": "Generic affirming-care item with no plausible competing answer set.",
+        "3120": "Professional-interpreter choice remained apparent without psychiatric knowledge.",
+        "3121": "Generic cultural-formulation communication item with low discrimination.",
+        "3127": "Duplicated the functional-neurological-disorder communication target.",
+        "3133": "Shared-decision framing remained generic rather than pharmacologically discriminating.",
+        "3136": "Safeguarding response remained apparent from professional-conduct cues.",
+        "3137": "Jurisdiction-sensitive adolescent decision item lacked a sufficiently bounded legal target.",
+        "3152": "Duplicated Lewy-body antipsychotic sensitivity already tested in 3035.",
+        "3153": "Driving item depended on unspecified local rules and a generic functional-assessment answer.",
+        "3171": "Environmental safety response remained obvious without sleep-medicine knowledge.",
+        "3186": "Advance-planning item lacked a sufficiently specific Greek legal or clinical construct.",
+        "3193": "Post-sedation monitoring remained professional-safety recognition rather than psychiatric discrimination.",
+        "3196": "Post-restraint review item remained generic governance knowledge.",
+        "3205": "Boundary-setting answer remained obvious from tone rather than psychotherapy knowledge."
+      },
+      "firstPassDeletesRetained": [
+        3019,
+        3028,
+        3058,
+        3091,
+        3108,
+        3119,
+        3179,
+        3184,
+        3185,
+        3187,
+        3199,
+        3200
+      ]
+    },
+    "resultingBankSize": 1970
+  }
 }
