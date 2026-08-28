@@ -65,9 +65,18 @@
    natural size and the module grid absorbs whatever's left, so the cards
    are always as big as the viewport allows. */
 @media (min-width: 900px) {
-  .sheet:has(.home) {
-    padding-top: var(--s6);
-    padding-bottom: var(--s6);
+  .sheet:has(.home),
+  .sheet:has(.sos-screen),
+  .sheet:has(.oral-hub-screen),
+  .sheet:has(.mcq-hub),
+  .sheet:has(.pinakakia-screen > .hub-row-grid),
+  .sheet:has(.hub-row-grid) {
+    padding-top: var(--s5);
+    padding-bottom: var(--s5);
+  }
+  .sheet:has(.home, .sos-screen, .oral-hub-screen, .mcq-hub, .hub-row-grid) .sheet-head {
+    margin-bottom: var(--s3);
+    padding-bottom: var(--s3);
   }
   .home {
     margin-top: 0;
@@ -323,7 +332,7 @@
 
 /* ═══ MCQ HUB ═════════════════════════════════════════════════ */
 
-.mcq-select { display: grid; gap: var(--s5); }
+.mcq-select { display: grid; gap: var(--s3); }
 
 .admin-options { display: grid; gap: var(--s3); max-width: 480px; }
 
@@ -339,69 +348,67 @@
 }
 .mcq-hub .mode-tile {
   display: flex; flex-direction: column; align-items: flex-start;
-  gap: var(--s3); text-align: left;
-  min-height: 160px; height: auto; padding: var(--s4);
+  gap: var(--s2); text-align: left;
+  min-height: 110px; height: auto; padding: var(--s3) var(--s4);
   background: var(--accent-quiet, var(--sec-mcq-quiet));
   border: 1px solid var(--rule-strong);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   transition: border-color 0.15s var(--ease), background 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 .mcq-hub .mode-tile:hover {
   border-color: var(--accent, var(--sec-mcq));
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.35);
 }
 .mcq-hub .mode-tile:focus-visible { border-color: var(--accent, var(--sec-mcq)); }
 .mode-tile-icon { flex: none; }
-.mode-tile-body { display: grid; gap: var(--s1); min-width: 0; }
+.mode-tile-body { display: grid; gap: 2px; min-width: 0; }
 .mode-tile-title {
-  font-size: var(--t-item); font-weight: 700; letter-spacing: -0.01em; line-height: 1.35;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3;
 }
 .mode-tile-detail {
-  font-size: var(--t-meta); color: var(--ink-2); line-height: 1.45;
+  font-size: var(--t-meta); color: var(--ink-2); line-height: 1.4;
 }
 @media (max-width: 599px) {
   .mode-tile-grid { grid-template-columns: 1fr; }
-  .mode-tile { min-height: 136px; padding: var(--s4); }
+  .mode-tile { min-height: 96px; padding: var(--s3) var(--s4); }
 }
 
-/* A hub of 2–3 functions reads better as fewer, wider plates with a real
-   description and a live stat than as square icon tiles. */
-/* Wide rows, not a card grid: with two or three functions a row layout
-   fills the page honestly, gives each description a full line instead of a
-   three-line wrap, and keeps the icons on one reading axis. */
+/* A hub of 2–4 functions reads as clean, scan-friendly rows with full-width
+   measure so all rows fit comfortably within the viewport. */
 .oral-hub-grid, .hub-row-grid {
-  display: grid; gap: var(--s3);
+  display: grid; gap: var(--s2);
   max-width: 940px;
 }
 .oral-hub-tile, .hub-row {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center; gap: var(--s5);
-  min-height: 132px;
-  padding: var(--s5);
+  align-items: center; gap: var(--s4);
+  min-height: 72px;
+  padding: 12px var(--s4);
   text-align: left;
   background: var(--accent-quiet, var(--field));
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-md);
   color: var(--ink);
-  transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
+  transition: border-color 0.12s var(--ease), background 0.12s var(--ease), transform 0.12s var(--ease);
 }
-.oral-hub-tile:hover, .hub-row:hover { border-color: var(--accent, var(--ink-3)); }
+.oral-hub-tile:hover, .hub-row:hover {
+  border-color: var(--accent, var(--ink-3));
+  background: color-mix(in srgb, var(--accent, var(--mark)) 12%, var(--field));
+  transform: translateY(-1px);
+}
 .oral-hub-tile:disabled, .hub-row:disabled { opacity: 0.42; cursor: not-allowed; }
-.oral-hub-body, .hub-row-body { display: grid; gap: var(--s1); min-width: 0; }
+.oral-hub-body, .hub-row-body { display: grid; gap: 2px; min-width: 0; }
 .oral-hub-go, .hub-row-go { display: flex; color: var(--accent, var(--ink-3)); }
 
-/* Deliberately not stretched to the viewport: two or three rows blown up to
-   fill 900px read as padding, not as design. They keep their natural height
-   and span the sheet's full width so they line up with the head's rule. */
 @media (min-width: 900px) {
-  .oral-container.oral-hub-screen .oral-hub-grid { max-width: none; }
-  .oral-container.oral-hub-screen .oral-hub-tile { min-height: 124px; }
-  .oral-container.oral-hub-screen .oral-hub-title { font-size: 21px; }
-  .oral-container.oral-hub-screen .oral-hub-icon { width: 52px; height: 52px; }
-  .oral-container.oral-hub-screen .oral-hub-icon .icon { width: 26px; height: 26px; }
+  .oral-container.oral-hub-screen .oral-hub-grid { max-width: none; gap: var(--s2); }
+  .oral-container.oral-hub-screen .oral-hub-tile { min-height: 76px; padding: 13px var(--s4); }
+  .oral-container.oral-hub-screen .oral-hub-title { font-size: 18.5px; }
+  .oral-container.oral-hub-screen .oral-hub-icon { width: 44px; height: 44px; }
+  .oral-container.oral-hub-screen .oral-hub-icon .icon { width: 22px; height: 22px; }
 }
 .oral-hub-icon, .hub-row-icon {
   display: flex; align-items: center; justify-content: center;
