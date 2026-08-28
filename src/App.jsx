@@ -3277,14 +3277,14 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test' },
-    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία' },
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση' },
-    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες' },
-    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes' },
-    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση' },
-    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση', detail: '100 ερωτήσεις · Επίσημο format' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες' },
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις' },
+    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από όλη την ύλη' },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & κενά' },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις' },
+    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
+    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
   ];
 
   const renderModes = () => (
@@ -3295,10 +3295,12 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           className="mode-tile"
           onClick={() => onStart(mode.id)}
         >
-          <span className="mode-tile-icon hub-row-icon" aria-hidden="true">{mode.icon}</span>
+          <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
           <span className="mode-tile-body">
             <span className="mode-tile-title">{mode.title}</span>
+            <span className="mode-tile-detail">{mode.detail}</span>
           </span>
+          <span className="mode-tile-go" aria-hidden="true"><Icons.ChevronRight /></span>
         </button>
       ))}
     </div>
