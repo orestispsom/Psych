@@ -151,67 +151,102 @@
 .home-sections { display: grid; }
 
 /* ═══ HOME MODULES — the one deliberate exception to "no cards" ═══
-   Four functions, one dispatch point: each gets a big, colour-coded plate
-   instead of a list row, so the choice reads before the trainee reads. */
+   Four functions, one dispatch point: clean, eloquent, beautifully balanced. */
 .home-modules {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s4);
-  max-width: 760px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  max-width: 940px;
 }
-/* Fixed height, not min-height: all four read as one set regardless of
-   which ones happen to carry a detail line, so the grid is visibly even. */
 .home-module {
   position: relative;
-  display: flex; flex-direction: column;
-  gap: var(--s3);
-  height: 144px;
-  padding: var(--s4);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  min-height: 74px;
+  padding: 14px var(--s4);
   text-align: left;
-  background: var(--module-quiet);
-  border: 1px solid var(--module-rule);
-  border-top: 3px solid var(--module);
-  border-radius: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--module) 10%, var(--field)), color-mix(in srgb, var(--module) 3%, var(--field)));
+  border: 1px solid color-mix(in srgb, var(--module) 28%, var(--rule-strong));
+  border-radius: var(--r-lg, 12px);
   color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease), background 0.15s var(--ease);
+  cursor: pointer;
 }
 .home-module:hover {
   border-color: var(--module);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--module) 16%, var(--field)), color-mix(in srgb, var(--module) 6%, var(--field)));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px color-mix(in srgb, var(--module) 25%, rgba(0, 0, 0, 0.3));
+}
+.home-module:focus-visible {
+  outline: 2px solid var(--module);
+  outline-offset: 2px;
 }
 .home-module-icon {
-  display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px; flex: none;
-  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--r-md, 10px);
   background: var(--module);
-  color: var(--stock-ink);
+  color: #fff;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--module) 30%, transparent);
 }
-.home-module-icon .icon { width: 22px; height: 22px; }
+.home-module-icon .icon {
+  width: 22px;
+  height: 22px;
+}
 .home-module-title {
   display: block;
-  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
-  min-width: 0; overflow-wrap: anywhere;
-}
-.home-module-detail {
-  display: block; margin-top: -4px;
-  font-size: var(--t-micro); color: var(--ink-2);
-  min-width: 0; overflow-wrap: anywhere;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
 }
 .home-module-chevron {
-  position: absolute; top: var(--s4); right: var(--s4);
-  display: flex; color: var(--module);
+  display: flex;
+  align-items: center;
+  color: var(--module);
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: transform 0.15s var(--ease);
+}
+.home-module:hover .home-module-chevron {
+  transform: translateX(3px);
 }
 .home-module-mcq { --module: var(--sec-mcq); --module-quiet: var(--sec-mcq-quiet); --module-rule: var(--rule-strong); }
 .home-module-oral { --module: var(--sec-oral); --module-quiet: var(--sec-oral-quiet); --module-rule: var(--rule-strong); }
 .home-module-sos { --module: var(--sec-sos); --module-quiet: var(--sec-sos-quiet); --module-rule: var(--rule-strong); }
 .home-module-boxes { --module: var(--sec-boxes); --module-quiet: var(--sec-boxes-quiet); --module-rule: var(--rule-strong); }
+
 @media (max-width: 699px) {
-  .home-modules { grid-template-columns: 1fr; max-width: none; }
-  .home-module { height: auto; min-height: 116px; }
+  .home-modules {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+  .home-module {
+    min-height: 66px;
+    padding: 12px var(--s3);
+    gap: var(--s3);
+  }
+  .home-module-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .home-module-icon .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .home-module-title {
+    font-size: 1.05rem;
+  }
 }
-/* ≥900px: the grid fills whatever room the flexed section leaves, both
-   axes — the cards are exactly as big as the fixed-height blocks allow. */
 @media (min-width: 900px) {
   .home-modules-section .home-modules {
     max-width: none;
@@ -219,15 +254,13 @@
     gap: var(--s3);
   }
   .home-modules-section .home-module {
-    height: 126px;
-    padding: var(--s3) var(--s4);
-    gap: var(--s2);
-    justify-content: center;
+    height: 76px;
+    min-height: 76px;
+    padding: 14px var(--s4);
   }
   .home-modules-section .home-module-icon { width: 44px; height: 44px; }
   .home-modules-section .home-module-icon .icon { width: 22px; height: 22px; }
-  .home-modules-section .home-module-title { font-size: 19px; }
-  .home-modules-section .home-module-detail { font-size: var(--t-meta); margin-top: 0; }
+  .home-modules-section .home-module-title { font-size: 1.15rem; }
 }
 .home-update-note {
   display: grid; gap: 2px; padding: var(--s2) 0;
@@ -3037,40 +3070,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   }
 }
 
-/* ═══ Home Module Multi-Modal Progress ═══ */
-.home-module-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-}
-.home-module-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 2px;
-}
-.home-module-stat {
-  font-size: var(--t-micro);
-  color: var(--ink-2);
-  font-weight: 500;
-  font-family: var(--code);
-  letter-spacing: -0.01em;
-}
-.home-module-bar-wrap {
-  width: 100%;
-  height: 4px;
-  background: rgba(125, 125, 125, 0.15);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.home-module-bar-fill {
-  height: 100%;
-  background: var(--module);
-  border-radius: 999px;
-  transition: width 0.3s var(--ease);
-}
+
 
 /* ═══ MCQ Hub Due Banner & Grouping ═══ */
 .mcq-due-banner {

@@ -3033,7 +3033,7 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
 // dispatch point, not a list of study items.
 const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
 
-function HomeModuleCard({ id, icon, title, progressStat, progressPercent, onOpen }) {
+function HomeModuleCard({ id, icon, title, onOpen }) {
   return (
     <button
       type="button"
@@ -3041,22 +3041,7 @@ function HomeModuleCard({ id, icon, title, progressStat, progressPercent, onOpen
       onClick={() => onOpen(id)}
     >
       <span className="home-module-icon" aria-hidden="true">{icon}</span>
-      <div className="home-module-main">
-        <span className="home-module-title">{title}</span>
-        {progressStat && (
-          <div className="home-module-meta">
-            <span className="home-module-stat">{progressStat}</span>
-            {progressPercent !== undefined && progressPercent !== null && (
-              <div className="home-module-bar-wrap">
-                <div
-                  className="home-module-bar-fill"
-                  style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <span className="home-module-title">{title}</span>
       <span className="home-module-chevron" aria-hidden="true">
         <Icons.ChevronRight />
       </span>
@@ -3071,55 +3056,26 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [isSavingUpdate, setIsSavingUpdate] = useState(false);
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
 
-  const pinnedTablesCount = useMemo(() => {
-    try {
-      const raw = localStorage.getItem("psych_pinned_tables_v1");
-      return raw ? JSON.parse(raw).length : 0;
-    } catch {
-      return 0;
-    }
-  }, []);
-
-  const mcqTotal = mcqProgressSummary.total || 1913;
-  const mcqMastered = mcqProgressSummary.mastered || 0;
-  const mcqPercent = mcqTotal ? Math.round((mcqMastered / mcqTotal) * 100) : 0;
-
-  const oralTotal = oralProgressSummary?.total || 180;
-  const oralMastered = oralProgressSummary?.mastered || 0;
-  const oralPercent = oralTotal ? Math.round((oralMastered / oralTotal) * 100) : 0;
-
-  const sosTotal = sosProgressSummary?.total || 233;
-  const sosMastered = sosProgressSummary?.mastered || 0;
-  const sosPercent = sosTotal ? Math.round((sosMastered / sosTotal) * 100) : 0;
-
   const sections = [
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
       title: 'Πολλαπλής Επιλογής',
-      progressStat: `${mcqMastered} / ${mcqTotal} Mastered (${mcqPercent}%)`,
-      progressPercent: mcqPercent,
     },
     {
       id: 'oral',
       icon: <Icons.Mic />,
       title: 'Προφορικά',
-      progressStat: `${oralMastered} / ${oralTotal} Mastered (${oralPercent}%)`,
-      progressPercent: oralPercent,
     },
     {
       id: 'sos',
       icon: <Icons.Bolt />,
       title: 'SOS',
-      progressStat: `${sosMastered} / ${sosTotal} Mastered (${sosPercent}%)`,
-      progressPercent: sosPercent,
     },
     {
       id: 'pinakakia',
       icon: <Icons.Table />,
       title: 'Πινακάκια',
-      progressStat: pinnedTablesCount > 0 ? `${pinnedTablesCount} Αγαπημένα ★` : 'Πλαίσια & Πίνακες',
-      progressPercent: pinnedTablesCount > 0 ? Math.min(100, pinnedTablesCount * 10) : null,
     },
   ];
 
