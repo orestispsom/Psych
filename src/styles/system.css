@@ -669,10 +669,39 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
     background: var(--ground);
     border-bottom: 1px solid var(--rule);
   }
-  .topbar-title {
-    font-size: var(--t-meta); font-weight: 600;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    flex: 1; min-width: 0;
+  .topbar-profile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s2);
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: var(--s1) var(--s3);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--r-md);
+    background: var(--field);
+    text-align: left;
+  }
+  .topbar-profile:hover { border-color: var(--ink-3); }
+  .topbar-profile:focus-visible { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--mark) !important; }
+  .topbar-profile .icon { color: var(--ink-2); }
+  .topbar-profile-copy {
+    display: grid;
+    min-width: 0;
+    line-height: 1.15;
+  }
+  .topbar-profile-name {
+    overflow: hidden;
+    color: var(--ink);
+    font-size: var(--t-meta);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .topbar-profile-action {
+    color: var(--ink-3);
+    font-size: var(--t-micro);
   }
 
   .tabbar {

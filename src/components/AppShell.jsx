@@ -218,7 +218,18 @@ export default function AppShell({
           >
             <Icons.Home />
           </button>
-          <span className="topbar-title">{title}</span>
+          <button
+            type="button"
+            className="topbar-profile"
+            onClick={onSwitchProfile}
+            aria-label={`Αλλαγή προφίλ. Τρέχον προφίλ: ${profileName}`}
+          >
+            <Icons.User />
+            <span className="topbar-profile-copy">
+              <span className="topbar-profile-name">{profileName}</span>
+              <span className="topbar-profile-action">Αλλαγή προφίλ</span>
+            </span>
+          </button>
           <button
             type="button"
             className="btn btn-quiet btn-sm btn-icon"

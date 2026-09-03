@@ -64,6 +64,22 @@ describe("golden path smoke tests", () => {
     expect(home.getByText("Πινακάκια")).toBeInTheDocument();
   });
 
+  it("shows the current profile in the mobile header and allows switching profiles", async () => {
+    const user = userEvent.setup();
+    const { container } = renderApp();
+    await createProfile(user, "Δοκιμαστικός", container);
+
+    const switchProfile = screen.getByRole("button", {
+      name: "Αλλαγή προφίλ. Τρέχον προφίλ: Δοκιμαστικός",
+    });
+    expect(switchProfile).toBeInTheDocument();
+    expect(within(switchProfile).getByText("Δοκιμαστικός")).toBeInTheDocument();
+
+    await user.click(switchProfile);
+    expect(await screen.findByLabelText("Όνομα προφίλ")).toBeInTheDocument();
+    expect(screen.getByText("Υπάρχοντα προφίλ")).toBeInTheDocument();
+  });
+
   // Regression guard for the cold-start bug: the whole app used to block on
   // "Προετοιμασία της τράπεζας ερωτήσεων…" (the ~2.5MB MCQ bank loading)
   // before showing ANY screen, even ones that don't need that data.
