@@ -29,6 +29,8 @@ where not (coalesce(mcq_progress, '{}'::jsonb) ? 'vignettes');
 
 alter table public.study_profiles enable row level security;
 
+revoke delete, truncate on public.study_profiles from anon, authenticated;
+
 drop policy if exists "Public profiles can be read" on public.study_profiles;
 create policy "Public profiles can be read"
 on public.study_profiles
@@ -47,6 +49,30 @@ on public.study_profiles
 for update
 using (true)
 with check (true);
+
+create or replace function public.preserve_profile_progress()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.mcq_progress := jsonb_set(
+    coalesce(old.mcq_progress, '{}'::jsonb) || coalesce(new.mcq_progress, '{}'::jsonb),
+    '{questions}',
+    coalesce(old.mcq_progress->'questions', '{}'::jsonb)
+      || coalesce(new.mcq_progress->'questions', '{}'::jsonb),
+    true
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists preserve_profile_progress_before_update on public.study_profiles;
+create trigger preserve_profile_progress_before_update
+before update of mcq_progress on public.study_profiles
+for each row execute function public.preserve_profile_progress();
+
+revoke execute on function public.preserve_profile_progress() from public, anon, authenticated;
 
 create table if not exists public.app_settings (
   key text primary key,

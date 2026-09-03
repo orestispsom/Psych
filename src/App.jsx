@@ -11,6 +11,7 @@ import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
+import { fetchAllPages, mergeMcqProgressSnapshots, mergeOralProgressSnapshots } from "./lib/remoteProgress.mjs";
 
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
@@ -1194,11 +1195,13 @@ async function getFeedbackForQuestion(questionId) {
 async function loadRemoteSosMastery(profileIds) {
   if (!profileIds.length) return [];
 
-  return supabaseTableRequest("sos_mastery", {
+  return fetchAllPages(({ offset, limit }) => supabaseTableRequest("sos_mastery", {
     select: "profile_id,entry_id,section,mastered,mastered_at,updated_at",
     profile_id: `in.(${profileIds.map(quoteSupabaseInValue).join(",")})`,
-    limit: "10000",
-  });
+    order: "profile_id.asc,entry_id.asc",
+    limit: String(limit),
+    offset: String(offset),
+  }));
 }
 
 function mergeSosMasteryRowsIntoProfile(profile, rows) {
@@ -1257,7 +1260,7 @@ function quoteSupabaseInValue(value) {
 async function loadRemoteQuestionStates(profileIds) {
   if (!profileIds.length) return [];
 
-  return supabaseTableRequest("user_question_state", {
+  return fetchAllPages(({ offset, limit }) => supabaseTableRequest("user_question_state", {
     select: [
       "profile_id",
       "question_id",
@@ -1277,8 +1280,10 @@ async function loadRemoteQuestionStates(profileIds) {
       "updated_at",
     ].join(","),
     profile_id: `in.(${profileIds.map(quoteSupabaseInValue).join(",")})`,
-    limit: "10000",
-  });
+    order: "profile_id.asc,question_id.asc",
+    limit: String(limit),
+    offset: String(offset),
+  }));
 }
 
 async function loadRemoteProfileStore(activeProfileId = null) {
@@ -1325,14 +1330,14 @@ async function loadRemoteProfileStore(activeProfileId = null) {
   return { version: 1, activeProfileId: activeId, profiles };
 }
 
-async function upsertRemoteProfile(profile) {
+async function createRemoteProfile(profile) {
   let rows;
   try {
     rows = await supabaseProfilesRequest(
       { on_conflict: "id" },
       {
         method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
         body: JSON.stringify(profileToRemoteRow(profile)),
       }
     );
@@ -1344,23 +1349,37 @@ async function upsertRemoteProfile(profile) {
       { on_conflict: "id" },
       {
         method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
         body: JSON.stringify(fallbackRow),
       }
     );
   }
 
-  return profileFromRemoteRow(rows[0]);
+  if (rows?.[0]) return profileFromRemoteRow(rows[0]);
+
+  const existingRows = await supabaseProfilesRequest({
+    select: "id,name,mcq_progress,oral_progress,created_at",
+    id: `eq.${profile.id}`,
+    limit: "1",
+  });
+  if (!existingRows?.[0]) throw new Error("The profile could not be created or loaded.");
+  return profileFromRemoteRow(existingRows[0]);
 }
 
 async function saveRemoteMcqProgress(profileId, progress) {
+  const rows = await supabaseProfilesRequest({
+    select: "mcq_progress",
+    id: `eq.${profileId}`,
+    limit: "1",
+  });
+  const mergedProgress = mergeMcqProgressSnapshots(rows?.[0]?.mcq_progress, progress);
   await supabaseProfilesRequest(
     { id: `eq.${profileId}` },
     {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
-        mcq_progress: progress,
+        mcq_progress: mergedProgress,
         updated_at: new Date().toISOString(),
       }),
     }
@@ -1368,13 +1387,19 @@ async function saveRemoteMcqProgress(profileId, progress) {
 }
 
 async function saveRemoteOralProgress(profileId, progress) {
+  const rows = await supabaseProfilesRequest({
+    select: "oral_progress",
+    id: `eq.${profileId}`,
+    limit: "1",
+  });
+  const mergedProgress = mergeOralProgressSnapshots(rows?.[0]?.oral_progress, progress);
   await supabaseProfilesRequest(
     { id: `eq.${profileId}` },
     {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
-        oral_progress: normalizeOralProgress(progress),
+        oral_progress: normalizeOralProgress(mergedProgress),
         updated_at: new Date().toISOString(),
       }),
     }
@@ -8962,7 +8987,14 @@ export default function App() {
 
     if (ONLINE_PROFILES_ENABLED) {
       setSyncStatus("saving");
-      upsertRemoteProfile(nextProfile)
+      supabaseProfilesRequest(
+        { id: `eq.${profileId}` },
+        {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ theme_preference: normalized }),
+        }
+      )
         .then(() => setSyncStatus("online"))
         .catch(() => setSyncStatus("offline"));
     }
@@ -9410,15 +9442,6 @@ export default function App() {
       activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
     }));
 
-    if (ONLINE_PROFILES_ENABLED && profile) {
-      setSyncStatus("saving");
-      try {
-        await upsertRemoteProfile(profile);
-        setSyncStatus("online");
-      } catch {
-        setSyncStatus("offline");
-      }
-    }
   }, [profileStore.profiles, rememberAdmin]);
 
   const toggleRememberAdmin = useCallback((remembered) => {
@@ -9447,10 +9470,15 @@ export default function App() {
       },
     }));
 
+    if (ONLINE_PROFILES_ENABLED && existing) {
+      setSyncStatus("online");
+      return;
+    }
+
     if (ONLINE_PROFILES_ENABLED && profileToSync) {
       setSyncStatus("saving");
       try {
-        const remoteProfile = await upsertRemoteProfile(profileToSync);
+        const remoteProfile = await createRemoteProfile(profileToSync);
         setProfileStore(prev => ({
           ...prev,
           activeProfileId: remoteProfile.id,

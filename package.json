@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "backup:supabase": "node scripts/backup-supabase.cjs",
     "audit:mcq": "node tools/audit-mcq-bank.mjs",
     "audit:mcq:strict": "node tools/audit-mcq-bank.mjs --strict",
     "audit:mcq:recent": "node tools/audit-recent-mcq-quality.mjs"
