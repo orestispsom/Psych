@@ -8,3 +8,6 @@ dist/
 .playwright-cli/
 .shots/
 backups/
+.chrome_tmp_profile/
+.chrome_tmp_profile_v2/
+.init_storage.html
