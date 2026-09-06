@@ -1,5 +1,9 @@
 # Project publishing rules
 
+## Ecosystem process governance
+
+For multi-agent and cross-repository coordination, follow `orestispsom/mental-health-core/docs/ECOSYSTEM_GOVERNANCE.md`. It governs sync, task claims, explicit supersession, semantic merge preflight, and version-bound validation; this file remains authoritative for this app's publishing/deployment rules.
+
 - After making requested repository changes, run the smallest relevant tests and `npm run build` when the application is affected.
 - If validation succeeds, commit only files changed for the current request and push the commit directly to `origin/main` so the connected Vercel project deploys it.
 - Never stage unrelated pre-existing changes, `.env`, build output, dependency folders, temporary reports, or credentials.
