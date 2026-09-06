@@ -6,29 +6,29 @@
 
 ## What this repository consumes
 
-English↔Greek terminology, concept identity for question and answer content, and the epistemic vocabulary for distinguishing established evidence from convention.
+Concept identity for question and answer content, and the epistemic vocabulary for distinguishing established evidence from convention. Greek terminology comes from `Psychiatry-Exams` (`Translation-guide-v4.md`), which the core mirrors but does not own.
 
 ## What stays here
 
 MCQ and oral question banks, `src/data/*`, app datasets, UI, deployment, and the Supabase schema. The core owns no application data and never will.
 
-## An issue this repository should know about
+## A note about `docs/Psychiatry-Translation-Guide-v3.md`
 
-`docs/Psychiatry-Translation-Guide-v3.md` is **damaged**. It is 15,009 bytes, valid UTF-8 for only its first 7,501, and binary garbage thereafter. The break falls mid-row, inside the "Σαλάτα λέξεων / Word salad" entry.
+This file is **damaged**: 15,009 bytes, valid UTF-8 for only the first 7,501, binary garbage thereafter. It was committed already corrupt in `1d4ce75` on 2026-08-20, no intact revision exists in this repository's history, and the `.docx` companion is also unrecoverable (no zip end-of-central-directory record). `Psychiatry-Exams` holds a byte-identical damaged copy.
 
-Verified:
+**Nothing was lost.** The file is a damaged copy of a guide that has both a predecessor and a successor, and neither is affected:
 
-- the corrupt blob is the committed object, not a checkout artefact (blob SHA `f435590b6d50ee4ec50cb0eff14a9c0428a1c624`);
-- it was committed already corrupt in `1d4ce75` on 2026-08-20;
-- no intact revision exists in this repository's history;
-- `docs/Psychiatry-Translation-Guide-v3.docx` is also unrecoverable — it has no zip end-of-central-directory record;
-- `Psychiatry-Exams` holds a byte-identical damaged copy, so the duplication propagated the damage rather than providing redundancy.
+| File | Size | State | Location |
+|---|---|---|---|
+| `Translation-guide-v2.md` | 21,725 B | intact — 265 rows, 21 sections | `Psychiatry-Exams` `main` |
+| `Translation-guide-v3.md` | 15,009 B | corrupt | here and `Psychiatry-Exams` |
+| `Translation-guide-v4.md` | 57,942 B | intact — **current authority** | `Psychiatry-Exams` branch `greek-v5-scale` |
 
-Lost sections: thought content, perception, mood and affect, insight, psychopharmacology, neuroanatomy.
+For any Greek rendering, use `Translation-guide-v4.md`. It declares itself the current house language authority and carries the supersession hierarchy, founder-locked forms, anti-calque translation memory, regression watchlist and REVIEW_ONLY queue. It already records that v3 is encoding-corrupted.
 
-The 65 salvageable rows are preserved in the core at [`terminology/en-el.yaml`](https://github.com/orestispsom/mental-health-core/blob/main/terminology/en-el.yaml), every one flagged as recovered from a damaged source. **Nothing was reconstructed, and nothing should be.** A plausible Greek term generated from memory is a fabrication that becomes indistinguishable from a verified one the moment it is committed.
+The local v3 copy should either be marked as damaged in place or removed, since it currently looks like a normal document and is not an authority for anything. That is a founder call — [`OPEN_QUESTIONS.md` Q1](https://github.com/orestispsom/mental-health-core/blob/main/docs/OPEN_QUESTIONS.md).
 
-Both files have been left exactly as they are. Whether an intact original exists outside git — a local copy, an editor backup, a cloud sync history, an earlier export — is the highest-value open question in [`OPEN_QUESTIONS.md` Q1](https://github.com/orestispsom/mental-health-core/blob/main/docs/OPEN_QUESTIONS.md).
+> **Note on the first version of this document.** It stated that roughly half the bilingual terminology had been destroyed. That was wrong; the corrected reasoning is in [`AUDIT-2026-09-06.md` §3](https://github.com/orestispsom/mental-health-core/blob/main/docs/AUDIT-2026-09-06.md).
 
 ## How to use it
 
