@@ -660,6 +660,12 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
     padding: var(--s5) var(--s4) calc(var(--tabbar) + 96px);
   }
 
+  /* Single-screen active MCQ study mode on mobile: tight paddings so content fits on one screen */
+  .sheet.sheet-mcq-active {
+    padding: 6px 8px calc(var(--tabbar) + 48px) 8px;
+    max-width: 100%;
+  }
+
   /* Top bar replaces the rail's mast and search on small screens */
   .topbar {
     position: sticky; top: 0; z-index: 60;
@@ -764,6 +770,19 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
   .structured-actions .nav-btn .icon,
   .sos-focus-nav .nav-btn .icon,
   .oral-viewer .nav-bar .nav-btn .icon { width: 16px; height: 16px; }
+
+  .sheet-mcq-active .actionbar,
+  .sheet-mcq-active .DSM5-nav-row {
+    padding: 4px var(--s3);
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0));
+  }
+  .sheet-mcq-active .actionbar .btn,
+  .sheet-mcq-active .actionbar .nav-btn,
+  .sheet-mcq-active .actionbar button,
+  .sheet-mcq-active .DSM5-nav-row button {
+    min-height: 38px;
+    font-size: 13px;
+  }
 
   .item { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); }
   .item-section {

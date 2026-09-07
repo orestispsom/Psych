@@ -4473,6 +4473,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
   const [flaggedIds, setFlaggedIds] = useState(() => new Set());
   const [showSimTray, setShowSimTray] = useState(true);
+  const [showMobileSimTray, setShowMobileSimTray] = useState(false);
   const [simSeconds, setSimSeconds] = useState(0);
   const [showSimTimer, setShowSimTimer] = useState(true);
   const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
@@ -5648,8 +5649,33 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <div className="mcq-main-pane">
         <div className="mcq-question-header">
           <div className="mcq-q-info">
+            <button
+              type="button"
+              className="mcq-header-back-btn"
+              onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack}
+              aria-label={practiceWrittenWrongActive ? "Επιστροφή στα αποτελέσματα" : "Επιστροφή στο Μενού MCQ"}
+              title={practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
+            >
+              <Icons.ChevronLeft />
+            </button>
             <span className="mcq-q-index">Ερώτηση {currentIdx + 1} <small>/ {totalQ}</small></span>
             <span className="mcq-q-id">#{q.id}</span>
+            <div
+              className="mcq-header-timer"
+              onClick={() => setShowSimTimer(t => !t)}
+              title="Χρόνος (κλικ για εναλλαγή)"
+            >
+              ⏱️ {showSimTimer ? formatSimTime(simSeconds) : "••:••"}
+            </div>
+            {mode !== "written" && (
+              <div className="mcq-header-stats">
+                <span className="mcq-stat-pill correct" title="Σωστές">✓ {sessionStats.correct}</span>
+                <span className="mcq-stat-pill wrong" title="Λάθη">✗ {sessionStats.incorrect}</span>
+                {sessionStats.currentStreak > 0 && (
+                  <span className="mcq-stat-pill streak" title="Σερί">🔥 {sessionStats.currentStreak}</span>
+                )}
+              </div>
+            )}
             {mode !== "written" && questionStatus && (
               <span className={`question-status ${questionStatus.toLowerCase()}`}>
                 {questionStatus}
@@ -5667,14 +5693,24 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
           <div className="mcq-q-actions">
             {mode === "written" && !practiceWrittenWrongActive && (
-              <button
-                type="button"
-                className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
-                onClick={() => toggleFlag(q.id)}
-                title={flaggedIds.has(q.id) ? "Αφαίρεση σημαίας ελέγχου" : "Σημείωση για επανέλεγχο"}
-              >
-                🚩 {flaggedIds.has(q.id) ? "Σημειωμένη" : "Έλεγχος"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="sim-tray-toggle-btn mobile-sim-tray-btn"
+                  onClick={() => setShowMobileSimTray(true)}
+                  title="Πλοηγός ερωτήσεων 1–100"
+                >
+                  📋 1–100
+                </button>
+                <button
+                  type="button"
+                  className={`sim-flag-btn ${flaggedIds.has(q.id) ? "active" : ""}`}
+                  onClick={() => toggleFlag(q.id)}
+                  title={flaggedIds.has(q.id) ? "Αφαίρεση σημαίας ελέγχου" : "Σημείωση για επανέλεγχο"}
+                >
+                  🚩 {flaggedIds.has(q.id) ? "Σημειωμένη" : "Έλεγχος"}
+                </button>
+              </>
             )}
             {renderMcqFeedbackControls(q)}
           </div>
@@ -5935,6 +5971,79 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                 Υποβολή και αποτελέσματα
               </button>
               <button className="results-btn" autoFocus onClick={() => setShowWrittenSubmitWarning(false)}>
+                Συνέχεια εξέτασης
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {mode === "written" && showMobileSimTray && (
+        <div
+          className="modal-overlay sim-tray-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Πλοηγός ερωτήσεων 1–100"
+          onClick={() => setShowMobileSimTray(false)}
+          onKeyDown={event => { if (event.key === "Escape") setShowMobileSimTray(false); }}
+        >
+          <div className="modal sim-tray-modal" onClick={e => e.stopPropagation()}>
+            <div className="sim-tray-modal-head">
+              <div className="sim-tray-modal-title">
+                <h3>Πλοηγός 1–100</h3>
+                <span className="sim-tray-modal-subtitle">
+                  {writtenAnsweredCount} / {totalQ} απαντημένες
+                  {flaggedIds.size > 0 ? ` · 🚩 ${flaggedIds.size} σημειωμένες` : ""}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-quiet btn-sm btn-icon"
+                onClick={() => setShowMobileSimTray(false)}
+                aria-label="Κλείσιμο πλοηγού"
+              >
+                <Icons.X />
+              </button>
+            </div>
+            <div className="review-q-grid sim-tray-modal-grid">
+              {Array.from({ length: Math.ceil(questions.length / 10) }, (_, dIdx) => {
+                const start = dIdx * 10;
+                const end = Math.min(start + 10, questions.length);
+                const slice = questions.slice(start, end);
+                return (
+                  <div key={dIdx} className="review-q-decade-row">
+                    <span className="review-q-decade-label">{start + 1}–{end}</span>
+                    <div className="review-q-decade-chips">
+                      {slice.map((item, sIdx) => {
+                        const idx = start + sIdx;
+                        const isAnswered = answers[item.id] !== undefined && answers[item.id] !== null;
+                        const isFlagged = flaggedIds.has(item.id);
+                        const isCurrent = currentIdx === idx;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={`review-q-chip sim-q-chip ${isAnswered ? "correct" : "unanswered"} ${isFlagged ? "flagged" : ""} ${isCurrent ? "current" : ""}`}
+                            onClick={() => {
+                              goToWrittenIndex(idx);
+                              setShowMobileSimTray(false);
+                            }}
+                            title={`Ερώτηση ${idx + 1} (${isAnswered ? "Απαντημένη" : "Αναπάντητη"}${isFlagged ? " · Σημειωμένη" : ""})`}
+                          >
+                            {idx + 1}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="modal-actions" style={{ marginTop: "var(--s2)" }}>
+              <button
+                type="button"
+                className="results-btn primary"
+                onClick={() => setShowMobileSimTray(false)}
+              >
                 Συνέχεια εξέτασης
               </button>
             </div>
@@ -9722,6 +9831,8 @@ export default function App() {
     );
   }
 
+  const inMcqTest = Boolean(activeProfile && screen === 'mcq' && testMode);
+
   return (
     <div className="app">
       <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
@@ -9739,8 +9850,9 @@ export default function App() {
         onSwitchProfile={switchProfile}
         onHome={() => setScreen("home")}
         onOpenAdmin={hasAdminAccess ? () => setScreen("admin") : undefined}
+        hideMobileHeader={inMcqTest}
       >
-        <div className="sheet">
+        <div className={`sheet${inMcqTest ? " sheet-mcq-active" : ""}`}>
         {activeProfile && screen === 'admin' && (
           <AdminOptionsScreen
             onBack={() => setScreen('home')}

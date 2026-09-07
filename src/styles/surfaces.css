@@ -1106,6 +1106,78 @@
 }
 .test-container .point-breakdown { margin-top: 6px; }
 
+@media (max-width: 899px) {
+  .test-container .question-stem,
+  .structured-question,
+  .DSM5-question-stem {
+    font-size: clamp(13.5px, 3.8vw, 15px);
+    line-height: 1.38;
+    margin-bottom: 4px;
+  }
+
+  .test-container .options-list,
+  .options-list,
+  .DSM5-options,
+  .structured-options {
+    gap: clamp(4px, 0.8vh, 6px);
+    margin-top: 4px;
+  }
+
+  .test-container .options-list > button,
+  .mode-btn.option,
+  .options-list > button,
+  .DSM5-options > button,
+  .structured-option,
+  .option-btn {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: clamp(5px, 0.8vh, 8px) 10px;
+    min-height: clamp(34px, 4.6vh, 40px);
+    font-size: clamp(13px, 3.4vw, 14px);
+    line-height: 1.32;
+    border-radius: 6px;
+  }
+
+  .option-letter,
+  .structured-option-letter,
+  .DSM5-option-text::before {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    font-size: 11.5px;
+    border-radius: 4px;
+    margin-top: 0;
+  }
+
+  .answer-glyph {
+    margin-top: 0;
+  }
+  .answer-glyph .icon,
+  .answer-glyph svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .test-container .explanation-box,
+  .DSM5-explanation {
+    margin-top: 6px;
+    padding: 8px 10px;
+    font-size: 13.5px;
+    line-height: 1.42;
+    max-height: clamp(90px, 20vh, 160px);
+    overflow-y: auto;
+    border-radius: 6px;
+  }
+
+  .exam-takeaway-card {
+    margin-top: 6px;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+}
+
 /* Explanation */
 .explanation-box, .DSM5-explanation, .answer-box, .oral-model-answer,
 .sos-detail-answer, .oral-quick-answer, .oral-full-answer, .answer-content {
@@ -2936,36 +3008,198 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 @media (max-width: 899px) {
   .mcq-layout-wrap {
-    grid-template-columns: 1fr;
-    gap: var(--s3);
-    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    gap: 4px;
   }
 
+  /* Hide bulky side rail on mobile - vital info is unified in the mobile header */
   .mcq-side-rail {
-    position: static;
-    order: -1;
-    padding: var(--s2) var(--s3);
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: var(--s2);
+    display: none !important;
   }
 
-  .mcq-rail-sim-stats {
-    flex-direction: row;
-    flex-wrap: wrap;
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
+  /* Hide standalone desktop back-link on mobile; the header contains a compact back button */
+  .mcq-layout-wrap > .back-link {
+    display: none !important;
+  }
+
+  .mcq-main-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
     width: 100%;
   }
 
-  .mcq-rail-stat-card {
-    flex: 1 1 auto;
-    padding: 4px 8px;
-    font-size: var(--t-micro);
+  .mcq-question-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 2px 0 6px;
+    border-bottom: 1px solid var(--rule);
+    flex-wrap: nowrap;
+    min-height: 36px;
   }
+
+  .mcq-q-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .mcq-header-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--rule-strong);
+    background: var(--field);
+    color: var(--ink);
+    padding: 0;
+    cursor: pointer;
+    flex: none;
+    transition: background 0.12s var(--ease);
+  }
+
+  .mcq-header-back-btn:active {
+    background: var(--raised);
+  }
+
+  .mcq-header-back-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mcq-q-index {
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex: none;
+  }
+
+  .mcq-q-index small {
+    font-size: 11px;
+  }
+
+  .mcq-header-timer {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--code);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-2);
+    padding: 1px 6px;
+    border-radius: var(--r-full);
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    white-space: nowrap;
+    flex: none;
+  }
+
+  .mcq-header-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+  }
+
+  .mcq-stat-pill {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--code);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--rule);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mcq-stat-pill.correct {
+    color: var(--pass);
+    background: var(--pass-quiet);
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+
+  .mcq-stat-pill.wrong {
+    color: var(--mark);
+    background: var(--mark-quiet);
+    border-color: rgba(248, 113, 113, 0.3);
+  }
+
+  .mcq-stat-pill.streak {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.12);
+    border-color: rgba(251, 146, 60, 0.35);
+  }
+
+  .mcq-q-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+    margin-left: auto;
+  }
+
+  .mobile-sim-tray-btn {
+    padding: 2px 7px;
+    font-size: 11.5px;
+  }
+}
+
+@media (min-width: 900px) {
+  .mcq-header-back-btn,
+  .mcq-header-timer,
+  .mcq-header-stats,
+  .mobile-sim-tray-btn {
+    display: none !important;
+  }
+}
+
+/* ─── Simulation Navigator Modal ─── */
+.sim-tray-modal {
+  max-width: 520px;
+  width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-tray-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-tray-modal-title h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.sim-tray-modal-subtitle {
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-tray-modal-grid {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: var(--s2) 0;
 }
 
 .sim-tray-toggle-btn {

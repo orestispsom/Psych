@@ -51,6 +51,7 @@ export default function AppShell({
   onSwitchProfile,
   onHome,
   onOpenAdmin,
+  hideMobileHeader = false,
   children,
 }) {
   const current = sectionFor(screen);
@@ -209,44 +210,46 @@ export default function AppShell({
           </div>
         )}
 
-        <div className="topbar">
-          <button
-            type="button"
-            className="btn btn-quiet btn-sm btn-icon"
-            onClick={onHome}
-            aria-label="Αρχική"
-          >
-            <Icons.Home />
-          </button>
-          <button
-            type="button"
-            className="topbar-profile"
-            onClick={onSwitchProfile}
-            aria-label={`Αλλαγή προφίλ. Τρέχον προφίλ: ${profileName}`}
-          >
-            <Icons.User />
-            <span className="topbar-profile-copy">
-              <span className="topbar-profile-name">{profileName}</span>
-              <span className="topbar-profile-action">Αλλαγή προφίλ</span>
-            </span>
-          </button>
-          <button
-            type="button"
-            className="btn btn-quiet btn-sm btn-icon"
-            onClick={onToggleTheme}
-            aria-label={theme === "dark" ? "Εναλλαγή σε φωτεινό θέμα" : "Εναλλαγή σε σκοτεινό θέμα"}
-          >
-            {theme === "dark" ? <Icons.Sun /> : <Icons.Moon />}
-          </button>
-          <button
-            type="button"
-            className="btn btn-quiet btn-sm btn-icon"
-            onClick={onOpenSearch}
-            aria-label="Αναζήτηση υλικού"
-          >
-            <Icons.Search />
-          </button>
-        </div>
+        {!hideMobileHeader && (
+          <div className="topbar">
+            <button
+              type="button"
+              className="btn btn-quiet btn-sm btn-icon"
+              onClick={onHome}
+              aria-label="Αρχική"
+            >
+              <Icons.Home />
+            </button>
+            <button
+              type="button"
+              className="topbar-profile"
+              onClick={onSwitchProfile}
+              aria-label={`Αλλαγή προφίλ. Τρέχον προφίλ: ${profileName}`}
+            >
+              <Icons.User />
+              <span className="topbar-profile-copy">
+                <span className="topbar-profile-name">{profileName}</span>
+                <span className="topbar-profile-action">Αλλαγή προφίλ</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet btn-sm btn-icon"
+              onClick={onToggleTheme}
+              aria-label={theme === "dark" ? "Εναλλαγή σε φωτεινό θέμα" : "Εναλλαγή σε σκοτεινό θέμα"}
+            >
+              {theme === "dark" ? <Icons.Sun /> : <Icons.Moon />}
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet btn-sm btn-icon"
+              onClick={onOpenSearch}
+              aria-label="Αναζήτηση υλικού"
+            >
+              <Icons.Search />
+            </button>
+          </div>
+        )}
 
         <main id="main-content" tabIndex={-1}>
           {/* Home renders its own visible <h1>; every other screen leads with
