@@ -1,0 +1,67 @@
+name: CI
+
+# Psych is the deployed exam application and it ships vitest tests, a vite build
+# and three content-audit scripts. Until now none of them ran automatically —
+# only Vercel built the app, which does not run tests.
+#
+# Deliberately not path-filtered. Every other workflow in this ecosystem is, which
+# is how btb-intelligence's catalogue validator sat red on main for nine days
+# without surfacing. This runs on every push to main and every pull request, so
+# "is main healthy?" always has a current answer.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  audit-content:
+    runs-on: ubuntu-latest
+    # The MCQ bank audits report on content quality. They are advisory: a finding
+    # is a prompt to look, not a reason to block a merge. Failing the job would
+    # train everyone to ignore it, which is the state this repository is coming
+    # out of.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit MCQ bank
+        run: npm run audit:mcq
+
+      - name: Validate oral answer sources
+        run: node tools/validate-oral-previous-sources.mjs
