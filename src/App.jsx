@@ -11,7 +11,18 @@ import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
-import { fetchAllPages, mergeMcqProgressSnapshots, mergeOralProgressSnapshots } from "./lib/remoteProgress.mjs";
+import { fetchAllPages, mergeOralProgressSnapshots } from "./lib/remoteProgress.mjs";
+import {
+  attemptToRemoteRow,
+  getChangedQuestionIds,
+  getQuestionRecordTimestamp,
+  mergeAttemptRows,
+  mergeLegacyAndSessionProgress,
+  questionStateToRemoteRow,
+  remoteQuestionStateToRecord,
+  sessionStateFingerprint,
+  toRemoteMcqSessionState,
+} from "./progressPersistence.mjs";
 
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
@@ -787,6 +798,7 @@ function createStudyProfile(
     oralProgress: normalizeOralProgress(oralProgress),
     sosProgress: normalizeSosProgress(sosProgress),
     themePreference: normalizeThemePreference(null),
+    progressLoaded: true,
   };
 }
 
@@ -822,6 +834,7 @@ function loadProfileStore() {
             oralProgress: normalizeOralProgress(profile.oralProgress),
             sosProgress: normalizeSosProgress(profile.sosProgress),
             themePreference: normalizeThemePreference(profile.themePreference),
+            progressLoaded: true,
           },
         ])
     );
@@ -852,21 +865,27 @@ function profileFromRemoteRow(row) {
     oralProgress: normalizeOralProgress(row.oral_progress),
     sosProgress: createEmptySosProgress(),
     themePreference: row.theme_preference === "dark" || row.theme_preference === "light" ? row.theme_preference : null,
+    progressLoaded: true,
   };
 }
 
-function profileToRemoteRow(profile) {
+function profileFromRemoteMetadataRow(row, existingProfile = null) {
+  return {
+    ...(existingProfile || createStudyProfile(row.name)),
+    id: row.id,
+    name: row.name,
+    createdAt: row.created_at || existingProfile?.createdAt || new Date().toISOString(),
+    themePreference: normalizeThemePreference(row.theme_preference),
+    progressLoaded: Boolean(existingProfile?.progressLoaded),
+  };
+}
+
+function profileToRemoteMetadataRow(profile) {
   return {
     id: profile.id,
     name: profile.name,
-    mcq_progress: normalizeMcqProgress(profile.mcqProgress),
-    oral_progress: normalizeOralProgress(profile.oralProgress),
     theme_preference: normalizeThemePreference(profile.themePreference),
   };
-}
-
-function getRecordTimestamp(record = {}) {
-  return record.updatedAt || record.lastAnsweredAt || record.seenAt || null;
 }
 
 function shouldUseRemoteQuestionState(progress, localRecord, remoteUpdatedAt) {
@@ -874,39 +893,8 @@ function shouldUseRemoteQuestionState(progress, localRecord, remoteUpdatedAt) {
   if (progress.resetAt && new Date(remoteUpdatedAt) <= new Date(progress.resetAt)) return false;
   if (!localRecord || Object.keys(localRecord).length === 0) return true;
 
-  const localTimestamp = getRecordTimestamp(localRecord);
+  const localTimestamp = getQuestionRecordTimestamp(localRecord);
   return !localTimestamp || new Date(remoteUpdatedAt) >= new Date(localTimestamp);
-}
-
-function questionStateRowToRecord(row) {
-  const correctCount = row.correct_count || 0;
-  const wrongCount = row.wrong_count || 0;
-  const seenCount = row.seen_count || correctCount + wrongCount;
-  const masteryLevel = row.mastery_level || 0;
-
-  return {
-    seenAt: row.last_seen_at || row.updated_at || null,
-    lastAnsweredAt: row.updated_at || row.last_seen_at || null,
-    lastCorrect: row.last_answer_correct,
-    lastConfidence: row.last_confidence || null,
-    lastTimeTakenMs: row.average_time_ms || null,
-    attempts: correctCount + wrongCount,
-    seenCount,
-    correctCount,
-    incorrectCount: wrongCount,
-    wrongCount,
-    streak: row.consecutive_correct || 0,
-    consecutiveCorrect: row.consecutive_correct || 0,
-    consecutiveWrong: row.consecutive_wrong || 0,
-    confidentWrongCount: row.confident_wrong_count || 0,
-    masteryLevel,
-    mastery_level: masteryLevel,
-    mastered: masteryLevel === 5,
-    nextReviewAt: row.next_review_at || null,
-    averageTimeMs: row.average_time_ms || null,
-    totalPoints: row.total_points || 0,
-    updatedAt: row.updated_at || null,
-  };
 }
 
 function mergeQuestionStateRowsIntoProfile(profile, rows) {
@@ -922,7 +910,7 @@ function mergeQuestionStateRowsIntoProfile(profile, rows) {
 
     questions[questionId] = {
       ...(localRecord || {}),
-      ...questionStateRowToRecord(row),
+      ...remoteQuestionStateToRecord(row),
     };
   });
 
@@ -1257,8 +1245,8 @@ function quoteSupabaseInValue(value) {
   return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
-async function loadRemoteQuestionStates(profileIds) {
-  if (!profileIds.length) return [];
+async function loadRemoteQuestionStates(profileId) {
+  if (!profileId) return [];
 
   return fetchAllPages(({ offset, limit }) => supabaseTableRequest("user_question_state", {
     select: [
@@ -1270,117 +1258,138 @@ async function loadRemoteQuestionStates(profileIds) {
       "consecutive_correct",
       "consecutive_wrong",
       "mastery_level",
+      "progress_reset_at",
+      "first_seen_at",
       "last_seen_at",
+      "last_answered_at",
       "next_review_at",
       "last_answer_correct",
+      "last_selected",
       "last_confidence",
+      "last_time_taken_ms",
+      "last_points_awarded",
       "confident_wrong_count",
       "average_time_ms",
       "total_points",
       "updated_at",
     ].join(","),
-    profile_id: `in.(${profileIds.map(quoteSupabaseInValue).join(",")})`,
-    order: "profile_id.asc,question_id.asc",
+    profile_id: `eq.${profileId}`,
+    order: "question_id.asc",
     limit: String(limit),
     offset: String(offset),
   }));
 }
 
-async function loadRemoteProfileStore(activeProfileId = null) {
-  let rows;
-  try {
-    rows = await supabaseProfilesRequest({
-      select: "id,name,mcq_progress,oral_progress,theme_preference,created_at",
-      order: "name.asc",
-    });
-  } catch {
-    rows = await supabaseProfilesRequest({
-      select: "id,name,mcq_progress,created_at",
-      order: "name.asc",
-    });
-  }
+async function loadRemoteAttempts(profileId) {
+  if (!profileId) return [];
+  return supabaseTableRequest("question_attempts", {
+    select: [
+      "id", "client_attempt_id", "profile_id", "question_id", "client_session_id",
+      "mode", "selected_index", "selected_option", "is_correct", "confidence",
+      "time_taken_ms", "point_breakdown", "points_awarded", "streak_position", "attempted_at",
+    ].join(","),
+    profile_id: `eq.${profileId}`,
+    order: "attempted_at.desc",
+    limit: "500",
+  });
+}
+
+async function loadRemoteMcqSessionState(profileId) {
+  if (!profileId) return null;
+  const rows = await supabaseTableRequest("profile_mcq_state", {
+    select: "profile_id,state,updated_at",
+    profile_id: `eq.${profileId}`,
+    limit: "1",
+  });
+  return rows?.[0] || null;
+}
+
+async function loadRemoteProfileDetail(profileId, fallbackProfile = null) {
+  const rows = await supabaseProfilesRequest({
+    select: "id,name,mcq_progress,oral_progress,theme_preference,created_at",
+    id: `eq.${profileId}`,
+    limit: "1",
+  });
+  if (!rows?.[0]) return fallbackProfile;
+
+  const [sessionRow, questionStateRows, attemptRows, sosRows] = await Promise.all([
+    loadRemoteMcqSessionState(profileId),
+    loadRemoteQuestionStates(profileId),
+    loadRemoteAttempts(profileId),
+    loadRemoteSosMastery([profileId]),
+  ]);
+  const row = rows[0];
+  const legacyProgress = normalizeMcqProgress(row.mcq_progress);
+  let profile = {
+    ...profileFromRemoteRow(row),
+    mcqProgress: normalizeMcqProgress(mergeLegacyAndSessionProgress(legacyProgress, sessionRow)),
+  };
+  profile = mergeQuestionStateRowsIntoProfile(profile, questionStateRows);
+  profile = mergeSosMasteryRowsIntoProfile(profile, sosRows);
+  profile.mcqProgress = {
+    ...profile.mcqProgress,
+    attempts: mergeAttemptRows(profile.mcqProgress.attempts, attemptRows, 500, profile.mcqProgress.resetAt),
+  };
+  return profile;
+}
+
+async function loadRemoteProfileStore(activeProfileId = null, localProfiles = {}) {
+  const rows = await supabaseProfilesRequest({
+    select: "id,name,theme_preference,created_at",
+    order: "name.asc",
+  });
   const profiles = Object.fromEntries(
     rows.map(row => {
-      const profile = profileFromRemoteRow(row);
+      const profile = profileFromRemoteMetadataRow(row, localProfiles[row.id]);
       return [profile.id, profile];
     })
   );
-  try {
-    const questionStateRows = await loadRemoteQuestionStates(Object.keys(profiles));
-    questionStateRows.forEach(row => {
-      const profile = profiles[row.profile_id];
-      if (!profile) return;
-      profiles[row.profile_id] = mergeQuestionStateRowsIntoProfile(profile, [row]);
-    });
-  } catch {
-    // Keep profile JSON loading reliable if the optional normalized table is not present yet.
-  }
-  try {
-    const sosMasteryRows = await loadRemoteSosMastery(Object.keys(profiles));
-    sosMasteryRows.forEach(row => {
-      const profile = profiles[row.profile_id];
-      if (!profile) return;
-      profiles[row.profile_id] = mergeSosMasteryRowsIntoProfile(profile, [row]);
-    });
-  } catch {
-    // SOS mastery is optional until its SQL migration has been applied.
+
+  if (activeProfileId && profiles[activeProfileId]) {
+    profiles[activeProfileId] = await loadRemoteProfileDetail(activeProfileId, profiles[activeProfileId]);
   }
   const activeId = profiles[activeProfileId] ? activeProfileId : null;
 
   return { version: 1, activeProfileId: activeId, profiles };
 }
 
-async function createRemoteProfile(profile) {
-  let rows;
-  try {
-    rows = await supabaseProfilesRequest(
-      { on_conflict: "id" },
-      {
-        method: "POST",
-        headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
-        body: JSON.stringify(profileToRemoteRow(profile)),
-      }
-    );
-  } catch {
-    const fallbackRow = profileToRemoteRow(profile);
-    delete fallbackRow.oral_progress;
-    delete fallbackRow.theme_preference;
-    rows = await supabaseProfilesRequest(
-      { on_conflict: "id" },
-      {
-        method: "POST",
-        headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
-        body: JSON.stringify(fallbackRow),
-      }
-    );
-  }
-
-  if (rows?.[0]) return profileFromRemoteRow(rows[0]);
-
-  const existingRows = await supabaseProfilesRequest({
-    select: "id,name,mcq_progress,oral_progress,created_at",
-    id: `eq.${profile.id}`,
-    limit: "1",
-  });
-  if (!existingRows?.[0]) throw new Error("The profile could not be created or loaded.");
-  return profileFromRemoteRow(existingRows[0]);
+async function ensureRemoteProfile(profile) {
+  return supabaseProfilesRequest(
+    { on_conflict: "id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+      body: JSON.stringify(profileToRemoteMetadataRow(profile)),
+    }
+  );
 }
 
-async function saveRemoteMcqProgress(profileId, progress) {
-  const rows = await supabaseProfilesRequest({
-    select: "mcq_progress",
-    id: `eq.${profileId}`,
-    limit: "1",
-  });
-  const mergedProgress = mergeMcqProgressSnapshots(rows?.[0]?.mcq_progress, progress);
-  await supabaseProfilesRequest(
+async function saveRemoteThemePreference(profileId, themePreference) {
+  return supabaseProfilesRequest(
     { id: `eq.${profileId}` },
     {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
-        mcq_progress: mergedProgress,
+        theme_preference: normalizeThemePreference(themePreference),
         updated_at: new Date().toISOString(),
+      }),
+    }
+  );
+}
+
+async function saveRemoteMcqSessionState(profileId, progress, updatedAt = null) {
+  const stateUpdatedAt = updatedAt || new Date().toISOString();
+  return supabaseTableRequest(
+    "profile_mcq_state",
+    { on_conflict: "profile_id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({
+        profile_id: profileId,
+        state: { ...toRemoteMcqSessionState(progress), updatedAt: stateUpdatedAt },
+        updated_at: stateUpdatedAt,
       }),
     }
   );
@@ -1426,66 +1435,20 @@ function getRemoteAttemptsToSync(progress, lastSyncedAttemptId = null) {
 
 async function saveRemoteAnswerBehavior(profileId, progress, lastSyncedAttemptId = null) {
   const attempts = getRemoteAttemptsToSync(progress, lastSyncedAttemptId);
+  await saveRemoteAttempts(profileId, attempts);
+}
+
+async function saveRemoteAttempts(profileId, attempts) {
   if (!attempts.length) return;
-
-  const syncedQuestionIds = new Set();
-
-  for (const attempt of attempts) {
-    const questionState = progress.questions?.[attempt.questionId];
-    if (!questionState) continue;
-
-    if (!syncedQuestionIds.has(attempt.questionId)) {
-      await supabaseTableRequest(
-        "user_question_state",
-        { on_conflict: "profile_id,question_id" },
-        {
-          method: "POST",
-          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-          body: JSON.stringify({
-            profile_id: profileId,
-            question_id: attempt.questionId,
-            seen_count: questionState.seenCount || questionState.attempts || 0,
-            correct_count: questionState.correctCount || 0,
-            wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
-            consecutive_correct: questionState.consecutiveCorrect || 0,
-            consecutive_wrong: questionState.consecutiveWrong || 0,
-            mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
-            last_seen_at: questionState.seenAt || null,
-            next_review_at: questionState.nextReviewAt || null,
-            last_answer_correct: questionState.lastCorrect ?? null,
-            last_confidence: questionState.lastConfidence || null,
-            confident_wrong_count: questionState.confidentWrongCount || 0,
-            average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
-            total_points: questionState.totalPoints || 0,
-            updated_at: new Date().toISOString(),
-          }),
-        }
-      );
-      syncedQuestionIds.add(attempt.questionId);
+  await supabaseTableRequest(
+    "question_attempts",
+    { on_conflict: "profile_id,client_attempt_id" },
+    {
+      method: "POST",
+      headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+      body: JSON.stringify(attempts.map(attempt => attemptToRemoteRow(profileId, attempt))),
     }
-
-    await supabaseTableRequest(
-      "question_attempts",
-      { on_conflict: "profile_id,client_attempt_id" },
-      {
-        method: "POST",
-        headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
-        body: JSON.stringify({
-          client_attempt_id: attempt.id,
-          profile_id: profileId,
-          question_id: attempt.questionId,
-          mode: attempt.mode,
-          selected_option: attempt.selectedOption,
-          is_correct: attempt.isCorrect,
-          confidence: attempt.confidence,
-          time_taken_ms: attempt.timeTakenMs ? Math.round(attempt.timeTakenMs) : null,
-          points_awarded: attempt.pointsAwarded || 0,
-          streak_position: attempt.streakPosition || 0,
-          attempted_at: attempt.attemptedAt,
-        }),
-      }
-    );
-  }
+  );
 }
 
 async function saveRemoteQuestionStates(profileId, progress, questionIds) {
@@ -1494,24 +1457,7 @@ async function saveRemoteQuestionStates(profileId, progress, questionIds) {
       const questionState = progress.questions?.[questionId] || progress.questions?.[Number(questionId)];
       if (!questionState) return null;
 
-      return {
-        profile_id: profileId,
-        question_id: questionId,
-        seen_count: questionState.seenCount || questionState.attempts || (questionState.seenAt ? 1 : 0),
-        correct_count: questionState.correctCount || 0,
-        wrong_count: questionState.wrongCount || questionState.incorrectCount || 0,
-        consecutive_correct: questionState.consecutiveCorrect || 0,
-        consecutive_wrong: questionState.consecutiveWrong || 0,
-        mastery_level: questionState.masteryLevel || questionState.mastery_level || 0,
-        last_seen_at: questionState.seenAt || null,
-        next_review_at: questionState.nextReviewAt || null,
-        last_answer_correct: questionState.lastCorrect ?? null,
-        last_confidence: questionState.lastConfidence || null,
-        confident_wrong_count: questionState.confidentWrongCount || 0,
-        average_time_ms: questionState.averageTimeMs || (questionState.lastTimeTakenMs ? Math.round(questionState.lastTimeTakenMs) : null),
-        total_points: questionState.totalPoints || 0,
-        updated_at: new Date().toISOString(),
-      };
+      return questionStateToRemoteRow(profileId, questionId, questionState, progress.resetAt);
     })
     .filter(Boolean);
 
@@ -2970,9 +2916,15 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                       {isAdminProfile(profile) && <span className="admin-badge">admin</span>}
                     </span>
                     <span className="item-meta">
-                      <span>{summary.mastered} mastered</span>
-                      <span>{summary.review} για επανάληψη</span>
-                      <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
+                      {profile.progressLoaded ? (
+                        <>
+                          <span>{summary.mastered} mastered</span>
+                          <span>{summary.review} για επανάληψη</span>
+                          <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
+                        </>
+                      ) : (
+                        <span>Η πρόοδος φορτώνει με την επιλογή</span>
+                      )}
                     </span>
                   </span>
                   <span style={{ marginLeft: "auto", color: "var(--ink-3)", display: "flex" }} aria-hidden="true">
@@ -9062,7 +9014,8 @@ export default function App() {
   );
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
-  const lastRemoteAttemptIdRef = useRef(null);
+  const lastRemoteAttemptIdRef = useRef({});
+  const queuedMcqRemoteSaveRef = useRef({});
   const pendingMcqRemoteSaveRef = useRef(null);
   const pendingOralRemoteSaveRef = useRef(null);
   const selectedProfile = profileStore.activeProfileId
@@ -9096,14 +9049,7 @@ export default function App() {
 
     if (ONLINE_PROFILES_ENABLED) {
       setSyncStatus("saving");
-      supabaseProfilesRequest(
-        { id: `eq.${profileId}` },
-        {
-          method: "PATCH",
-          headers: { Prefer: "return=minimal" },
-          body: JSON.stringify({ theme_preference: normalized }),
-        }
-      )
+      saveRemoteThemePreference(profileId, normalized)
         .then(() => setSyncStatus("online"))
         .catch(() => setSyncStatus("offline"));
     }
@@ -9438,7 +9384,10 @@ export default function App() {
     async function loadProfiles() {
       setSyncStatus("loading");
       try {
-        const remoteStore = await loadRemoteProfileStore(profileStore.activeProfileId);
+        const remoteStore = await loadRemoteProfileStore(
+          profileStore.activeProfileId,
+          profileStore.profiles
+        );
         if (cancelled) return;
         setProfileStore(prev => {
           const mergedProfiles = { ...prev.profiles };
@@ -9480,35 +9429,43 @@ export default function App() {
     };
   }, []);
 
-  const queueRemoteProgressSave = useCallback((profileId, progress) => {
-    if (!ONLINE_PROFILES_ENABLED || !profileId) return;
+  const queueRemoteProgressSave = useCallback((pending) => {
+    if (!ONLINE_PROFILES_ENABLED || !pending?.profileId) return;
+
+    const existing = queuedMcqRemoteSaveRef.current[pending.profileId];
+    queuedMcqRemoteSaveRef.current[pending.profileId] = {
+      ...pending,
+      changedQuestionIds: [...new Set([
+        ...(existing?.changedQuestionIds || []),
+        ...(pending.changedQuestionIds || []),
+      ])],
+      sessionStateChanged: Boolean(existing?.sessionStateChanged || pending.sessionStateChanged),
+      sessionUpdatedAt: pending.sessionStateChanged
+        ? pending.sessionUpdatedAt
+        : existing?.sessionUpdatedAt,
+    };
 
     setSyncStatus("saving");
     if (remoteSaveTimerRef.current) clearTimeout(remoteSaveTimerRef.current);
     remoteSaveTimerRef.current = setTimeout(async () => {
+      const saves = Object.values(queuedMcqRemoteSaveRef.current);
+      queuedMcqRemoteSaveRef.current = {};
       try {
-        await saveRemoteMcqProgress(profileId, progress);
-        const writtenDraftViewedQuestionIds = Array.isArray(progress.writtenExamDraft?.viewedQuestionIds)
-          ? progress.writtenExamDraft.viewedQuestionIds
-          : [];
-        if (writtenDraftViewedQuestionIds.length) {
-          await saveRemoteQuestionStates(profileId, progress, writtenDraftViewedQuestionIds);
-        }
-
-        const latestAttempt = progress.attempts?.[0];
-        const latestAttemptId = latestAttempt?.id;
-        if (latestAttemptId && latestAttemptId !== lastRemoteAttemptIdRef.current) {
-          await saveRemoteAnswerBehavior(profileId, progress, lastRemoteAttemptIdRef.current);
-
-          if (latestAttempt.mode === "written" && latestAttempt.sessionId) {
-            const writtenSession = (progress.writtenExamSessions || [])
-              .find(session => session.id === latestAttempt.sessionId);
-            if (writtenSession?.questionIds?.length) {
-              await saveRemoteQuestionStates(profileId, progress, writtenSession.questionIds);
-            }
+        for (const save of saves) {
+          const lastAttemptId = lastRemoteAttemptIdRef.current[save.profileId] || null;
+          const latestAttemptId = save.progress.attempts?.[0]?.id || null;
+          const operations = [];
+          if (save.changedQuestionIds.length) {
+            operations.push(saveRemoteQuestionStates(save.profileId, save.progress, save.changedQuestionIds));
           }
-
-          lastRemoteAttemptIdRef.current = latestAttemptId;
+          if (latestAttemptId && latestAttemptId !== lastAttemptId) {
+            operations.push(saveRemoteAnswerBehavior(save.profileId, save.progress, lastAttemptId));
+          }
+          if (save.sessionStateChanged) {
+            operations.push(saveRemoteMcqSessionState(save.profileId, save.progress, save.sessionUpdatedAt));
+          }
+          await Promise.all(operations);
+          if (latestAttemptId) lastRemoteAttemptIdRef.current[save.profileId] = latestAttemptId;
         }
         setSyncStatus("online");
       } catch (error) {
@@ -9546,10 +9503,34 @@ export default function App() {
       setAdminUnlocked(false);
     }
 
-    setProfileStore(prev => ({
-      ...prev,
-      activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
-    }));
+    if (ONLINE_PROFILES_ENABLED && profile) {
+      setSyncStatus("loading");
+      try {
+        const remoteProfile = await loadRemoteProfileDetail(profileId, profile);
+        const latestAttemptId = remoteProfile?.mcqProgress?.attempts?.[0]?.id;
+        if (latestAttemptId) lastRemoteAttemptIdRef.current[profileId] = latestAttemptId;
+        setProfileStore(prev => ({
+          ...prev,
+          activeProfileId: profileId,
+          profiles: {
+            ...prev.profiles,
+            [profileId]: remoteProfile || profile,
+          },
+        }));
+        setSyncStatus("online");
+      } catch {
+        setProfileStore(prev => ({
+          ...prev,
+          activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
+        }));
+        setSyncStatus("offline");
+      }
+    } else {
+      setProfileStore(prev => ({
+        ...prev,
+        activeProfileId: prev.profiles[profileId] ? profileId : prev.activeProfileId,
+      }));
+    }
 
   }, [profileStore.profiles, rememberAdmin]);
 
@@ -9561,6 +9542,10 @@ export default function App() {
   const createOrSelectProfile = useCallback(async (name) => {
     const profileId = getProfileId(name);
     const existing = profileStore.profiles[profileId];
+    if (existing) {
+      await selectProfile(profileId);
+      return;
+    }
     const legacyProgress = !existing && Object.keys(profileStore.profiles).length === 0
       ? loadMcqProgress()
       : createEmptyMcqProgress();
@@ -9579,15 +9564,20 @@ export default function App() {
       },
     }));
 
-    if (ONLINE_PROFILES_ENABLED && existing) {
-      setSyncStatus("online");
-      return;
-    }
-
     if (ONLINE_PROFILES_ENABLED && profileToSync) {
       setSyncStatus("saving");
       try {
-        const remoteProfile = await createRemoteProfile(profileToSync);
+        await ensureRemoteProfile(profileToSync);
+        const questionIds = Object.keys(profileToSync.mcqProgress?.questions || {});
+        await Promise.all([
+          saveRemoteQuestionStates(profileId, profileToSync.mcqProgress, questionIds),
+          saveRemoteAttempts(profileId, profileToSync.mcqProgress?.attempts || []),
+          saveRemoteMcqSessionState(profileId, profileToSync.mcqProgress),
+          saveRemoteOralProgress(profileId, profileToSync.oralProgress),
+        ]);
+        const remoteProfile = await loadRemoteProfileDetail(profileId, profileToSync);
+        const latestAttemptId = remoteProfile?.mcqProgress?.attempts?.[0]?.id;
+        if (latestAttemptId) lastRemoteAttemptIdRef.current[profileId] = latestAttemptId;
         setProfileStore(prev => ({
           ...prev,
           activeProfileId: remoteProfile.id,
@@ -9602,7 +9592,7 @@ export default function App() {
         throw err;
       }
     }
-  }, [profileStore.profiles]);
+  }, [profileStore.profiles, selectProfile]);
 
   const handleSaveUpdateMessage = useCallback(async (message) => {
     const nextMessage = String(message || "").trim() || DEFAULT_UPDATE_MESSAGE;
@@ -9664,7 +9654,23 @@ export default function App() {
         ? nextOrUpdater(currentProgress)
         : nextOrUpdater;
 
-      pendingMcqRemoteSaveRef.current = { profileId, progress: nextProgress };
+      const existingPending = pendingMcqRemoteSaveRef.current?.profileId === profileId
+        ? pendingMcqRemoteSaveRef.current
+        : null;
+      const sessionStateChanged = sessionStateFingerprint(currentProgress)
+        !== sessionStateFingerprint(nextProgress);
+      pendingMcqRemoteSaveRef.current = {
+        profileId,
+        progress: nextProgress,
+        changedQuestionIds: [...new Set([
+          ...(existingPending?.changedQuestionIds || []),
+          ...getChangedQuestionIds(currentProgress, nextProgress),
+        ])],
+        sessionStateChanged: Boolean(existingPending?.sessionStateChanged || sessionStateChanged),
+        sessionUpdatedAt: sessionStateChanged
+          ? (nextProgress.updatedAt || new Date().toISOString())
+          : existingPending?.sessionUpdatedAt,
+      };
 
       return {
         ...prev,
@@ -9684,7 +9690,7 @@ export default function App() {
     if (!pending) return;
 
     pendingMcqRemoteSaveRef.current = null;
-    queueRemoteProgressSave(pending.profileId, pending.progress);
+    queueRemoteProgressSave(pending);
   }, [profileStore, queueRemoteProgressSave]);
 
   const updateOralProgress = useCallback((nextOrUpdater) => {
