@@ -876,7 +876,8 @@ function profileFromRemoteMetadataRow(row, existingProfile = null) {
     name: row.name,
     createdAt: row.created_at || existingProfile?.createdAt || new Date().toISOString(),
     themePreference: normalizeThemePreference(row.theme_preference),
-    progressLoaded: Boolean(existingProfile?.progressLoaded),
+    progressSummary: row.progressSummary || existingProfile?.progressSummary || null,
+    progressLoaded: Boolean(row.progressSummary || existingProfile?.progressLoaded),
   };
 }
 
@@ -1334,13 +1335,29 @@ async function loadRemoteProfileDetail(profileId, fallbackProfile = null) {
 }
 
 async function loadRemoteProfileStore(activeProfileId = null, localProfiles = {}) {
-  const rows = await supabaseProfilesRequest({
-    select: "id,name,theme_preference,created_at",
-    order: "name.asc",
-  });
+  const [rows, summaryRows] = await Promise.all([
+    supabaseProfilesRequest({
+      select: "id,name,theme_preference,created_at",
+      order: "name.asc",
+    }),
+    supabaseTableRequest("profile_progress_summary", {
+      select: "profile_id,attempted_questions,mastered_questions,mastered_oral_questions",
+    }),
+  ]);
+  const summaries = Object.fromEntries(summaryRows.map(row => [
+    row.profile_id,
+    {
+      mastered: Number(row.mastered_questions) || 0,
+      review: Math.max(0, (Number(row.attempted_questions) || 0) - (Number(row.mastered_questions) || 0)),
+      oralMastered: Number(row.mastered_oral_questions) || 0,
+    },
+  ]));
   const profiles = Object.fromEntries(
     rows.map(row => {
-      const profile = profileFromRemoteMetadataRow(row, localProfiles[row.id]);
+      const profile = profileFromRemoteMetadataRow(
+        { ...row, progressSummary: summaries[row.id] || { mastered: 0, review: 0, oralMastered: 0 } },
+        localProfiles[row.id]
+      );
       return [profile.id, profile];
     })
   );
@@ -2902,7 +2919,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
           <div className="profile-list">
             <div className="profile-list-title">Υπάρχοντα προφίλ</div>
             {profiles.map(profile => {
-              const summary = summarizeStoredMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
+              const summary = profile.progressSummary || summarizeStoredMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
               const oralSummary = summarizeOralProgress(profile.oralProgress || createEmptyOralProgress());
               return (
                 <button
@@ -2920,7 +2937,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                         <>
                           <span>{summary.mastered} mastered</span>
                           <span>{summary.review} για επανάληψη</span>
-                          <span>Προφορικά {oralSummary.mastered}/{oralSummary.total}</span>
+                          <span>Προφορικά {profile.progressSummary?.oralMastered ?? oralSummary.mastered}/{oralSummary.total}</span>
                         </>
                       ) : (
                         <span>Η πρόοδος φορτώνει με την επιλογή</span>
