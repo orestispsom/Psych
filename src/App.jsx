@@ -359,7 +359,8 @@ const DAILY_CHALLENGE_SIZE = 10;
 const SPRINT_SESSION_SIZE = 10;
 const WEAKNESS_SESSION_SIZE = 15;
 const WRITTEN_EXAM_SIZE = 100;
-const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
+const THESSALONIKI_EXAMINER_BANK_TOPIC = "Τράπεζα εξεταστών Θεσσαλονίκης";
 const MCQ_TOPIC_CATEGORIES = [
   "\u03a8\u03c5\u03c7\u03bf\u03c0\u03b1\u03b8\u03bf\u03bb\u03bf\u03b3\u03af\u03b1",
   "\u03a8\u03c5\u03c7\u03c9\u03c4\u03b9\u03ba\u03ad\u03c2 \u03b4\u03b9\u03b1\u03c4\u03b1\u03c1\u03b1\u03c7\u03ad\u03c2",
@@ -381,7 +382,8 @@ const MCQ_TOPIC_CATEGORIES = [
   "\u039d\u03bf\u03bc\u03b9\u03ba\u03ac, \u03b4\u03b5\u03bf\u03bd\u03c4\u03bf\u03bb\u03bf\u03b3\u03af\u03b1 \u03ba\u03b1\u03b9 \u03b9\u03b1\u03c4\u03c1\u03bf\u03b4\u03b9\u03ba\u03b1\u03c3\u03c4\u03b9\u03ba\u03ae \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae",
   "\u0399\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03ba\u03b1\u03b9 \u03b4\u03b9\u03b1\u03c3\u03c5\u03bd\u03b4\u03b5\u03c4\u03b9\u03ba\u03ae \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae",
   "\u03a8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03b7\u03bb\u03b9\u03ba\u03b9\u03c9\u03bc\u03ad\u03bd\u03c9\u03bd",
-  "\u0399\u03c3\u03c4\u03bf\u03c1\u03af\u03b1, \u03ad\u03c1\u03b5\u03c5\u03bd\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7"
+  "\u0399\u03c3\u03c4\u03bf\u03c1\u03af\u03b1, \u03ad\u03c1\u03b5\u03c5\u03bd\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7",
+  THESSALONIKI_EXAMINER_BANK_TOPIC,
 ];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Διπλότυπη ερώτηση" },
@@ -1975,12 +1977,27 @@ function getMcqTopicCounts() {
   QUESTIONS.forEach(question => {
     const topic = getQuestionTopic(question);
     counts.set(topic, (counts.get(topic) || 0) + 1);
+    if (
+      topic !== THESSALONIKI_EXAMINER_BANK_TOPIC &&
+      question.sourceRefs?.includes("thessaloniki_examiner_bank")
+    ) {
+      counts.set(
+        THESSALONIKI_EXAMINER_BANK_TOPIC,
+        (counts.get(THESSALONIKI_EXAMINER_BANK_TOPIC) || 0) + 1
+      );
+    }
   });
   return counts;
 }
 
 function getQuestionsForMcqTopic(topic) {
   if (!topic) return [];
+  if (topic === THESSALONIKI_EXAMINER_BANK_TOPIC) {
+    return QUESTIONS.filter(question =>
+      getQuestionTopic(question) === topic ||
+      question.sourceRefs?.includes("thessaloniki_examiner_bank")
+    );
+  }
   return QUESTIONS.filter(question => getQuestionTopic(question) === topic);
 }
 
@@ -3278,7 +3295,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
   const modes = [
     { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
     { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: '21 θεματικές ενότητες & κεφάλαια' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: `${MCQ_TOPIC_CATEGORIES.length} θεματικές ενότητες & κεφάλαια` },
     { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
     { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
     { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
@@ -3292,7 +3309,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Ενότητα</span>
           <h2>Πολλαπλής Επιλογής</h2>
-          <span className="sheet-sub">{plural(progressSummary.total, "ερώτηση", "ερωτήσεις")} σε 21 κατηγορίες</span>
+          <span className="sheet-sub">{plural(progressSummary.total, "ερώτηση", "ερωτήσεις")} σε {MCQ_TOPIC_CATEGORIES.length} κατηγορίες</span>
         </div>
       </div>
 
@@ -3376,6 +3393,15 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
       current.total += 1;
       if (isQuestionMastered(records[question.id])) current.mastered += 1;
       map.set(topic, current);
+      if (
+        topic !== THESSALONIKI_EXAMINER_BANK_TOPIC &&
+        question.sourceRefs?.includes("thessaloniki_examiner_bank")
+      ) {
+        const examinerCurrent = map.get(THESSALONIKI_EXAMINER_BANK_TOPIC) || { mastered: 0, total: 0 };
+        examinerCurrent.total += 1;
+        if (isQuestionMastered(records[question.id])) examinerCurrent.mastered += 1;
+        map.set(THESSALONIKI_EXAMINER_BANK_TOPIC, examinerCurrent);
+      }
     }
     return map;
   }, [progress]);
@@ -6345,7 +6371,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
           {(openBand.topics || []).map(topic => (
             <section key={topic.id} className="oral-band-topic">
               <div className="subscale">
-                <h3 className="subscale-title">{topic.letter}. {topic.title}</h3>
+                <h3 className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</h3>
                 <span className="subscale-rule" />
                 <span className="subscale-total">{renderProgressPill(getOralQuestionsFromTopic(topic))}</span>
               </div>
@@ -9985,7 +10011,7 @@ export default function App() {
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'category' && !selectedMcqTopic && (
+        {activeProfile && screen === 'mcq' && questionBankStatus === 'ready' && testMode === 'category' && !selectedMcqTopic && (
           <McqTopicSelect
             onBack={() => {
               setSelectedMcqTopic(null);

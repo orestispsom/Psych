@@ -55,11 +55,11 @@ For clinical evaluators, medical educators, and technical reviewers, this reposi
 
 | Dataset | Items & Scope | Primary File |
 |---|---|---|
-| **Core MCQs** | 1,961 questions across 21 clinical topics | `src/data/questions.js` |
+| **Core MCQs** | 2,081 questions across 22 study categories | `src/data/questions.js` |
 | **DSM-5-TR Self-Exam** | 473 questions across 23 chapters | `src/data/dsm5trSelfExamQuestions.js` |
 | **Clinical Vignettes** | 21 case vignettes | `src/data/mcqVignettes.js` |
 | **Matching Sets** | 54 extended matching items | `src/data/mcqMatching.js` |
-| **Previous Oral Questions** | 129 questions from past examinations | `src/data/oral.js` |
+| **Previous Oral Questions** | 196 questions from past examinations | `src/data/oral.js` |
 | **Oral Core** | 218 items (34 anchors + follow-ups) | `src/data/oralCore.js` |
 | **Crucial Questions** | 100 long-form structured answers | `src/data/crucialQuestionsContent.js` |
 | **SOS High-Yield** | 62 tables, 57 numbers, 61 critical topics, 30 differentials | `src/data/sos.js`, `src/data/highYieldPsychiatryTables.js` |
