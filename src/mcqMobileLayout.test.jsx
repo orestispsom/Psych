@@ -104,6 +104,36 @@ describe("Mobile MCQ single-screen experience", () => {
     expect(container.querySelector(".sheet")).not.toHaveClass("sheet-mcq-active");
   }, 15000);
 
+  it("keeps an in-progress Mini-test when bottom navigation is tapped accidentally", async () => {
+    const user = userEvent.setup();
+    const { container } = renderApp();
+    const home = await createProfile(user, "SprintResumeTester", container);
+
+    await user.click(home.getByText("Πολλαπλής Επιλογής"));
+    await user.click(await screen.findByText("Mini-test", {}, { timeout: 10000 }));
+
+    const originalStem = await waitFor(() => {
+      const stem = container.querySelector(".question-stem");
+      expect(stem).toBeTruthy();
+      return stem.textContent;
+    });
+    const firstOption = container.querySelector(".option-btn");
+    await user.click(firstOption);
+    expect(firstOption).toHaveClass("selected");
+
+    const bottomNavigation = screen.getByRole("navigation", { name: "Ενότητες" });
+    await user.click(within(bottomNavigation).getByRole("button", { name: "Προφορικά" }));
+    await waitFor(() => {
+      expect(container.querySelector(".oral-hub-screen h2")?.textContent).toBe("Προφορικά");
+    });
+
+    await user.click(within(bottomNavigation).getByRole("button", { name: "Πολλαπλής" }));
+    await waitFor(() => {
+      expect(container.querySelector(".question-stem")?.textContent).toBe(originalStem);
+      expect(container.querySelector(".option-btn.selected")).toBeTruthy();
+    });
+  }, 15000);
+
   it("opens the 1–100 navigator as a modal in written exam mode on mobile", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();

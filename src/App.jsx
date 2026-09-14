@@ -4408,7 +4408,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   );
 }
 
-function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null }) {
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true }) {
   const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
   const initialSessionQuestionsRef = useRef(
@@ -4750,6 +4750,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   // 1–5 and Up/Down pick an option; Enter/Space submit, then advance.
   useWindowKeydown(event => {
     {
+      if (!isActive) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
       if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
@@ -6275,7 +6276,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
 
       {view === "all" && !openBand && (
         <>
-          <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Αναζήτηση στις 129 ερωτήσεις…" aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
+          <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={`Αναζήτηση στις ${allEntries.length} ερωτήσεις…`} aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
           <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}` : `${visibleEntries.length} από ${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}`}</div>
           <ol className="oral-question-list">
             {visibleEntries.map((entry, index) => {
@@ -9010,6 +9011,8 @@ export default function App() {
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
   const [mcqFeatureLoadError, setMcqFeatureLoadError] = useState(null);
+  const [activeSprintSessionKey, setActiveSprintSessionKey] = useState(null);
+  const suppressSprintAutoStartRef = useRef(false);
   const [sosStudyData, setSosStudyData] = useState(null);
   const [sosStudyLoadError, setSosStudyLoadError] = useState(null);
   const [questionBankStatus, setQuestionBankStatus] = useState("idle");
@@ -9107,6 +9110,22 @@ export default function App() {
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  // Keep a Mini-test mounted while the user briefly visits another section.
+  // Mobile bottom-navigation taps can otherwise unmount it and discard the
+  // current question, selected answer, option order, and session statistics.
+  useEffect(() => {
+    if (screen === "mcq" && testMode === "sprint" && !activeSprintSessionKey) {
+      if (suppressSprintAutoStartRef.current) return;
+      setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
+      return;
+    }
+    if (screen === "mcq" && !testMode && activeSprintSessionKey) {
+      navigate(pathForMcqMode("sprint"), { replace: true });
+      return;
+    }
+    if (screen === "mcq" && !testMode) suppressSprintAutoStartRef.current = false;
+  }, [activeSprintSessionKey, navigate, screen, testMode]);
 
   // ─── Shell: theme, global search, shortcut sheet ───
   const { theme, toggleTheme } = useTheme(activeProfile?.themePreference, handleThemePreferenceChange);
@@ -9827,12 +9846,17 @@ export default function App() {
 
   const switchProfile = useCallback(() => {
     setAdminUnlocked(false);
+    setActiveSprintSessionKey(null);
     setScreen('home');
     setProfileStore(prev => ({ ...prev, activeProfileId: null }));
   }, [setScreen]);
 
   const startMcqMode = useCallback((mode) => {
     if (mode !== "category") setSelectedMcqTopic(null);
+    if (mode === "sprint") {
+      suppressSprintAutoStartRef.current = false;
+      setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
+    }
     setTestMode(mode);
   }, [setSelectedMcqTopic, setTestMode]);
 
@@ -10008,7 +10032,7 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
+        {activeProfile && screen === 'mcq' && testMode && testMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
           <McqTest
             mode={testMode}
             progress={mcqProgress}
@@ -10029,6 +10053,24 @@ export default function App() {
               setScreen('home');
             }}
           />
+        )}
+        {activeProfile && questionBankStatus === 'ready' && activeSprintSessionKey && (
+          <div style={screen === 'mcq' && testMode === 'sprint' ? undefined : { display: 'none' }}>
+            <McqTest
+              key={activeSprintSessionKey}
+              mode="sprint"
+              progress={mcqProgress}
+              qualitySignals={mcqQualitySignals}
+              onProgressChange={updateMcqProgress}
+              isActive={screen === 'mcq' && testMode === 'sprint'}
+              onBack={() => {
+                suppressSprintAutoStartRef.current = true;
+                setActiveSprintSessionKey(null);
+                setTestMode(null);
+              }}
+              onHome={() => setScreen('home')}
+            />
+          </div>
         )}
         {activeProfile && screen === 'oral' && (
           <OralHub
