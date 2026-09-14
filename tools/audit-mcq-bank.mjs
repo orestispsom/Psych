@@ -33,8 +33,8 @@ for (const [index, question] of questions.entries()) {
     }
   }
 
-  if (!Array.isArray(question.options) || question.options.length !== 5) {
-    add('error', 'OPTION_COUNT', id, `Expected 5 options; found ${question.options?.length ?? 'none'}.`);
+  if (!Array.isArray(question.options) || ![5, 6].includes(question.options.length)) {
+    add('error', 'OPTION_COUNT', id, `Expected 5 or 6 source-faithful options; found ${question.options?.length ?? 'none'}.`);
   } else {
     const normalizedOptions = question.options.map(normalize);
     if (normalizedOptions.some((option) => !option)) add('error', 'EMPTY_OPTION', id, 'One or more options are empty.');
