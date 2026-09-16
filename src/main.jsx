@@ -7,6 +7,7 @@ import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/system.css'
 import './styles/surfaces.css'
+import './styles/matching.css'
 import './styles/support.css'
 
 if (typeof window !== 'undefined') {
