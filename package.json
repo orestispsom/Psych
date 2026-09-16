@@ -4,6 +4,13 @@
   "description": "Προετοιμασία για τις εξετάσεις ειδικότητας ψυχιατρικής — γραπτά, προφορικά, SOS υλικό και πινακάκια.",
   "main": "index.js",
   "scripts": {
+    "wow:questions": "node scripts/wow/questions.mjs",
+    "wow:pull": "node --env-file=.env scripts/wow/pull.mjs",
+    "wow:export": "node scripts/wow/export.mjs",
+    "wow:sync": "node --env-file=.env scripts/wow/sync.mjs",
+    "wow:desktop": "node --env-file=.env scripts/wow/desktop-sync.mjs",
+    "wow:install": "node scripts/wow/install.mjs",
+    "wow:test": "node --test scripts/wow/tests/*.test.mjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -25,6 +32,7 @@
     "vite": "^8.0.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",

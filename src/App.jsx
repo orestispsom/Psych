@@ -1290,6 +1290,7 @@ async function loadRemoteAttempts(profileId) {
       "id", "client_attempt_id", "profile_id", "question_id", "client_session_id",
       "mode", "selected_index", "selected_option", "is_correct", "confidence",
       "time_taken_ms", "point_breakdown", "points_awarded", "streak_position", "attempted_at",
+      "event_origin", "event_payload",
     ].join(","),
     profile_id: `eq.${profileId}`,
     order: "attempted_at.desc",
@@ -2490,7 +2491,7 @@ function recordQuestionAnswer(progress, question, selected, {
     ? Math.round(((previousAverageTime * previousAttempts) + timeTakenMs) / (previousAttempts + 1))
     : previousAverageTime || null;
   const attempt = {
-    id: `${now.getTime()}-${question.id}`,
+    id: `${now.getTime()}-${question.id}-${crypto.randomUUID()}`,
     sessionId,
     mode,
     questionId: question.id,
