@@ -4,10 +4,27 @@ import importedMatchingSets from "./mcqMatchingImported.js";
 import translatedMatchingSets from "./mcqMatchingGreek.js";
 
 const INTENTIONAL_KEY_CORRECTIONS = new Map([
+  // EMQ 42 is visibly line-shifted in the extracted source. The reviewed Greek
+  // bank restores the missing psychotic-depression, poor-intake, and mild-
+  // depression cases as 42_03, 42_04, and 42_05 respectively.
+  ["crash_course_match_42_03", ["F"]],
+  ["crash_course_match_42_04", ["A"]],
+  ["crash_course_match_42_05", ["C"]],
+
   // The imported extraction maps this item to I (chlorpromazine), while its
   // own explanation identifies carbamazepine/valproate. Valproate is absent
   // from the extracted option list, so G (carbamazepine) is the coherent key.
   ["crash_course_match_50_01", ["G"]],
+]);
+
+const RECONSTRUCTED_ITEM_IDS = new Map([
+  ["crash_course_emq_42", [
+    "crash_course_match_42_01",
+    "crash_course_match_42_02",
+    "crash_course_match_42_03",
+    "crash_course_match_42_04",
+    "crash_course_match_42_05",
+  ]],
 ]);
 
 const GREEK_TEXT = /[Α-Ωα-ωΆΈΉΊΌΎΏάέήίόύώϊϋΐΰ]/;
@@ -35,7 +52,7 @@ function flattenLearnerText(set) {
 }
 
 describe("Greek matching-question bank", () => {
-  it("covers the complete imported EMQ bank without changing set or item identity", () => {
+  it("covers every imported EMQ set and preserves item identity except documented reconstruction", () => {
     expect(translatedMatchingSets.map(set => set.id)).toEqual(
       importedMatchingSets.map(set => set.id),
     );
@@ -43,10 +60,10 @@ describe("Greek matching-question bank", () => {
     for (let index = 0; index < importedMatchingSets.length; index += 1) {
       const sourceSet = importedMatchingSets[index];
       const translatedSet = translatedMatchingSets[index];
+      const expectedItemIds = RECONSTRUCTED_ITEM_IDS.get(sourceSet.id)
+        ?? sourceSet.items.map(item => item.id);
 
-      expect(translatedSet.items.map(item => item.id)).toEqual(
-        sourceSet.items.map(item => item.id),
-      );
+      expect(translatedSet.items.map(item => item.id)).toEqual(expectedItemIds);
     }
   });
 
@@ -61,9 +78,9 @@ describe("Greek matching-question bank", () => {
 
       for (const item of set.items) {
         const sourceItem = sourceItems.get(item.id);
-        expect(sourceItem).toBeTruthy();
+        const expected = INTENTIONAL_KEY_CORRECTIONS.get(item.id) ?? sourceItem?.correct;
 
-        const expected = INTENTIONAL_KEY_CORRECTIONS.get(item.id) ?? sourceItem.correct;
+        expect(expected, `Missing source or documented correction for ${item.id}`).toBeTruthy();
         expect(item.correct).toEqual(expected);
 
         for (const answer of item.correct) {
