@@ -39,6 +39,11 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Progress persistence and WoW bridge
+        run: |
+          node scripts/test-progress-persistence.mjs
+          npm run wow:test
+
       - name: Build
         run: npm run build
 

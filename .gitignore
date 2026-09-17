@@ -11,3 +11,7 @@ backups/
 .chrome_tmp_profile/
 .chrome_tmp_profile_v2/
 .init_storage.html
+addons/PsychQuiz/Questions.lua
+addons/PsychQuiz/ProfileImport.lua
+exports/wow/
+supabase/.temp/
