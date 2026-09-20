@@ -7,6 +7,7 @@ import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
 import SupportWidget from "./components/SupportWidget.jsx";
+import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
@@ -66,12 +67,16 @@ function loadSosStudyData() {
     sosStudyDataPromise = Promise.all([
       import("./data/sos.js"),
       import("./data/highYieldPsychiatryTables.js"),
+      import("./data/psychotropicCyp450.js"),
     ])
-      .then(([sosModule, highYieldModule]) => ({
+      .then(([sosModule, highYieldModule, cyp450Module]) => ({
         numbers: sosModule.sosNumbers,
         criticalTopics: sosModule.sosCriticalTopics,
         differentialDiagnosis: sosModule.sosDifferentialDiagnosis,
         highYieldTables: highYieldModule.highYieldPsychiatryTables,
+        cyp450Rows: cyp450Module.psychotropicCyp450Rows,
+        cyp450Enzymes: cyp450Module.cyp450EnzymeSummary,
+        cyp450Meta: cyp450Module.cyp450Meta,
       }))
       .catch(error => {
         sosStudyDataPromise = null;
@@ -2918,6 +2923,7 @@ const SCREEN_TITLES = {
   sos: "SOS Ψυχιατρικής",
   "sos-numbers": "Αριθμοί",
   "sos-highyield": "Γρήγορα SOS",
+  "sos-cyp450": "CYP450 & Ψυχοφάρμακα",
   "sos-critical": "Κρίσιμα Θέματα",
   "sos-differential": "Διαφοροδιάγνωση",
   pinakakia: "Πινακάκια",
@@ -8318,6 +8324,15 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       defaultTotal: 80,
     },
     {
+      id: "cyp450",
+      icon: <Icons.Pill />,
+      title: "CYP450 & Ψυχοφάρμακα",
+      desc: "Μεταβολισμός, substrates, inhibitors/inducers και εξεταστικές αλληλεπιδράσεις",
+      section: "cyp450",
+      entries: data?.cyp450Rows,
+      defaultTotal: 53,
+    },
+    {
       id: "numbers",
       icon: <Icons.FileText />,
       title: "Αριθμοί & Όρια",
@@ -10537,6 +10552,16 @@ export default function App() {
             onToggleMastery={setSosEntryMastered}
             onBack={() => setScreen('sos')}
             onHome={() => setScreen('home')}
+          />
+        )}
+        {activeProfile && screen === 'sos-cyp450' && sosStudyData && (
+          <Cyp450Tables
+            rows={sosStudyData.cyp450Rows}
+            enzymes={sosStudyData.cyp450Enzymes}
+            meta={sosStudyData.cyp450Meta}
+            mastered={normalizeSosProgress(sosProgress).mastered.cyp450 || {}}
+            onToggleMastery={(entryId, mastered) => setSosEntryMastered("cyp450", entryId, mastered)}
+            onBack={() => setScreen('sos')}
           />
         )}
         {activeProfile && screen === 'sos-critical' && sosStudyData && (

@@ -3831,3 +3831,237 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   font-size: var(--t-micro);
   border-radius: var(--r-full);
 }
+
+
+/* ═══ SOS CYP450 reference ═══ */
+.cyp450-screen {
+  min-width: 0;
+}
+.cyp450-note {
+  margin-bottom: var(--s3);
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--sec-sos);
+  border-radius: var(--r-md);
+  background: var(--field);
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  line-height: 1.5;
+}
+.cyp450-note strong {
+  color: var(--ink);
+}
+.cyp450-verified {
+  color: var(--ink-3);
+}
+.cyp450-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.cyp450-tabs button,
+.cyp450-filters button {
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--field);
+  color: var(--ink-2);
+  padding: 7px 12px;
+  font: inherit;
+  font-size: var(--t-meta);
+  cursor: pointer;
+}
+.cyp450-tabs button:hover,
+.cyp450-filters button:hover {
+  border-color: var(--sec-sos);
+  color: var(--ink);
+}
+.cyp450-tabs button.active,
+.cyp450-filters button.active {
+  border-color: var(--sec-sos);
+  background: color-mix(in srgb, var(--sec-sos) 14%, var(--field));
+  color: var(--sec-sos);
+  font-weight: 700;
+}
+.cyp450-toolbar {
+  display: grid;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+.cyp450-search {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 9px 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--field);
+}
+.cyp450-search .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--ink-3);
+  flex: 0 0 auto;
+}
+.cyp450-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.cyp450-search input::placeholder {
+  color: var(--ink-3);
+}
+.cyp450-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+.cyp450-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--field);
+}
+.cyp450-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  font-size: var(--t-meta);
+  line-height: 1.45;
+}
+.cyp450-table th,
+.cyp450-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+.cyp450-table th {
+  background: color-mix(in srgb, var(--sec-sos) 7%, var(--field));
+  color: var(--ink-2);
+  font-size: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cyp450-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.cyp450-table tbody tr:hover {
+  background: color-mix(in srgb, var(--sec-sos) 4%, transparent);
+}
+.cyp450-table tr.mastered {
+  opacity: 0.62;
+}
+.cyp450-group-label {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+  font-weight: 500;
+}
+.cyp450-pathway {
+  font-family: var(--code);
+  color: var(--ink);
+}
+.cyp450-master-col {
+  width: 48px;
+  text-align: center !important;
+}
+.cyp450-master-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cyp450-master-btn:hover {
+  border-color: var(--sec-sos);
+  color: var(--sec-sos);
+}
+.cyp450-master-btn.active {
+  border-color: var(--sec-sos);
+  background: var(--sec-sos);
+  color: #fff;
+}
+.cyp450-empty {
+  padding: var(--s5);
+  text-align: center;
+  color: var(--ink-3);
+}
+.cyp450-enzyme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+}
+.cyp450-enzyme-card {
+  padding: var(--s4);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--sec-sos);
+  border-radius: var(--r-lg);
+  background: var(--field);
+}
+.cyp450-enzyme-card h3 {
+  margin: 0 0 var(--s3);
+  color: var(--sec-sos);
+  font-family: var(--code);
+  font-size: 1.05rem;
+}
+.cyp450-enzyme-card dl {
+  display: grid;
+  gap: var(--s3);
+  margin: 0;
+}
+.cyp450-enzyme-card dl > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: var(--s3);
+}
+.cyp450-enzyme-card dt {
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+  font-weight: 700;
+}
+.cyp450-enzyme-card dd {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  line-height: 1.45;
+}
+.cyp450-enzyme-pearl {
+  margin: var(--s3) 0 0;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  line-height: 1.45;
+}
+.cyp450-enzyme-pearl strong {
+  color: var(--sec-sos);
+}
+.cyp450-source-note {
+  margin: var(--s3) 0 0;
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+}
+@media (max-width: 699px) {
+  .cyp450-enzyme-grid {
+    grid-template-columns: 1fr;
+  }
+  .cyp450-enzyme-card dl > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .cyp450-table {
+    min-width: 880px;
+  }
+}
