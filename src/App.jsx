@@ -8330,7 +8330,7 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
       desc: "Μεταβολισμός, substrates, inhibitors/inducers και εξεταστικές αλληλεπιδράσεις",
       section: "cyp450",
       entries: data?.cyp450Rows,
-      defaultTotal: 51,
+      defaultTotal: 53,
     },
     {
       id: "numbers",
