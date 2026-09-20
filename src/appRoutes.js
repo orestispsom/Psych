@@ -12,6 +12,7 @@ const SCREEN_PATHS = {
   sos: "/sos",
   "sos-numbers": "/sos/numbers",
   "sos-highyield": "/sos/high-yield",
+  "sos-cyp450": "/sos/cyp450",
   "sos-critical": "/sos/critical",
   "sos-differential": "/sos/differential",
 };
