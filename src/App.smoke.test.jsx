@@ -136,9 +136,9 @@ describe("golden path smoke tests", () => {
     const topic = firstCategoryButton.querySelector(".item-title").textContent;
     await user.click(firstCategoryButton);
 
-    expect(await screen.findByText(/Ερώτηση 1\s*\//)).toBeInTheDocument();
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
     await user.click(screen.getByRole("button", { name: "Επόμενη ερώτηση" }));
-    expect(await screen.findByText(/Ερώτηση 2\s*\//)).toBeInTheDocument();
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 2\s*\//));
 
     await waitFor(() => {
       const store = readProfileStore();
@@ -156,7 +156,7 @@ describe("golden path smoke tests", () => {
 
     expect(await screen.findByText("Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Συνέχεια από την ερώτηση 2/i }));
-    expect(await screen.findByText(/Ερώτηση 2\s*\//)).toBeInTheDocument();
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 2\s*\//));
 
     await user.click(screen.getByRole("button", { name: "Επιστροφή στο Μενού MCQ" }));
     await waitFor(() => {
@@ -166,7 +166,7 @@ describe("golden path smoke tests", () => {
       .find(button => button.querySelector(".item-title")?.textContent === topic);
     await user.click(categoryAgain);
     await user.click(await screen.findByRole("button", { name: /Νέα αρχή στην κατηγορία/i }));
-    expect(await screen.findByText(/Ερώτηση 1\s*\//)).toBeInTheDocument();
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
 
     await waitFor(() => {
       const store = readProfileStore();
