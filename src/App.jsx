@@ -678,6 +678,7 @@ function createEmptyMcqProgress() {
     sprintSessions: [],
     writtenExamSessions: [],
     writtenExamDraft: null,
+    categoryDrafts: {},
     bookmarks: {},
     vignettes: { completed: {}, updatedAt: null },
     updatedAt: null,
@@ -698,6 +699,7 @@ function normalizeMcqProgress(progress) {
     sprintSessions: Array.isArray(progress.sprintSessions) ? progress.sprintSessions : [],
     writtenExamSessions: Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [],
     writtenExamDraft: normalizeWrittenExamDraft(progress.writtenExamDraft),
+    categoryDrafts: normalizeCategoryDrafts(progress.categoryDrafts),
     bookmarks: progress.bookmarks && typeof progress.bookmarks === "object"
       ? Object.fromEntries(Object.entries(progress.bookmarks).filter(([, v]) => Boolean(v)))
       : {},
@@ -1290,6 +1292,7 @@ async function loadRemoteAttempts(profileId) {
       "id", "client_attempt_id", "profile_id", "question_id", "client_session_id",
       "mode", "selected_index", "selected_option", "is_correct", "confidence",
       "time_taken_ms", "point_breakdown", "points_awarded", "streak_position", "attempted_at",
+      "event_origin", "event_payload",
     ].join(","),
     profile_id: `eq.${profileId}`,
     order: "attempted_at.desc",
@@ -2312,6 +2315,138 @@ function getQuestionById(questionId) {
   return QUESTIONS.find(question => question.id === questionId || question.id === normalizedId) || null;
 }
 
+function makeCategorySessionId() {
+  return `category-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function normalizeCategoryDraft(topic, draft) {
+  if (!topic || !draft || typeof draft !== "object") return null;
+
+  const availableIds = new Set(getQuestionsForMcqTopic(topic).map(question => String(question.id)));
+  const seenIds = new Set();
+  const questionIds = [];
+  for (const id of Array.isArray(draft.questionIds) ? draft.questionIds : []) {
+    const question = getQuestionById(id);
+    const key = question ? String(question.id) : null;
+    if (!question || !availableIds.has(key) || seenIds.has(key)) continue;
+    seenIds.add(key);
+    questionIds.push(question.id);
+  }
+  if (!questionIds.length) return null;
+
+  const sessionIds = new Set(questionIds.map(String));
+  const answers = {};
+  if (draft.answers && typeof draft.answers === "object") {
+    for (const [questionId, selected] of Object.entries(draft.answers)) {
+      if (!sessionIds.has(String(questionId))) continue;
+      const question = getQuestionById(questionId);
+      const normalizedSelected = Number(selected);
+      if (!question || !Number.isInteger(normalizedSelected) || normalizedSelected < 0 || normalizedSelected >= question.options.length) continue;
+      answers[question.id] = normalizedSelected;
+    }
+  }
+
+  const lockedQuestionIds = Array.isArray(draft.lockedQuestionIds)
+    ? [...new Set(draft.lockedQuestionIds.map(String).filter(id => sessionIds.has(id)))]
+    : [];
+  const currentIdx = Number.isInteger(draft.currentIdx)
+    ? Math.max(0, Math.min(draft.currentIdx, questionIds.length - 1))
+    : 0;
+  const draftQuestions = questionIds.map(getQuestionById).filter(Boolean);
+  const sourceStats = draft.sessionStats && typeof draft.sessionStats === "object" ? draft.sessionStats : {};
+  const sessionStats = {
+    correct: Math.max(0, Number(sourceStats.correct) || 0),
+    incorrect: Math.max(0, Number(sourceStats.incorrect) || 0),
+    total: Math.max(0, Number(sourceStats.total) || 0),
+    currentStreak: Math.max(0, Number(sourceStats.currentStreak) || 0),
+    maxStreak: Math.max(0, Number(sourceStats.maxStreak) || 0),
+    points: Math.max(0, Number(sourceStats.points) || 0),
+  };
+
+  return {
+    sessionId: draft.sessionId || makeCategorySessionId(),
+    topic,
+    questionIds,
+    currentIdx,
+    answers,
+    optionOrders: createOptionOrders(
+      draftQuestions,
+      draft.optionOrders && typeof draft.optionOrders === "object" ? draft.optionOrders : {}
+    ),
+    lockedQuestionIds,
+    sessionStats,
+    startedAt: draft.startedAt || new Date().toISOString(),
+    updatedAt: draft.updatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeCategoryDrafts(drafts) {
+  if (!drafts || typeof drafts !== "object" || Array.isArray(drafts)) return {};
+  const normalized = {};
+  for (const [topic, draft] of Object.entries(drafts)) {
+    const nextDraft = normalizeCategoryDraft(topic, draft);
+    if (nextDraft) normalized[topic] = nextDraft;
+  }
+  return normalized;
+}
+
+function getCategoryDraft(progress, topic) {
+  return normalizeCategoryDraft(topic, progress?.categoryDrafts?.[topic]);
+}
+
+function getCategoryDraftQuestions(draft) {
+  if (!draft?.questionIds?.length) return [];
+  return draft.questionIds.map(getQuestionById).filter(Boolean);
+}
+
+function createCategoryDraft(topic, questions, {
+  sessionId = makeCategorySessionId(),
+  currentIdx = 0,
+  answers = {},
+  optionOrders = {},
+  lockedQuestionIds = [],
+  sessionStats = {},
+  startedAt = new Date().toISOString(),
+} = {}) {
+  return normalizeCategoryDraft(topic, {
+    sessionId,
+    topic,
+    questionIds: questions.map(question => question.id),
+    currentIdx,
+    answers,
+    optionOrders: createOptionOrders(questions, optionOrders),
+    lockedQuestionIds,
+    sessionStats,
+    startedAt,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+function saveCategoryDraft(progress, topic, draft) {
+  const normalizedDraft = normalizeCategoryDraft(topic, draft);
+  if (!normalizedDraft) return progress;
+
+  return {
+    ...progress,
+    categoryDrafts: {
+      ...(progress.categoryDrafts || {}),
+      [topic]: normalizedDraft,
+    },
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function clearCategoryDraft(progress, topic) {
+  if (!topic || !progress?.categoryDrafts?.[topic]) return progress;
+  const categoryDrafts = { ...(progress.categoryDrafts || {}) };
+  delete categoryDrafts[topic];
+  return {
+    ...progress,
+    categoryDrafts,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 function normalizeWrittenExamDraft(draft) {
   if (!draft || typeof draft !== "object") return null;
 
@@ -2490,7 +2625,7 @@ function recordQuestionAnswer(progress, question, selected, {
     ? Math.round(((previousAverageTime * previousAttempts) + timeTakenMs) / (previousAttempts + 1))
     : previousAverageTime || null;
   const attempt = {
-    id: `${now.getTime()}-${question.id}`,
+    id: `${now.getTime()}-${question.id}-${crypto.randomUUID()}`,
     sessionId,
     mode,
     questionId: question.id,
@@ -4437,25 +4572,40 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
 function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true }) {
   const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
+  const initialCategoryDraftRef = useRef(mode === "category" && sessionTitle ? getCategoryDraft(progress, sessionTitle) : null);
+  const initialCategoryQuestionsRef = useRef(initialCategoryDraftRef.current ? getCategoryDraftQuestions(initialCategoryDraftRef.current) : null);
   const initialSessionQuestionsRef = useRef(
     initialWrittenQuestionsRef.current?.length
       ? initialWrittenQuestionsRef.current
-      : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress, qualitySignals))
+      : initialCategoryQuestionsRef.current?.length
+        ? initialCategoryQuestionsRef.current
+        : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress, qualitySignals))
   );
-  const sessionIdRef = useRef(initialWrittenDraftRef.current?.sessionId || `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const sessionIdRef = useRef(
+    initialWrittenDraftRef.current?.sessionId ||
+    initialCategoryDraftRef.current?.sessionId ||
+    `${mode}-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
   const writtenViewedQuestionIdsRef = useRef(new Set(initialWrittenDraftRef.current?.viewedQuestionIds || []));
   const writtenRecordedAnswerIdsRef = useRef(new Set(initialWrittenDraftRef.current?.recordedAnswerQuestionIds || []));
   const startedAtRef = useRef(Date.now());
+  const categoryStartedAtRef = useRef(initialCategoryDraftRef.current?.startedAt || new Date(startedAtRef.current).toISOString());
   const questionViewEffectKeyRef = useRef(null);
   const explanationRef = useRef(null);
   const [questions, setQuestions] = useState(() => initialSessionQuestionsRef.current);
   const [optionOrders, setOptionOrders] = useState(() => createOptionOrders(
     initialSessionQuestionsRef.current,
-    initialWrittenDraftRef.current?.optionOrders || {}
+    initialWrittenDraftRef.current?.optionOrders || initialCategoryDraftRef.current?.optionOrders || {}
   ));
-  const [currentIdx, setCurrentIdx] = useState(() => initialWrittenDraftRef.current?.currentIdx || 0);
-  const [answers, setAnswers] = useState(() => initialWrittenDraftRef.current?.answers || {});
-  const [locked, setLocked] = useState({});
+  const [currentIdx, setCurrentIdx] = useState(() =>
+    initialWrittenDraftRef.current?.currentIdx ?? initialCategoryDraftRef.current?.currentIdx ?? 0
+  );
+  const [answers, setAnswers] = useState(() =>
+    initialWrittenDraftRef.current?.answers || initialCategoryDraftRef.current?.answers || {}
+  );
+  const [locked, setLocked] = useState(() => Object.fromEntries(
+    (initialCategoryDraftRef.current?.lockedQuestionIds || []).map(questionId => [String(questionId), true])
+  ));
   const [lastBreakdown, setLastBreakdown] = useState(null);
   const [writtenResult, setWrittenResult] = useState(null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
@@ -4466,6 +4616,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [showWrittenSubmitWarning, setShowWrittenSubmitWarning] = useState(false);
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
+  const [categoryDraftChoice, setCategoryDraftChoice] = useState(() =>
+    mode === "category" && Boolean(initialCategoryDraftRef.current) ? "choice" : "active"
+  );
   const [flaggedIds, setFlaggedIds] = useState(() => new Set());
   const [showSimTray, setShowSimTray] = useState(true);
   const [showMobileSimTray, setShowMobileSimTray] = useState(false);
@@ -4480,7 +4633,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
   const [feedbackCommentOpen, setFeedbackCommentOpen] = useState(false);
   const [feedbackCommentText, setFeedbackCommentText] = useState("");
-  const [sessionStats, setSessionStats] = useState({
+  const [sessionStats, setSessionStats] = useState(() => initialCategoryDraftRef.current?.sessionStats || {
     correct: 0,
     incorrect: 0,
     total: 0,
@@ -4572,6 +4725,28 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     onProgressChange(prev => saveWrittenExamDraft(prev, draft));
   }, [buildCurrentWrittenDraft, mode, onProgressChange]);
 
+  const buildCurrentCategoryDraft = useCallback((overrides = {}) => {
+    if (mode !== "category" || !sessionTitle) return null;
+    const draftQuestions = overrides.questions || questions;
+    const nextLocked = overrides.locked || locked;
+    return createCategoryDraft(sessionTitle, draftQuestions, {
+      sessionId: overrides.sessionId || sessionIdRef.current,
+      currentIdx: overrides.currentIdx ?? currentIdx,
+      answers: overrides.answers || answers,
+      optionOrders: overrides.optionOrders || optionOrders,
+      lockedQuestionIds: Object.keys(nextLocked).filter(questionId => nextLocked[questionId]),
+      sessionStats: overrides.sessionStats || sessionStats,
+      startedAt: overrides.startedAt || categoryStartedAtRef.current,
+    });
+  }, [answers, currentIdx, locked, mode, optionOrders, questions, sessionStats, sessionTitle]);
+
+  const persistCategoryDraft = useCallback((overrides = {}) => {
+    if (mode !== "category" || !sessionTitle) return;
+    const draft = buildCurrentCategoryDraft(overrides);
+    if (!draft) return;
+    onProgressChange(prev => saveCategoryDraft(prev, sessionTitle, draft));
+  }, [buildCurrentCategoryDraft, mode, onProgressChange, sessionTitle]);
+
   const goToWrittenIndex = useCallback((index) => {
     if (mode !== "written") {
       setCurrentIdx(index);
@@ -4650,7 +4825,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   useEffect(() => {
     if (!q?.id) return;
     if (mode === "written" && writtenDraftChoice === "choice") return;
-    const viewEffectKey = `${mode}:${q.id}:${writtenDraftChoice}`;
+    if (mode === "category" && categoryDraftChoice === "choice") return;
+    const viewEffectKey = `${mode}:${q.id}:${writtenDraftChoice}:${categoryDraftChoice}`;
     if (questionViewEffectKeyRef.current === viewEffectKey) return;
     questionViewEffectKeyRef.current = viewEffectKey;
     startedAtRef.current = Date.now();
@@ -4668,8 +4844,27 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       if (draft) onProgressChange(prev => recordWrittenDraftView(prev, draft, q.id));
       return;
     }
+    if (mode === "category") {
+      const draft = buildCurrentCategoryDraft({ currentIdx });
+      if (draft) {
+        onProgressChange(prev => saveCategoryDraft(markQuestionSeen(prev, q.id), sessionTitle, draft));
+      } else {
+        onProgressChange(prev => markQuestionSeen(prev, q.id));
+      }
+      return;
+    }
     onProgressChange(prev => markQuestionSeen(prev, q.id));
-  }, [q?.id, mode, writtenDraftChoice, buildCurrentWrittenDraft, currentIdx, onProgressChange]);
+  }, [
+    q?.id,
+    mode,
+    writtenDraftChoice,
+    categoryDraftChoice,
+    buildCurrentWrittenDraft,
+    buildCurrentCategoryDraft,
+    currentIdx,
+    onProgressChange,
+    sessionTitle,
+  ]);
 
   useEffect(() => {
     if (!isLocked || mode === "written") return undefined;
@@ -4737,7 +4932,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       points: sessionStats.points + pointsAwarded,
     };
 
-    setLocked(prev => ({ ...prev, [q.id]: true }));
+    const nextLocked = { ...locked, [q.id]: true };
+    setLocked(nextLocked);
     setLastBreakdown(pointBreakdown);
     setSessionStats(nextStats);
     if (mode === "sprint" && currentIdx === totalQ - 1) {
@@ -4746,16 +4942,42 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     if (practiceWrittenWrongActive && currentIdx === totalQ - 1) {
       setShowPracticeWrongCompleteModal(true);
     }
-    onProgressChange(prev => recordQuestionAnswer(prev, q, selectedOverride, {
-      mode: practiceWrittenWrongActive ? "weakness" : mode,
-      confidence: inferredConfidence,
-      timeTakenMs,
-      pointsAwarded,
-      pointBreakdown,
-      sessionId: sessionIdRef.current,
-      streakPosition: nextStreak,
-    }));
-  }, [selected, isLocked, q, sessionStats, mode, practiceWrittenWrongActive, onProgressChange, currentIdx, totalQ]);
+    const categoryDraft = mode === "category"
+      ? buildCurrentCategoryDraft({
+          answers: { ...answers, [q.id]: selectedOverride },
+          locked: nextLocked,
+          sessionStats: nextStats,
+        })
+      : null;
+    onProgressChange(prev => {
+      const answeredProgress = recordQuestionAnswer(prev, q, selectedOverride, {
+        mode: practiceWrittenWrongActive ? "weakness" : mode,
+        confidence: inferredConfidence,
+        timeTakenMs,
+        pointsAwarded,
+        pointBreakdown,
+        sessionId: sessionIdRef.current,
+        streakPosition: nextStreak,
+      });
+      return categoryDraft && sessionTitle
+        ? saveCategoryDraft(answeredProgress, sessionTitle, categoryDraft)
+        : answeredProgress;
+    });
+  }, [
+    selected,
+    isLocked,
+    q,
+    sessionStats,
+    mode,
+    practiceWrittenWrongActive,
+    onProgressChange,
+    currentIdx,
+    totalQ,
+    answers,
+    locked,
+    buildCurrentCategoryDraft,
+    sessionTitle,
+  ]);
 
   const selectOption = (idx) => {
     blurActiveElement();
@@ -4770,6 +4992,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       onProgressChange(prev => saveWrittenExamDraft(prev, draft));
       return;
     }
+
+    if (mode === "category") {
+      const draft = buildCurrentCategoryDraft({ answers: nextAnswers });
+      if (draft) onProgressChange(prev => saveCategoryDraft(prev, sessionTitle, draft));
+    }
   };
 
   // Keyboard: answering thousands of MCQs should not require the mouse.
@@ -4777,6 +5004,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   useWindowKeydown(event => {
     {
       if (!isActive) return;
+      if (mode === "category" && categoryDraftChoice === "choice") return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
       if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
@@ -5158,6 +5386,60 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     persistWrittenDraft();
   }, [persistWrittenDraft]);
 
+  const startNewCategory = useCallback(() => {
+    if (mode !== "category" || !sessionTitle) return;
+    const nextQuestions = Array.isArray(sessionQuestions) && sessionQuestions.length
+      ? [...sessionQuestions]
+      : selectTopicPracticeQuestions(getQuestionsForMcqTopic(sessionTitle), progress, qualitySignals);
+    const nextSessionId = makeCategorySessionId();
+    const nextOptionOrders = createOptionOrders(nextQuestions);
+    const nextStartedAt = new Date().toISOString();
+    const nextStats = {
+      correct: 0,
+      incorrect: 0,
+      total: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      points: 0,
+    };
+    const nextDraft = createCategoryDraft(sessionTitle, nextQuestions, {
+      sessionId: nextSessionId,
+      currentIdx: 0,
+      answers: {},
+      optionOrders: nextOptionOrders,
+      lockedQuestionIds: [],
+      sessionStats: nextStats,
+      startedAt: nextStartedAt,
+    });
+
+    sessionIdRef.current = nextSessionId;
+    categoryStartedAtRef.current = nextStartedAt;
+    startedAtRef.current = Date.now();
+    questionViewEffectKeyRef.current = null;
+    setQuestions(nextQuestions);
+    setOptionOrders(nextOptionOrders);
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setLastBreakdown(null);
+    setSessionStats(nextStats);
+    setFlaggedIds(new Set());
+    setFeedbackMenuOpen(false);
+    setFeedbackStatus(null);
+    setFeedbackCommentOpen(false);
+    setFeedbackCommentText("");
+    setCategoryDraftChoice("active");
+    if (nextDraft) {
+      onProgressChange(prev => saveCategoryDraft(clearCategoryDraft(prev, sessionTitle), sessionTitle, nextDraft));
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [mode, onProgressChange, progress, qualitySignals, sessionQuestions, sessionTitle]);
+
+  const continueCategory = useCallback(() => {
+    setCategoryDraftChoice("active");
+    persistCategoryDraft();
+  }, [persistCategoryDraft]);
+
   const restartWrittenExam = () => {
     startNewWrittenExam();
   };
@@ -5188,6 +5470,54 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (mode === "category" && categoryDraftChoice === "choice") {
+    const draftUpdatedAt = initialCategoryDraftRef.current?.updatedAt
+      ? new Date(initialCategoryDraftRef.current.updatedAt).toLocaleString("el-GR")
+      : null;
+    const answeredCount = Object.keys(locked).filter(questionId => locked[questionId]).length;
+
+    return (
+      <div className="test-container">
+        <button className="back-link" onClick={onBack}>
+          <Icons.ChevronLeft /> Κατηγορίες
+        </button>
+
+        <div className="oral-choice">
+          <h2>{sessionTitle || "Ερωτήσεις ανά Κατηγορία"}</h2>
+          <p>Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.</p>
+          <div className="game-hud">
+            <div className="hud-stat">
+              <span className="hud-value">{currentIdx + 1}</span>
+              <span className="hud-label">Τρέχουσα</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{answeredCount}</span>
+              <span className="hud-label">Απαντημένες</span>
+            </div>
+            <div className="hud-stat">
+              <span className="hud-value">{totalQ}</span>
+              <span className="hud-label">Σύνολο</span>
+            </div>
+          </div>
+          {draftUpdatedAt && (
+            <div className="explanation-box">
+              <strong>Αποθηκευμένη πρόοδος</strong>
+              Τελευταία ενημέρωση: {draftUpdatedAt}
+            </div>
+          )}
+          <button className="mode-btn featured" onClick={continueCategory}>
+            Συνέχεια από την ερώτηση {currentIdx + 1}
+            <small>Συνέχισε με την ίδια σειρά ερωτήσεων και τις αποθηκευμένες απαντήσεις.</small>
+          </button>
+          <button className="mode-btn" onClick={startNewCategory}>
+            Νέα αρχή στην κατηγορία
+            <small>Ξεκίνα ξανά από την πρώτη ερώτηση με νέα προσαρμοσμένη σειρά.</small>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === "written" && writtenDraftChoice === "choice") {
     const draftUpdatedAt = initialWrittenDraftRef.current?.updatedAt

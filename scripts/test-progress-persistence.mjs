@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { remoteAttemptToRecord } from '../src/progressPersistence.mjs';
 
 import {
   attemptToRemoteRow,
@@ -10,6 +11,13 @@ import {
   remoteQuestionStateToRecord,
   toRemoteMcqSessionState,
 } from "../src/progressPersistence.mjs";
+
+test('WoW event provenance and sixth answer survive an app load/save round trip', () => {
+  const payload={eventId:'wow:test:1',selectedIndex:5};
+  const row={profile_id:'orestis',client_attempt_id:'wow:test:1',question_id:3221,selected_index:5,selected_option:'F',mode:'quick',is_correct:true,confidence:3,attempted_at:'2026-09-16T12:00:00.000Z',event_origin:'wow',event_payload:payload};
+  const roundtrip=attemptToRemoteRow('orestis',remoteAttemptToRecord(row));
+  assert.equal(roundtrip.selected_option,'F');assert.equal(roundtrip.event_origin,'wow');assert.deepEqual(roundtrip.event_payload,payload);
+});
 
 test("session state excludes high-frequency question and attempt data", () => {
   const state = toRemoteMcqSessionState({

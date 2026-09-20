@@ -1,4 +1,4 @@
-const OPTION_LETTERS = ["A", "B", "C", "D", "E"];
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 function numberOr(value, fallback = 0) {
   const parsed = Number(value);
@@ -153,6 +153,8 @@ export function attemptToRemoteRow(profileId, attempt = {}) {
     points_awarded: numberOr(attempt.pointsAwarded),
     streak_position: numberOr(attempt.streakPosition),
     attempted_at: attempt.attemptedAt || new Date().toISOString(),
+    event_origin: attempt.eventOrigin || "app",
+    event_payload: attempt.eventPayload || null,
   };
 }
 
@@ -174,6 +176,8 @@ export function remoteAttemptToRecord(row = {}) {
     pointBreakdown: row.point_breakdown || null,
     streakPosition: numberOr(row.streak_position),
     attemptedAt: row.attempted_at,
+    eventOrigin: row.event_origin || "app",
+    eventPayload: row.event_payload || null,
   };
 }
 
