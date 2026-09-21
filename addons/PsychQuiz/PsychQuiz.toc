@@ -1,10 +1,13 @@
-## Interface: 11509
+## Interface: 16001, 11509
 ## Title: PsychQuiz
 ## Notes: Quiet Greek psychiatry practice. Mouse-only, offline, Orestis.
 ## Author: Orestis
 ## Version: 0.1.0
 ## SavedVariables: PsychQuizDB
+## X-Flavor-Note: 16001 = WoW Forever beta 1.60.1; 11509 = Classic Era 1.15.9.
 
+SavedVariablesSeed.lua
+Seed.lua
 Core.lua
 Questions.lua
 ProfileImport.lua

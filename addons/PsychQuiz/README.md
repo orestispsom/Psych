@@ -73,4 +73,12 @@ The optional Lua test requires Python `lupa` with its Lua 5.1 runtime. Node test
 
 Target inspected locally: Classic Era 1.15.9.69722, Interface 11509. No retail/private-server/Forever compatibility claim is made. The final in-game acceptance check must cover long Greek questions (2309), long explanations (2298), six choices (3221/3264/3266), minimum/maximum size, movement, collapse/expand, opacity, combat pause, `/reload` persistence and Lua errors. No in-game screenshots have been captured.
 
+### WoW Forever beta
+
+The same addon also targets the locally inspected Forever beta 1.60.1.69913, Interface 16001, in `_classic_beta_`. Forever uses the modern Mainline UI architecture and combat restrictions rather than Classic Era's API. PsychQuiz does not read combat logs, units, auras, health, spells or protected actions; its ordinary frames and required global APIs pass the captured 1.60.1 API scan. It pauses answers in combat as an additional UX safeguard.
+
+The current beta has a reported persistence defect: it writes addon SavedVariables but does not restore them on a cold start. PsychQuiz therefore loads `SavedVariablesSeed.lua` only when the client did not provide `PsychQuizDB`. The desktop sync validates the beta save, backs it up, uploads its events, and regenerates that seed. If Blizzard fixes SavedVariables, the native database takes precedence. The installer preserves a populated Forever seed during addon updates.
+
+Forever use: `/reload` → double-click **Sync PsychQuiz.cmd** → `/reload`. Do this before quitting or switching clients so the external bridge captures and seeds the latest data. This beta workaround cannot protect answers from a client crash before WoW writes them. It also has not yet been visually validated in Forever; perform the manual checklist below. Beta APIs and behavior may change between builds.
+
 Fira Sans and Noto Sans Symbols 2 are distributed under their included SIL Open Font Licenses in `Media/`. Sources: Google's `google/fonts` repository, `ofl/firasans` and `ofl/notosanssymbols2`. Greek glyph coverage and answer-state symbols were checked from the actual bundled fonts.
