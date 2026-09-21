@@ -121,6 +121,23 @@ label:has(> input[type="checkbox"]) { min-height: 44px; display: inline-flex; al
   transition: grid-template-columns 0.16s var(--ease);
 }
 .app-shell.rail-collapsed { grid-template-columns: var(--rail-collapsed) minmax(0, 1fr); }
+.app-shell-content {
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-shell-content > main { flex: 1 0 auto; min-width: 0; }
+.app-disclaimer {
+  width: min(var(--sheet), 100%);
+  margin: 0 auto;
+  padding: 0 var(--s6) var(--s5);
+  color: var(--ink-3);
+  font-size: var(--t-micro);
+  line-height: 1.45;
+  text-align: center;
+}
+.app-disclaimer span { display: block; }
 @media (prefers-reduced-motion: reduce) { .app-shell { transition: none; } }
 
 /* ─── Thumb-index rail (desktop) ─── */
@@ -654,6 +671,9 @@ textarea.field { min-height: 76px; resize: vertical; line-height: 1.5; }
 @media (max-width: 899px) {
   .app-shell { grid-template-columns: minmax(0, 1fr); }
   .rail { display: none; }
+  .app-disclaimer {
+    padding: 0 var(--s4) calc(var(--tabbar) + var(--s4) + env(safe-area-inset-bottom, 0));
+  }
 
   /* Room for the tab bar plus a study surface's fixed action bar. */
   .sheet {
