@@ -28,6 +28,7 @@ function P.InitializeProgress()
     -- Schema 0 -> 1 adds preferences without deleting existing events.
     db.schemaVersion=1; db.profileId='orestis'; db.events=db.events or {}; db.sequence=db.sequence or 0
     db.settings=db.settings or {}
+    db.feedback=db.feedback or {}
     for k,v in pairs(P.defaults) do if db.settings[k]==nil then db.settings[k]=v end end
     db.settings.width=math.max(340,math.min(900,tonumber(db.settings.width) or 410))
     db.settings.height=math.max(300,math.min(1000,tonumber(db.settings.height) or 570))
@@ -81,4 +82,19 @@ function P.PendingCount()
         if not (P.db.baseline.includedEventIds or {})[e.eventId] then n=n+1 end
     end
     return n
+end
+function P.GetCategoryStats(topic)
+    local count=0
+    local masterySum=0
+    if P.bank and P.bank.questions then
+        for _,q in ipairs(P.bank.questions) do
+            if q.topic==topic then
+                count=count+1
+                local state=P.db and P.db.derived and P.db.derived[tostring(q.id)]
+                masterySum=masterySum+(state and state.masteryLevel or 0)
+            end
+        end
+    end
+    local pct=count>0 and math.floor((masterySum/(count*5))*100+0.5) or 0
+    return count,pct
 end
