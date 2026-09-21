@@ -188,7 +188,7 @@ export default function AppShell({
         </div>
       </nav>
 
-      <div>
+      <div className="app-shell-content">
         {!["home", "mcq", "oral", "sos", "pinakakia", "tables"].includes(screen) && (
           <div className="global-actions">
             <button
@@ -258,6 +258,11 @@ export default function AppShell({
           {screen !== "home" && <h1 className="sr-only">{title}</h1>}
           {children}
         </main>
+
+        <footer className="app-disclaimer" aria-label="Σημείωση χρήσης">
+          <span>Αποκλειστικά για προσωπική χρήση και εκπαιδευτικούς σκοπούς.</span>
+          <span>Δεν αποτελεί ιατρική συμβουλή και δεν υποκαθιστά κλινική κρίση ή επίσημες πηγές.</span>
+        </footer>
       </div>
 
       <nav className="tabbar" aria-label="Ενότητες">
