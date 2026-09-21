@@ -62,7 +62,6 @@ function P.InitializeProgress()
     P.db=db; PsychQuizDB=db
 end
 function P.RecordAnswer(question,index,session)
-    if P.IsCombat() then return nil end
     assert(index>=1 and index<=#question.options,'Invalid answer index')
     local db=P.db
     db.sequence=db.sequence+1

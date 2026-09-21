@@ -32,7 +32,6 @@ function P.IsDue(state)
         (not state.nextReviewAt and ((state.correctCount or 0)+(state.wrongCount or 0)>0)))
 end
 function P.StartSession()
-    if P.IsCombat() then return end
     local settings=P.db.settings
     P.showExplanation=nil
     local mode=settings.mode
@@ -74,12 +73,12 @@ function P.CurrentQuestion()
 end
 function P.Select(index)
     local s=P.db.session
-    if not s or s.revealed or P.IsCombat() then return end
+    if not s or s.revealed then return end
     s.selected=index; P.Refresh()
 end
 function P.Submit()
     local s=P.db.session; local q=P.CurrentQuestion()
-    if not s or not q or s.revealed or not s.selected or P.IsCombat() then return end
+    if not s or not q or s.revealed or not s.selected then return end
     local event=P.RecordAnswer(q,s.selected,s)
     if not event then return end
     s.revealed=true; s.answered=s.answered+1; s.correct=s.correct+(event.isCorrect and 1 or 0)
@@ -114,7 +113,7 @@ function P.Prev()
 end
 function P.Next()
     local s=P.db.session
-    if not s or P.IsCombat() then return end
+    if not s then return end
     if s.index>=#s.ids then
         if s.revealed then
             s.index=#s.ids+1
