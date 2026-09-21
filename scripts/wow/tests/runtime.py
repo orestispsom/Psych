@@ -16,7 +16,7 @@ P={}
 ''')
 def load(name):
     vm.execute('local f=assert(loadstring(...)); f("PsychQuiz",P)',(root/'addons/PsychQuiz'/name).read_text(encoding='utf8'))
-for name in ['Core.lua','Questions.lua','ProfileImport.lua','Progress.lua','Quiz.lua']:
+for name in ['SavedVariablesSeed.lua','Seed.lua','Core.lua','Questions.lua','ProfileImport.lua','Progress.lua','Quiz.lua']:
     load(name)
 vm.execute('''
 -- Real private snapshot is read, but test state never leaves this runtime.
@@ -78,4 +78,8 @@ assert(state.masteryLevel==3 and state.nextReviewAt==1800000000+21600)
 ''')
 # Compile the UI without substituting a fake visual renderer.
 vm.execute('assert(loadstring(...))',(root/'addons/PsychQuiz/UI.lua').read_text(encoding='utf8'))
+# Forever fallback restores a seed only when native SavedVariables are absent.
+seed=(root/'addons/PsychQuiz/Seed.lua').read_text(encoding='utf8')
+vm.execute('PsychQuizDB=nil; PsychQuizSeedDB={marker=42}; local f=assert(loadstring(...)); f(); assert(PsychQuizDB.marker==42)',seed)
+vm.execute('PsychQuizDB={marker=7}; PsychQuizSeedDB={marker=42}; local f=assert(loadstring(...)); f(); assert(PsychQuizDB.marker==7)',seed)
 print('Lua 5.1: initialization, answer events, double-click guard, baseline immutability, reload, combat, sixth option, migration and mastery checks passed; UI syntax passed.')

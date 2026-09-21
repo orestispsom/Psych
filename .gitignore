@@ -13,5 +13,6 @@ backups/
 .init_storage.html
 addons/PsychQuiz/Questions.lua
 addons/PsychQuiz/ProfileImport.lua
+addons/PsychQuiz/SavedVariablesSeed.local.lua
 exports/wow/
 supabase/.temp/
