@@ -1,5 +1,5 @@
 local _,P=...
-P.modeLabels={random='Τυχαίες',category='Ανά κατηγορία',weakness='Αδύναμα',due='Για επανάληψη',exam='Εξέταση',quick='Μία ερώτηση'}
+P.modeLabels={random='Τυχαίες',category='Ανά κατηγορία',weakness='Αδύναμες',due='Για επανάληψη',exam='Εξέταση'}
 function P.InitializeQuiz()
     local settings=P.db.settings
     if not P.modeLabels[settings.mode] then settings.mode='random' end
@@ -12,6 +12,12 @@ function P.InitializeQuiz()
     if s and (type(s.ids)~='table' or not P.modeLabels[s.mode]) then P.db.session=nil end
     s=P.db.session
     if s then
+        if s.results and not s.resultsById then
+            s.resultsById={}
+            for _,res in ipairs(s.results) do
+                s.resultsById[tostring(res.questionId)]=res
+            end
+        end
         if s.bankVersion~=P.bank.bankVersion then
             -- Never make a recorded answer submit-able again after a bank update.
             if s.revealed then s.index=s.index+1 end
@@ -30,6 +36,14 @@ function P.StartSession()
     local settings=P.db.settings
     P.showExplanation=nil
     local mode=settings.mode
+    if mode=='exam' then
+        settings.category=''
+        settings.length=100
+    elseif mode=='category' then
+        settings.length=0
+    else
+        settings.category=''
+    end
     local candidates={}
     for _,q in ipairs(P.bank.questions) do
         local state=P.db.derived[tostring(q.id)] or {}
@@ -45,12 +59,12 @@ function P.StartSession()
         end
     end
     table.sort(candidates,function(a,b) return a.key<b.key end)
-    local length=mode=='quick' and 1 or settings.length
+    local length=mode=='exam' and 100 or settings.length
     local count=length==0 and #candidates or math.min(length,#candidates)
     local ids={}; for i=1,count do ids[i]=candidates[i].q.id end
     P.db.sessionSequence=(P.db.sessionSequence or 0)+1
     P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
-        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},endless=length==0,bankVersion=P.bank.bankVersion}
+        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=length==0,bankVersion=P.bank.bankVersion}
     if P.scroll then P.scroll:SetVerticalScroll(0) end
     if P.Refresh then P.Refresh() end
 end
@@ -69,14 +83,51 @@ function P.Submit()
     local event=P.RecordAnswer(q,s.selected,s)
     if not event then return end
     s.revealed=true; s.answered=s.answered+1; s.correct=s.correct+(event.isCorrect and 1 or 0)
-    s.results[#s.results+1]={questionId=q.id,selected=s.selected,isCorrect=event.isCorrect}
+    local res={questionId=q.id,selected=s.selected,isCorrect=event.isCorrect}
+    s.results[#s.results+1]=res
+    s.resultsById=s.resultsById or {}
+    s.resultsById[tostring(q.id)]=res
+    P.Refresh()
+end
+function P.RestoreQuestionState()
+    local s=P.db.session
+    if not s then return end
+    local q=P.CurrentQuestion()
+    P.showExplanation=nil
+    if q and s.resultsById and s.resultsById[tostring(q.id)] then
+        local res=s.resultsById[tostring(q.id)]
+        s.selected=res.selected
+        s.revealed=true
+    else
+        s.selected=nil
+        s.revealed=false
+    end
+end
+function P.Prev()
+    local s=P.db.session
+    if not s or s.index<=1 then return end
+    s.index=s.index-1
+    while s.index>1 and not P.byId[tostring(s.ids[s.index])] do s.index=s.index-1 end
+    P.RestoreQuestionState()
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
     P.Refresh()
 end
 function P.Next()
     local s=P.db.session
-    if not s or not s.revealed or P.IsCombat() then return end
-    s.index=s.index+1; s.selected=nil; s.revealed=false; P.showExplanation=nil
+    if not s or P.IsCombat() then return end
+    if s.index>=#s.ids then
+        if s.revealed then
+            s.index=#s.ids+1
+            if s.endless then P.StartSession(); return end
+            if P.scroll then P.scroll:SetVerticalScroll(0) end
+            P.Refresh()
+        end
+        return
+    end
+    s.index=s.index+1
     while s.index<=#s.ids and not P.byId[tostring(s.ids[s.index])] do s.index=s.index+1 end
     if s.index>#s.ids and s.endless then P.StartSession(); return end
-    P.scroll:SetVerticalScroll(0); P.Refresh()
+    P.RestoreQuestionState()
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    P.Refresh()
 end

@@ -31,7 +31,10 @@ local function surface(frame,alpha)
     frame:SetBackdropColor(C.surface[1],C.surface[2],C.surface[3],alpha)
     frame:SetBackdropBorderColor(C.border[1],C.border[2],C.border[3],0.85)
 end
-function P.CloseMenu() if P.menu then P.menu:Hide() end end
+function P.CloseMenu()
+    if P.menu then P.menu:Hide() end
+    if P.feedbackDialog then P.feedbackDialog:Hide() end
+end
 function P.RestoreGeometry()
     local s=P.db.settings; local f=P.frame
     P.restoring=true
@@ -66,7 +69,7 @@ function P.MakeAnswer(index)
     row:SetScript('OnClick',function() P.Select(index) end)
     row:SetScript('OnEnter',function()
         local s=P.db.session
-        if s and not s.revealed and not P.IsCombat() and s.selected~=index then color(row.bg,'hover',0.8) end
+        if s and not s.revealed and s.selected~=index then color(row.bg,'hover',0.8) end
     end)
     row:SetScript('OnLeave',function() P.RefreshAnswers() end)
     return row
@@ -87,7 +90,7 @@ function P.RefreshAnswers()
                 elseif selected then token='wrong'; row.mark:SetText('×') end
             end
             row.mark:SetTextColor(unpack(C[token])); row.body:SetTextColor(unpack(C[token]))
-            row:EnableMouse(not s.revealed and not P.IsCombat())
+            row:EnableMouse(not s.revealed)
         end
     end
 end
@@ -97,13 +100,15 @@ function P.Layout()
     local collapsed=settings.collapsed
     P.main:SetShown(not collapsed); P.resize:SetShown(not collapsed)
     P.collapse.label:SetText(collapsed and '+' or '−')
+    local maxHeaderBtnWidth=math.max(120,math.min(240,f:GetWidth()-210))
+    P.headerMode:SetWidth(maxHeaderBtnWidth)
+    P.headerMode.label:SetWidth(maxHeaderBtnWidth-14)
     local w=f:GetWidth()-40
-    P.topic:SetWidth(math.max(170,f:GetWidth()-130))
-    local modeY=math.max(81,49+P.topic:GetStringHeight()+8)
-    P.mode:ClearAllPoints(); P.mode:SetPoint('TOPLEFT',18,-modeY)
-    P.bodyRule:ClearAllPoints(); P.bodyRule:SetPoint('TOPLEFT',0,-modeY-39); P.bodyRule:SetPoint('TOPRIGHT',0,-modeY-39)
-    P.scroll:ClearAllPoints(); P.scroll:SetPoint('TOPLEFT',18,-modeY-57); P.scroll:SetPoint('BOTTOMRIGHT',-18,76)
-    P.scrollbar:ClearAllPoints(); P.scrollbar:SetPoint('TOPRIGHT',-5,-modeY-57); P.scrollbar:SetPoint('BOTTOMRIGHT',-5,76)
+    P.topic:SetWidth(math.max(160,f:GetWidth()-110))
+    local topY=math.max(70,48+P.topic:GetStringHeight()+8)
+    P.bodyRule:ClearAllPoints(); P.bodyRule:SetPoint('TOPLEFT',0,-topY); P.bodyRule:SetPoint('TOPRIGHT',0,-topY)
+    P.scroll:ClearAllPoints(); P.scroll:SetPoint('TOPLEFT',18,-topY-14); P.scroll:SetPoint('BOTTOMRIGHT',-18,60)
+    P.scrollbar:ClearAllPoints(); P.scrollbar:SetPoint('TOPRIGHT',-5,-topY-14); P.scrollbar:SetPoint('BOTTOMRIGHT',-5,60)
     P.content:SetWidth(w)
     local size=settings.fontSize
     P.stem:SetFont(P.font,size+1,''); P.stem:SetWidth(w)
@@ -135,28 +140,62 @@ function P.Layout()
 end
 function P.Refresh()
     if not P.frame then return end
-    local s=P.db.session; local q=P.CurrentQuestion(); local combat=P.IsCombat()
+    local s=P.db.session; local q=P.CurrentQuestion()
     local finished=s and not q
     local score=s and s.answered>0 and (' · '..math.floor(s.correct/s.answered*100+0.5)..'%') or ''
     if s and s.mode=='exam' and not finished then score='' end
     P.compact:SetText(s and (s.answered..'/'..#s.ids..score) or '')
-    P.topic:SetText(combat and 'Παύση στη μάχη' or q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
+    P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
     P.progress:SetText(s and (math.min(s.index,#s.ids)..' / '..#s.ids) or '')
-    P.mode.label:SetText(P.modeLabels[s and q and s.mode or P.db.settings.mode]..'  >')
-    P.feedback:SetText(''); P.explain:Hide()
+    local settings=P.db.settings
+    local mode=s and q and s.mode or settings.mode
+    local label=P.modeLabels[mode] or 'Τυχαίες'
+    local modeText=label
+    if mode=='exam' then
+        modeText='Εξέταση (100)'
+    elseif mode=='category' then
+        local cat=(s and q and q.topic) or (settings.category~='' and settings.category) or 'Όλες'
+        if #cat>20 then cat=string.sub(cat,1,18)..'..' end
+        modeText=cat
+    else
+        local len=settings.length==0 and 'Όλες' or tostring(settings.length)
+        modeText=label..' ('..len..')'
+    end
+    P.headerMode.label:SetText(modeText..' ▾')
+    P.feedback:SetText('')
+    if P.feedbackBtn then
+        if q then
+            local hasComment=P.db and P.db.feedback and P.db.feedback[tostring(q.id)] and P.db.feedback[tostring(q.id)].text~=''
+            P.feedbackBtn.label:SetText(hasComment and 'Σχόλια (*)' or 'Σχόλια')
+            P.feedbackBtn:Show()
+            if P.prevBtn then
+                P.prevBtn:Show()
+                P.prevBtn:SetEnabled(s~=nil and s.index>1)
+                P.prevBtn.label:SetAlpha(P.prevBtn:IsEnabled() and 1 or 0.35)
+            end
+            if P.nextBtn then
+                P.nextBtn:Show()
+                P.nextBtn:SetEnabled(s~=nil and (s.index<#s.ids or (s.revealed and s.index==#s.ids)))
+                P.nextBtn.label:SetAlpha(P.nextBtn:IsEnabled() and 1 or 0.35)
+            end
+        else
+            P.feedbackBtn:Hide()
+            if P.prevBtn then P.prevBtn:Hide() end
+            if P.nextBtn then P.nextBtn:Hide() end
+        end
+    end
     if q then
         P.stem:SetText(plain(q.stem))
         for i=1,#q.options do if not P.answers[i] then P.answers[i]=P.MakeAnswer(i) end end
         P.RefreshAnswers()
         if s.revealed then
-            P.action.label:SetText('Επόμενη')
+            P.action.label:SetText(s.index<#s.ids and 'Επόμενη' or 'Ολοκλήρωση')
             if s.mode=='exam' then P.feedback:SetText('Η απάντηση καταγράφηκε. Αποτελέσματα στο τέλος.')
             else
                 local correct=s.selected-1==q.correct
                 local title=correct and 'Σωστή απάντηση' or 'Λάθος απάντηση'
                 local message=title..'\n\nΣωστή: '..plain(q.options[q.correct+1])
-                if P.db.settings.autoExplanation or P.showExplanation then message=message..'\n\n'..plain(q.explanation)
-                else P.explain:Show() end
+                message=message..'\n\n'..plain(q.explanation)
                 P.feedback:SetText(message)
             end
         else P.action.label:SetText('Απάντηση') end
@@ -173,33 +212,73 @@ function P.Refresh()
         end
         P.feedback:SetText(table.concat(out,'\n\n')); P.action.label:SetText('Νέα συνεδρία')
     else
-        P.stem:SetText('Λίγος χρόνος για μία ερώτηση.')
-        P.feedback:SetText('Επίλεξε τρόπο μελέτης και ξεκίνα όταν έχεις χρόνο.\n\n'..#P.bank.questions..' ερωτήσεις · '..#P.topics..' κατηγορίες\n\nΣύρε την κεφαλίδα για μετακίνηση και την κάτω γωνία για αλλαγή μεγέθους.')
+        P.stem:SetText('Λίγος χρόνος για μελέτη.')
+        P.feedback:SetText('Επίλεξε τρόπο μελέτης από την κεφαλίδα και ξεκίνα όταν έχεις χρόνο.\n\n'..#P.bank.questions..' ερωτήσεις · '..#P.topics..' κατηγορίες\n\nΣύρε την κεφαλίδα για μετακίνηση και την κάτω γωνία για αλλαγή μεγέθους.')
         P.action.label:SetText('Έναρξη')
     end
-    P.action:SetEnabled(not combat and (not q or s.revealed or s.selected~=nil))
+    P.action:SetEnabled(not q or s.revealed or s.selected~=nil)
     P.action.label:SetAlpha(P.action:IsEnabled() and 1 or 0.5)
-    P.status:SetText(combat and 'Η μελέτη συνεχίζεται μετά τη μάχη.' or s and s.revealed and 'Καταγράφηκε τοπικά' or 'Με τον δικό σου ρυθμό')
     P.Layout()
 end
-local function menuRow(label,action)
+local function ensureMenu(titleText)
+    if not P.menu then
+        local m=CreateFrame('Frame',nil,P.frame,'BackdropTemplate'); P.menu=m
+        m:SetPoint('TOPLEFT',10,-38); m:SetPoint('BOTTOMRIGHT',-10,10)
+        m:SetFrameLevel(P.frame:GetFrameLevel()+30); m:EnableMouse(true); surface(m,1)
+        P.menuTitle=text(m,15); P.menuTitle:SetPoint('TOPLEFT',14,-12)
+        local close=button(m,'×',26,24,P.CloseMenu); close:SetPoint('TOPRIGHT',-8,-8)
+        P.menuScroll=CreateFrame('ScrollFrame',nil,m)
+        P.menuScroll:SetPoint('TOPLEFT',10,-42); P.menuScroll:SetPoint('BOTTOMRIGHT',-10,10)
+        P.menuContent=CreateFrame('Frame',nil,P.menuScroll); P.menuScroll:SetScrollChild(P.menuContent)
+        P.menuScroll:EnableMouseWheel(true)
+        P.menuScroll:SetScript('OnMouseWheel',function(self,delta)
+            self:SetVerticalScroll(math.max(0,math.min(self:GetVerticalScroll()-delta*42,math.max(0,P.menuY-self:GetHeight()))))
+        end)
+    end
+    P.menuTitle:SetText(titleText or '')
+    for _,row in ipairs(P.menuRows or {}) do row:Hide() end
+    P.menuRows={}; P.menuY=0; P.rowCursor=0; P.titleCursor=0; P.sliderCursor=0; P.menu:Show()
+    P.menuContent:SetWidth(P.frame:GetWidth()-40)
+end
+
+local function menuRow(label,sublabel,action,isPrimary)
     P.rowCursor=(P.rowCursor or 0)+1
     P.rowPool=P.rowPool or {}
     local b=P.rowPool[P.rowCursor]
-    if not b then b=button(P.menuContent,label,100,34,action); P.rowPool[P.rowCursor]=b end
-    b:ClearAllPoints(); b:SetHeight(34); b.label:SetWidth(0); b.label:SetFont(P.font,14,'')
-    b.label:SetText(label); b:SetScript('OnClick',action); b:Show()
-    b.label:SetJustifyH('LEFT'); b.label:ClearAllPoints(); b.label:SetPoint('LEFT',10,0)
-    b:SetPoint('TOPLEFT',0,-P.menuY); b:SetPoint('RIGHT',P.menuContent,'RIGHT',0,0)
-    P.menuY=P.menuY+38; P.menuRows[#P.menuRows+1]=b
+    if not b then
+        b=button(P.menuContent,'',100,36,nil,isPrimary)
+        b.subtext=text(b,11,'muted')
+        P.rowPool[P.rowCursor]=b
+    end
+    color(b.bg,isPrimary and 'primary' or 'selected',isPrimary and 1 or 0.35)
+    b.label:SetTextColor(unpack(C[isPrimary and 'white' or 'ink']))
+    b:ClearAllPoints(); b.label:ClearAllPoints(); b.label:SetJustifyH('LEFT'); b.label:SetFont(P.font,13,'')
+    b.label:SetText(label)
+    if sublabel and sublabel~='' then
+        b.subtext:ClearAllPoints(); b.subtext:SetPoint('TOPLEFT',12,-22)
+        b.subtext:SetWidth(P.frame:GetWidth()-68); b.subtext:SetText(sublabel); b.subtext:Show()
+        b.label:SetPoint('TOPLEFT',12,-5); b.label:SetWidth(P.frame:GetWidth()-68)
+        local h=math.max(46,26+b.subtext:GetStringHeight())
+        b:SetHeight(h); b:SetPoint('TOPLEFT',0,-P.menuY); b:SetPoint('RIGHT',P.menuContent,'RIGHT',0,0)
+        P.menuY=P.menuY+h+4
+    else
+        b.subtext:Hide(); b.label:SetPoint('LEFT',12,0); b.label:SetWidth(P.frame:GetWidth()-68)
+        local h=math.max(34,b.label:GetStringHeight()+14)
+        b:SetHeight(h); b:SetPoint('TOPLEFT',0,-P.menuY); b:SetPoint('RIGHT',P.menuContent,'RIGHT',0,0)
+        P.menuY=P.menuY+h+4
+    end
+    b:SetScript('OnClick',action); b:Show()
+    P.menuRows[#P.menuRows+1]=b
     return b
 end
+
 local function menuTitle(label)
     P.titleCursor=(P.titleCursor or 0)+1; P.titlePool=P.titlePool or {}
-    local f=P.titlePool[P.titleCursor] or text(P.menuContent,13,'muted'); P.titlePool[P.titleCursor]=f
-    f:ClearAllPoints(); f:SetWidth(P.frame:GetWidth()-68); f:SetText(label); f:SetPoint('TOPLEFT',6,-P.menuY-5); f:Show()
-    P.menuY=P.menuY+math.max(30,f:GetStringHeight()+14); P.menuRows[#P.menuRows+1]=f
+    local f=P.titlePool[P.titleCursor] or text(P.menuContent,12,'muted'); P.titlePool[P.titleCursor]=f
+    f:ClearAllPoints(); f:SetWidth(P.frame:GetWidth()-68); f:SetText(label); f:SetPoint('TOPLEFT',6,-P.menuY-4); f:Show()
+    P.menuY=P.menuY+math.max(26,f:GetStringHeight()+10); P.menuRows[#P.menuRows+1]=f
 end
+
 local function menuSlider(label,minimum,maximum,step,value,onChange)
     menuTitle(label)
     P.sliderCursor=(P.sliderCursor or 0)+1; P.sliderPool=P.sliderPool or {}
@@ -212,70 +291,181 @@ local function menuSlider(label,minimum,maximum,step,value,onChange)
     slider:SetScript('OnValueChanged',function(_,v) onChange(v); P.Refresh() end)
     P.menuY=P.menuY+32; P.menuRows[#P.menuRows+1]=slider
 end
-function P.OpenMenu(page)
-    if P.IsCombat() then return end
-    if not P.menu then
-        local m=CreateFrame('Frame',nil,P.frame,'BackdropTemplate'); P.menu=m
-        m:SetPoint('TOPLEFT',12,-42); m:SetPoint('BOTTOMRIGHT',-12,62)
-        m:SetFrameLevel(P.frame:GetFrameLevel()+30); m:EnableMouse(true); surface(m,1)
-        local title=text(m,16); title:SetText('Μελέτη & εμφάνιση'); title:SetPoint('TOPLEFT',14,-14)
-        local close=button(m,'×',28,28,P.CloseMenu); close:SetPoint('TOPRIGHT',-8,-8)
-        P.menuScroll=CreateFrame('ScrollFrame',nil,m)
-        P.menuScroll:SetPoint('TOPLEFT',10,-48); P.menuScroll:SetPoint('BOTTOMRIGHT',-10,10)
-        P.menuContent=CreateFrame('Frame',nil,P.menuScroll); P.menuScroll:SetScrollChild(P.menuContent)
-        P.menuScroll:EnableMouseWheel(true)
-        P.menuScroll:SetScript('OnMouseWheel',function(self,delta)
-            self:SetVerticalScroll(math.max(0,math.min(self:GetVerticalScroll()-delta*42,math.max(0,P.menuY-self:GetHeight()))))
-        end)
-    end
-    for _,row in ipairs(P.menuRows or {}) do row:Hide() end
-    P.menuRows={}; P.menuY=0; P.rowCursor=0; P.titleCursor=0; P.sliderCursor=0; P.menu:Show()
-    P.menuContent:SetWidth(P.frame:GetWidth()-44)
+
+function P.OpenSettings()
+    ensureMenu('Ρυθμίσεις')
     local settings=P.db.settings
-    if page=='categories' then
-        menuRow('‹ Πίσω',function() P.OpenMenu() end)
-        menuRow('Όλες οι κατηγορίες',function() settings.category=''; P.OpenMenu() end)
-        for _,topic in ipairs(P.topics) do
-            local value=topic
-            local b=menuRow(value,function() settings.category=value; P.OpenMenu() end)
-            b.label:SetWidth(P.frame:GetWidth()-68); b.label:SetFont(P.font,13,'')
-            local h=math.max(34,b.label:GetStringHeight()+16); b:SetHeight(h); P.menuY=P.menuY+h-34
-        end
-    elseif page=='confirm' then
-        menuTitle('Νέα συνεδρία; Το ιστορικό απαντήσεων διατηρείται.')
-        menuRow('Συνέχεια τρέχουσας',P.CloseMenu)
-        menuRow('Έναρξη νέας συνεδρίας',function() P.CloseMenu(); P.StartSession() end)
-    else
-        menuTitle('Τρόπος μελέτης · ισχύει στη νέα συνεδρία')
-        for _,mode in ipairs({'random','category','weakness','due','exam','quick'}) do
-            local value=mode
-            menuRow((settings.mode==value and '[x] ' or '[ ] ')..P.modeLabels[value],function()
-                settings.mode=value; P.OpenMenu(); P.Refresh()
-            end)
-        end
-        menuTitle('Κατηγορία')
-        local cat=menuRow(settings.category=='' and 'Όλες οι κατηγορίες  ›' or settings.category,function() P.OpenMenu('categories') end)
-        cat.label:SetWidth(P.frame:GetWidth()-70); cat.label:SetFont(P.font,12,'')
-        local catHeight=math.max(34,cat.label:GetStringHeight()+16); cat:SetHeight(catHeight); P.menuY=P.menuY+catHeight-34
-        menuTitle('Ερωτήσεις ανά συνεδρία')
-        for _,n in ipairs({10,25,50,100,0}) do
-            local value=n
-            menuRow((settings.length==value and '[x] ' or '[ ] ')..(value==0 and 'Χωρίς όριο' or tostring(value)),function()
-                settings.length=value; P.OpenMenu()
-            end)
-        end
-        menuRow('Νέα συνεδρία',function() P.OpenMenu('confirm') end)
-        menuSlider('Αδιαφάνεια φόντου',0.65,1,0.01,settings.opacity,function(v) settings.opacity=v end)
-        menuSlider('Μέγεθος γραμμάτων',14,24,1,settings.fontSize,function(v) settings.fontSize=math.floor(v+0.5) end)
-        menuRow((settings.autoExplanation and '[x] ' or '[ ] ')..'Αυτόματη αιτιολόγηση',function()
-            settings.autoExplanation=not settings.autoExplanation; P.OpenMenu(); P.Refresh()
-        end)
-        menuTitle(P.PendingCount()..' απαντήσεις χωρίς επιβεβαίωση συγχρονισμού')
-        if P.db.baselineUpdateDeferred then menuTitle('Η νέα εισαγωγή αναμένει τον συγχρονισμό των τοπικών απαντήσεων.') end
-        menuTitle('Για εξαγωγή: /reload και μετά το εξωτερικό εργαλείο.')
-    end
+    menuTitle('Εμφάνιση παραθύρου')
+    menuSlider('Αδιαφάνεια φόντου',0.65,1,0.01,settings.opacity,function(v) settings.opacity=v end)
+    menuSlider('Μέγεθος γραμμάτων',14,24,1,settings.fontSize,function(v) settings.fontSize=math.floor(v+0.5) end)
+    menuTitle('Συγχρονισμός & Δεδομένα')
+    menuTitle(P.PendingCount()..' απαντήσεις χωρίς επιβεβαίωση συγχρονισμού')
+    local fbCount=0
+    if P.db and P.db.feedback then for _ in pairs(P.db.feedback) do fbCount=fbCount+1 end end
+    if fbCount>0 then menuTitle(fbCount..' αποθηκευμένα σχόλια') end
+    if P.db.baselineUpdateDeferred then menuTitle('Η νέα εισαγωγή αναμένει τον συγχρονισμό των τοπικών απαντήσεων.') end
+    menuTitle('Για εξαγωγή: /reload και μετά το εξωτερικό εργαλείο.')
     P.menuContent:SetHeight(math.max(1,P.menuY)); P.menuScroll:SetVerticalScroll(0)
 end
+
+function P.OpenModeWizard(step,state)
+    step=step or 'mode'
+    state=state or {
+        mode=P.db.settings.mode,
+        category=P.db.settings.category,
+        length=P.db.settings.length,
+    }
+
+    if step=='category' then
+        ensureMenu('Επιλογή κατηγορίας')
+        menuRow('‹ Πίσω','',function() P.OpenModeWizard('mode',state) end)
+        for _,topic in ipairs(P.topics) do
+            local count,pct=P.GetCategoryStats(topic)
+            local sub=pct..'% mastery · '..count..' ερωτήσεις'
+            menuRow(topic,sub,function()
+                state.mode='category'
+                state.category=topic
+                state.length=0
+                P.OpenModeWizard('confirm',state)
+            end)
+        end
+    elseif step=='length' then
+        ensureMenu('Πλήθος ερωτήσεων')
+        menuRow('‹ Πίσω','',function() P.OpenModeWizard('mode',state) end)
+        local counts={10,25,50,100,0}
+        for _,n in ipairs(counts) do
+            local label=(n==0) and 'Όλες οι ερωτήσεις' or (tostring(n)..' ερωτήσεις')
+            local sub=(n==0) and 'Χωρίς αριθμητικό όριο' or ('Συνεδρία '..n..' ερωτήσεων')
+            menuRow(label,sub,function()
+                state.length=n
+                P.OpenModeWizard('confirm',state)
+            end)
+        end
+    elseif step=='confirm' then
+        ensureMenu('Έναρξη συνεδρίας')
+        menuRow('‹ Πίσω','',function()
+            if state.mode=='category' then
+                P.OpenModeWizard('category',state)
+            elseif state.mode=='exam' then
+                P.OpenModeWizard('mode',state)
+            else
+                P.OpenModeWizard('length',state)
+            end
+        end)
+        menuTitle('Τρόπος μελέτης: '..(P.modeLabels[state.mode] or state.mode))
+        if state.mode=='exam' then
+            menuTitle('100 ερωτήσεις από όλες τις ενότητες.\nΑποτελέσματα και απαντήσεις στο τέλος.')
+        elseif state.mode=='category' then
+            local count,pct=P.GetCategoryStats(state.category)
+            menuTitle('Κατηγορία: '..state.category..'\n'..count..' ερωτήσεις (όλες) · '..pct..'% mastery')
+        else
+            local nStr=state.length==0 and 'Όλες οι διαθέσιμες ερωτήσεις' or (state.length..' ερωτήσεις')
+            menuTitle('Ερωτήσεις: '..nStr)
+        end
+        menuTitle('Το ιστορικό προηγούμενων απαντήσεων διατηρείται.')
+        menuRow('▶ Έναρξη νέας συνεδρίας','',function()
+            P.db.settings.mode=state.mode
+            P.db.settings.category=state.category or ''
+            P.db.settings.length=state.length
+            P.CloseMenu()
+            P.StartSession()
+            P.Refresh()
+        end,true)
+        menuRow('Ακύρωση','',P.CloseMenu)
+    else -- 'mode'
+        ensureMenu('Επιλογή τρόπου μελέτης')
+        menuRow('Εξέταση (100)','100 ερωτήσεις · προσομοίωση από όλες τις κατηγορίες',function()
+            state.mode='exam'
+            state.category=''
+            state.length=100
+            P.OpenModeWizard('confirm',state)
+        end)
+        menuRow('Ανά κατηγορία','Μελέτη όλων των ερωτήσεων συγκεκριμένης κατηγορίας',function()
+            state.mode='category'
+            state.length=0
+            P.OpenModeWizard('category',state)
+        end)
+        menuRow('Τυχαίες','Τυχαία επιλογή ερωτήσεων από όλες τις κατηγορίες',function()
+            state.mode='random'
+            state.category=''
+            P.OpenModeWizard('length',state)
+        end)
+        menuRow('Αδύναμες','Ερωτήσεις με λάθη ή χαμηλή εμπέδωση',function()
+            state.mode='weakness'
+            state.category=''
+            P.OpenModeWizard('length',state)
+        end)
+        menuRow('Για επανάληψη','Ερωτήσεις που έχουν φτάσει σε χρόνο επανάληψης',function()
+            state.mode='due'
+            state.category=''
+            P.OpenModeWizard('length',state)
+        end)
+    end
+    P.menuContent:SetHeight(math.max(1,P.menuY))
+    P.menuScroll:SetVerticalScroll(0)
+end
+P.OpenMenu=P.OpenModeWizard
+
+function P.OpenFeedbackDialog()
+    local q=P.CurrentQuestion()
+    if not q then return end
+    if not P.feedbackDialog then
+        local dlg=CreateFrame('Frame',nil,P.frame,'BackdropTemplate'); P.feedbackDialog=dlg
+        dlg:SetPoint('TOPLEFT',10,-38); dlg:SetPoint('BOTTOMRIGHT',-10,10)
+        dlg:SetFrameLevel(P.frame:GetFrameLevel()+35); dlg:EnableMouse(true); surface(dlg,1)
+        local title=text(dlg,15); title:SetText('Σχόλια ερώτησης'); title:SetPoint('TOPLEFT',14,-12)
+        local close=button(dlg,'×',26,24,function() dlg:Hide() end); close:SetPoint('TOPRIGHT',-8,-8)
+        dlg.info=text(dlg,12,'muted'); dlg.info:SetPoint('TOPLEFT',14,-38); dlg.info:SetWidth(P.frame:GetWidth()-48)
+        local sf=CreateFrame('ScrollFrame',nil,dlg,'BackdropTemplate'); dlg.sf=sf
+        sf:SetPoint('TOPLEFT',12,-72); sf:SetPoint('BOTTOMRIGHT',-12,50)
+        surface(sf,0.4)
+        local eb=CreateFrame('EditBox',nil,sf); dlg.eb=eb
+        eb:SetMultiLine(true); eb:SetFont(P.font,13,''); eb:SetTextColor(unpack(C.ink))
+        eb:SetWidth(P.frame:GetWidth()-54); eb:SetPoint('TOPLEFT',8,-8)
+        eb:SetMaxLetters(2000); eb:SetAutoFocus(true)
+        eb:SetScript('OnEscapePressed',function() dlg:Hide() end)
+        eb:SetScript('OnCursorChanged',function(self,_,y,_,cursorHeight)
+            local offset=sf:GetVerticalScroll()
+            local height=sf:GetHeight()
+            if -y<offset then sf:SetVerticalScroll(-y)
+            elseif -y+cursorHeight>offset+height then sf:SetVerticalScroll(-y+cursorHeight-height) end
+        end)
+        sf:SetScrollChild(eb)
+        dlg.saveBtn=button(dlg,'Αποθήκευση',110,30,function()
+            local txt=dlg.eb:GetText() or ''
+            txt=txt:gsub('^%s+',''):gsub('%s+$','')
+            P.db.feedback=P.db.feedback or {}
+            local curQ=P.CurrentQuestion()
+            if curQ then
+                local idStr=tostring(curQ.id)
+                if txt~='' then
+                    P.db.feedback[idStr]={
+                        questionId=curQ.id,
+                        topic=curQ.topic,
+                        text=txt,
+                        savedAt=P.Now(),
+                    }
+                else
+                    P.db.feedback[idStr]=nil
+                end
+            end
+            dlg:Hide(); P.Refresh()
+        end,true)
+        dlg.saveBtn:SetPoint('BOTTOMRIGHT',-12,12)
+        dlg.cancelBtn=button(dlg,'Ακύρωση',85,30,function() dlg:Hide() end)
+        dlg.cancelBtn:SetPoint('RIGHT',dlg.saveBtn,'LEFT',-8,0)
+        dlg.clearBtn=button(dlg,'Διαγραφή',85,30,function() dlg.eb:SetText('') end)
+        dlg.clearBtn:SetPoint('BOTTOMLEFT',12,12)
+    end
+    local idStr=tostring(q.id)
+    P.feedbackDialog.info:SetText('Ερώτηση #'..q.id..' · '..q.topic..'\nΠληκτρολόγησε παρακάτω παρατηρήσεις ή διορθώσεις:')
+    local existing=P.db.feedback and P.db.feedback[idStr] and P.db.feedback[idStr].text or ''
+    P.feedbackDialog.eb:SetText(existing)
+    P.feedbackDialog.eb:SetWidth(P.frame:GetWidth()-54)
+    P.feedbackDialog:Show()
+    P.feedbackDialog.eb:SetFocus()
+end
+
 function P.CreateUI()
     local f=CreateFrame('Frame','PsychQuizFrame',UIParent,'BackdropTemplate'); P.frame=f
     f:Hide(); f:SetFrameStrata('MEDIUM'); f:SetClampedToScreen(true)
@@ -284,19 +474,42 @@ function P.CreateUI()
     header:EnableMouse(true); header:RegisterForDrag('LeftButton')
     header:SetScript('OnDragStart',function() P.CloseMenu(); f:StartMoving() end)
     header:SetScript('OnDragStop',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
-    local title=text(header,18); title:SetText('PsychQuiz'); title:SetPoint('LEFT',16,0)
-    P.compact=text(header,12,'muted'); P.compact:SetPoint('RIGHT',-83,0)
-    P.collapse=button(header,'−',28,26,P.ToggleCollapse); P.collapse:SetPoint('RIGHT',-42,0)
-    local close=button(header,'×',28,26,function() P.db.settings.open=false; f:Hide() end); close:SetPoint('RIGHT',-10,0)
+
+    P.headerMode=button(header,'',160,26,function()
+        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()~='Ρυθμίσεις' then
+            P.CloseMenu()
+        else
+            P.OpenModeWizard('mode')
+        end
+    end)
+    P.headerMode:SetPoint('LEFT',10,0)
+    P.headerMode.label:SetFont(P.font,13,'')
+    P.headerMode.label:SetJustifyH('LEFT')
+    P.headerMode.label:ClearAllPoints()
+    P.headerMode.label:SetPoint('LEFT',8,0)
+
+    P.compact=text(header,12,'muted'); P.compact:SetPoint('RIGHT',-112,0)
+
+    P.gear=button(header,'⚙',26,26,function()
+        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='Ρυθμίσεις' then
+            P.CloseMenu()
+        else
+            P.OpenSettings()
+        end
+    end)
+    P.gear:SetPoint('RIGHT',-76,0)
+    P.gear.label:SetFont(P.symbolFont,16,'')
+
+    P.collapse=button(header,'−',26,26,P.ToggleCollapse); P.collapse:SetPoint('RIGHT',-44,0)
+    local close=button(header,'×',26,26,function() P.db.settings.open=false; f:Hide() end); close:SetPoint('RIGHT',-12,0)
     rule(f,-36)
+
     P.main=CreateFrame('Frame',nil,f); P.main:SetAllPoints()
-    P.topic=text(P.main,13,'muted'); P.topic:SetPoint('TOPLEFT',18,-49); P.topic:SetWidth(255)
-    P.progress=text(P.main,13,'muted'); P.progress:SetPoint('TOPRIGHT',-18,-49)
-    P.mode=button(P.main,'',148,28,function()
-        if P.menu and P.menu:IsShown() then P.CloseMenu() else P.OpenMenu() end
-    end); P.mode:SetPoint('TOPLEFT',18,-81)
+    P.topic=text(P.main,13,'muted'); P.topic:SetPoint('TOPLEFT',18,-48); P.topic:SetWidth(255)
+    P.progress=text(P.main,13,'muted'); P.progress:SetPoint('TOPRIGHT',-18,-48)
     P.bodyRule=P.main:CreateTexture(nil,'BORDER'); color(P.bodyRule,'rule',0.65); P.bodyRule:SetHeight(1)
-    P.scroll=CreateFrame('ScrollFrame',nil,P.main); P.scroll:SetPoint('TOPLEFT',18,-138); P.scroll:SetPoint('BOTTOMRIGHT',-18,76)
+
+    P.scroll=CreateFrame('ScrollFrame',nil,P.main); P.scroll:SetPoint('TOPLEFT',18,-100); P.scroll:SetPoint('BOTTOMRIGHT',-18,60)
     P.content=CreateFrame('Frame',nil,P.scroll); P.scroll:SetScrollChild(P.content)
     P.scroll:EnableMouseWheel(true)
     P.scroll:SetScript('OnMouseWheel',function(self,delta)
@@ -304,20 +517,31 @@ function P.CreateUI()
         local value=math.max(0,math.min(range,self:GetVerticalScroll()-delta*42))
         self:SetVerticalScroll(value); P.scrollbar:SetValue(value)
     end)
+
     P.scrollbar=CreateFrame('Slider',nil,P.main)
-    P.scrollbar:SetPoint('TOPRIGHT',-5,-138); P.scrollbar:SetPoint('BOTTOMRIGHT',-5,76); P.scrollbar:SetWidth(6)
+    P.scrollbar:SetPoint('TOPRIGHT',-5,-100); P.scrollbar:SetPoint('BOTTOMRIGHT',-5,60); P.scrollbar:SetWidth(6)
     P.scrollbar:SetOrientation('VERTICAL'); P.scrollbar:SetMinMaxValues(0,1)
     local thumb=P.scrollbar:CreateTexture(nil,'ARTWORK'); thumb:SetSize(4,30); color(thumb,'primary',0.55)
     P.scrollbar:SetThumbTexture(thumb)
     P.scrollbar:SetScript('OnValueChanged',function(_,v) P.scroll:SetVerticalScroll(v) end)
+
     P.stem=text(P.content,17); P.feedback=text(P.content,16); P.answers={}
-    P.action=button(P.main,'Έναρξη',146,36,function()
+    P.action=button(P.main,'Έναρξη',120,34,function()
         if not P.CurrentQuestion() then P.StartSession()
         elseif P.db.session.revealed then P.Next() else P.Submit() end
-    end,true); P.action:SetPoint('BOTTOMRIGHT',-18,17)
-    P.explain=button(P.main,'Αιτιολόγηση',125,30,function() P.showExplanation=true; P.Refresh() end)
-    P.explain:SetPoint('BOTTOMLEFT',18,20)
-    P.status=text(P.main,11,'muted'); P.status:SetPoint('BOTTOMLEFT',18,59); P.status:SetWidth(300)
+    end,true); P.action:SetPoint('BOTTOMRIGHT',-18,16)
+
+    P.nextBtn=button(P.main,'›',34,34,function() P.Next() end)
+    P.nextBtn:SetPoint('RIGHT',P.action,'LEFT',-6,0)
+    P.nextBtn.label:SetFont(P.font,18,'')
+
+    P.prevBtn=button(P.main,'‹',34,34,function() P.Prev() end)
+    P.prevBtn:SetPoint('RIGHT',P.nextBtn,'LEFT',-4,0)
+    P.prevBtn.label:SetFont(P.font,18,'')
+
+    P.feedbackBtn=button(P.main,'Σχόλια',85,34,function() P.OpenFeedbackDialog() end)
+    P.feedbackBtn:SetPoint('BOTTOMLEFT',18,16)
+
     P.resize=CreateFrame('Button',nil,f); P.resize:SetSize(18,18); P.resize:SetPoint('BOTTOMRIGHT',-1,1)
     P.resize:SetNormalTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up')
     P.resize:SetHighlightTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight')
