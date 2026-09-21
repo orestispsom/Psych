@@ -2,7 +2,7 @@
 ## Title: PsychQuiz
 ## Notes: Quiet Greek psychiatry practice. Mouse-only, offline, Orestis.
 ## Author: Orestis
-## Version: 0.2.0
+## Version: 0.2.1
 ## SavedVariables: PsychQuizDB
 ## X-Flavor-Note: 16001 = WoW Forever beta 1.60.1; 11509 = Classic Era 1.15.9.
 

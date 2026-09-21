@@ -40,8 +40,8 @@ The existing access model and RLS policies remain unchanged. All new functions a
 
 Implemented: generated bank; private baseline; native mouse-only UI; events/derived state; portable export; transactional ingestion; atomic snapshot; desktop launcher, backups, reports and install tooling.
 
-Verified outside WoW: full bank integrity, stable IDs/hashes, Lua 5.1 study logic, duplicate-click guard, baseline immutability, reload replay, schema handling, combat answer guard, six-choice event preservation, parser rejection of executable input, deterministic repeat exports and UI syntax.
+Verified outside WoW: full bank integrity, stable IDs/hashes, Lua 5.1 study logic, duplicate-click guard, baseline immutability, reload replay, schema handling, combat interaction, six-choice event preservation, parser rejection of executable input, deterministic repeat exports and UI syntax.
 
 Database verification: local Postgres tests for duplicate/conflicting IDs, chronological replay, stale aggregate protection, sixth choices, other-profile isolation, anonymous-role permissions, atomic snapshot and rollback. Live Supabase insert/retry/conflict/stale-write checks ran inside a rolled-back transaction; zero synthetic events remained. Security advisors returned no findings. Desktop download/install was exercised using the real profile; no actual WoW SavedVariables existed at that check.
 
-Unverified: real client rendering, movement/resize/collapse, real `/reload` disk persistence, combat UI behavior and WoW Forever. User deferred the in-game check. No real gameplay answer has yet been uploaded from this PC. Local Postgres interleaving tests are not a multi-connection load test. These are not a full-addon production-readiness sign-off.
+Unverified: real client rendering, movement/resize/collapse, real `/reload` disk persistence, combat UI behavior and WoW Forever. User deferred the in-game check. Local Postgres interleaving tests are not a multi-connection load test. These are not a full-addon production-readiness sign-off.

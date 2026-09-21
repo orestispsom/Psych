@@ -38,8 +38,8 @@ local before=P.db.derived[tostring(q.id)].correctCount
 P.InitializeProgress(); P.InitializeQuiz()
 assert(P.db.derived[tostring(q.id)].correctCount==before,'reload double-counted event')
 P.Next(); q=P.CurrentQuestion(); P.Select(1)
-combat=true; P.Submit(); assert(#P.db.events==1,'combat recorded an answer')
-combat=false; P.Submit(); assert(#P.db.events==2)
+combat=true; P.Submit(); assert(#P.db.events==2,'combat answer was blocked')
+combat=false
 assert(P.db.events[2].eventId~=first)
 -- Regeneration cannot unlock an already recorded question for duplicate submission.
 P.db.session.bankVersion='previous-bank'
@@ -82,4 +82,4 @@ vm.execute('assert(loadstring(...))',(root/'addons/PsychQuiz/UI.lua').read_text(
 seed=(root/'addons/PsychQuiz/Seed.lua').read_text(encoding='utf8')
 vm.execute('PsychQuizDB=nil; PsychQuizSeedDB={marker=42}; local f=assert(loadstring(...)); f(); assert(PsychQuizDB.marker==42)',seed)
 vm.execute('PsychQuizDB={marker=7}; PsychQuizSeedDB={marker=42}; local f=assert(loadstring(...)); f(); assert(PsychQuizDB.marker==7)',seed)
-print('Lua 5.1: initialization, answer events, double-click guard, baseline immutability, reload, combat, sixth option, migration and mastery checks passed; UI syntax passed.')
+print('Lua 5.1: initialization, answer events, double-click guard, baseline immutability, reload, combat interaction, sixth option, migration and mastery checks passed; UI syntax passed.')

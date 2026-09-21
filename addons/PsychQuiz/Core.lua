@@ -16,7 +16,6 @@ function P.Copy(value)
     local out = {}; for k,v in pairs(value) do out[k]=P.Copy(v) end; return out
 end
 function P.Now() return GetServerTime() end
-function P.IsCombat() return InCombatLockdown() and true or false end
 function P.SaveGeometry()
     if not P.frame or not P.db then return end
     local x,y = P.frame:GetCenter()
@@ -31,8 +30,6 @@ function P.SaveGeometry()
 end
 local events=CreateFrame('Frame')
 events:RegisterEvent('ADDON_LOADED')
-events:RegisterEvent('PLAYER_REGEN_DISABLED')
-events:RegisterEvent('PLAYER_REGEN_ENABLED')
 events:RegisterEvent('PLAYER_LOGOUT')
 events:RegisterEvent('DISPLAY_SIZE_CHANGED')
 events:SetScript('OnEvent', function(_, event, addon)
@@ -44,9 +41,6 @@ events:SetScript('OnEvent', function(_, event, addon)
     elseif P.db and P.frame then
         if event=='PLAYER_LOGOUT' then P.SaveGeometry()
         elseif event=='DISPLAY_SIZE_CHANGED' then P.RestoreGeometry()
-        elseif event=='PLAYER_REGEN_DISABLED' or event=='PLAYER_REGEN_ENABLED' then
-            -- Only our ordinary, unprotected frames are changed. No game bindings/actions.
-            P.CloseMenu(); P.Refresh()
         end
     end
 end)

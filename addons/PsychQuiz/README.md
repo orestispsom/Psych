@@ -32,7 +32,7 @@ npm run wow:install -- "C:/Program Files (x86)/World of Warcraft/_classic_era_"
 
 Enable PsychQuiz in the character-selection AddOns list and enter `/psych`. Restart the client if a newly installed addon is not listed. `/psych reset-position` restores the default location and dimensions. The installer preserves SavedVariables and backs up an existing recognized addon folder before updating it.
 
-Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Mode/filter/length changes take effect in a new session. Answering is disabled during combat; there are no automatic popups.
+Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
 
 Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. Endless mode starts another shuffled session after exhausting its eligible bank, resetting session totals but preserving all answer events. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
 
@@ -71,11 +71,11 @@ python scripts/wow/tests/runtime.py
 
 The optional Lua test requires Python `lupa` with its Lua 5.1 runtime. Node tests cover the full bank, parser safety, event validation and deterministic export. Lua tests execute production study logic using nonvisual API doubles; UI syntax is compiled. These do not prove WoW rendering or client integration.
 
-Target inspected locally: Classic Era 1.15.9.69722, Interface 11509. No retail/private-server/Forever compatibility claim is made. The final in-game acceptance check must cover long Greek questions (2309), long explanations (2298), six choices (3221/3264/3266), minimum/maximum size, movement, collapse/expand, opacity, combat pause, `/reload` persistence and Lua errors. No in-game screenshots have been captured.
+Target inspected locally: Classic Era 1.15.9.69722, Interface 11509. No retail/private-server compatibility claim is made. The final in-game acceptance check must cover long Greek questions (2309), long explanations (2298), six choices (3221/3264/3266), minimum/maximum size, movement, collapse/expand, opacity, combat interaction, `/reload` persistence and Lua errors. No in-game screenshots have been captured.
 
 ### WoW Forever beta
 
-The same addon also targets the locally inspected Forever beta 1.60.1.69913, Interface 16001, in `_classic_beta_`. Forever uses the modern Mainline UI architecture and combat restrictions rather than Classic Era's API. PsychQuiz does not read combat logs, units, auras, health, spells or protected actions; its ordinary frames and required global APIs pass the captured 1.60.1 API scan. It pauses answers in combat as an additional UX safeguard.
+The same addon also targets the locally inspected Forever beta 1.60.1.69913, Interface 16001, in `_classic_beta_`. Forever uses the modern Mainline UI architecture and combat restrictions rather than Classic Era's API. PsychQuiz does not read combat logs, units, auras, health, spells or protected actions; its ordinary frames and required global APIs pass the captured 1.60.1 API scan. Menus, navigation, and answering remain available during combat.
 
 The current beta has a reported persistence defect: it writes addon SavedVariables but does not restore them on a cold start. PsychQuiz therefore loads `SavedVariablesSeed.lua` only when the client did not provide `PsychQuizDB`. The desktop sync validates the beta save, backs it up, uploads its events, and regenerates that seed. If Blizzard fixes SavedVariables, the native database takes precedence. The installer preserves a populated Forever seed during addon updates.
 
