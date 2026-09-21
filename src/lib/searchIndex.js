@@ -141,6 +141,34 @@ async function build() {
     );
   }
 
+  const cyp450 = await safeImport(() => import("../data/psychotropicCyp450.js"));
+  for (const row of cyp450?.psychotropicCyp450Rows || []) {
+    items.push(
+      entry(
+        "sos",
+        "CYP450",
+        row?.drug,
+        row?.group || "",
+        "/sos/cyp450",
+        null,
+        [row?.metabolism, row?.cypEffect, row?.pearl].filter(Boolean).join(" ")
+      )
+    );
+  }
+  for (const enzyme of cyp450?.cyp450EnzymeSummary || []) {
+    items.push(
+      entry(
+        "sos",
+        "CYP450 ένζυμο",
+        enzyme?.enzyme,
+        "Substrates · Inhibitors · Inducers",
+        "/sos/cyp450",
+        null,
+        [enzyme?.substrates, enzyme?.inhibitors, enzyme?.inducers, enzyme?.pearl].filter(Boolean).join(" ")
+      )
+    );
+  }
+
   const oxford = await safeImport(() => import("../data/oxfordBoxes.js"));
   for (const box of oxford?.oxfordBoxes || []) {
     items.push(

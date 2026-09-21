@@ -120,6 +120,61 @@ describe("golden path smoke tests", () => {
     expect(screen.getByText("Αντιστοίχηση")).toBeInTheDocument();
   });
 
+  it("resumes category study at the saved position and can start that category over", async () => {
+    const user = userEvent.setup();
+    const { container } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςCategoryResume", container);
+
+    await user.click(home.getByText("Πολλαπλής Επιλογής"));
+    const categoryMode = await screen.findByRole("button", { name: /Ερωτήσεις ανά Κατηγορία/i }, { timeout: 10000 });
+    await user.click(categoryMode);
+
+    await waitFor(() => {
+      expect(container.querySelector(".mcq-select .items .item:not([disabled])")).toBeTruthy();
+    });
+    const firstCategoryButton = container.querySelector(".mcq-select .items .item:not([disabled])");
+    const topic = firstCategoryButton.querySelector(".item-title").textContent;
+    await user.click(firstCategoryButton);
+
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
+    await user.click(screen.getByRole("button", { name: "Επόμενη ερώτηση" }));
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 2\s*\//));
+
+    await waitFor(() => {
+      const store = readProfileStore();
+      const profile = Object.values(store.profiles)[0];
+      expect(profile.mcqProgress?.categoryDrafts?.[topic]?.currentIdx).toBe(1);
+    });
+
+    await user.click(screen.getByRole("button", { name: "Επιστροφή στο Μενού MCQ" }));
+    await waitFor(() => {
+      expect(container.querySelector(".mcq-select .items")).toBeTruthy();
+    });
+    const savedCategoryButton = [...container.querySelectorAll(".mcq-select .item")]
+      .find(button => button.querySelector(".item-title")?.textContent === topic);
+    await user.click(savedCategoryButton);
+
+    expect(await screen.findByText("Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Συνέχεια από την ερώτηση 2/i }));
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 2\s*\//));
+
+    await user.click(screen.getByRole("button", { name: "Επιστροφή στο Μενού MCQ" }));
+    await waitFor(() => {
+      expect(container.querySelector(".mcq-select .items")).toBeTruthy();
+    });
+    const categoryAgain = [...container.querySelectorAll(".mcq-select .item")]
+      .find(button => button.querySelector(".item-title")?.textContent === topic);
+    await user.click(categoryAgain);
+    await user.click(await screen.findByRole("button", { name: /Νέα αρχή στην κατηγορία/i }));
+    await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
+
+    await waitFor(() => {
+      const store = readProfileStore();
+      const profile = Object.values(store.profiles)[0];
+      expect(profile.mcqProgress?.categoryDrafts?.[topic]?.currentIdx).toBe(0);
+    });
+  }, 20000);
+
   // Regression guard for the closure-derived progress bug: marking an SOS
   // entry as mastered must show up in the persisted profile store.
   it("marking an SOS entry as mastered persists to the profile store", async () => {
