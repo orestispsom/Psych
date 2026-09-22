@@ -55,7 +55,7 @@ For clinical evaluators, medical educators, and technical reviewers, this reposi
 
 | Dataset | Items & Scope | Primary File |
 |---|---|---|
-| **Core MCQs** | 2,081 questions across 22 study categories | `src/data/questions.js` |
+| **Core MCQs** | 2,072 questions across 22 study categories | `src/data/questions.js` |
 | **DSM-5-TR Self-Exam** | 473 questions across 23 chapters | `src/data/dsm5trSelfExamQuestions.js` |
 | **Clinical Vignettes** | 21 case vignettes | `src/data/mcqVignettes.js` |
 | **Matching Sets** | 54 extended matching items | `src/data/mcqMatching.js` |
