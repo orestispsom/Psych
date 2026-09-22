@@ -38,7 +38,7 @@ Modes: random, category, weak, due, exam, one question. Exam feedback appears at
 
 ## Questions and progress
 
-The live app's canonical source is `src/data/questions.js`, not `questions.md`. `wow:questions` validates and generates the entire bank without changing source data. The initial build contains 2,081 questions in 22 topics, including three six-choice questions; sparse numeric IDs and source metadata are preserved.
+The live app's canonical source is `src/data/questions.js`, not `questions.md`. `wow:questions` validates and generates the entire bank without changing source data. The initial build contains 2,072 questions in 22 topics, including three six-choice questions; sparse numeric IDs and source metadata are preserved.
 
 `Questions.lua` and `ProfileImport.lua` are generated, ignored by Git, and included in the local installation. The baseline contains only Orestis's study fields, never credentials. Treat the installed package as private because it includes study progress.
 

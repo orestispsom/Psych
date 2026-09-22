@@ -23,7 +23,7 @@ vm.execute('''
 P.InitializeProgress(); P.InitializeQuiz()
 P.Refresh=function() end
 P.scroll={SetVerticalScroll=function() end}
-assert(#P.bank.questions==2081)
+assert(#P.bank.questions==2072)
 local baseline=P.Copy(P.db.baseline)
 P.StartSession()
 assert(#P.db.session.ids==25)
