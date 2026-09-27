@@ -90,9 +90,18 @@ function P.RefreshAnswers()
                 elseif selected then token='wrong'; row.mark:SetText('×') end
             end
             row.mark:SetTextColor(unpack(C[token])); row.body:SetTextColor(unpack(C[token]))
-            row:EnableMouse(not s.revealed)
+            row:EnableMouse(not s.revealed or P.IsForeverExam(s))
         end
     end
+end
+function P.RefreshForeverExamMeta()
+    local s=P.db and P.db.session
+    local q=P.CurrentQuestion()
+    if not (q and P.IsForeverExam(s)) then return false end
+    local minutes=math.floor((s.elapsedSeconds or 0)/60)
+    local unit=minutes==1 and 'λεπτό' or 'λεπτά'
+    P.topic:SetText('MCQ #'..q.id..'  ·  '..minutes..' '..unit)
+    return true
 end
 function P.Layout()
     if not P.frame then return end
@@ -145,7 +154,9 @@ function P.Refresh()
     local score=s and s.answered>0 and (' · '..math.floor(s.correct/s.answered*100+0.5)..'%') or ''
     if s and s.mode=='exam' and not finished then score='' end
     P.compact:SetText(s and (s.answered..'/'..#s.ids..score) or '')
-    P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
+    if not P.RefreshForeverExamMeta() then
+        P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
+    end
     P.progress:SetText(s and (math.min(s.index,#s.ids)..' / '..#s.ids) or '')
     local settings=P.db.settings
     local mode=s and q and s.mode or settings.mode
@@ -175,7 +186,7 @@ function P.Refresh()
             end
             if P.nextBtn then
                 P.nextBtn:Show()
-                P.nextBtn:SetEnabled(s~=nil and (s.index<#s.ids or (s.revealed and s.index==#s.ids)))
+                P.nextBtn:SetEnabled(s~=nil and (s.index<#s.ids or ((s.revealed or P.IsForeverExam(s)) and s.index==#s.ids)))
                 P.nextBtn.label:SetAlpha(P.nextBtn:IsEnabled() and 1 or 0.35)
             end
         else
@@ -188,7 +199,9 @@ function P.Refresh()
         P.stem:SetText(plain(q.stem))
         for i=1,#q.options do if not P.answers[i] then P.answers[i]=P.MakeAnswer(i) end end
         P.RefreshAnswers()
-        if s.revealed then
+        if P.IsForeverExam(s) then
+            P.action.label:SetText(s.index<#s.ids and 'Επόμενη' or 'Ολοκλήρωση')
+        elseif s.revealed then
             P.action.label:SetText(s.index<#s.ids and 'Επόμενη' or 'Ολοκλήρωση')
             if s.mode=='exam' then P.feedback:SetText('Η απάντηση καταγράφηκε. Αποτελέσματα στο τέλος.')
             else
@@ -216,7 +229,7 @@ function P.Refresh()
         P.feedback:SetText('Επίλεξε τρόπο μελέτης από την κεφαλίδα και ξεκίνα όταν έχεις χρόνο.\n\n'..#P.bank.questions..' ερωτήσεις · '..#P.topics..' κατηγορίες\n\nΣύρε την κεφαλίδα για μετακίνηση και την κάτω γωνία για αλλαγή μεγέθους.')
         P.action.label:SetText('Έναρξη')
     end
-    P.action:SetEnabled(not q or s.revealed or s.selected~=nil)
+    P.action:SetEnabled(not q or P.IsForeverExam(s) or s.revealed or s.selected~=nil)
     P.action.label:SetAlpha(P.action:IsEnabled() and 1 or 0.5)
     P.Layout()
 end
@@ -528,6 +541,7 @@ function P.CreateUI()
     P.stem=text(P.content,17); P.feedback=text(P.content,16); P.answers={}
     P.action=button(P.main,'Έναρξη',120,34,function()
         if not P.CurrentQuestion() then P.StartSession()
+        elseif P.IsForeverExam() then P.Next()
         elseif P.db.session.revealed then P.Next() else P.Submit() end
     end,true); P.action:SetPoint('BOTTOMRIGHT',-18,16)
 
@@ -548,6 +562,16 @@ function P.CreateUI()
     P.resize:SetScript('OnMouseDown',function(_,which) if which=='LeftButton' then P.CloseMenu(); f:StartSizing('BOTTOMRIGHT') end end)
     P.resize:SetScript('OnMouseUp',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
     f:SetScript('OnSizeChanged',function() if not P.restoring then P.Layout() end end)
+    f:SetScript('OnUpdate',function(_,elapsed)
+        local s=P.db and P.db.session
+        if not (f:IsShown() and P.CurrentQuestion() and P.IsForeverExam(s)) then return end
+        s.elapsedSeconds=(s.elapsedSeconds or 0)+elapsed
+        local minute=math.floor(s.elapsedSeconds/60)
+        if minute~=P.lastExamMinute then
+            P.lastExamMinute=minute
+            P.RefreshForeverExamMeta()
+        end
+    end)
     f:SetScript('OnHide',function() P.CloseMenu(); f:StopMovingOrSizing() end)
     f:SetScript('OnShow',P.Refresh)
     P.RestoreGeometry(); P.Refresh()

@@ -34,7 +34,7 @@ Enable PsychQuiz in the character-selection AddOns list and enter `/psych`. Rest
 
 Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
 
-Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. Endless mode starts another shuffled session after exhausting its eligible bank, resetting session totals but preserving all answer events. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
+Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. In Forever, an active 100-question exam stores every choice in its SavedVariables session draft, restores that draft automatically, keeps choices editable until completion, and shows whole elapsed minutes without seconds. Answer events are committed when the exam is completed. Endless mode starts another shuffled session after exhausting its eligible bank, resetting session totals but preserving all answer events. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
 
 ## Questions and progress
 

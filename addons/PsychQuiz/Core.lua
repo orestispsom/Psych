@@ -1,6 +1,8 @@
 local name, P = ...
 P.name = name
 P.schemaVersion = 1
+local interfaceVersion = select(4, GetBuildInfo()) or 0
+P.isForever = interfaceVersion >= 16000 and interfaceVersion < 17000
 P.font = 'Interface\\AddOns\\PsychQuiz\\Media\\FiraSans-Regular.ttf'
 P.symbolFont = 'Interface\\AddOns\\PsychQuiz\\Media\\NotoSansSymbols2-Regular.ttf'
 P.defaults = {width=410, height=570, fontSize=16, opacity=0.96, collapsed=false,
