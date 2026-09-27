@@ -9,6 +9,7 @@ vm=LuaRuntime(unpack_returned_tuples=True)
 vm.execute('''
 unpack=unpack or table.unpack
 function GetServerTime() return 1800000000 end
+function GetBuildInfo() return "1.60.1", "69913", "Sep 1 2026", 16001 end
 function InCombatLockdown() return combat or false end
 SlashCmdList={}
 function CreateFrame() return {RegisterEvent=function() end,SetScript=function() end} end
@@ -41,14 +42,37 @@ P.Next(); q=P.CurrentQuestion(); P.Select(1)
 combat=true; P.Submit(); assert(#P.db.events==2,'combat answer was blocked')
 combat=false
 assert(P.db.events[2].eventId~=first)
+-- Forever exams save editable draft choices and record them only on completion.
+P.db.settings.mode='exam'; P.StartSession()
+local exam=P.db.session; local examQ=P.CurrentQuestion(); local eventCount=#P.db.events
+P.Select(1); P.Submit(); P.Select(2)
+assert(exam.answersById[tostring(examQ.id)]==2 and not exam.revealed)
+assert(#P.db.events==eventCount,'draft choice recorded before exam completion')
+P.Next(); P.Prev()
+assert(P.db.session.selected==2 and not P.db.session.revealed,'saved exam choice did not restore')
+P.InitializeQuiz()
+assert(P.db.session.selected==2,'in-progress exam did not reload automatically')
+P.db.session.elapsedSeconds=125
+P.db.session.index=#P.db.session.ids
+P.RestoreQuestionState(); P.Select(1); P.Next()
+assert(P.db.session.index==#P.db.session.ids+1 and P.db.session.completedAt)
+assert(#P.db.events==eventCount+2,'exam answers were not recorded exactly once at completion')
 -- Regeneration cannot unlock an already recorded question for duplicate submission.
+P.db.settings.mode='random'; P.StartSession(); q=P.CurrentQuestion(); P.Select(1); P.Submit()
 P.db.session.bankVersion='previous-bank'
 local answeredIndex=P.db.session.index
 P.InitializeQuiz()
 assert(P.db.session.index==answeredIndex+1 and not P.db.session.revealed)
--- Sixth answer must be stored without coercion.
-q=P.byId['3221']; P.RecordAnswer(q,6,P.db.session)
-assert(P.db.events[3].selectedIndex==5)
+-- A sixth answer must be stored without coercion when a bank item supplies one.
+q={id=999999,contentHash=string.rep('a',64),correct=5,options={'a','b','c','d','e','f'}}
+local sixthEvent=P.RecordAnswer(q,6,P.db.session)
+assert(sixthEvent.selectedIndex==5)
+-- Classic Era keeps the existing submit-and-lock exam behavior.
+P.isForever=false; P.db.settings.mode='exam'; P.StartSession(); q=P.CurrentQuestion()
+local classicEventCount=#P.db.events
+P.Select(1); P.Submit(); P.Select(2)
+assert(P.db.session.revealed and P.db.session.selected==1 and #P.db.events==classicEventCount+1)
+P.isForever=true
 -- A fresh remote aggregate must not reorder pending local history.
 local imported=P.Copy(P.import)
 local activeSnapshot=P.db.baseline.snapshotId
@@ -58,10 +82,10 @@ assert(P.db.baseline.snapshotId==activeSnapshot and P.db.baselineUpdateDeferred)
 -- A fully acknowledged snapshot replaces the baseline without replaying events.
 P.import.questions=P.Copy(P.db.derived); P.import.includedEventIds={}
 for _,event in ipairs(P.db.events) do P.import.includedEventIds[event.eventId]=true end
-local expected=P.db.derived['3221'].seenCount
+local expected=P.db.derived['999999'].seenCount
 P.InitializeProgress()
 assert(P.db.baseline.snapshotId=='newer-test-snapshot' and P.PendingCount()==0)
-assert(P.db.derived['3221'].seenCount==expected)
+assert(P.db.derived['999999'].seenCount==expected)
 P.import=imported
 -- Old settings migration and future-schema refusal.
 PsychQuizDB.schemaVersion=0; P.InitializeProgress(); assert(P.db.schemaVersion==1)

@@ -1,5 +1,28 @@
 local _,P=...
 P.modeLabels={random='Τυχαίες',category='Ανά κατηγορία',weakness='Αδύναμες',due='Για επανάληψη',exam='Εξέταση'}
+function P.IsForeverExam(session)
+    local s=session or (P.db and P.db.session)
+    return P.isForever and s and s.mode=='exam'
+end
+local function countExamAnswers(session)
+    local count=0
+    for _ in pairs(session.answersById or {}) do count=count+1 end
+    return count
+end
+local function normalizeForeverExam(session)
+    if not P.IsForeverExam(session) or session.index>#session.ids then return end
+    session.answersById=session.answersById or {}
+    session.recordedById=session.recordedById or {}
+    for _,result in ipairs(session.results or {}) do
+        local id=tostring(result.questionId)
+        if session.answersById[id]==nil then session.answersById[id]=result.selected end
+        session.recordedById[id]=result.selected
+    end
+    session.elapsedSeconds=math.max(0,tonumber(session.elapsedSeconds) or 0)
+    session.answered=countExamAnswers(session)
+    session.selected=session.answersById[tostring(session.ids[session.index])]
+    session.revealed=false
+end
 function P.InitializeQuiz()
     local settings=P.db.settings
     if not P.modeLabels[settings.mode] then settings.mode='random' end
@@ -25,6 +48,7 @@ function P.InitializeQuiz()
         end
         -- Stable IDs survive regeneration; missing items are skipped, never reassigned.
         while s.index<=#s.ids and not P.byId[tostring(s.ids[s.index])] do s.index=s.index+1 end
+        normalizeForeverExam(s)
     end
 end
 function P.IsDue(state)
@@ -63,7 +87,8 @@ function P.StartSession()
     local ids={}; for i=1,count do ids[i]=candidates[i].q.id end
     P.db.sessionSequence=(P.db.sessionSequence or 0)+1
     P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
-        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=length==0,bankVersion=P.bank.bankVersion}
+        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=length==0,
+        bankVersion=P.bank.bankVersion,startedAt=P.Now(),elapsedSeconds=0,answersById={},recordedById={}}
     if P.scroll then P.scroll:SetVerticalScroll(0) end
     if P.Refresh then P.Refresh() end
 end
@@ -73,12 +98,19 @@ function P.CurrentQuestion()
 end
 function P.Select(index)
     local s=P.db.session
-    if not s or s.revealed then return end
-    s.selected=index; P.Refresh()
+    if not s or (s.revealed and not P.IsForeverExam(s)) then return end
+    s.selected=index
+    if P.IsForeverExam(s) then
+        s.answersById=s.answersById or {}
+        s.answersById[tostring(s.ids[s.index])]=index
+        s.answered=countExamAnswers(s)
+    end
+    P.Refresh()
 end
 function P.Submit()
     local s=P.db.session; local q=P.CurrentQuestion()
     if not s or not q or s.revealed or not s.selected then return end
+    if P.IsForeverExam(s) then return end
     local event=P.RecordAnswer(q,s.selected,s)
     if not event then return end
     s.revealed=true; s.answered=s.answered+1; s.correct=s.correct+(event.isCorrect and 1 or 0)
@@ -88,12 +120,40 @@ function P.Submit()
     s.resultsById[tostring(q.id)]=res
     P.Refresh()
 end
+function P.CompleteForeverExam()
+    local s=P.db.session
+    if not P.IsForeverExam(s) then return end
+    s.results={}; s.resultsById={}; s.answered=0; s.correct=0
+    s.recordedById=s.recordedById or {}
+    for _,questionId in ipairs(s.ids) do
+        local id=tostring(questionId)
+        local q=P.byId[id]
+        local selected=s.answersById and s.answersById[id]
+        if q and selected then
+            local isCorrect=selected-1==q.correct
+            if s.recordedById[id]~=selected then
+                P.RecordAnswer(q,selected,s)
+                s.recordedById[id]=selected
+            end
+            local result={questionId=q.id,selected=selected,isCorrect=isCorrect}
+            s.results[#s.results+1]=result; s.resultsById[id]=result
+            s.answered=s.answered+1; s.correct=s.correct+(isCorrect and 1 or 0)
+        end
+    end
+    s.completedAt=P.Now(); s.selected=nil; s.revealed=false; s.index=#s.ids+1
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    P.Refresh()
+end
 function P.RestoreQuestionState()
     local s=P.db.session
     if not s then return end
     local q=P.CurrentQuestion()
     P.showExplanation=nil
-    if q and s.resultsById and s.resultsById[tostring(q.id)] then
+    if q and P.IsForeverExam(s) then
+        s.answersById=s.answersById or {}
+        s.selected=s.answersById[tostring(q.id)]
+        s.revealed=false
+    elseif q and s.resultsById and s.resultsById[tostring(q.id)] then
         local res=s.resultsById[tostring(q.id)]
         s.selected=res.selected
         s.revealed=true
@@ -114,6 +174,10 @@ end
 function P.Next()
     local s=P.db.session
     if not s then return end
+    if P.IsForeverExam(s) and s.index>=#s.ids then
+        P.CompleteForeverExam()
+        return
+    end
     if s.index>=#s.ids then
         if s.revealed then
             s.index=#s.ids+1
