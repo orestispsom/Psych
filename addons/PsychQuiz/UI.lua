@@ -1,6 +1,10 @@
 local _,P=...
 local C=P.colors
 local function plain(value) return (tostring(value or ''):gsub('|','||')) end
+local answerLetters={'Α','Β','Γ','Δ','Ε','ΣΤ','Ζ','Η'}
+local function answerLabel(index,value)
+    return (answerLetters[index] or tostring(index))..'. '..plain(value)
+end
 local function color(region,token,alpha)
     local c=C[token]; region:SetColorTexture(c[1],c[2],c[3],alpha or 1)
 end
@@ -76,21 +80,20 @@ function P.MakeAnswer(index)
 end
 function P.RefreshAnswers()
     local q=P.CurrentQuestion(); local s=P.db.session
-    local letters={'Α','Β','Γ','Δ','Ε','ΣΤ','Ζ','Η'}
     for i,row in ipairs(P.answers) do
         if q and i<=#q.options then
             local selected=s.selected==i
             color(row.bg,'selected',selected and 0.85 or 0)
             row.mark:SetText(selected and '●' or '○')
-            row.letter:SetText(letters[i] or tostring(i))
+            row.letter:SetText(answerLetters[i] or tostring(i))
             row.body:SetText(plain(q.options[i]))
             local token='ink'
-            if s.revealed and s.mode~='exam' then
+            if s.revealed and (s.mode~='exam' or P.IsWrongReview(s)) then
                 if i-1==q.correct then token='correct'; row.mark:SetText('✓')
                 elseif selected then token='wrong'; row.mark:SetText('×') end
             end
             row.mark:SetTextColor(unpack(C[token])); row.body:SetTextColor(unpack(C[token]))
-            row:EnableMouse(not s.revealed or P.IsForeverExam(s))
+            row:EnableMouse(not s.revealed or (P.IsForeverExam(s) and not P.IsWrongReview(s)))
         end
     end
 end
@@ -98,6 +101,10 @@ function P.RefreshForeverExamMeta()
     local s=P.db and P.db.session
     local q=P.CurrentQuestion()
     if not (q and P.IsForeverExam(s)) then return false end
+    if P.IsWrongReview(s) then
+        P.topic:SetText('MCQ #'..q.id..'  ·  Λάθος '..s.reviewWrongIndex..'/'..P.WrongResultCount(s))
+        return true
+    end
     local minutes=math.floor((s.elapsedSeconds or 0)/60)
     local unit=minutes==1 and 'λεπτό' or 'λεπτά'
     P.topic:SetText('MCQ #'..q.id..'  ·  '..minutes..' '..unit)
@@ -152,12 +159,16 @@ function P.Refresh()
     local s=P.db.session; local q=P.CurrentQuestion()
     local finished=s and not q
     local score=s and s.answered>0 and (' · '..math.floor(s.correct/s.answered*100+0.5)..'%') or ''
-    if s and s.mode=='exam' and not finished then score='' end
+    if s and s.mode=='exam' and not finished and not P.IsWrongReview(s) then score='' end
     P.compact:SetText(s and (s.answered..'/'..#s.ids..score) or '')
     if not P.RefreshForeverExamMeta() then
         P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
     end
-    P.progress:SetText(s and (math.min(s.index,#s.ids)..' / '..#s.ids) or '')
+    if P.IsWrongReview(s) then
+        P.progress:SetText(s.reviewWrongIndex..' / '..P.WrongResultCount(s))
+    else
+        P.progress:SetText(s and (math.min(s.index,#s.ids)..' / '..#s.ids) or '')
+    end
     local settings=P.db.settings
     local mode=s and q and s.mode or settings.mode
     local label=P.modeLabels[mode] or 'Τυχαίες'
@@ -181,12 +192,12 @@ function P.Refresh()
             P.feedbackBtn:Show()
             if P.prevBtn then
                 P.prevBtn:Show()
-                P.prevBtn:SetEnabled(s~=nil and s.index>1)
+                P.prevBtn:SetEnabled(s~=nil and (P.IsWrongReview(s) and s.reviewWrongIndex>1 or not P.IsWrongReview(s) and s.index>1))
                 P.prevBtn.label:SetAlpha(P.prevBtn:IsEnabled() and 1 or 0.35)
             end
             if P.nextBtn then
                 P.nextBtn:Show()
-                P.nextBtn:SetEnabled(s~=nil and (s.index<#s.ids or ((s.revealed or P.IsForeverExam(s)) and s.index==#s.ids)))
+                P.nextBtn:SetEnabled(s~=nil and (P.IsWrongReview(s) or s.index<#s.ids or ((s.revealed or P.IsForeverExam(s)) and s.index==#s.ids)))
                 P.nextBtn.label:SetAlpha(P.nextBtn:IsEnabled() and 1 or 0.35)
             end
         else
@@ -199,7 +210,18 @@ function P.Refresh()
         P.stem:SetText(plain(q.stem))
         for i=1,#q.options do if not P.answers[i] then P.answers[i]=P.MakeAnswer(i) end end
         P.RefreshAnswers()
-        if P.IsForeverExam(s) then
+        if P.IsWrongReview(s) then
+            local result=P.CurrentWrongResult(s)
+            local selected=result and result.selected
+            local correct=q.correct+1
+            local message='Η απάντησή σου\n'..answerLabel(selected,q.options[selected])
+            message=message..'\n\nΣωστή απάντηση\n'..answerLabel(correct,q.options[correct])
+            if q.explanation and q.explanation~='' then
+                message=message..'\n\nΕπεξήγηση\n'..plain(q.explanation)
+            end
+            P.feedback:SetText(message)
+            P.action.label:SetText(s.reviewWrongIndex<P.WrongResultCount(s) and 'Επόμενο λάθος' or 'Τέλος ανασκόπησης')
+        elseif P.IsForeverExam(s) then
             P.action.label:SetText(s.index<#s.ids and 'Επόμενη' or 'Ολοκλήρωση')
         elseif s.revealed then
             P.action.label:SetText(s.index<#s.ids and 'Επόμενη' or 'Ολοκλήρωση')
@@ -215,15 +237,23 @@ function P.Refresh()
     elseif finished then
         P.stem:SetText(#s.ids==0 and 'Δεν υπάρχουν ερωτήσεις για αυτά τα φίλτρα.' or 'Η συνεδρία ολοκληρώθηκε')
         local out={s.correct..' σωστές από '..s.answered..' απαντήσεις.'}
-        if s.mode=='exam' then
+        if P.IsForeverExam(s) then
+            local wrong=P.WrongResultCount(s)
+            local unanswered=#s.ids-s.answered
+            out[#out+1]=wrong..' λάθος'..(unanswered>0 and ' · '..unanswered..' αναπάντητες' or '')
+            P.action.label:SetText(wrong>0 and ('Εξέταση λαθών ('..wrong..')') or 'Νέα συνεδρία')
+        elseif s.mode=='exam' then
             for _,result in ipairs(s.results) do
                 local item=P.byId[tostring(result.questionId)]
                 if item then
                     out[#out+1]=(result.isCorrect and 'Σωστά: ' or 'Λάθος: ')..plain(item.stem)..'\nΣωστή: '..plain(item.options[item.correct+1])..'\n'..plain(item.explanation)
                 end
             end
+            P.action.label:SetText('Νέα συνεδρία')
+        else
+            P.action.label:SetText('Νέα συνεδρία')
         end
-        P.feedback:SetText(table.concat(out,'\n\n')); P.action.label:SetText('Νέα συνεδρία')
+        P.feedback:SetText(table.concat(out,'\n\n'))
     else
         P.stem:SetText('Λίγος χρόνος για μελέτη.')
         P.feedback:SetText('Επίλεξε τρόπο μελέτης από την κεφαλίδα και ξεκίνα όταν έχεις χρόνο.\n\n'..#P.bank.questions..' ερωτήσεις · '..#P.topics..' κατηγορίες\n\nΣύρε την κεφαλίδα για μετακίνηση και την κάτω γωνία για αλλαγή μεγέθους.')
@@ -540,7 +570,11 @@ function P.CreateUI()
 
     P.stem=text(P.content,17); P.feedback=text(P.content,16); P.answers={}
     P.action=button(P.main,'Έναρξη',120,34,function()
-        if not P.CurrentQuestion() then P.StartSession()
+        if P.IsWrongReview() then P.Next()
+        elseif not P.CurrentQuestion() then
+            local s=P.db and P.db.session
+            if P.IsForeverExam(s) and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongReview()
+            else P.StartSession() end
         elseif P.IsForeverExam() then P.Next()
         elseif P.db.session.revealed then P.Next() else P.Submit() end
     end,true); P.action:SetPoint('BOTTOMRIGHT',-18,16)
