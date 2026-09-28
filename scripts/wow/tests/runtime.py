@@ -45,18 +45,31 @@ assert(P.db.events[2].eventId~=first)
 -- Forever exams save editable draft choices and record them only on completion.
 P.db.settings.mode='exam'; P.StartSession()
 local exam=P.db.session; local examQ=P.CurrentQuestion(); local eventCount=#P.db.events
-P.Select(1); P.Submit(); P.Select(2)
-assert(exam.answersById[tostring(examQ.id)]==2 and not exam.revealed)
+local firstWrong=(examQ.correct+1)%#examQ.options+1
+P.Select(1); P.Submit(); P.Select(firstWrong)
+assert(exam.answersById[tostring(examQ.id)]==firstWrong and not exam.revealed)
 assert(#P.db.events==eventCount,'draft choice recorded before exam completion')
 P.Next(); P.Prev()
-assert(P.db.session.selected==2 and not P.db.session.revealed,'saved exam choice did not restore')
+assert(P.db.session.selected==firstWrong and not P.db.session.revealed,'saved exam choice did not restore')
 P.InitializeQuiz()
-assert(P.db.session.selected==2,'in-progress exam did not reload automatically')
+assert(P.db.session.selected==firstWrong,'in-progress exam did not reload automatically')
 P.db.session.elapsedSeconds=125
 P.db.session.index=#P.db.session.ids
-P.RestoreQuestionState(); P.Select(1); P.Next()
+P.RestoreQuestionState(); local lastExamQ=P.CurrentQuestion()
+local lastWrong=(lastExamQ.correct+1)%#lastExamQ.options+1
+P.Select(lastWrong); P.Next()
 assert(P.db.session.index==#P.db.session.ids+1 and P.db.session.completedAt)
 assert(#P.db.events==eventCount+2,'exam answers were not recorded exactly once at completion')
+assert(P.WrongResultCount()==2,'wrong answer review count')
+P.StartWrongReview()
+assert(P.IsWrongReview() and P.db.session.reviewWrongIndex==1 and P.CurrentQuestion().id==examQ.id)
+local savedReviewAnswer=P.db.session.selected
+P.Select(savedReviewAnswer==1 and 2 or 1)
+assert(P.db.session.selected==savedReviewAnswer,'review answer became editable')
+P.Next(); assert(P.db.session.reviewWrongIndex==2 and P.CurrentQuestion().id==lastExamQ.id)
+P.Prev(); assert(P.db.session.reviewWrongIndex==1)
+P.Next(); P.Next()
+assert(not P.IsWrongReview() and P.CurrentQuestion()==nil,'wrong review did not return to summary')
 -- Regeneration cannot unlock an already recorded question for duplicate submission.
 P.db.settings.mode='random'; P.StartSession(); q=P.CurrentQuestion(); P.Select(1); P.Submit()
 P.db.session.bankVersion='previous-bank'

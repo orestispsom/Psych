@@ -94,11 +94,54 @@ function P.StartSession()
 end
 function P.CurrentQuestion()
     local s=P.db.session
+    local review=P.CurrentWrongResult and P.CurrentWrongResult(s)
+    if review then return P.byId[tostring(review.questionId)] end
     return s and P.byId[tostring(s.ids[s.index])] or nil
+end
+local function wrongResults(session)
+    local wrong={}
+    for _,result in ipairs((session and session.results) or {}) do
+        if not result.isCorrect then wrong[#wrong+1]=result end
+    end
+    return wrong
+end
+function P.WrongResultCount(session)
+    return #wrongResults(session or (P.db and P.db.session))
+end
+function P.IsWrongReview(session)
+    local s=session or (P.db and P.db.session)
+    return P.IsForeverExam(s) and type(s.reviewWrongIndex)=='number' and s.reviewWrongIndex>=1
+end
+function P.CurrentWrongResult(session)
+    local s=session or (P.db and P.db.session)
+    if not P.IsWrongReview(s) then return nil end
+    return wrongResults(s)[s.reviewWrongIndex]
+end
+local function restoreWrongReviewState(session)
+    local result=P.CurrentWrongResult(session)
+    if not result then return false end
+    session.selected=result.selected
+    session.revealed=true
+    return true
+end
+function P.StartWrongReview()
+    local s=P.db and P.db.session
+    if not P.IsForeverExam(s) or P.WrongResultCount(s)==0 then return end
+    s.reviewWrongIndex=1
+    restoreWrongReviewState(s)
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    P.Refresh()
+end
+function P.EndWrongReview()
+    local s=P.db and P.db.session
+    if not s then return end
+    s.reviewWrongIndex=nil; s.selected=nil; s.revealed=false
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    P.Refresh()
 end
 function P.Select(index)
     local s=P.db.session
-    if not s or (s.revealed and not P.IsForeverExam(s)) then return end
+    if not s or P.IsWrongReview(s) or (s.revealed and not P.IsForeverExam(s)) then return end
     s.selected=index
     if P.IsForeverExam(s) then
         s.answersById=s.answersById or {}
@@ -140,7 +183,7 @@ function P.CompleteForeverExam()
             s.answered=s.answered+1; s.correct=s.correct+(isCorrect and 1 or 0)
         end
     end
-    s.completedAt=P.Now(); s.selected=nil; s.revealed=false; s.index=#s.ids+1
+    s.completedAt=P.Now(); s.reviewWrongIndex=nil; s.selected=nil; s.revealed=false; s.index=#s.ids+1
     if P.scroll then P.scroll:SetVerticalScroll(0) end
     P.Refresh()
 end
@@ -164,6 +207,12 @@ function P.RestoreQuestionState()
 end
 function P.Prev()
     local s=P.db.session
+    if P.IsWrongReview(s) then
+        if s.reviewWrongIndex<=1 then return end
+        s.reviewWrongIndex=s.reviewWrongIndex-1; restoreWrongReviewState(s)
+        if P.scroll then P.scroll:SetVerticalScroll(0) end
+        P.Refresh(); return
+    end
     if not s or s.index<=1 then return end
     s.index=s.index-1
     while s.index>1 and not P.byId[tostring(s.ids[s.index])] do s.index=s.index-1 end
@@ -174,6 +223,12 @@ end
 function P.Next()
     local s=P.db.session
     if not s then return end
+    if P.IsWrongReview(s) then
+        if s.reviewWrongIndex>=P.WrongResultCount(s) then P.EndWrongReview(); return end
+        s.reviewWrongIndex=s.reviewWrongIndex+1; restoreWrongReviewState(s)
+        if P.scroll then P.scroll:SetVerticalScroll(0) end
+        P.Refresh(); return
+    end
     if P.IsForeverExam(s) and s.index>=#s.ids then
         P.CompleteForeverExam()
         return
