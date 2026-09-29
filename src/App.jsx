@@ -6485,7 +6485,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // The section landing: three distinct functions, visible up front — not a
 // question list that happens to also link to the other two. Mirrors the
 // MCQ hub's own split between "pick a mode" and "the mode itself".
-function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAccessCrucialQuestions, oralProgress }) {
+function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, oralProgress }) {
   const overallSummary = summarizeOralProgress(normalizeOralProgress(oralProgress));
   const percent = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 100) : 0;
   const level = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 5) : 0;
@@ -6527,17 +6527,15 @@ function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, canAcces
           <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
         </button>
 
-        {canAccessCrucialQuestions && (
-          <button type="button" className="oral-hub-tile" onClick={onOpenCrucialQuestions}>
+        <button type="button" className="oral-hub-tile" onClick={onOpenCrucialQuestions}>
             <span className="oral-hub-icon" aria-hidden="true"><Icons.FileText /></span>
             <span className="oral-hub-body">
-              <span className="oral-hub-title">100 Κρίσιμα Θέματα (Admin)</span>
+              <span className="oral-hub-title">100 Κρίσιμα Θέματα</span>
               <span className="oral-hub-stat">100 θέματα σε 16 κεφάλαια</span>
               <span className="oral-hub-desc">Εμπεριστατωμένες απαντήσεις υψηλής απόδοσης</span>
             </span>
             <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
           </button>
-        )}
       </div>
     </div>
   );
@@ -9666,10 +9664,6 @@ export default function App() {
 
   useEffect(() => {
     if (!activeProfile) return;
-    if ((screen === "oral-crucial-index" || screen === "oral-crucial-viewer") && !hasAdminAccess) {
-      navigate("/oral", { replace: true });
-      return;
-    }
     if (screen === "oral-crucial-viewer" && !crucialQuestionViewerData) {
       navigate("/oral/crucial", { replace: true });
       return;
@@ -10447,7 +10441,6 @@ export default function App() {
           <OralHub
             onOpenPast={() => setScreen('oral-past')}
             onOpenSimulator={() => setScreen('oral-simulator')}
-            canAccessCrucialQuestions={hasAdminAccess}
             onOpenCrucialQuestions={() => {
               setCrucialQuestionViewerData(null);
               setScreen('oral-crucial-index');
@@ -10470,7 +10463,7 @@ export default function App() {
             oralProgress={oralProgress}
           />
         )}
-        {hasAdminAccess && screen === 'oral-crucial-index' && (
+        {activeProfile && screen === 'oral-crucial-index' && (
           <CrucialQuestionsIndex
             onBack={() => setScreen('oral')}
             onHome={() => setScreen('home')}
@@ -10480,7 +10473,7 @@ export default function App() {
             }}
           />
         )}
-        {hasAdminAccess && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
+        {activeProfile && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
           <CrucialQuestionViewer
             questions={crucialQuestionViewerData.questions}
             initialIndex={crucialQuestionViewerData.initialIndex}
