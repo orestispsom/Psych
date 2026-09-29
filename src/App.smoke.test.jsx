@@ -96,6 +96,20 @@ describe("golden path smoke tests", () => {
     expect(await screen.findByText("Κρίσιμα Θέματα")).toBeInTheDocument();
   });
 
+  it("shows 100 Κρίσιμα Θέματα to a regular non-admin profile", async () => {
+    const user = userEvent.setup();
+    const { container } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςOral", container);
+
+    await user.click(home.getByText("Προφορικά"));
+
+    const crucialQuestions = await screen.findByRole("button", { name: /100 Κρίσιμα Θέματα/i });
+    expect(crucialQuestions).toBeInTheDocument();
+
+    await user.click(crucialQuestions);
+    expect(await screen.findByRole("heading", { name: "100 Κρίσιμα Θέματα" })).toBeInTheDocument();
+  });
+
   it("Πινακάκια is reachable immediately, without waiting on the MCQ question bank", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();
