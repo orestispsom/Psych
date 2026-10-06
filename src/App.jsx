@@ -6842,7 +6842,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
             );
           })}
         </div>
-      )}}
+      )}
     </div>
   );
 }
