@@ -10,6 +10,7 @@ import SupportWidget from "./components/SupportWidget.jsx";
 import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
+import { loadOralNavigationState, saveOralNavigationState } from "./lib/oralNavigationState.js";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
 import { fetchAllPages, mergeOralProgressSnapshots } from "./lib/remoteProgress.mjs";
@@ -6546,14 +6547,17 @@ function getGravityColor(gravity) {
   return `var(--sev-${step})`;
 }
 
-function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress }) {
-  const [view, setView] = useState("bands");
+function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress, profileId }) {
+  const initialNavigationRef = useRef(null);
+  if (!initialNavigationRef.current) {
+    initialNavigationRef.current = loadOralNavigationState(profileId);
+  }
+
+  const initialNavigation = initialNavigationRef.current;
+  const [view, setView] = useState(initialNavigation.view);
   const [query, setQuery] = useState("");
-  // Two levels, not four: the frequency ladder, then everything inside one
-  // band on a single grouped page. A question is always one click from the
-  // ladder, and the topic/subtopic structure is shown as headings rather
-  // than as more things to click through.
-  const [openBandId, setOpenBandId] = useState(null);
+  const [openBandId, setOpenBandId] = useState(initialNavigation.openBandId);
+  const [collapsedTopicIds, setCollapsedTopicIds] = useState(initialNavigation.collapsedTopicIds);
   const normalizedOralProgress = normalizeOralProgress(oralProgress);
   const overallSummary = summarizeOralProgress(normalizedOralProgress);
 
@@ -6573,6 +6577,90 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
 
   const openBand = openBandId ? oralData.find(gravity => gravity.id === openBandId) : null;
 
+  useEffect(() => {
+    saveOralNavigationState(profileId, {
+      view,
+      openBandId,
+      collapsedTopicIds,
+    });
+  }, [profileId, view, openBandId, collapsedTopicIds]);
+
+  useEffect(() => {
+    const storedScrollY = initialNavigationRef.current?.scrollY || 0;
+    let firstFrame = null;
+    let secondFrame = null;
+    let scrollTimer = null;
+
+    if (storedScrollY > 0) {
+      firstFrame = window.requestAnimationFrame(() => {
+        secondFrame = window.requestAnimationFrame(() => {
+          window.scrollTo({ top: storedScrollY, left: 0, behavior: "auto" });
+        });
+      });
+    }
+
+    const persistScroll = () => {
+      if (scrollTimer) window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        saveOralNavigationState(profileId, { scrollY: window.scrollY });
+      }, 120);
+    };
+
+    window.addEventListener("scroll", persistScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", persistScroll);
+      if (scrollTimer) window.clearTimeout(scrollTimer);
+      if (firstFrame) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+      saveOralNavigationState(profileId, { scrollY: window.scrollY });
+    };
+  }, [profileId]);
+
+  const rememberPosition = () => {
+    saveOralNavigationState(profileId, { scrollY: window.scrollY });
+  };
+
+  const openQuestion = (questions, title, initialIndex = 0) => {
+    rememberPosition();
+    onNavigateToViewer(questions, title, initialIndex);
+  };
+
+  const toggleBand = (gravity) => {
+    if (gravity.isTable) {
+      rememberPosition();
+      onNavigateToTable(gravity.rows);
+      return;
+    }
+    setOpenBandId(current => current === gravity.id ? null : gravity.id);
+  };
+
+  const getTopicStateKey = (band, topic) => `${band.id}:${topic.id}`;
+
+  const toggleTopic = (band, topic) => {
+    const key = getTopicStateKey(band, topic);
+    setCollapsedTopicIds(current => {
+      if (current[key]) {
+        const next = { ...current };
+        delete next[key];
+        return next;
+      }
+      return { ...current, [key]: true };
+    });
+  };
+
+  const setBandTopicsCollapsed = (band, collapsed) => {
+    setCollapsedTopicIds(current => {
+      const next = { ...current };
+      (band.topics || []).forEach(topic => {
+        const key = getTopicStateKey(band, topic);
+        if (collapsed) next[key] = true;
+        else delete next[key];
+      });
+      return next;
+    });
+  };
+
   const renderProgressPill = (questions) => {
     const summary = summarizeOralProgress(normalizedOralProgress, questions);
     return (
@@ -6588,7 +6676,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
         const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
         return (
           <li key={question.id}>
-            <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(questions, title, index)}>
+            <button className="oral-question-row" type="button" onClick={() => openQuestion(questions, title, index)}>
               <span className="oral-question-number">{String(index + 1).padStart(2, "0")}</span>
               <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span>{context && <span className="oral-question-context">{context}</span>}</span>
               <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
@@ -6598,6 +6686,10 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
       })}
     </ol>
   );
+
+  const bandTopicsCollapsed = openBand && (openBand.topics || []).length > 0
+    ? (openBand.topics || []).every(topic => collapsedTopicIds[getTopicStateKey(openBand, topic)])
+    : false;
 
   return (
     <div className="oral-container">
@@ -6625,16 +6717,14 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
         </div>
       </div>
 
-      {!openBand && (
-        <div className="oral-index-controls">
-          <div className="oral-index-tabs" aria-label="Προβολή θεμάτων">
-            <button className="oral-index-tab" type="button" aria-pressed={view === "bands"} onClick={() => setView("bands")}>Κατά συχνότητα</button>
-            <button className="oral-index-tab" type="button" aria-pressed={view === "all"} onClick={() => setView("all")}>Όλες ({allEntries.length})</button>
-          </div>
+      <div className="oral-index-controls">
+        <div className="oral-index-tabs" aria-label="Προβολή θεμάτων">
+          <button className="oral-index-tab" type="button" aria-pressed={view === "bands"} onClick={() => setView("bands")}>Κατά συχνότητα</button>
+          <button className="oral-index-tab" type="button" aria-pressed={view === "all"} onClick={() => setView("all")}>Όλες ({allEntries.length})</button>
         </div>
-      )}
+      </div>
 
-      {view === "all" && !openBand && (
+      {view === "all" && (
         <>
           <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={`Αναζήτηση στις ${allEntries.length} ερωτήσεις…`} aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
           <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}` : `${visibleEntries.length} από ${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}`}</div>
@@ -6644,7 +6734,7 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
               const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
               return (
                 <li key={question.id}>
-                  <button className="oral-question-row" type="button" onClick={() => onNavigateToViewer(allEntries.map(item => item.question), "Όλες οι προηγούμενες ερωτήσεις", allEntries.indexOf(entry))}>
+                  <button className="oral-question-row" type="button" onClick={() => openQuestion(allEntries.map(item => item.question), "Όλες οι προηγούμενες ερωτήσεις", allEntries.indexOf(entry))}>
                     <span className="oral-question-number">{String(index + 1).padStart(3, "0")}</span>
                     <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span><span className="oral-question-context">{gravity.label} · {topic.title}{subtopic ? ` · ${subtopic.title}` : ""}</span></span>
                     <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
@@ -6657,82 +6747,100 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
         </>
       )}
 
-      {view === "bands" && !openBand && (
-        <div className="oral-ladder">
-          {oralData.map(gravity => {
-            const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
-            const summary = summarizeOralProgress(normalizedOralProgress, questions);
-            return (
-              <button
-                key={gravity.id}
-                type="button"
-                className="oral-band"
-                style={{ "--band": getGravityColor(gravity) }}
-                onClick={() => gravity.isTable ? onNavigateToTable(gravity.rows) : setOpenBandId(gravity.id)}
-              >
-                <span className="oral-band-code">{gravity.label}</span>
-                <span className="oral-band-main">
-                  <span className="oral-band-title">{gravity.title}</span>
-                </span>
-                <span className="oral-band-side">
-                  {!gravity.isTable && (
-                    <>
-                      <span className="oral-band-count">{summary.total}</span>
-                      <span className="oral-band-count-label">ερωτήσεις</span>
-                      <span className="oral-band-progress">{summary.mastered}/{summary.total}</span>
-                    </>
-                  )}
-                </span>
-                <span className="oral-band-go" aria-hidden="true"><Icons.ChevronRight /></span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* One band, all of it: topics and subtopics become headings on a
-          single page instead of two more rounds of clicking. */}
-      {openBand && (
-        <div className="oral-band-page">
-          <div className="oral-band-head" style={{ "--band": getGravityColor(openBand) }}>
-            <button type="button" className="nav-btn" onClick={() => setOpenBandId(null)}>
-              <Icons.ChevronLeft /> Όλες οι βαρύτητες
-            </button>
-            <span className="oral-band-code">{openBand.label}</span>
-            <span className="oral-band-head-title">{openBand.title}</span>
+      {view === "bands" && (
+        <>
+          <div className="oral-band-tabs" role="tablist" aria-label="Συχνότητα εμφάνισης στις εξετάσεις">
+            {oralData.map(gravity => {
+              const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
+              const summary = summarizeOralProgress(normalizedOralProgress, questions);
+              const isActive = openBandId === gravity.id;
+              return (
+                <button
+                  key={gravity.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-expanded={isActive}
+                  className={`oral-band-tab ${isActive ? "active" : ""}`}
+                  style={{ "--band": getGravityColor(gravity) }}
+                  onClick={() => toggleBand(gravity)}
+                >
+                  <span className="oral-band-code">{gravity.label}</span>
+                  <span className="oral-band-tab-copy">
+                    <span className="oral-band-title">{gravity.title}</span>
+                    {!gravity.isTable && <span className="oral-band-tab-meta">{summary.mastered}/{summary.total} mastered</span>}
+                  </span>
+                  {!gravity.isTable && <span className="oral-band-tab-count">{summary.total}</span>}
+                  <span className={`oral-band-tab-caret ${isActive ? "open" : ""}`} aria-hidden="true"><Icons.ChevronDown /></span>
+                </button>
+              );
+            })}
           </div>
 
-          {(openBand.topics || []).map(topic => (
-            <section key={topic.id} className="oral-band-topic">
-              <div className="subscale">
-                <h3 className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</h3>
-                <span className="subscale-rule" />
-                <span className="subscale-total">{renderProgressPill(getOralQuestionsFromTopic(topic))}</span>
+          {openBand && (
+            <div className="oral-band-page oral-band-panel" role="tabpanel" style={{ "--band": getGravityColor(openBand) }}>
+              <div className="oral-band-panel-head">
+                <div>
+                  <span className="oral-band-panel-kicker">{openBand.label}</span>
+                  <h3>{openBand.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  className="oral-topic-bulk"
+                  onClick={() => setBandTopicsCollapsed(openBand, !bandTopicsCollapsed)}
+                >
+                  {bandTopicsCollapsed ? "Ανάπτυξη θεμάτων" : "Σύμπτυξη θεμάτων"}
+                </button>
               </div>
-              {topic.description && <p className="oral-band-topic-note">{topic.description}</p>}
 
-              {topic.subtopics
-                ? topic.subtopics.map(sub => (
-                    <div key={sub.id} className="oral-band-sub">
-                      <h4 className="oral-band-sub-title">
-                        <span className="oral-band-sub-letter">{sub.letter}.</span>
-                        {sub.title}
-                      </h4>
-                      {renderQuestionList(
-                        sub.questions,
-                        `${openBand.label} ${topic.letter}.${sub.letter}. ${sub.title}`,
-                        null
-                      )}
-                    </div>
-                  ))
-                : renderQuestionList(
-                    topic.questions || [],
-                    `${openBand.label} ${topic.letter}. ${topic.title}`,
-                    null
-                  )}
-            </section>
-          ))}
-        </div>
+              {(openBand.topics || []).map(topic => {
+                const topicKey = getTopicStateKey(openBand, topic);
+                const isCollapsed = Boolean(collapsedTopicIds[topicKey]);
+                return (
+                  <section key={topic.id} className={`oral-band-topic ${isCollapsed ? "collapsed" : ""}`}>
+                    <button
+                      type="button"
+                      className="oral-topic-toggle"
+                      aria-expanded={!isCollapsed}
+                      onClick={() => toggleTopic(openBand, topic)}
+                    >
+                      <span className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</span>
+                      <span className="oral-topic-toggle-side">
+                        {renderProgressPill(getOralQuestionsFromTopic(topic))}
+                        <span className={`oral-topic-caret ${isCollapsed ? "" : "open"}`} aria-hidden="true"><Icons.ChevronDown /></span>
+                      </span>
+                    </button>
+
+                    {!isCollapsed && (
+                      <div className="oral-band-topic-content">
+                        {topic.description && <p className="oral-band-topic-note">{topic.description}</p>}
+                        {topic.subtopics
+                          ? topic.subtopics.map(sub => (
+                              <div key={sub.id} className="oral-band-sub">
+                                <h4 className="oral-band-sub-title">
+                                  <span className="oral-band-sub-letter">{sub.letter}.</span>
+                                  {sub.title}
+                                </h4>
+                                {renderQuestionList(
+                                  sub.questions,
+                                  `${openBand.label} ${topic.letter}.${sub.letter}. ${sub.title}`,
+                                  null
+                                )}
+                              </div>
+                            ))
+                          : renderQuestionList(
+                              topic.questions || [],
+                              `${openBand.label} ${topic.letter}. ${topic.title}`,
+                              null
+                            )}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -10461,6 +10569,7 @@ export default function App() {
               setScreen('oral-table');
             }}
             oralProgress={oralProgress}
+            profileId={activeProfile.id}
           />
         )}
         {activeProfile && screen === 'oral-crucial-index' && (
