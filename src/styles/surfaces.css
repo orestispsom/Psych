@@ -1602,36 +1602,43 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   max-width: var(--measure-item);
 }
 
-/* ─── Significant exam topics: persistent in-page navigation ─── */
-.oral-band-tabs {
+/* ─── Significant exam topics: inline accordion navigation ─── */
+.oral-band-accordion {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: var(--s2);
 }
 
-.oral-band-tab {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: var(--s3);
-  min-height: 68px;
-  padding: var(--s3);
-  text-align: left;
+.oral-band-accordion-item {
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   background: var(--field);
-  color: var(--ink);
+  overflow: hidden;
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
 }
 
-.oral-band-tab:hover,
-.oral-band-tab.active {
+.oral-band-accordion-item:hover,
+.oral-band-accordion-item.active {
   border-color: var(--band);
-  background: color-mix(in srgb, var(--band) 7%, var(--field));
 }
 
-.oral-band-tab.active {
-  box-shadow: inset 0 -2px 0 var(--band);
+.oral-band-accordion-item.active {
+  background: color-mix(in srgb, var(--band) 5%, var(--field));
+}
+
+.oral-band-accordion-trigger {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--s4);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--s4);
+  text-align: left;
+  color: var(--ink);
+}
+
+.oral-band-accordion-trigger:hover {
+  background: color-mix(in srgb, var(--band) 7%, var(--field));
 }
 
 .oral-band-tab-copy {
@@ -1640,17 +1647,11 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   min-width: 0;
 }
 
-.oral-band-tab-meta,
-.oral-band-tab-count {
+.oral-band-tab-meta {
   font-family: var(--code);
   font-size: var(--t-micro);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
-}
-
-.oral-band-tab-count {
-  font-size: var(--t-meta);
-  color: var(--ink-2);
 }
 
 .oral-band-tab-caret,
@@ -1666,37 +1667,17 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   color: var(--band, var(--accent));
 }
 
-.oral-band-panel {
-  padding-top: var(--s2);
-}
-
-.oral-band-panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s4);
-  flex-wrap: wrap;
-  padding-bottom: var(--s3);
-  border-bottom: 2px solid var(--band);
-}
-
-.oral-band-panel-head > div {
-  display: flex;
-  align-items: baseline;
+.oral-band-inline-content {
+  display: grid;
   gap: var(--s3);
-  flex-wrap: wrap;
+  padding: 0 var(--s4) var(--s4);
+  border-top: 1px solid color-mix(in srgb, var(--band) 28%, var(--rule));
 }
 
-.oral-band-panel-head h3 {
-  font-size: var(--t-section);
-  letter-spacing: 0.03em;
-}
-
-.oral-band-panel-kicker {
-  font-family: var(--code);
-  font-size: var(--t-meta);
-  font-weight: 700;
-  color: var(--band);
+.oral-band-inline-tools {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--s3);
 }
 
 .oral-topic-bulk {
@@ -1723,15 +1704,15 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   margin: 0 0 var(--s3);
   padding: var(--s4);
   text-align: left;
-  border: 1px solid color-mix(in srgb, var(--band) 38%, var(--rule));
+  border: 1px solid color-mix(in srgb, var(--band) 34%, var(--rule));
   border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--band) 8%, var(--field));
+  background: color-mix(in srgb, var(--band) 7%, var(--ground));
   color: var(--ink);
 }
 
 .oral-topic-toggle:hover {
   border-color: var(--band);
-  background: color-mix(in srgb, var(--band) 12%, var(--field));
+  background: color-mix(in srgb, var(--band) 11%, var(--ground));
 }
 
 .oral-topic-toggle .subscale-title {
@@ -1747,7 +1728,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   gap: var(--s3);
 }
 
-.oral-band-topic.collapsed + .oral-band-topic,
 .oral-band-topic + .oral-band-topic {
   padding-top: var(--s3);
 }
@@ -1761,29 +1741,27 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 }
 
 @media (max-width: 699px) {
-  .oral-band-tabs {
-    grid-template-columns: minmax(0, 1fr);
+  .oral-band-accordion-trigger {
+    min-height: 62px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--s3);
+    padding: var(--s3);
   }
 
-  .oral-band-tab {
-    min-height: 58px;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  .oral-band-accordion-trigger .oral-band-side {
+    display: none;
   }
 
-  .oral-band-tab .oral-band-code {
+  .oral-band-accordion-trigger .oral-band-code {
     min-width: 38px;
   }
 
-  .oral-band-tab-count {
-    display: none;
+  .oral-band-inline-content {
+    padding: 0 var(--s3) var(--s3);
   }
 
   .oral-topic-toggle {
     padding: var(--s3);
-  }
-
-  .oral-band-panel-head {
-    align-items: flex-start;
   }
 }
 

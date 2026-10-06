@@ -6687,10 +6687,6 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
     </ol>
   );
 
-  const bandTopicsCollapsed = openBand && (openBand.topics || []).length > 0
-    ? (openBand.topics || []).every(topic => collapsedTopicIds[getTopicStateKey(openBand, topic)])
-    : false;
-
   return (
     <div className="oral-container">
       <div className="screen-topbar">
@@ -6748,21 +6744,25 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
       )}
 
       {view === "bands" && (
-        <>
-          <div className="oral-band-tabs" role="tablist" aria-label="Συχνότητα εμφάνισης στις εξετάσεις">
-            {oralData.map(gravity => {
-              const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
-              const summary = summarizeOralProgress(normalizedOralProgress, questions);
-              const isActive = openBandId === gravity.id;
-              return (
+        <div className="oral-band-accordion" aria-label="Συχνότητα εμφάνισης στις εξετάσεις">
+          {oralData.map(gravity => {
+            const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
+            const summary = summarizeOralProgress(normalizedOralProgress, questions);
+            const isActive = openBandId === gravity.id;
+            const allTopicsCollapsed = (gravity.topics || []).length > 0
+              ? (gravity.topics || []).every(topic => collapsedTopicIds[getTopicStateKey(gravity, topic)])
+              : false;
+
+            return (
+              <section
+                key={gravity.id}
+                className={`oral-band-accordion-item ${isActive ? "active" : ""}`}
+                style={{ "--band": getGravityColor(gravity) }}
+              >
                 <button
-                  key={gravity.id}
                   type="button"
-                  role="tab"
-                  aria-selected={isActive}
+                  className="oral-band-accordion-trigger"
                   aria-expanded={isActive}
-                  className={`oral-band-tab ${isActive ? "active" : ""}`}
-                  style={{ "--band": getGravityColor(gravity) }}
                   onClick={() => toggleBand(gravity)}
                 >
                   <span className="oral-band-code">{gravity.label}</span>
@@ -6770,77 +6770,78 @@ function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, 
                     <span className="oral-band-title">{gravity.title}</span>
                     {!gravity.isTable && <span className="oral-band-tab-meta">{summary.mastered}/{summary.total} mastered</span>}
                   </span>
-                  {!gravity.isTable && <span className="oral-band-tab-count">{summary.total}</span>}
+                  {!gravity.isTable && (
+                    <span className="oral-band-side">
+                      <span className="oral-band-count">{summary.total}</span>
+                      <span className="oral-band-count-label">ερωτήσεις</span>
+                    </span>
+                  )}
                   <span className={`oral-band-tab-caret ${isActive ? "open" : ""}`} aria-hidden="true"><Icons.ChevronDown /></span>
                 </button>
-              );
-            })}
-          </div>
 
-          {openBand && (
-            <div className="oral-band-page oral-band-panel" role="tabpanel" style={{ "--band": getGravityColor(openBand) }}>
-              <div className="oral-band-panel-head">
-                <div>
-                  <span className="oral-band-panel-kicker">{openBand.label}</span>
-                  <h3>{openBand.title}</h3>
-                </div>
-                <button
-                  type="button"
-                  className="oral-topic-bulk"
-                  onClick={() => setBandTopicsCollapsed(openBand, !bandTopicsCollapsed)}
-                >
-                  {bandTopicsCollapsed ? "Ανάπτυξη θεμάτων" : "Σύμπτυξη θεμάτων"}
-                </button>
-              </div>
+                {isActive && !gravity.isTable && (
+                  <div className="oral-band-inline-content">
+                    <div className="oral-band-inline-tools">
+                      <button
+                        type="button"
+                        className="oral-topic-bulk"
+                        onClick={() => setBandTopicsCollapsed(gravity, !allTopicsCollapsed)}
+                      >
+                        {allTopicsCollapsed ? "Ανάπτυξη θεμάτων" : "Σύμπτυξη θεμάτων"}
+                      </button>
+                    </div>
 
-              {(openBand.topics || []).map(topic => {
-                const topicKey = getTopicStateKey(openBand, topic);
-                const isCollapsed = Boolean(collapsedTopicIds[topicKey]);
-                return (
-                  <section key={topic.id} className={`oral-band-topic ${isCollapsed ? "collapsed" : ""}`}>
-                    <button
-                      type="button"
-                      className="oral-topic-toggle"
-                      aria-expanded={!isCollapsed}
-                      onClick={() => toggleTopic(openBand, topic)}
-                    >
-                      <span className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</span>
-                      <span className="oral-topic-toggle-side">
-                        {renderProgressPill(getOralQuestionsFromTopic(topic))}
-                        <span className={`oral-topic-caret ${isCollapsed ? "" : "open"}`} aria-hidden="true"><Icons.ChevronDown /></span>
-                      </span>
-                    </button>
+                    {(gravity.topics || []).map(topic => {
+                      const topicKey = getTopicStateKey(gravity, topic);
+                      const isCollapsed = Boolean(collapsedTopicIds[topicKey]);
+                      return (
+                        <section key={topic.id} className={`oral-band-topic ${isCollapsed ? "collapsed" : ""}`}>
+                          <button
+                            type="button"
+                            className="oral-topic-toggle"
+                            aria-expanded={!isCollapsed}
+                            onClick={() => toggleTopic(gravity, topic)}
+                          >
+                            <span className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</span>
+                            <span className="oral-topic-toggle-side">
+                              {renderProgressPill(getOralQuestionsFromTopic(topic))}
+                              <span className={`oral-topic-caret ${isCollapsed ? "" : "open"}`} aria-hidden="true"><Icons.ChevronDown /></span>
+                            </span>
+                          </button>
 
-                    {!isCollapsed && (
-                      <div className="oral-band-topic-content">
-                        {topic.description && <p className="oral-band-topic-note">{topic.description}</p>}
-                        {topic.subtopics
-                          ? topic.subtopics.map(sub => (
-                              <div key={sub.id} className="oral-band-sub">
-                                <h4 className="oral-band-sub-title">
-                                  <span className="oral-band-sub-letter">{sub.letter}.</span>
-                                  {sub.title}
-                                </h4>
-                                {renderQuestionList(
-                                  sub.questions,
-                                  `${openBand.label} ${topic.letter}.${sub.letter}. ${sub.title}`,
-                                  null
-                                )}
-                              </div>
-                            ))
-                          : renderQuestionList(
-                              topic.questions || [],
-                              `${openBand.label} ${topic.letter}. ${topic.title}`,
-                              null
-                            )}
-                      </div>
-                    )}
-                  </section>
-                );
-              })}
-            </div>
-          )}
-        </>
+                          {!isCollapsed && (
+                            <div className="oral-band-topic-content">
+                              {topic.description && <p className="oral-band-topic-note">{topic.description}</p>}
+                              {topic.subtopics
+                                ? topic.subtopics.map(sub => (
+                                    <div key={sub.id} className="oral-band-sub">
+                                      <h4 className="oral-band-sub-title">
+                                        <span className="oral-band-sub-letter">{sub.letter}.</span>
+                                        {sub.title}
+                                      </h4>
+                                      {renderQuestionList(
+                                        sub.questions,
+                                        `${gravity.label} ${topic.letter}.${sub.letter}. ${sub.title}`,
+                                        null
+                                      )}
+                                    </div>
+                                  ))
+                                : renderQuestionList(
+                                    topic.questions || [],
+                                    `${gravity.label} ${topic.letter}. ${topic.title}`,
+                                    null
+                                  )}
+                            </div>
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );
