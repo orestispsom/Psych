@@ -4252,3 +4252,9 @@ input.crucial-search::placeholder { color: var(--ink-3); }
     min-width: 880px;
   }
 }
+
+.category-cycle-status {
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  margin: 0 0 var(--s2);
+}

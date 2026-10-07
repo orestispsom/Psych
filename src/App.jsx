@@ -12,6 +12,7 @@ import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { loadOralNavigationState, saveOralNavigationState } from "./lib/oralNavigationState.js";
+import { eligibleTopicQuestions, getTopicCycle, recordTopicCoverage, startNextTopicCycle } from "./lib/topicCycles.mjs";
 import { recoverWrittenExam } from "./lib/writtenExamHistory.mjs";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
@@ -687,6 +688,7 @@ function createEmptyMcqProgress() {
     writtenExamSessions: [],
     writtenExamDraft: null,
     categoryDrafts: {},
+    topicCycles: {},
     bookmarks: {},
     vignettes: { completed: {}, updatedAt: null },
     updatedAt: null,
@@ -708,6 +710,7 @@ function normalizeMcqProgress(progress) {
     writtenExamSessions: Array.isArray(progress.writtenExamSessions) ? progress.writtenExamSessions : [],
     writtenExamDraft: normalizeWrittenExamDraft(progress.writtenExamDraft),
     categoryDrafts: normalizeCategoryDrafts(progress.categoryDrafts),
+    topicCycles: progress.topicCycles && typeof progress.topicCycles === "object" && !Array.isArray(progress.topicCycles) ? progress.topicCycles : {},
     bookmarks: progress.bookmarks && typeof progress.bookmarks === "object"
       ? Object.fromEntries(Object.entries(progress.bookmarks).filter(([, v]) => Boolean(v)))
       : {},
@@ -1931,8 +1934,9 @@ function selectRandomPracticeQuestions(progress, qualitySignals = {}, questions 
   });
 }
 
-function selectTopicPracticeQuestions(questions, progress, qualitySignals = {}) {
-  return selectRandomPracticeQuestions(progress, qualitySignals, questions);
+function selectTopicPracticeQuestions(questions, progress, qualitySignals = {}, topic = null) {
+  const remaining = topic ? getTopicCycle(progress, topic, questions).remainingQuestions : eligibleTopicQuestions(questions);
+  return selectRandomPracticeQuestions(progress, qualitySignals, remaining);
 }
 
 function normalizeQuestionText(value) {
@@ -1986,7 +1990,7 @@ function getQuestionTopic(question) {
 
 function getMcqTopicCounts() {
   const counts = new Map(MCQ_TOPIC_CATEGORIES.map(topic => [topic, 0]));
-  QUESTIONS.forEach(question => {
+  eligibleTopicQuestions(QUESTIONS).forEach(question => {
     const topic = getQuestionTopic(question);
     counts.set(topic, (counts.get(topic) || 0) + 1);
     if (
@@ -2391,6 +2395,8 @@ function normalizeCategoryDraft(topic, draft) {
 
 function normalizeCategoryDrafts(drafts) {
   if (!drafts || typeof drafts !== "object" || Array.isArray(drafts)) return {};
+  // The bank is lazy-loaded. Preserve stored drafts until IDs can be validated.
+  if (!QUESTIONS.length) return drafts;
   const normalized = {};
   for (const [topic, draft] of Object.entries(drafts)) {
     const nextDraft = normalizeCategoryDraft(topic, draft);
@@ -2400,7 +2406,19 @@ function normalizeCategoryDrafts(drafts) {
 }
 
 function getCategoryDraft(progress, topic) {
-  return normalizeCategoryDraft(topic, progress?.categoryDrafts?.[topic]);
+  const draft = normalizeCategoryDraft(topic, progress?.categoryDrafts?.[topic]);
+  if (!draft) return null;
+  const cycle = getTopicCycle(progress, topic, getQuestionsForMcqTopic(topic));
+  const remainingIds = new Set(cycle.remainingQuestions.map(question => String(question.id)));
+  const questionIds = draft.questionIds.filter(id => remainingIds.has(String(id)));
+  if (!questionIds.length) return null;
+  const nextId = draft.questionIds.slice(draft.currentIdx).find(id => remainingIds.has(String(id))) || questionIds[0];
+  const removedAnswered = questionIds.length !== draft.questionIds.length;
+  return normalizeCategoryDraft(topic, {
+    ...draft, questionIds, currentIdx: questionIds.indexOf(nextId),
+    lockedQuestionIds: [],
+    sessionStats: removedAnswered ? {} : draft.sessionStats,
+  });
 }
 
 function getCategoryDraftQuestions(draft) {
@@ -2435,8 +2453,13 @@ function saveCategoryDraft(progress, topic, draft) {
   const normalizedDraft = normalizeCategoryDraft(topic, draft);
   if (!normalizedDraft) return progress;
 
+  const cycle = getTopicCycle(progress, topic, getQuestionsForMcqTopic(topic));
   return {
     ...progress,
+    topicCycles: progress.topicCycles?.[topic] ? progress.topicCycles : {
+      ...(progress.topicCycles || {}),
+      [topic]: { round: cycle.round, coveredQuestionIds: cycle.coveredQuestionIds, wrongQuestionIds: cycle.wrongQuestionIds, updatedAt: new Date().toISOString() },
+    },
     categoryDrafts: {
       ...(progress.categoryDrafts || {}),
       [topic]: normalizedDraft,
@@ -3555,7 +3578,7 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
   const topicMastery = useMemo(() => {
     const records = progress?.questions || {};
     const map = new Map();
-    for (const question of QUESTIONS) {
+    for (const question of eligibleTopicQuestions(QUESTIONS)) {
       const topic = getQuestionTopic(question);
       const current = map.get(topic) || { mastered: 0, total: 0 };
       current.total += 1;
@@ -3606,7 +3629,7 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
         <div className="sheet-head-text">
           <span className="sheet-eyebrow">Πολλαπλής Επιλογής</span>
           <h2 aria-hidden="true">Ερωτήσεις ανά Κατηγορία</h2>
-          <span className="sheet-sub">{MCQ_TOPIC_CATEGORIES.length} κατηγορίες</span>
+          <span className="sheet-sub">{MCQ_TOPIC_CATEGORIES.length} κατηγορίες · Η πρόοδος του κύκλου αποθηκεύεται με την καταχώρηση απάντησης.</span>
         </div>
       </div>
 
@@ -3644,6 +3667,8 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
       <div className="items items-plain">
           {filteredAndSortedTopics.map(topic => {
             const count = topicCounts.get(topic) || 0;
+            const cycle = getTopicCycle(progress, topic, getQuestionsForMcqTopic(topic));
+            const coveragePercent = cycle.total ? Math.round(cycle.completed / cycle.total * 100) : 0;
             const mastery = topicMastery.get(topic) || { mastered: 0, total: 0 };
             const percent = mastery.total ? Math.round((mastery.mastered / mastery.total) * 100) : 0;
             const level = mastery.total ? Math.round((mastery.mastered / mastery.total) * 5) : 0;
@@ -3658,15 +3683,15 @@ function McqTopicSelect({ onBack, onHome, onSelectTopic, progress }) {
                 <span className="item-body">
                   <span className="item-title">{topic}</span>
                   <span className="item-meta">
-                    <span>{plural(count, "ερώτηση", "ερωτήσεις")}</span>
+                    <span>{cycle.completed}/{cycle.total} απαντημένες · {cycle.remainingQuestions.length} απομένουν · Κύκλος {cycle.round}{cycle.isComplete ? " · Ολοκληρώθηκε" : ""}</span>
                     <span>{mastery.mastered}/{count} mastered ({percent}%)</span>
                   </span>
                 </span>
                 <span className="item-side">
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                     <ScaleStrip level={level} label={`Πρόοδος: ${topic}`} />
-                    <div className="category-progress-track">
-                      <div className="category-progress-fill" style={{ width: `${percent}%` }} />
+                    <div className="category-progress-track" role="progressbar" aria-label={`Κάλυψη κύκλου: ${topic}`} aria-valuenow={cycle.completed} aria-valuemin={0} aria-valuemax={cycle.total}>
+                      <div className="category-progress-fill" style={{ width: `${coveragePercent}%` }} />
                     </div>
                   </div>
                   <span style={{ color: "var(--ink-3)", display: "flex", marginLeft: 8 }} aria-hidden="true">
@@ -4639,7 +4664,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       ? initialWrittenQuestionsRef.current
       : initialCategoryQuestionsRef.current?.length
         ? initialCategoryQuestionsRef.current
-        : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : (mode === "sprint" ? selectSprintQuestions(progress, sprintSize, qualitySignals) : getSessionQuestions(mode, progress, qualitySignals)))
+        : (Array.isArray(sessionQuestions) && (sessionQuestions.length || mode === "category") ? sessionQuestions : (mode === "sprint" ? selectSprintQuestions(progress, sprintSize, qualitySignals) : getSessionQuestions(mode, progress, qualitySignals)))
   );
   const sessionIdRef = useRef(
     initialWrittenDraftRef.current?.sessionId ||
@@ -4717,7 +4742,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const questionRecord = getQuestionProgress(progress, q?.id);
   const questionStatus = getQuestionStatus(questionRecord);
   const progressStats = summarizeMcqProgress(progress);
-  const wrongSessionQuestions = questions.filter(question => locked[question.id] && answers[question.id] !== undefined && answers[question.id] !== null && answers[question.id] !== question.correct);
+  const categoryCycle = mode === "category" && sessionTitle ? getTopicCycle(progress, sessionTitle, getQuestionsForMcqTopic(sessionTitle)) : null;
+  const categoryAllAnswered = mode === "category" && questions.length > 0 && questions.every(question => locked[question.id]);
+  const wrongSessionQuestions = categoryCycle
+    ? categoryCycle.wrongQuestionIds.map(getQuestionById).filter(Boolean)
+    : questions.filter(question => locked[question.id] && answers[question.id] !== undefined && answers[question.id] !== null && answers[question.id] !== question.correct);
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
@@ -5030,7 +5059,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         streakPosition: nextStreak,
       });
       return categoryDraft && sessionTitle
-        ? saveCategoryDraft(answeredProgress, sessionTitle, categoryDraft)
+        ? saveCategoryDraft(recordTopicCoverage(answeredProgress, sessionTitle, q.id, getQuestionsForMcqTopic(sessionTitle), selectedOverride), sessionTitle, categoryDraft)
         : answeredProgress;
     });
   }, [
@@ -5461,9 +5490,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   const startNewCategory = useCallback(() => {
     if (mode !== "category" || !sessionTitle) return;
-    const nextQuestions = Array.isArray(sessionQuestions) && sessionQuestions.length
-      ? [...sessionQuestions]
-      : selectTopicPracticeQuestions(getQuestionsForMcqTopic(sessionTitle), progress, qualitySignals);
+    const allTopicQuestions = getQuestionsForMcqTopic(sessionTitle);
+    const nextProgress = categoryCycle?.isComplete ? startNextTopicCycle(progress, sessionTitle, allTopicQuestions) : progress;
+    const nextQuestions = selectTopicPracticeQuestions(allTopicQuestions, nextProgress, qualitySignals, sessionTitle);
     const nextSessionId = makeCategorySessionId();
     const nextOptionOrders = createOptionOrders(nextQuestions);
     const nextStartedAt = new Date().toISOString();
@@ -5503,10 +5532,13 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackCommentText("");
     setCategoryDraftChoice("active");
     if (nextDraft) {
-      onProgressChange(prev => saveCategoryDraft(clearCategoryDraft(prev, sessionTitle), sessionTitle, nextDraft));
+      onProgressChange(prev => {
+        const base = categoryCycle?.isComplete ? startNextTopicCycle(prev, sessionTitle, allTopicQuestions) : prev;
+        return saveCategoryDraft(clearCategoryDraft(base, sessionTitle), sessionTitle, nextDraft);
+      });
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [mode, onProgressChange, progress, qualitySignals, sessionQuestions, sessionTitle]);
+  }, [mode, onProgressChange, progress, qualitySignals, sessionTitle, categoryCycle?.isComplete]);
 
   const continueCategory = useCallback(() => {
     setCategoryDraftChoice("active");
@@ -5552,11 +5584,24 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       }))} />;
   }
 
+  if (mode === "category" && categoryCycle?.isComplete && (!q || categoryAllAnswered)) {
+    return <div className="results written-results category-cycle-complete">
+      <h2>{sessionTitle}</h2>
+      <div className="results-label">Ο κύκλος {categoryCycle.round} ολοκληρώθηκε</div>
+      <div className="results-score">{categoryCycle.completed}/{categoryCycle.total}</div>
+      <p>Απάντησες σε όλες τις ερωτήσεις της κατηγορίας. Ο επόμενος κύκλος ξεκινά από την αρχή, με διατήρηση της συνολικής επίδοσης και του mastery.</p>
+      <div className="results-actions">
+        {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})</button>}
+        <button type="button" className="results-btn primary" onClick={startNewCategory}>Έναρξη επόμενου κύκλου</button>
+        <button type="button" className="results-btn" onClick={onBack}>Κατηγορίες</button>
+      </div>
+    </div>;
+  }
+
   if (mode === "category" && categoryDraftChoice === "choice") {
     const draftUpdatedAt = initialCategoryDraftRef.current?.updatedAt
       ? new Date(initialCategoryDraftRef.current.updatedAt).toLocaleString("el-GR")
       : null;
-    const answeredCount = Object.keys(locked).filter(questionId => locked[questionId]).length;
 
     return (
       <div className="test-container">
@@ -5567,18 +5612,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="oral-choice">
           <h2>{sessionTitle || "Ερωτήσεις ανά Κατηγορία"}</h2>
           <p>Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.</p>
+          <p>{categoryCycle.completed}/{categoryCycle.total} απαντημένες · {categoryCycle.remainingQuestions.length} απομένουν · Κύκλος {categoryCycle.round}</p>
           <div className="game-hud">
             <div className="hud-stat">
               <span className="hud-value">{currentIdx + 1}</span>
               <span className="hud-label">Τρέχουσα</span>
             </div>
             <div className="hud-stat">
-              <span className="hud-value">{answeredCount}</span>
-              <span className="hud-label">Απαντημένες</span>
+              <span className="hud-value">{categoryCycle.completed}</span>
+              <span className="hud-label">Απαντημένες στον κύκλο</span>
             </div>
             <div className="hud-stat">
-              <span className="hud-value">{totalQ}</span>
-              <span className="hud-label">Σύνολο</span>
+              <span className="hud-value">{categoryCycle.total}</span>
+              <span className="hud-label">Σύνολο κατηγορίας</span>
             </div>
           </div>
           {draftUpdatedAt && (
@@ -5592,8 +5638,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             <small>Συνέχισε με την ίδια σειρά ερωτήσεων και τις αποθηκευμένες απαντήσεις.</small>
           </button>
           <button className="mode-btn" onClick={startNewCategory}>
-            Νέα αρχή στην κατηγορία
-            <small>Ξεκίνα ξανά από την πρώτη ερώτηση με νέα προσαρμοσμένη σειρά.</small>
+            Νέα σειρά μόνο των μη απαντημένων
+            <small>Η κάλυψη του κύκλου διατηρείται. Ανακάτεψε μόνο τις ερωτήσεις που απομένουν.</small>
           </button>
         </div>
       </div>
@@ -6058,6 +6104,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       </button>
 
       <div className="mcq-main-pane">
+        {categoryCycle && <p className="category-cycle-status" role="status">Κύκλος {categoryCycle.round} · {categoryCycle.completed}/{categoryCycle.total} απαντημένες · {categoryCycle.remainingQuestions.length} απομένουν</p>}
         <div className="mcq-question-header">
           <div className="mcq-q-info">
             <button
@@ -6195,6 +6242,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
         )}
 
+        {mode === "category" && currentIdx === totalQ - 1 && isLocked && !categoryCycle?.isComplete && <button type="button" className="results-btn" onClick={startNewCategory}>Συνέχεια με τις {categoryCycle.remainingQuestions.length} μη απαντημένες</button>}
         {mode !== "written" && wrongSessionQuestions.length > 0 && (
           <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
             <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})
@@ -9667,7 +9715,7 @@ export default function App() {
   }, [sosProgress]);
   const selectedMcqTopicQuestions = useMemo(
     () => selectedMcqTopic
-      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals)
+      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals, selectedMcqTopic)
       : [],
     [selectedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
@@ -10637,7 +10685,7 @@ export default function App() {
         {activeProfile && screen === 'mcq' && historicalSessionId && historyLoadStatus === "error" && <p role="status">Δεν φορτώθηκαν οι παλαιότερες απαντήσεις. Έλεγξε τη σύνδεση και άνοιξε ξανά την προσομοίωση.</p>}
         {activeProfile && questionBankStatus === 'ready' && screen === 'mcq' && (!historicalSessionId || historicalSession) && testMode && testMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
           <McqTest
-            key={`${testMode}:${historicalSessionId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
+            key={`${testMode}:${selectedMcqTopic || historicalSessionId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
             historicalExam={historicalExam}
             mode={testMode}
             progress={mcqProgress}

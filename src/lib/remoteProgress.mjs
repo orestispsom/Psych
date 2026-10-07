@@ -1,3 +1,5 @@
+import { mergeTopicCycles } from "./topicCycles.mjs";
+
 function timestamp(value) {
   const parsed = value ? Date.parse(value) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : 0;
@@ -41,6 +43,9 @@ export function mergeMcqProgressSnapshots(remoteProgress = {}, localProgress = {
     attempts: mergeArraysById(remoteProgress.attempts, localProgress.attempts, 500),
     sprintSessions: mergeArraysById(remoteProgress.sprintSessions, localProgress.sprintSessions, 30),
     writtenExamSessions: mergeArraysById(remoteProgress.writtenExamSessions, localProgress.writtenExamSessions, 30),
+    topicCycles: timestamp(newer.resetAt) && timestamp(newer.resetAt) >= timestamp(older.updatedAt)
+      ? newer.topicCycles || {}
+      : mergeTopicCycles(remoteProgress.topicCycles, localProgress.topicCycles),
     dailyChallenges: {
       ...(remoteProgress.dailyChallenges || {}),
       ...(localProgress.dailyChallenges || {}),

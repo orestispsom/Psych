@@ -179,7 +179,7 @@ describe("golden path smoke tests", () => {
     const categoryAgain = [...container.querySelectorAll(".mcq-select .item")]
       .find(button => button.querySelector(".item-title")?.textContent === topic);
     await user.click(categoryAgain);
-    await user.click(await screen.findByRole("button", { name: /Νέα αρχή στην κατηγορία/i }));
+    await user.click(await screen.findByRole("button", { name: /Νέα σειρά μόνο των μη απαντημένων/i }));
     await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
 
     await waitFor(() => {
