@@ -11,6 +11,7 @@ import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { loadOralNavigationState, saveOralNavigationState } from "./lib/oralNavigationState.js";
+import { recoverWrittenExam } from "./lib/writtenExamHistory.mjs";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
 import { fetchAllPages, mergeOralProgressSnapshots } from "./lib/remoteProgress.mjs";
@@ -1291,7 +1292,7 @@ async function loadRemoteQuestionStates(profileId) {
   }));
 }
 
-async function loadRemoteAttempts(profileId) {
+async function loadRemoteAttempts(profileId, sessionId = null) {
   if (!profileId) return [];
   return supabaseTableRequest("question_attempts", {
     select: [
@@ -1301,6 +1302,7 @@ async function loadRemoteAttempts(profileId) {
       "event_origin", "event_payload",
     ].join(","),
     profile_id: `eq.${profileId}`,
+    ...(sessionId ? { client_session_id: `eq.${sessionId}`, mode: "eq.written" } : {}),
     order: "attempted_at.desc",
     limit: "500",
   });
@@ -3431,11 +3433,16 @@ function AdminOptionsScreen({
   );
 }
 
-function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions }) {
+function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions, onOpenWrittenSession }) {
+  const [showSprintPicker, setShowSprintPicker] = useState(false);
+  const sprintDialogRef = useRef(null);
+  useEffect(() => {
+    if (showSprintPicker) sprintDialogRef.current?.showModal();
+  }, [showSprintPicker]);
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
-    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10 γρήγορες ερωτήσεις ταχείας εξάσκησης' },
+    { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10, 25, 50 ή 100 ερωτήσεις εξάσκησης' },
     { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
     { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: `${MCQ_TOPIC_CATEGORIES.length} θεματικές ενότητες & κεφάλαια` },
     { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
@@ -3480,7 +3487,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             key={mode.id}
             type="button"
             className="mode-tile"
-            onClick={() => onStart(mode.id)}
+            onClick={() => mode.id === "sprint" ? setShowSprintPicker(true) : onStart(mode.id)}
           >
             <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
             <span className="mode-tile-body">
@@ -3492,6 +3499,22 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         ))}
       </div>
 
+      {showSprintPicker && (
+        <dialog ref={sprintDialogRef} className="mini-test-dialog" aria-labelledby="mini-test-title"
+          onCancel={() => setShowSprintPicker(false)} onClose={() => setShowSprintPicker(false)}>
+          <h3 id="mini-test-title">Mini-test</h3>
+          <p>Πόσες ερωτήσεις θέλεις να απαντήσεις;</p>
+          <div className="mini-test-sizes">
+            {[10, 25, 50, 100].map(count => (
+              <button key={count} type="button" className="results-btn" onClick={() => {
+                setShowSprintPicker(false);
+                onStart("sprint", count);
+              }}>{count} ερωτήσεις</button>
+            ))}
+          </div>
+          <button type="button" className="btn btn-quiet" onClick={() => setShowSprintPicker(false)}>Άκυρο</button>
+        </dialog>
+      )}
       {recentWrittenExamSessions.length > 0 && (
         <div className="written-history">
           <div className="subscale">
@@ -3503,14 +3526,16 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             {recentWrittenExamSessions.map(session => {
               const gradeClass = getPercentageColorClass(session.scorePercent);
               return (
-                <div className="written-history-row" key={session.id}>
+                <button type="button" className="written-history-row" key={session.id}
+                  onClick={() => onOpenWrittenSession(session.id)}
+                  title="Προβολή αποτελεσμάτων και ανασκόπηση απαντήσεων">
                   <span className="written-history-date">
                     {new Date(session.completedAt).toLocaleDateString("el-GR")}
                   </span>
                   <strong className={`written-history-score ${gradeClass}`}>
-                    {session.correct}/{session.total}
+                    {session.correct}/{session.total} <Icons.ChevronRight />
                   </strong>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -4576,17 +4601,21 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   );
 }
 
-function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true }) {
-  const initialWrittenDraftRef = useRef(mode === "written" ? getWrittenExamDraft(progress) : null);
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, historicalExam = null }) {
+  const initialHistoryRef = useRef(historicalExam);
+  const sprintSizeRef = useRef(sprintSize);
+  const initialWrittenDraftRef = useRef(mode === "written" && !historicalExam ? getWrittenExamDraft(progress) : null);
   const initialWrittenQuestionsRef = useRef(initialWrittenDraftRef.current ? getWrittenExamDraftQuestions(initialWrittenDraftRef.current) : null);
   const initialCategoryDraftRef = useRef(mode === "category" && sessionTitle ? getCategoryDraft(progress, sessionTitle) : null);
   const initialCategoryQuestionsRef = useRef(initialCategoryDraftRef.current ? getCategoryDraftQuestions(initialCategoryDraftRef.current) : null);
   const initialSessionQuestionsRef = useRef(
-    initialWrittenQuestionsRef.current?.length
+    historicalExam
+      ? historicalExam.result.items.map(item => item.question)
+      : initialWrittenQuestionsRef.current?.length
       ? initialWrittenQuestionsRef.current
       : initialCategoryQuestionsRef.current?.length
         ? initialCategoryQuestionsRef.current
-        : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : getSessionQuestions(mode, progress, qualitySignals))
+        : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : (mode === "sprint" ? selectSprintQuestions(progress, sprintSize, qualitySignals) : getSessionQuestions(mode, progress, qualitySignals)))
   );
   const sessionIdRef = useRef(
     initialWrittenDraftRef.current?.sessionId ||
@@ -4602,7 +4631,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [questions, setQuestions] = useState(() => initialSessionQuestionsRef.current);
   const [optionOrders, setOptionOrders] = useState(() => createOptionOrders(
     initialSessionQuestionsRef.current,
-    initialWrittenDraftRef.current?.optionOrders || initialCategoryDraftRef.current?.optionOrders || {}
+    historicalExam?.optionOrders || initialWrittenDraftRef.current?.optionOrders || initialCategoryDraftRef.current?.optionOrders || {}
   ));
   const [currentIdx, setCurrentIdx] = useState(() =>
     initialWrittenDraftRef.current?.currentIdx ?? initialCategoryDraftRef.current?.currentIdx ?? 0
@@ -4614,7 +4643,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     (initialCategoryDraftRef.current?.lockedQuestionIds || []).map(questionId => [String(questionId), true])
   ));
   const [lastBreakdown, setLastBreakdown] = useState(null);
-  const [writtenResult, setWrittenResult] = useState(null);
+  const [writtenResult, setWrittenResult] = useState(() => historicalExam?.result || null);
   const [reviewWrittenWrong, setReviewWrittenWrong] = useState(false);
   const [reviewWrittenAll, setReviewWrittenAll] = useState(false);
   const [writtenReviewIndex, setWrittenReviewIndex] = useState(0);
@@ -4635,6 +4664,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [practiceWrittenWrongActive, setPracticeWrittenWrongActive] = useState(false);
   const [showPracticeWrongCompleteModal, setShowPracticeWrongCompleteModal] = useState(false);
   const savedWrittenResultRef = useRef(null);
+  const savedWrittenOrdersRef = useRef(null);
   const [feedbackMenuOpen, setFeedbackMenuOpen] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [feedbackSavingType, setFeedbackSavingType] = useState(null);
@@ -4684,6 +4714,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     if (!writtenResult?.wrongItems?.length) return;
     const wrongQuestions = writtenResult.wrongItems.map(item => item.question);
     savedWrittenResultRef.current = writtenResult;
+    savedWrittenOrdersRef.current = optionOrders;
     sessionIdRef.current = `written-wrong-${Date.now()}`;
     questionViewEffectKeyRef.current = null;
     setQuestions(wrongQuestions);
@@ -4701,11 +4732,15 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setShowPracticeWrongCompleteModal(false);
     setSessionStats({ correct: 0, incorrect: 0, total: 0, currentStreak: 0, maxStreak: 0, points: 0 });
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [writtenResult]);
+  }, [writtenResult, optionOrders]);
 
   const exitPracticeWrittenWrong = useCallback(() => {
     if (savedWrittenResultRef.current) {
-      setWrittenResult(savedWrittenResultRef.current);
+      const result = savedWrittenResultRef.current;
+      setWrittenResult(result);
+      setQuestions(result.items.map(item => item.question));
+      setAnswers(Object.fromEntries(result.items.filter(item => !item.isUnanswered).map(item => [item.question.id, item.selected])));
+      setOptionOrders(savedWrittenOrdersRef.current || {});
     }
     setPracticeWrittenWrongActive(false);
     setShowPracticeWrongCompleteModal(false);
@@ -4830,7 +4865,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   };
 
   useEffect(() => {
-    if (!q?.id) return;
+    if (!q?.id || writtenResult) return;
     if (mode === "written" && writtenDraftChoice === "choice") return;
     if (mode === "category" && categoryDraftChoice === "choice") return;
     const viewEffectKey = `${mode}:${q.id}:${writtenDraftChoice}:${categoryDraftChoice}`;
@@ -4842,7 +4877,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackStatus(null);
     setFeedbackCommentOpen(false);
     setFeedbackCommentText("");
-    if (mode === "written") {
+    if (mode === "written" && !practiceWrittenWrongActive) {
       writtenViewedQuestionIdsRef.current.add(String(q.id));
       const draft = buildCurrentWrittenDraft({
         currentIdx,
@@ -4864,6 +4899,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [
     q?.id,
     mode,
+    writtenResult,
+    practiceWrittenWrongActive,
     writtenDraftChoice,
     categoryDraftChoice,
     buildCurrentWrittenDraft,
@@ -5318,6 +5355,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         unanswered: result.unanswered,
         scorePercent: result.scorePercent,
         performanceLabel: result.performance.label,
+        result,
+        optionOrders,
       };
 
       setShowWrittenSubmitWarning(false);
@@ -5343,9 +5382,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       setWrittenSubmitError("Δεν μπόρεσε να ολοκληρωθεί η υποβολή. Δοκιμάστε ξανά.");
       setShowWrittenSubmitWarning(false);
     }
-  }, [answers, mode, onProgressChange, progress, questions, writtenResult]);
+  }, [answers, mode, onProgressChange, optionOrders, progress, questions, writtenResult]);
 
   const startNewWrittenExam = useCallback(() => {
+    initialHistoryRef.current = null;
     const nextQuestions = getSessionQuestions("written", progress, qualitySignals);
     const nextSessionId = makeWrittenExamSessionId();
     const nextOptionOrders = createOptionOrders(nextQuestions);
@@ -5453,7 +5493,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   const startNewSprint = () => {
     const nextSessionId = `sprint-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    const nextQuestions = getSessionQuestions("sprint", progress, qualitySignals);
+    const nextQuestions = selectSprintQuestions(progress, sprintSizeRef.current, qualitySignals);
     sessionIdRef.current = nextSessionId;
     startedAtRef.current = Date.now();
     questionViewEffectKeyRef.current = null;
@@ -5838,7 +5878,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 <div className={`results-score ${getPercentageColorClass(writtenResult.scorePercent)}`}>
           {writtenResult.scorePercent}%
         </div>
+        {initialHistoryRef.current && <p className="sheet-eyebrow">Προσομοίωση · {new Date(initialHistoryRef.current.completedAt).toLocaleString("el-GR")}</p>}
         <div className="results-label">{writtenResult.performance.label}</div>
+        {writtenResult.reviewUnavailable && <p role="status">Οι αναλυτικές απαντήσεις αυτής της παλαιότερης προσομοίωσης δεν είναι πλέον διαθέσιμες. Διατηρείται το αποθηκευμένο σκορ.</p>}
+        {initialHistoryRef.current?.legacy && !writtenResult.reviewUnavailable && <p className="sheet-sub">Απαντήσεις από το ιστορικό προσπαθειών. Το κείμενο και η σειρά επιλογών ακολουθούν την τρέχουσα τράπεζα ερωτήσεων.</p>}
         <div className="results-detail">
           {writtenResult.correct}/{writtenResult.total} correct, {writtenResult.wrong} wrong
           {writtenResult.unanswered > 0 ? `, ${writtenResult.unanswered} unanswered` : ""}
@@ -5912,6 +5955,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           ) : null}
           <button
             className={`results-btn ${!writtenResult.wrongItems?.length ? "primary" : ""}`}
+            disabled={writtenResult.reviewUnavailable}
             onClick={() => {
               setWrittenReviewIndex(0);
               setReviewWrittenAll(true);
@@ -6401,7 +6445,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
                 className="results-btn primary"
                 onClick={startNewSprint}
               >
-                <Icons.Bolt /> Επόμενο Mini-Test (Νέες 10)
+                <Icons.Bolt /> Επόμενο Mini-test ({sprintSizeRef.current} ερωτήσεις)
               </button>
               <button
                 type="button"
@@ -9467,6 +9511,10 @@ export default function App() {
   const screen = route.screen;
   const testMode = route.testMode || null;
   const selectedMcqTopic = route.mcqTopic || null;
+  const routeParams = new URLSearchParams(location.search);
+  const requestedSprintSize = Number(routeParams.get("count"));
+  const sprintSize = [10, 25, 50, 100].includes(requestedSprintSize) ? requestedSprintSize : SPRINT_SESSION_SIZE;
+  const historicalSessionId = testMode === "written" ? routeParams.get("review") : null;
 
   useEffect(() => {
     document.getElementById("main-content")?.focus({ preventScroll: true });
@@ -9489,6 +9537,9 @@ export default function App() {
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
   const [mcqFeatureLoadError, setMcqFeatureLoadError] = useState(null);
+  const [historicalAttempts, setHistoricalAttempts] = useState({});
+  const [historyLoadStatus, setHistoryLoadStatus] = useState(null);
+  const [activeSprintSize, setActiveSprintSize] = useState(sprintSize);
   const [activeSprintSessionKey, setActiveSprintSessionKey] = useState(null);
   const suppressSprintAutoStartRef = useRef(false);
   const [sosStudyData, setSosStudyData] = useState(null);
@@ -9595,15 +9646,16 @@ export default function App() {
   useEffect(() => {
     if (screen === "mcq" && testMode === "sprint" && !activeSprintSessionKey) {
       if (suppressSprintAutoStartRef.current) return;
+      setActiveSprintSize(sprintSize);
       setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
       return;
     }
     if (screen === "mcq" && !testMode && activeSprintSessionKey) {
-      navigate(pathForMcqMode("sprint"), { replace: true });
+      navigate(`${pathForMcqMode("sprint")}?count=${activeSprintSize}`, { replace: true });
       return;
     }
     if (screen === "mcq" && !testMode) suppressSprintAutoStartRef.current = false;
-  }, [activeSprintSessionKey, navigate, screen, testMode]);
+  }, [activeSprintSessionKey, activeSprintSize, navigate, screen, sprintSize, testMode]);
 
   // ─── Shell: theme, global search, shortcut sheet ───
   const { theme, toggleTheme } = useTheme(activeProfile?.themePreference, handleThemePreferenceChange);
@@ -10325,14 +10377,44 @@ export default function App() {
     setProfileStore(prev => ({ ...prev, activeProfileId: null }));
   }, [setScreen]);
 
-  const startMcqMode = useCallback((mode) => {
+  const startMcqMode = useCallback((mode, count = SPRINT_SESSION_SIZE) => {
     if (mode !== "category") setSelectedMcqTopic(null);
     if (mode === "sprint") {
+      setActiveSprintSize(count);
       suppressSprintAutoStartRef.current = false;
       setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
     }
-    setTestMode(mode);
-  }, [setSelectedMcqTopic, setTestMode]);
+    navigate(pathForMcqMode(mode) + (mode === "sprint" ? `?count=${count}` : ""));
+  }, [navigate, setSelectedMcqTopic]);
+
+  const historicalSession = historicalSessionId
+    ? getWrittenExamSessions(mcqProgress).find(session => session.id === historicalSessionId)
+    : null;
+  const historicalExam = historicalSession ? {
+    ...recoverWrittenExam(historicalSession, [...(mcqProgress.attempts || []), ...(historicalAttempts[`${activeProfile?.id}:${historicalSessionId}`] || [])], getQuestionById, getWrittenExamResult, mcqProgress),
+    completedAt: historicalSession.completedAt,
+  } : null;
+  if (historicalExam && !historicalExam.result) {
+    historicalExam.result = {
+      ...historicalSession,
+      performance: getWrittenPerformanceCategory(historicalSession.scorePercent),
+      items: [], wrongItems: [], reviewUnavailable: true,
+    };
+  }
+
+  useEffect(() => {
+    if (!historicalSession || historicalExam?.result?.reviewUnavailable !== true || !ONLINE_PROFILES_ENABLED) return;
+    const cacheKey = `${activeProfile.id}:${historicalSessionId}`;
+    if (historicalAttempts[cacheKey]) return;
+    let cancelled = false;
+    setHistoryLoadStatus("loading");
+    loadRemoteAttempts(activeProfile.id, historicalSessionId).then(rows => {
+      if (cancelled) return;
+      setHistoricalAttempts(prev => ({ ...prev, [cacheKey]: mergeAttemptRows([], rows) }));
+      setHistoryLoadStatus(null);
+    }).catch(() => { if (!cancelled) setHistoryLoadStatus("error"); });
+    return () => { cancelled = true; };
+  }, [activeProfile?.id, historicalSessionId, historicalSession, historicalAttempts, historicalExam?.result?.reviewUnavailable]);
 
   if (!activeProfile) {
     return (
@@ -10457,6 +10539,7 @@ export default function App() {
             onHome={() => setScreen('home')}
             progressSummary={mcqProgressSummary}
             writtenExamSessions={getWrittenExamSessions(mcqProgress)}
+            onOpenWrittenSession={id => navigate(`${pathForMcqMode("written")}?review=${encodeURIComponent(id)}`)}
           />
         )}
         {activeProfile && screen === 'mcq' && questionBankStatus === 'ready' && testMode === 'category' && !selectedMcqTopic && (
@@ -10506,8 +10589,13 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode && testMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
+        {activeProfile && screen === 'mcq' && historicalSessionId && !historicalSession && <p role="status">Η αποθηκευμένη προσομοίωση δεν βρέθηκε σε αυτό το προφίλ. <button type="button" className="results-btn" onClick={() => setTestMode(null)}>Μενού MCQ</button></p>}
+        {activeProfile && screen === 'mcq' && historicalSessionId && historyLoadStatus === "loading" && <p role="status">Φόρτωση αποθηκευμένων απαντήσεων…</p>}
+        {activeProfile && screen === 'mcq' && historicalSessionId && historyLoadStatus === "error" && <p role="status">Δεν φορτώθηκαν οι παλαιότερες απαντήσεις. Έλεγξε τη σύνδεση και άνοιξε ξανά την προσομοίωση.</p>}
+        {activeProfile && questionBankStatus === 'ready' && screen === 'mcq' && (!historicalSessionId || historicalSession) && testMode && testMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
           <McqTest
+            key={`${testMode}:${historicalSessionId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
+            historicalExam={historicalExam}
             mode={testMode}
             progress={mcqProgress}
             qualitySignals={mcqQualitySignals}
@@ -10533,6 +10621,7 @@ export default function App() {
             <McqTest
               key={activeSprintSessionKey}
               mode="sprint"
+              sprintSize={activeSprintSize}
               progress={mcqProgress}
               qualitySignals={mcqQualitySignals}
               onProgressChange={updateMcqProgress}
