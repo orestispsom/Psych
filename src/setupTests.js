@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 
+if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = function () {};
+
 // This jsdom/Node combination doesn't wire up window.localStorage by
 // default (Node's own experimental localStorage needs a --localstorage-file
 // flag jsdom doesn't pass through). The app relies on localStorage for all
@@ -31,4 +33,13 @@ if (typeof window !== "undefined" && !window.localStorage) {
     value: new MemoryStorage(),
     writable: true,
   });
+}
+
+// jsdom does not implement the native dialog top layer.
+if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
+  HTMLDialogElement.prototype.close = function () {
+    this.removeAttribute("open");
+    this.dispatchEvent(new Event("close"));
+  };
 }

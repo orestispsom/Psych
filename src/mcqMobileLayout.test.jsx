@@ -50,6 +50,7 @@ describe("Mobile MCQ single-screen experience", () => {
 
     // Start Mini-test
     await user.click(sprintBtn);
+    await user.click(screen.getByRole("button", { name: "10 ερωτήσεις", exact: true }));
 
     // Wait for the test container to render
     await waitFor(() => {
@@ -111,6 +112,7 @@ describe("Mobile MCQ single-screen experience", () => {
 
     await user.click(home.getByText("Πολλαπλής Επιλογής"));
     await user.click(await screen.findByText("Mini-test", {}, { timeout: 10000 }));
+    await user.click(screen.getByRole("button", { name: "25 ερωτήσεις", exact: true }));
 
     const originalStem = await waitFor(() => {
       const stem = container.querySelector(".question-stem");

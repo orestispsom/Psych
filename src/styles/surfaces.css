@@ -1396,7 +1396,31 @@
   padding: 5px 0;
   border-bottom: 1px solid var(--rule);
   break-inside: avoid;
+  width: 100%;
+  color: var(--ink);
+  background: transparent;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
 }
+.written-history-row:hover { background: var(--raised); }
+.written-history-score { display: inline-flex; align-items: center; gap: var(--s2); }
+.written-history-score svg { width: 14px; height: 14px; }
+.mini-test-dialog {
+  margin: auto;
+  width: min(420px, calc(100% - 32px));
+  padding: var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: var(--s2);
+  color: var(--ink);
+  background: var(--field);
+}
+.mini-test-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.mini-test-dialog p { margin: var(--s3) 0; color: var(--ink-2); }
+.mini-test-sizes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-bottom: var(--s3); }
 .written-history-score {
   font-family: var(--code); font-size: var(--t-meta); font-weight: 700;
   font-variant-numeric: tabular-nums;
