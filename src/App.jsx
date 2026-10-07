@@ -6,6 +6,7 @@ import AppShell from "./components/AppShell.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
+import WrongAnswerPractice from "./components/WrongAnswerPractice.jsx";
 import SupportWidget from "./components/SupportWidget.jsx";
 import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
@@ -3783,6 +3784,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
   const [result, setResult] = useState(null);
+  const [retryQuestions, setRetryQuestions] = useState(null);
   const [reviewWrong, setReviewWrong] = useState(false);
   const optionOrders = useMemo(() => createOptionOrders(questions), [questions]);
 
@@ -3843,7 +3845,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
 
   useWindowKeydown(event => {
     if (event.ctrlKey || event.metaKey || event.altKey || isShortcutIgnoredTarget(event.target)) return;
-    if (result || reviewWrong || !question) return;
+    if (retryQuestions || result || reviewWrong || !question) return;
 
     if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !isLocked) {
       const order = getStoredOptionOrder(question, optionOrders);
@@ -3932,8 +3934,13 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
         setCurrentIdx(index => index - 1);
       }
     },
-    enabled: Boolean(question && !result && !reviewWrong),
+    enabled: Boolean(question && !retryQuestions && !result && !reviewWrong),
   });
+
+  const startWrongPractice = () => setRetryQuestions(wrongRows.map(row => ({
+    ...row.question, correct: normalizeDSM5CorrectIndex(row.question),
+  })));
+  if (retryQuestions) return <WrongAnswerPractice questions={retryQuestions} title={`DSM5 · ${sessionLabel}`} onBack={() => setRetryQuestions(null)} />;
 
   if (reviewWrong) {
     return (
@@ -4012,6 +4019,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
         <span>{answeredCount} απαντημένες</span>
         <span>{plural(correctCount, "σωστή", "σωστές")}</span>
         <span>{plural(Math.max(0, answeredCount - correctCount), "λάθος", "λάθη")}</span>
+        {wrongRows.length > 0 && <button type="button" className="results-btn" onClick={startWrongPractice}>Εξάσκηση μόνο των λαθών ({wrongRows.length})</button>}
       </div>
       {renderQuestion()}
       <div className="structured-actions DSM5-nav-row">
@@ -4036,6 +4044,7 @@ function DSM5McqMode({ onBack, onHome, chapters: dsm5trSelfExamChapters, questio
               <span>{plural(result.wrong, "λάθος", "λάθη")}</span>
             </div>
             <div className="modal-actions">
+              {wrongRows.length > 0 && <button type="button" className="results-btn primary" onClick={startWrongPractice}>Εξάσκηση μόνο των λαθών ({wrongRows.length})</button>}
               <button className="results-btn" autoFocus onClick={() => setReviewWrong(true)}>Επανάληψη λανθασμένων απαντήσεων</button>
               <button className="results-btn primary" onClick={backToDSM5Home}>Μενού DSM5</button>
             </div>
@@ -4061,6 +4070,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
   const [chosen, setChosen] = useState({});
+  const [retryQuestions, setRetryQuestions] = useState(null);
   const [result, setResult] = useState(null);
   const [reviewIdx, setReviewIdx] = useState(null);
   const [showVignette, setShowVignette] = useState(false);
@@ -4153,6 +4163,9 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
     setReviewIdx(null);
     setShowVignette(false);
   };
+
+  const wrongVignetteQuestions = vignette.questions.filter(item => locked[item.id] && !sameSelection(answers[item.id] || [], item.correct));
+  if (retryQuestions) return <WrongAnswerPractice questions={retryQuestions} title={vignetteLabel} context={vignette.vignette} onBack={() => setRetryQuestions(null)} />;
 
   if (!selectedVignetteId) {
     return (
@@ -4303,6 +4316,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
           </div>
         </div>
         <div className="results-actions">
+          {result.wrong > 0 && <button type="button" className="results-btn primary" onClick={() => setRetryQuestions(result.rows.filter(row => row.answered && !row.correct).map(row => row.question))}>Εξάσκηση μόνο των λαθών ({result.wrong})</button>}
           <button className="results-btn primary" onClick={() => setReviewIdx(0)}>
             Review questions
           </button>
@@ -4349,6 +4363,7 @@ function McqVignetteMode({ progress, onProgressChange, onBack, onHome, vignettes
         </button>
       </div>
 
+      {wrongVignetteQuestions.length > 0 && <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongVignetteQuestions)}>Εξάσκηση μόνο των λαθών ({wrongVignetteQuestions.length})</button>}
       <div className="vignette-split-grid">
         <div className="structured-card vignette-case-pane">
           <div className="structured-top">
@@ -4429,6 +4444,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   const displayChoices = useMemo(() => shuffleItems(matchingSet?.choices || []), [matchingSet?.id]);
   const [showSetMenu, setShowSetMenu] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [retryQuestions, setRetryQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
   const [locked, setLocked] = useState({});
   const item = matchingSet?.items?.[currentIdx];
@@ -4465,6 +4481,13 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
       [item.id]: toggleSelection(prev[item.id] || [], choiceId, allowMultiple),
     }));
   };
+
+  const wrongMatchingItems = (matchingSet?.items || []).filter(item => locked[item.id] && !sameSelection(answers[item.id] || [], item.correct));
+  const startWrongPractice = () => setRetryQuestions(wrongMatchingItems.map(item => ({
+    ...item, stem: item.prompt, options: matchingSet.choices.map(choice => choice.label),
+    correct: item.correct.map(id => matchingSet.choices.findIndex(choice => choice.id === id)),
+  })));
+  if (retryQuestions) return <WrongAnswerPractice questions={retryQuestions} title={matchingSet.title} context={matchingSet.instructions} onBack={() => setRetryQuestions(null)} />;
 
   if (!availableSets.length) {
     return (
@@ -4561,6 +4584,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
         </div>
         <p className="structured-instruction">{matchingSet.instructions}</p>
       </div>
+      {wrongMatchingItems.length > 0 && <button type="button" className="results-btn" onClick={startWrongPractice}>Εξάσκηση μόνο των λαθών ({wrongMatchingItems.length})</button>}
       <div className="sticky-choices">
         {renderChoices(true)}
       </div>
@@ -4660,6 +4684,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [showMobileSimTray, setShowMobileSimTray] = useState(false);
   const [simSeconds, setSimSeconds] = useState(0);
   const [showSimTimer, setShowSimTimer] = useState(true);
+  const [retryQuestions, setRetryQuestions] = useState(null);
   const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
   const [practiceWrittenWrongActive, setPracticeWrittenWrongActive] = useState(false);
   const [showPracticeWrongCompleteModal, setShowPracticeWrongCompleteModal] = useState(false);
@@ -4692,6 +4717,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const questionRecord = getQuestionProgress(progress, q?.id);
   const questionStatus = getQuestionStatus(questionRecord);
   const progressStats = summarizeMcqProgress(progress);
+  const wrongSessionQuestions = questions.filter(question => locked[question.id] && answers[question.id] !== undefined && answers[question.id] !== null && answers[question.id] !== question.correct);
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
@@ -5047,7 +5073,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   // 1–5 and Up/Down pick an option; Enter/Space submit, then advance.
   useWindowKeydown(event => {
     {
-      if (!isActive) return;
+      if (!isActive || retryQuestions) return;
       if (mode === "category" && categoryDraftChoice === "choice") return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
@@ -5130,7 +5156,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const mcqSwipe = useSwipeGesture({
     onSwipeLeft: handleMcqSwipeLeft,
     onSwipeRight: handleMcqSwipeRight,
-    enabled: (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
+    enabled: !retryQuestions && (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
   });
 
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
@@ -5517,6 +5543,14 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (retryQuestions) {
+    return <WrongAnswerPractice questions={retryQuestions.map(question => ({ ...question, stem: getMcqStem(question) }))} title={modeTitle} isActive={isActive}
+      onBack={() => setRetryQuestions(null)}
+      onAnswer={(question, answer, metadata) => onProgressChange(previous => recordQuestionAnswer(previous, question, answer, {
+        ...metadata, mode: "weakness", confidence: 3, pointsAwarded: 0,
+      }))} />;
+  }
 
   if (mode === "category" && categoryDraftChoice === "choice") {
     const draftUpdatedAt = initialCategoryDraftRef.current?.updatedAt
@@ -6161,6 +6195,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
         )}
 
+        {mode !== "written" && wrongSessionQuestions.length > 0 && (
+          <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
+            <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})
+          </button>
+        )}
         {mode === "written" && !practiceWrittenWrongActive ? (
           <div className="nav-bar actionbar">
             <button className="nav-btn" onClick={() => goToWrittenIndex(prevIdx)} disabled={prevIdx < 0} aria-label="Προηγούμενη ερώτηση">
@@ -6440,6 +6479,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               {sessionStats.maxStreak > 1 && ` · Μέγιστο σερί: ${sessionStats.maxStreak}`}
             </p>
             <div className="modal-actions" style={{ width: "100%", marginTop: "var(--s2)" }}>
+              {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn primary"
+                onClick={() => setRetryQuestions(wrongSessionQuestions)}>
+                <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})
+              </button>}
               <button
                 type="button"
                 className="results-btn primary"
