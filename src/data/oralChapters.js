@@ -1,3 +1,5 @@
+import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
+
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [
   'Σημεία και συμπτώματα των ψυχιατρικών διαταραχών',
@@ -50,5 +52,6 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     })))));
   return [...history, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
-    .map(q => ({ ...q, chapter: chapterForQuestion(q.id) }));
+    .filter(q => !Object.hasOwn(oralRetirements, q.id))
+    .map(q => ({ ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [] }));
 }

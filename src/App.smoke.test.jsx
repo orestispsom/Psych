@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router";
 import App from "./App";
+import { loadStudyPosition, saveStudyPosition } from "./lib/studyPosition";
 
 const PROFILE_STORAGE_KEY = "psychiatry-study-profiles-v1";
 
@@ -150,6 +151,37 @@ describe("golden path smoke tests", () => {
     expect(workspace.queryByRole("navigation", { name: "Κεφάλαια προφορικών" })).not.toBeInTheDocument();
     await user.click(workspace.getByRole("button", { name: "Περιεχόμενα" }));
     expect(workspace.getByRole("navigation", { name: "Κεφάλαια προφορικών" })).toBeInTheDocument();
+  });
+
+  it('resumes a retired saved question at its replacement without losing historical checks', async () => {
+    const user = userEvent.setup();
+    const first = renderApp();
+    await createProfile(user, 'ΑπόσυρσηΠροφορικών', first.container);
+    first.unmount();
+    const store = readProfileStore();
+    const profile = Object.values(store.profiles)[0];
+    profile.oralProgress.mastered['2Ag2'] = true;
+    window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(store));
+    saveStudyPosition(profile.id, { path: '/oral/chapters/25/questions/2Ag2', title: 'Παλιό θέμα', section: 'Προφορικά' });
+    renderApp();
+    await user.click(await screen.findByRole('button', { name: /Συνέχεια:.*Παλιό θέμα/ }));
+    expect(await screen.findByRole('heading', { name: /Πώς συγκρίνονται τα SSRI μεταξύ τους/ })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/oral/chapters/25/questions/2Ag1');
+    expect(screen.getByRole('button', { name: 'Ολοκληρώθηκε' })).toHaveAttribute('aria-pressed', 'false');
+    expect(readProfileStore().profiles[profile.id].oralProgress.mastered['2Ag2']).toBe(true);
+    expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/25/questions/2Ag1');
+    expect(screen.getByText(/Η μεγαλύτερη εκλεκτικότητα δεν σημαίνει/)).toBeInTheDocument();
+  });
+  it('redirects a legacy query bookmark for a retired challenge across chapters', async () => {
+    const user = userEvent.setup();
+    const first = renderApp();
+    await createProfile(user, 'ΠαλιόςΣύνδεσμος', first.container);
+    first.unmount();
+    window.history.pushState({}, '', '/oral?chapter=3&question=oral_challenge_007');
+    renderApp();
+    expect(await screen.findByRole('heading', { name: 'Πώς εκτιμάτε αν ένας ασθενής μπορεί να δώσει έγκυρη ενημερωμένη συναίνεση;' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/oral/chapters/4/questions/Q8');
+    expect(window.location.search).toBe('');
   });
 
   it("Πινακάκια is reachable immediately, without waiting on the MCQ question bank", async () => {
