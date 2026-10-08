@@ -103,6 +103,11 @@ export function parseAppPath(pathname) {
     return { valid: false, screen: "pinakakia", tableScreen: "sources" };
   }
 
+  // Retain old bookmarks while sending every oral entry to the unified workspace.
+  if (segments[0] === "oral" && Object.values(SCREEN_PATHS).includes(path)) {
+    return { valid: true, screen: "oral", testMode: null };
+  }
+
   const screen = Object.entries(SCREEN_PATHS).find(([, routePath]) => routePath === path)?.[0];
   return screen
     ? { valid: true, screen, testMode: null }

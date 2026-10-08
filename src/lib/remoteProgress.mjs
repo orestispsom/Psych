@@ -62,8 +62,8 @@ export function mergeOralProgressSnapshots(remoteProgress = {}, localProgress = 
     ...newer,
     version: 1,
     mastered: {
-      ...(remoteProgress.mastered || {}),
-      ...(localProgress.mastered || {}),
+      ...(older.mastered || {}),
+      ...(newer.mastered || {}),
     },
     updatedAt: newer.updatedAt || older.updatedAt || null,
   };

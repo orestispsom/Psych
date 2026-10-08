@@ -96,19 +96,55 @@ describe("golden path smoke tests", () => {
     expect(await screen.findByText("Κρίσιμα Θέματα")).toBeInTheDocument();
   });
 
-  it("shows 100 Κρίσιμα Θέματα to a regular non-admin profile", async () => {
+  it("unifies oral sources by Greek chapters and preserves completion across reloads", async () => {
+    const user = userEvent.setup();
+    const { container, unmount } = renderApp();
+    const home = await createProfile(user, "ΔοκιμαστικόςOral", container);
+    await user.click(home.getByText("Προφορικά"));
+    expect(await screen.findByText(/26 κεφάλαια/)).toBeInTheDocument();
+    const chapters = screen.getByRole("navigation", { name: "Κεφάλαια προφορικών" });
+    expect(within(chapters).getAllByRole("button")).toHaveLength(27);
+    await user.click(within(chapters).getByRole("button", { name: /03\s*Αξιολόγηση/ }));
+    await user.selectOptions(screen.getByLabelText("Πηγή"), "crucial");
+    const question = await screen.findByRole("button", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ });
+    await user.click(question);
+    await user.click(screen.getByRole("button", { name: "Εμφάνιση απάντησης" }));
+    expect(screen.getByRole("heading", { name: "Πρότυπη προφορική απάντηση" })).toBeInTheDocument();
+    const check = screen.getByRole("button", { name: "Ολοκληρώθηκε" });
+    await user.click(check);
+    await waitFor(() => expect(Object.values(readProfileStore().profiles)[0].oralProgress.mastered.Q1).toBe(true));
+    const path = window.location.search;
+    unmount(); renderApp();
+    expect(window.location.search).toBe(path);
+    expect(await screen.findByRole("button", { name: "Ολοκληρώθηκε" })).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: "Ολοκληρώθηκε" }));
+    await waitFor(() => expect(Object.values(readProfileStore().profiles)[0].oralProgress.mastered.Q1).toBe(false));
+    await user.click(screen.getByRole("button", { name: /Αλλαγή προφίλ. Τρέχον/ }));
+    const profile = await screen.findByRole("button", { name: /ΔοκιμαστικόςOral.*MCQs απαντημένα/ });
+    expect(profile.textContent).toMatch(/0 MCQs απαντημένα.*0 για επανάληψη.*0 mastered/);
+    expect(profile.textContent).not.toContain("Προφορικά");
+  });
+
+  it("runs the selected oral chapter exam and records checked answers", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();
-    const home = await createProfile(user, "ΔοκιμαστικόςOral", container);
-
+    const home = await createProfile(user, "ΠροφορικήΕξέταση", container);
     await user.click(home.getByText("Προφορικά"));
-
-    const crucialQuestions = await screen.findByRole("button", { name: /100 Κρίσιμα Θέματα/i });
-    expect(crucialQuestions).toBeInTheDocument();
-
-    await user.click(crucialQuestions);
-    expect(await screen.findByRole("heading", { name: "100 Κρίσιμα Θέματα" })).toBeInTheDocument();
-  });
+    await user.click(await screen.findByRole("button", { name: /03\s*Αξιολόγηση/ }));
+    await user.click(screen.getByRole("button", { name: "Προφορική εξέταση", exact: true }));
+    await user.click(screen.getByRole("button", { name: "Έναρξη Εξέτασης" }));
+    expect(screen.getByText(/Ασθενής στα ΤΕΠ είναι έντονα διεγερτικός/)).toBeInTheDocument();
+    for (let i = 0; i < 6; i += 1) {
+      await user.click(screen.getByRole("button", { name: "Εμφάνιση ενδεικτικής απάντησης" }));
+      await user.click(screen.getByRole("button", { name: "Επαρκώς", exact: true }));
+      await user.click(screen.getByRole("button", { name: i === 5 ? "Τέλος Εξέτασης" : "Επόμενη Ερώτηση", exact: false }));
+    }
+    expect(container.querySelector(".oral-simulator .scale-strip")).toBeNull();
+    const checks = screen.getAllByRole("button", { name: /^Ολοκληρώθηκε:/ });
+    expect(checks).toHaveLength(6);
+    await user.click(screen.getByRole("button", { name: /Καταχώρηση.*με ✓/ }));
+    await waitFor(() => expect(Object.values(readProfileStore().profiles)[0].oralProgress.mastered.oral_core_016).toBe(true));
+  }, 15000);
 
   it("Πινακάκια is reachable immediately, without waiting on the MCQ question bank", async () => {
     const user = userEvent.setup();
