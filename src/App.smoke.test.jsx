@@ -102,13 +102,15 @@ describe("golden path smoke tests", () => {
     const home = await createProfile(user, "ΔοκιμαστικόςOral", container);
     await user.click(home.getByText("Προφορικά"));
     expect(await screen.findByText(/26 κεφάλαια/)).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Κεφάλαια προφορικών" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Περιεχόμενα" }));
     const chapters = screen.getByRole("navigation", { name: "Κεφάλαια προφορικών" });
     expect(within(chapters).getAllByRole("button")).toHaveLength(27);
     await user.click(within(chapters).getByRole("button", { name: /03\s*Αξιολόγηση/ }));
-    await user.selectOptions(screen.getByLabelText("Πηγή"), "crucial");
+    expect(screen.getByRole("button", { name: "Περιεχόμενα" })).toHaveAttribute("aria-expanded", "false");
     const question = await screen.findByRole("button", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ });
     await user.click(question);
-    await user.click(screen.getByRole("button", { name: "Εμφάνιση απάντησης" }));
+    expect(screen.queryByRole("button", { name: "Εμφάνιση απάντησης" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Πρότυπη προφορική απάντηση" })).toBeInTheDocument();
     const check = screen.getByRole("button", { name: "Ολοκληρώθηκε" });
     await user.click(check);
@@ -125,26 +127,24 @@ describe("golden path smoke tests", () => {
     expect(profile.textContent).not.toContain("Προφορικά");
   });
 
-  it("runs the selected oral chapter exam and records checked answers", async () => {
+  it("keeps old exam bookmarks in the reading workspace without hidden source filters", async () => {
     const user = userEvent.setup();
-    const { container } = renderApp();
-    const home = await createProfile(user, "ΠροφορικήΕξέταση", container);
-    await user.click(home.getByText("Προφορικά"));
-    await user.click(await screen.findByRole("button", { name: /03\s*Αξιολόγηση/ }));
-    await user.click(screen.getByRole("button", { name: "Προφορική εξέταση", exact: true }));
-    await user.click(screen.getByRole("button", { name: "Έναρξη Εξέτασης" }));
-    expect(screen.getByText(/Ασθενής στα ΤΕΠ είναι έντονα διεγερτικός/)).toBeInTheDocument();
-    for (let i = 0; i < 6; i += 1) {
-      await user.click(screen.getByRole("button", { name: "Εμφάνιση ενδεικτικής απάντησης" }));
-      await user.click(screen.getByRole("button", { name: "Επαρκώς", exact: true }));
-      await user.click(screen.getByRole("button", { name: i === 5 ? "Τέλος Εξέτασης" : "Επόμενη Ερώτηση", exact: false }));
-    }
-    expect(container.querySelector(".oral-simulator .scale-strip")).toBeNull();
-    const checks = screen.getAllByRole("button", { name: /^Ολοκληρώθηκε:/ });
-    expect(checks).toHaveLength(6);
-    await user.click(screen.getByRole("button", { name: /Καταχώρηση.*με ✓/ }));
-    await waitFor(() => expect(Object.values(readProfileStore().profiles)[0].oralProgress.mastered.oral_core_016).toBe(true));
-  }, 15000);
+    const { container, unmount } = renderApp();
+    await createProfile(user, "ΠροφορικάΑνάγνωση", container);
+    unmount();
+    window.history.pushState({}, "", "/oral/simulator?chapter=3&mode=exam&source=past&filter=checked&question=Q1");
+    renderApp();
+    expect(await screen.findByRole("heading", { name: "Πρότυπη προφορική απάντηση" })).toBeInTheDocument();
+    const workspace = within(document.querySelector(".oral-workspace"));
+    expect(workspace.queryByText("Προφορική εξέταση")).not.toBeInTheDocument();
+    expect(workspace.queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(workspace.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(workspace.queryByText(/Απάντησε προφορικά/)).not.toBeInTheDocument();
+    await user.click(workspace.getByRole("button", { name: "Ολοκληρώθηκε" }));
+    await user.click(workspace.getByRole("button", { name: "Λίστα ερωτήσεων" }));
+    expect(workspace.getByRole("button", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ })).toHaveClass("is-checked");
+    expect(window.location.search).not.toMatch(/mode|source|filter/);
+  });
 
   it("Πινακάκια is reachable immediately, without waiting on the MCQ question bank", async () => {
     const user = userEvent.setup();
