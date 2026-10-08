@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { parseAppPath, pathForOralPage } from '../appRoutes';
 import { Icons } from './Icons';
-import { oralChapters, buildOralBank } from '../data/oralChapters';
+import { oralRetirements } from '../data/oralRetirements';
+import { oralChapters, buildOralBank, chapterForQuestion } from '../data/oralChapters';
 import previous from '../data/oral';
 import clinical from '../data/oralCore';
 import previousSources from '../data/oralPreviousQuestionSources';
@@ -22,6 +23,10 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
   const chapterId = route.oralChapter || Number(params.get('chapter')) || 0;
   const selectedId = route.oralQuestion || (!route.oralChapter ? params.get('question') : null);
   const checked = oralProgress?.mastered || {};
+  const replacementId = Object.hasOwn(oralRetirements, selectedId) ? oralRetirements[selectedId] : null;
+  useEffect(() => {
+    if (replacementId) navigate(pathForOralPage(chapterForQuestion(replacementId), replacementId), { replace: true });
+  }, [replacementId, navigate]);
   useEffect(() => {
     let active = true;
     setError(false);
@@ -90,6 +95,7 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
                 return source && <section className="oral-supplement" key={id}>{renderCrucial(source)}</section>;
               })}
             </>}
+            {current.additionalAnswer.map((paragraph, i) => <div key={i}>{renderAnswer(paragraph)}</div>)}
           </div>
           <footer className="oral-reading-nav"><button type="button" className="nav-btn" disabled={index <= 0} onClick={() => select(visible[index - 1].id)}><Icons.ChevronLeft /> Προηγούμενη</button>
             <span>{index + 1}/{visible.length}</span><button type="button" className="nav-btn" disabled={index === visible.length - 1} onClick={() => select(visible[index + 1].id)}>Επόμενη <Icons.ChevronRight /></button></footer>

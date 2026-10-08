@@ -1,3 +1,6 @@
+import { buildOralBank, oralChapters } from '../data/oralChapters';
+import { pathForOralPage } from '../appRoutes';
+
 /**
  * One index over every study corpus in the product, so retrieval never
  * depends on first navigating to the screen that owns the material.
@@ -71,53 +74,18 @@ async function build() {
     }
   }
 
-  // Oral past questions live in a gravity → topic → subtopic → question tree.
-  const oral = await safeImport(() => import("../data/oral.js"));
-  for (const gravity of oral?.default || []) {
-    for (const topic of gravity.topics || []) {
-      const groups = topic.subtopics
-        ? topic.subtopics.map(subtopic => [subtopic.questions, subtopic.title])
-        : [[topic.questions, null]];
-      for (const [questions, subtopicTitle] of groups) {
-        for (const question of questions || []) {
-          if (!question?.text) continue;
-          items.push(
-            entry(
-              "oral",
-              "Προφορικά",
-              question.text,
-              [gravity.label, topic.title, subtopicTitle].filter(Boolean).join(" · "),
-              `/oral?question=${encodeURIComponent(question.id)}`,
-              { oralQuestionId: question.id, oralTopicId: topic.id },
-              question.answer
-            )
-          );
-        }
-      }
-    }
-  }
-
-  const crucial = await safeImport(() => import("../data/crucialQuestionsContent.js"));
-  (crucial?.default || []).forEach((question, index) => {
-    if (!question?.title) return;
-    const bodyText = [
-      ...(question.modelAnswer || []),
-      ...(question.keyPoints || []),
+  const [oral, clinical, crucial] = await Promise.all([
+    safeImport(() => import('../data/oral.js')),
+    safeImport(() => import('../data/oralCore.js')),
+    safeImport(() => import('../data/crucialQuestionsContent.js')),
+  ]);
+  for (const question of buildOralBank(oral?.default || [], clinical?.default || [], crucial?.default || [])) {
+    const bodyText = [question.answer, ...(question.modelAnswer || []), ...(question.keyPoints || []),
       ...(question.examinerQuestions || []).map(eq => `${eq.question} ${(eq.answer || []).join(' ')}`),
-      ...(question.examVsPractice || []),
-    ].join(" ");
-    items.push(
-      entry(
-        "oral",
-        "Κρίσιμη ερώτηση",
-        question.title,
-        question.number ? `#${question.number}` : "",
-        `/oral?question=${encodeURIComponent(question.id)}`,
-        { crucialIndex: index },
-        bodyText
-      )
-    );
-  });
+      ...(question.examVsPractice || []), ...question.additionalAnswer].filter(Boolean).join(' ');
+    items.push(entry('oral', 'Προφορικά', question.text, oralChapters[question.chapter - 1]?.title,
+      pathForOralPage(question.chapter, question.id), { oralQuestionId: question.id }, bodyText));
+  }
 
   const sos = await safeImport(() => import("../data/sos.js"));
   if (sos) {
