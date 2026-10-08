@@ -1,0 +1,82 @@
+.oral-workspace { max-width: 1500px; margin: 0 auto; padding: var(--s5); }
+.oral-workspace-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); padding-bottom: var(--s5); border-bottom: 1px solid var(--rule); }
+.oral-workspace-head h2 { margin: 6px 0; font-size: clamp(28px, 3vw, 40px); }
+.oral-workspace-head p { margin: 0; color: var(--ink-3); }
+.oral-completed { display: inline-flex; align-items: center; gap: 8px; color: var(--pass); white-space: nowrap; }
+.oral-workspace-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: var(--s5); }
+.oral-chapters { align-self: start; position: sticky; top: 24px; max-height: calc(100vh - 90px); overflow: auto; padding: var(--s4) 12px var(--s4) 0; border-right: 1px solid var(--rule); }
+.oral-chapters h3 { font-size: var(--t-meta); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin: 0 0 14px; }
+.oral-chapters button { width: 100%; display: flex; align-items: baseline; gap: 10px; border: 0; border-radius: 4px; background: transparent; padding: 12px 8px; color: var(--ink-2); text-align: left; font: inherit; font-size: 13px; line-height: 1.5; cursor: pointer; }
+.oral-chapters button small { margin-left: auto; white-space: nowrap; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.oral-chapter-number { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.oral-chapters button[aria-current], .oral-question-index button[aria-current] { background: var(--sec-oral-quiet); color: var(--ink); }
+.oral-chapters button:hover, .oral-question-index button:hover { background: var(--raised); }
+.oral-desk { min-width: 0; padding-top: var(--s5); }
+.oral-desk-heading h3 { font-size: clamp(20px, 2vw, 27px); line-height: 1.4; margin: 6px 0 20px; }
+.oral-desk-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-bottom: 20px; }
+.oral-view-switch { display: flex; border: 1px solid var(--rule); border-radius: 6px; padding: 3px; }
+.oral-view-switch button { padding: 9px 13px; background: transparent; border: 0; border-radius: 3px; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+.oral-view-switch button[aria-pressed=true] { background: var(--ink); color: var(--ground); }
+.oral-desk-controls input, .oral-desk-controls select { min-height: 40px; background: var(--field); border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); font: inherit; font-size: 13px; padding: 8px 10px; max-width: 100%; }
+.oral-desk-controls input { flex: 1; min-width: 180px; }
+.oral-desk-controls label { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 13px; }
+.oral-study-layout { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(0, 1.3fr); border-top: 1px solid var(--rule); }
+.oral-question-index { min-width: 0; border-right: 1px solid var(--rule); max-height: 75vh; overflow: auto; }
+.oral-list-caption { padding: 16px 12px; color: var(--ink-3); font-size: 13px; }
+.oral-question-index ol { list-style: none; padding: 0; margin: 0; }
+.oral-question-index li { border-top: 1px solid var(--rule); }
+.oral-question-index button { width: 100%; display: flex; align-items: baseline; gap: 10px; text-align: left; background: transparent; border: 0; padding: 15px 12px; font: inherit; font-size: 14px; line-height: 1.55; color: var(--ink-2); cursor: pointer; }
+.oral-question-index small { display: block; color: var(--ink-3); font-size: 13px; letter-spacing: .03em; margin-bottom: 5px; }
+.oral-list-position { flex: none; font-size: 13px; color: var(--ink-3); width: 22px; }
+.oral-question-index .icon { flex: none; color: var(--pass); }
+.oral-reading { padding: clamp(18px, 3vw, 36px); min-width: 0; align-self: start; }
+.oral-reading-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--ink-3); font-size: 13px; }
+.oral-reading h4 { font-size: clamp(20px, 2vw, 25px); line-height: 1.5; margin: 20px 0 12px; }
+.oral-reading-context { color: var(--ink-3); font-size: 13px; line-height: 1.6; }
+.oral-check { width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--rule); border-radius: 50%; background: transparent; color: var(--ink-3); flex: none; }
+.oral-check.is-checked { background: var(--pass); border-color: var(--pass); color: var(--ground); }
+.oral-recall { padding: 30px 0; border-top: 1px solid var(--rule); margin-top: 24px; }
+.oral-recall p { color: var(--ink-3); font-size: 14px; }
+.oral-recall button { display: inline-flex; align-items: center; gap: 8px; }
+.oral-reading-answer { margin-top: 28px; font-size: 15px; line-height: 1.85; }
+.oral-reading-answer h4 { font-size: 17px; }
+.oral-reading-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--ink-3); }
+.oral-reading-nav button { font-size: 13px; }
+.oral-reading-idle { padding-top: 70px; color: var(--ink-3); }
+.oral-reading-idle h4 { font-size: 20px; color: var(--ink-2); }
+.oral-desk-empty { padding: 30px 15px; color: var(--ink-3); line-height: 1.7; }
+.oral-return-list { display: none; }
+.oral-workspace button:focus-visible, .oral-workspace input:focus-visible, .oral-workspace select:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .oral-workspace-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 20px; }
+  .oral-study-layout { grid-template-columns: 1fr; }
+  .oral-reading-idle { display: none; }
+  .has-question .oral-question-index { display: none; }
+  .oral-return-list { display: inline-flex; margin-bottom: 20px; }
+  .oral-question-index { border-right: 0; max-height: none; }
+}
+@media (max-width: 700px) {
+  .oral-workspace { padding: 20px 12px; }
+  .oral-workspace-head p { font-size: 13px; line-height: 1.6; }
+  .oral-workspace-layout { grid-template-columns: 1fr; gap: 0; }
+  .oral-chapters { position: static; max-height: 200px; border-right: 0; border-bottom: 1px solid var(--rule); padding: 16px 0; }
+  .oral-chapters h3 { margin-bottom: 6px; }
+  .oral-chapters button { padding: 9px 8px; }
+  .oral-reading { padding: 20px 4px; }
+  .oral-desk-controls { gap: 10px; }
+  .oral-view-switch { width: 100%; }
+  .oral-view-switch button { flex: 1; }
+  .oral-desk-controls input { flex-basis: 100%; }
+}
+
+.oral-reading-answer { font-family: var(--read); font-size: var(--t-read); }
+.oral-reading-answer details { border-top: 1px solid var(--rule); margin-top: 20px; padding-top: 16px; }
+.oral-reading-answer summary { cursor: pointer; font-family: var(--ui); font-size: 14px; color: var(--ink-2); }
+
+.oral-mobile-chapter { display: none; }
+@media (max-width: 700px) {
+  .oral-chapters { display: none; }
+  .oral-mobile-chapter { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; font-size: 13px; color: var(--ink-3); }
+  .oral-mobile-chapter select { width: 100%; min-height: 44px; background: var(--field); border: 1px solid var(--rule); color: var(--ink); padding: 10px; border-radius: 4px; font: inherit; }
+  .oral-workspace .oral-return-list { font-size: 13px; width: auto; height: auto; border: 0; border-radius: 0; padding: 8px 0; }
+}

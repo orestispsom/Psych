@@ -126,7 +126,7 @@ describe("Mobile MCQ single-screen experience", () => {
     const bottomNavigation = screen.getByRole("navigation", { name: "Ενότητες" });
     await user.click(within(bottomNavigation).getByRole("button", { name: "Προφορικά" }));
     await waitFor(() => {
-      expect(container.querySelector(".oral-hub-screen h2")?.textContent).toBe("Προφορικά");
+      expect(container.querySelector(".oral-workspace h2")?.textContent).toBe("Προφορικά");
     });
 
     await user.click(within(bottomNavigation).getByRole("button", { name: "Πολλαπλής" }));

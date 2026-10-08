@@ -2,6 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { fetchAllPages, mergeMcqProgressSnapshots, mergeOralProgressSnapshots } from "./remoteProgress.mjs";
 
 describe("remote progress safeguards", () => {
+  it("keeps a newer unchecked oral answer when an older device reconnects", () => {
+    const older = { mastered: { Q1: true, Q2: true }, updatedAt: "2026-10-08T09:00:00Z" };
+    const newer = { mastered: { Q1: false }, updatedAt: "2026-10-08T10:00:00Z" };
+    expect(mergeOralProgressSnapshots(newer, older).mastered).toEqual({ Q1: false, Q2: true });
+    expect(mergeOralProgressSnapshots(older, newer).mastered).toEqual({ Q1: false, Q2: true });
+  });
   it("never drops remote question records when a smaller local snapshot is saved", () => {
     const remote = {
       updatedAt: "2026-09-03T09:00:00Z",

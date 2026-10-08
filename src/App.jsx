@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 
 import { Icons } from "./components/Icons.jsx";
 import AppShell from "./components/AppShell.jsx";
+import OralWorkspace from "./components/OralWorkspace.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
@@ -11,7 +12,6 @@ import SupportWidget from "./components/SupportWidget.jsx";
 import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
-import { loadOralNavigationState, saveOralNavigationState } from "./lib/oralNavigationState.js";
 import { recoverWrittenExam } from "./lib/writtenExamHistory.mjs";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
@@ -30,7 +30,6 @@ import {
 
 import oralData from "./data/oral.js";
 import oralCoreQuestions from "./data/oralCore.js";
-import oralPreviousQuestionSources from "./data/oralPreviousQuestionSources.js";
 import {
   buildMcqQualitySignals,
   getMcqQualityPreference,
@@ -433,7 +432,7 @@ function normalizeOralProgress(progress) {
 
   const mastered = progress.mastered && typeof progress.mastered === "object"
     ? Object.fromEntries(
-        Object.entries(progress.mastered).filter(([, value]) => Boolean(value))
+        Object.entries(progress.mastered).map(([id, value]) => [id, Boolean(value)])
       )
     : {};
 
@@ -534,89 +533,6 @@ function summarizeOralProgress(oralProgress, questions = null) {
   };
 }
 
-let crucialQuestionsPromise;
-let crucialQuestionMapPromise;
-
-function loadCrucialQuestions() {
-  if (!crucialQuestionsPromise) {
-    crucialQuestionsPromise = import("./data/crucialQuestionsContent.js")
-      .then(module => module.default);
-  }
-  return crucialQuestionsPromise;
-}
-
-function loadCrucialQuestionMap() {
-  if (!crucialQuestionMapPromise) {
-    crucialQuestionMapPromise = loadCrucialQuestions()
-      .then(questions => new Map(questions.map(question => [question.id, question])));
-  }
-  return crucialQuestionMapPromise;
-}
-
-function getOralQuestionRole(question) {
-  return question?.role || "anchor";
-}
-
-function getOralQuestionDifficulty(question) {
-  return question?.difficulty || "core";
-}
-
-function flattenOralQuestionBank() {
-  return oralData.flatMap(gravity =>
-    (gravity.topics || []).flatMap(topic => {
-      const topicQuestions = [];
-      const addQuestions = (questions, subtopic = null) => {
-        (questions || []).forEach(question => {
-          topicQuestions.push({
-            ...question,
-            role: getOralQuestionRole(question),
-            difficulty: getOralQuestionDifficulty(question),
-            followUpType: question.followUpType || null,
-            linkedAnchorIds: Array.isArray(question.linkedAnchorIds) ? question.linkedAnchorIds : [],
-            followUpQuestionIds: Array.isArray(question.followUpQuestionIds) ? question.followUpQuestionIds : [],
-            relatedQuestionIds: Array.isArray(question.relatedQuestionIds) ? question.relatedQuestionIds : [],
-            trigger: question.trigger || "always",
-            oralContext: {
-              gravityId: gravity.id,
-              gravityLabel: gravity.label,
-              gravityTitle: gravity.title,
-              topicId: topic.id,
-              topicTitle: topic.title,
-              subtopicId: subtopic?.id || null,
-              subtopicTitle: subtopic?.title || null,
-            },
-          });
-        });
-      };
-
-      if (topic.subtopics) {
-        topic.subtopics.forEach(subtopic => addQuestions(subtopic.questions, subtopic));
-      } else {
-        addQuestions(topic.questions);
-      }
-
-      return topicQuestions;
-    })
-  );
-}
-
-function getRelatedOralFollowUps(anchor, allQuestions, maxCount = 2) {
-  const explicitIds = Array.isArray(anchor.followUpQuestionIds) ? anchor.followUpQuestionIds : [];
-  const explicit = explicitIds
-    .map(id => allQuestions.find(question => question.id === id))
-    .filter(Boolean);
-  if (explicit.length) return explicit.slice(0, maxCount);
-
-  return allQuestions
-    .filter(question => question.id !== anchor.id)
-    .filter(question => {
-      if (Array.isArray(question.linkedAnchorIds) && question.linkedAnchorIds.includes(anchor.id)) return true;
-      if (question.oralContext?.subtopicId && question.oralContext.subtopicId === anchor.oralContext?.subtopicId) return true;
-      return question.oralContext?.topicId && question.oralContext.topicId === anchor.oralContext?.topicId;
-    })
-    .slice(0, maxCount);
-}
-
 const MAJOR_ORAL_EXAM_TOPICS = new Set([
   "Ψυχωτικές διαταραχές",
   "Διαταραχές διάθεσης",
@@ -654,8 +570,8 @@ function getOralExamQuestionContext(question) {
   return [question?.topic, question?.subtopic].filter(Boolean).join(" / ");
 }
 
-function createOralExamSession() {
-  const anchors = oralCoreQuestions.filter(isOralCoreAnchor);
+function createOralExamSession(questionBank = oralCoreQuestions) {
+  const anchors = questionBank.filter(isOralCoreAnchor);
   const majorAnchors = anchors.filter(question => MAJOR_ORAL_EXAM_TOPICS.has(question.topic));
   const selected = [];
   const usedIds = new Set();
@@ -1361,6 +1277,7 @@ async function loadRemoteProfileStore(activeProfileId = null, localProfiles = {}
   const summaries = Object.fromEntries(summaryRows.map(row => [
     row.profile_id,
     {
+      attempted: Number(row.attempted_questions) || 0,
       mastered: Number(row.mastered_questions) || 0,
       review: Math.max(0, (Number(row.attempted_questions) || 0) - (Number(row.mastered_questions) || 0)),
       oralMastered: Number(row.mastered_oral_questions) || 0,
@@ -1870,6 +1787,7 @@ function summarizeStoredMcqProgress(progress) {
   const mastered = records.filter(record => isQuestionMastered(record)).length;
 
   return {
+    attempted,
     mastered,
     review: Math.max(0, attempted - mastered),
   };
@@ -3082,7 +3000,6 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
             <div className="profile-list-title">Υπάρχοντα προφίλ</div>
             {profiles.map(profile => {
               const summary = profile.progressSummary || summarizeStoredMcqProgress(profile.mcqProgress || createEmptyMcqProgress());
-              const oralSummary = summarizeOralProgress(profile.oralProgress || createEmptyOralProgress());
               return (
                 <button
                   key={profile.id}
@@ -3097,9 +3014,9 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                     <span className="item-meta">
                       {profile.progressLoaded ? (
                         <>
-                          <span>{summary.mastered} mastered</span>
+                          <span>{summary.attempted ?? (summary.mastered + summary.review)} MCQs απαντημένα</span>
                           <span>{summary.review} για επανάληψη</span>
-                          <span>Προφορικά {profile.progressSummary?.oralMastered ?? oralSummary.mastered}/{oralSummary.total}</span>
+                          <span>{summary.mastered} mastered</span>
                         </>
                       ) : (
                         <span>Η πρόοδος φορτώνει με την επιλογή</span>
@@ -6573,367 +6490,6 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 // The section landing: three distinct functions, visible up front — not a
 // question list that happens to also link to the other two. Mirrors the
 // MCQ hub's own split between "pick a mode" and "the mode itself".
-function OralHub({ onOpenPast, onOpenSimulator, onOpenCrucialQuestions, oralProgress }) {
-  const overallSummary = summarizeOralProgress(normalizeOralProgress(oralProgress));
-  const percent = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 100) : 0;
-  const level = overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 5) : 0;
-
-  return (
-    <div className="oral-container oral-hub-screen">
-      <div className="sheet-head">
-        <div className="sheet-head-text">
-          <span className="sheet-eyebrow">Ενότητα</span>
-          <h2>Προφορικά</h2>
-          <span className="sheet-sub">Ολοκληρωμένη προετοιμασία για την προφορική εξέταση ειδικότητας</span>
-        </div>
-        <div className="sheet-head-actions">
-          <ScaleStrip size="lg" level={level} label="Πρόοδος προφορικών" />
-          <span className="plate">{overallSummary.mastered}/{overallSummary.total} ({percent}%)</span>
-        </div>
-      </div>
-
-      <div className="oral-hub-grid">
-        <button type="button" className="oral-hub-tile" onClick={onOpenPast}>
-          <span className="oral-hub-icon" aria-hidden="true"><Icons.BookOpen /></span>
-          <span className="oral-hub-body">
-            <span className="oral-hub-title">Σημαντικά Θέματα Εξετάσεων</span>
-            <span className="oral-hub-stat">
-              {overallSummary.mastered}/{overallSummary.total} mastered ({percent}%)
-            </span>
-            <span className="oral-hub-desc">Περιήγηση ανά κλινική βαρύτητα (Levels 1–5) και κεφάλαιο</span>
-          </span>
-          <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
-        </button>
-
-        <button type="button" className="oral-hub-tile" onClick={onOpenSimulator}>
-          <span className="oral-hub-icon" aria-hidden="true"><Icons.Mic /></span>
-          <span className="oral-hub-body">
-            <span className="oral-hub-title">Προσομοιωτής Προφορικής Εξέτασης</span>
-            <span className="oral-hub-stat">Νέα κλινική υπόθεση κάθε φορά</span>
-            <span className="oral-hub-desc">Ρεαλιστική προσομοίωση εξέτασης με τυχαία επιλογή κεντρικού θέματος, κλινική ανάλυση και διαδοχικές διευκρινιστικές ερωτήσεις</span>
-          </span>
-          <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
-        </button>
-
-        <button type="button" className="oral-hub-tile" onClick={onOpenCrucialQuestions}>
-            <span className="oral-hub-icon" aria-hidden="true"><Icons.FileText /></span>
-            <span className="oral-hub-body">
-              <span className="oral-hub-title">100 Κρίσιμα Θέματα</span>
-              <span className="oral-hub-stat">100 θέματα σε 16 κεφάλαια</span>
-              <span className="oral-hub-desc">Εμπεριστατωμένες απαντήσεις υψηλής απόδοσης</span>
-            </span>
-            <span className="oral-hub-go" aria-hidden="true"><Icons.ChevronRight /></span>
-          </button>
-      </div>
-    </div>
-  );
-}
-
-function getGravityColor(gravity) {
-  const step = Math.min(Math.max(Number(gravity?.id) || 1, 1), 5);
-  return `var(--sev-${step})`;
-}
-
-function OralAccordion({ onBack, onHome, onNavigateToViewer, onNavigateToTable, oralProgress, profileId }) {
-  const initialNavigationRef = useRef(null);
-  if (!initialNavigationRef.current) {
-    initialNavigationRef.current = loadOralNavigationState(profileId);
-  }
-
-  const initialNavigation = initialNavigationRef.current;
-  const [view, setView] = useState(initialNavigation.view);
-  const [query, setQuery] = useState("");
-  const [openBandId, setOpenBandId] = useState(initialNavigation.openBandId);
-  const [collapsedTopicIds, setCollapsedTopicIds] = useState(initialNavigation.collapsedTopicIds);
-  const normalizedOralProgress = normalizeOralProgress(oralProgress);
-  const overallSummary = summarizeOralProgress(normalizedOralProgress);
-
-  const allEntries = useMemo(() => oralData.flatMap(gravity =>
-    (gravity.topics || []).flatMap(topic => topic.subtopics
-      ? topic.subtopics.flatMap(subtopic => subtopic.questions.map(question => ({ question, gravity, topic, subtopic })))
-      : (topic.questions || []).map(question => ({ question, gravity, topic, subtopic: null })))
-  ), []);
-
-  const visibleEntries = useMemo(() => {
-    const normalizedQuery = normalizeGreekSearch(query);
-    if (!normalizedQuery) return allEntries;
-    return allEntries.filter(({ question, gravity, topic, subtopic }) => normalizeGreekSearch(
-      `${question.id} ${question.text} ${gravity.title} ${topic.title} ${subtopic?.title || ""}`
-    ).includes(normalizedQuery));
-  }, [allEntries, query]);
-
-  const openBand = openBandId ? oralData.find(gravity => gravity.id === openBandId) : null;
-
-  useEffect(() => {
-    saveOralNavigationState(profileId, {
-      view,
-      openBandId,
-      collapsedTopicIds,
-    });
-  }, [profileId, view, openBandId, collapsedTopicIds]);
-
-  useEffect(() => {
-    const storedScrollY = initialNavigationRef.current?.scrollY || 0;
-    let firstFrame = null;
-    let secondFrame = null;
-    let scrollTimer = null;
-
-    if (storedScrollY > 0) {
-      firstFrame = window.requestAnimationFrame(() => {
-        secondFrame = window.requestAnimationFrame(() => {
-          window.scrollTo({ top: storedScrollY, left: 0, behavior: "auto" });
-        });
-      });
-    }
-
-    const persistScroll = () => {
-      if (scrollTimer) window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(() => {
-        saveOralNavigationState(profileId, { scrollY: window.scrollY });
-      }, 120);
-    };
-
-    window.addEventListener("scroll", persistScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", persistScroll);
-      if (scrollTimer) window.clearTimeout(scrollTimer);
-      if (firstFrame) window.cancelAnimationFrame(firstFrame);
-      if (secondFrame) window.cancelAnimationFrame(secondFrame);
-      saveOralNavigationState(profileId, { scrollY: window.scrollY });
-    };
-  }, [profileId]);
-
-  const rememberPosition = () => {
-    saveOralNavigationState(profileId, { scrollY: window.scrollY });
-  };
-
-  const openQuestion = (questions, title, initialIndex = 0) => {
-    rememberPosition();
-    onNavigateToViewer(questions, title, initialIndex);
-  };
-
-  const toggleBand = (gravity) => {
-    if (gravity.isTable) {
-      rememberPosition();
-      onNavigateToTable(gravity.rows);
-      return;
-    }
-    setOpenBandId(current => current === gravity.id ? null : gravity.id);
-  };
-
-  const getTopicStateKey = (band, topic) => `${band.id}:${topic.id}`;
-
-  const toggleTopic = (band, topic) => {
-    const key = getTopicStateKey(band, topic);
-    setCollapsedTopicIds(current => {
-      if (current[key]) {
-        const next = { ...current };
-        delete next[key];
-        return next;
-      }
-      return { ...current, [key]: true };
-    });
-  };
-
-  const setBandTopicsCollapsed = (band, collapsed) => {
-    setCollapsedTopicIds(current => {
-      const next = { ...current };
-      (band.topics || []).forEach(topic => {
-        const key = getTopicStateKey(band, topic);
-        if (collapsed) next[key] = true;
-        else delete next[key];
-      });
-      return next;
-    });
-  };
-
-  const renderProgressPill = (questions) => {
-    const summary = summarizeOralProgress(normalizedOralProgress, questions);
-    return (
-      <span className={`oral-progress-pill ${summary.total > 0 && summary.mastered === summary.total ? "complete" : ""}`}>
-        {summary.mastered}/{summary.total}
-      </span>
-    );
-  };
-
-  const renderQuestionList = (questions, title, context) => (
-    <ol className="oral-question-list">
-      {questions.map((question, index) => {
-        const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
-        return (
-          <li key={question.id}>
-            <button className="oral-question-row" type="button" onClick={() => openQuestion(questions, title, index)}>
-              <span className="oral-question-number">{String(index + 1).padStart(2, "0")}</span>
-              <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span>{context && <span className="oral-question-context">{context}</span>}</span>
-              <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
-            </button>
-          </li>
-        );
-      })}
-    </ol>
-  );
-
-  return (
-    <div className="oral-container">
-      <div className="screen-topbar">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Προφορικά
-        </button>
-      </div>
-
-      <div className="sheet-head">
-        <div className="sheet-head-text">
-          <span className="sheet-eyebrow">Προφορικά</span>
-          <h2>Σημαντικά Θέματα</h2>
-          <span className="sheet-sub">
-            {allEntries.length} ερωτήσεις εξετάσεων, με τις απαντήσεις τους
-          </span>
-        </div>
-        <div className="sheet-head-actions">
-          <ScaleStrip
-            size="lg"
-            level={overallSummary.total ? Math.round((overallSummary.mastered / overallSummary.total) * 5) : 0}
-            label="Πρόοδος προφορικών"
-          />
-          <span className="plate">{overallSummary.mastered}/{overallSummary.total}</span>
-        </div>
-      </div>
-
-      <div className="oral-index-controls">
-        <div className="oral-index-tabs" aria-label="Προβολή θεμάτων">
-          <button className="oral-index-tab" type="button" aria-pressed={view === "bands"} onClick={() => setView("bands")}>Κατά συχνότητα</button>
-          <button className="oral-index-tab" type="button" aria-pressed={view === "all"} onClick={() => setView("all")}>Όλες ({allEntries.length})</button>
-        </div>
-      </div>
-
-      {view === "all" && (
-        <>
-          <div className="oral-search"><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={`Αναζήτηση στις ${allEntries.length} ερωτήσεις…`} aria-label="Αναζήτηση στις προηγούμενες ερωτήσεις" /></div>
-          <div className="oral-index-count">{visibleEntries.length === allEntries.length ? `${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}` : `${visibleEntries.length} από ${plural(allEntries.length, "ερώτηση", "ερωτήσεις")}`}</div>
-          <ol className="oral-question-list">
-            {visibleEntries.map((entry, index) => {
-              const { question, gravity, topic, subtopic } = entry;
-              const isMastered = Boolean(normalizedOralProgress.mastered[question.id]);
-              return (
-                <li key={question.id}>
-                  <button className="oral-question-row" type="button" onClick={() => openQuestion(allEntries.map(item => item.question), "Όλες οι προηγούμενες ερωτήσεις", allEntries.indexOf(entry))}>
-                    <span className="oral-question-number">{String(index + 1).padStart(3, "0")}</span>
-                    <span className="oral-question-copy"><span className="oral-question-text">{question.text}</span><span className="oral-question-context">{gravity.label} · {topic.title}{subtopic ? ` · ${subtopic.title}` : ""}</span></span>
-                    <span className={`oral-question-state ${isMastered ? "mastered" : ""}`} aria-label={isMastered ? "Mastered" : "Άνοιγμα"}>{isMastered ? <Icons.Check /> : <Icons.ChevronRight />}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-          {visibleEntries.length === 0 && <div className="crucial-empty">Δεν βρέθηκε ερώτηση για «{query}».</div>}
-        </>
-      )}
-
-      {view === "bands" && (
-        <div className="oral-band-accordion" aria-label="Συχνότητα εμφάνισης στις εξετάσεις">
-          {oralData.map(gravity => {
-            const questions = gravity.isTable ? [] : getOralQuestionsFromGravity(gravity);
-            const summary = summarizeOralProgress(normalizedOralProgress, questions);
-            const isActive = openBandId === gravity.id;
-            const allTopicsCollapsed = (gravity.topics || []).length > 0
-              ? (gravity.topics || []).every(topic => collapsedTopicIds[getTopicStateKey(gravity, topic)])
-              : false;
-
-            return (
-              <section
-                key={gravity.id}
-                className={`oral-band-accordion-item ${isActive ? "active" : ""}`}
-                style={{ "--band": getGravityColor(gravity) }}
-              >
-                <button
-                  type="button"
-                  className="oral-band-accordion-trigger"
-                  aria-expanded={isActive}
-                  onClick={() => toggleBand(gravity)}
-                >
-                  <span className="oral-band-code">{gravity.label}</span>
-                  <span className="oral-band-tab-copy">
-                    <span className="oral-band-title">{gravity.title}</span>
-                    {!gravity.isTable && <span className="oral-band-tab-meta">{summary.mastered}/{summary.total} mastered</span>}
-                  </span>
-                  {!gravity.isTable && (
-                    <span className="oral-band-side">
-                      <span className="oral-band-count">{summary.total}</span>
-                      <span className="oral-band-count-label">ερωτήσεις</span>
-                    </span>
-                  )}
-                  <span className={`oral-band-tab-caret ${isActive ? "open" : ""}`} aria-hidden="true"><Icons.ChevronDown /></span>
-                </button>
-
-                {isActive && !gravity.isTable && (
-                  <div className="oral-band-inline-content">
-                    <div className="oral-band-inline-tools">
-                      <button
-                        type="button"
-                        className="oral-topic-bulk"
-                        onClick={() => setBandTopicsCollapsed(gravity, !allTopicsCollapsed)}
-                      >
-                        {allTopicsCollapsed ? "Ανάπτυξη θεμάτων" : "Σύμπτυξη θεμάτων"}
-                      </button>
-                    </div>
-
-                    {(gravity.topics || []).map(topic => {
-                      const topicKey = getTopicStateKey(gravity, topic);
-                      const isCollapsed = Boolean(collapsedTopicIds[topicKey]);
-                      return (
-                        <section key={topic.id} className={`oral-band-topic ${isCollapsed ? "collapsed" : ""}`}>
-                          <button
-                            type="button"
-                            className="oral-topic-toggle"
-                            aria-expanded={!isCollapsed}
-                            onClick={() => toggleTopic(gravity, topic)}
-                          >
-                            <span className="subscale-title">{topic.letter ? `${topic.letter}. ` : ""}{topic.title}</span>
-                            <span className="oral-topic-toggle-side">
-                              {renderProgressPill(getOralQuestionsFromTopic(topic))}
-                              <span className={`oral-topic-caret ${isCollapsed ? "" : "open"}`} aria-hidden="true"><Icons.ChevronDown /></span>
-                            </span>
-                          </button>
-
-                          {!isCollapsed && (
-                            <div className="oral-band-topic-content">
-                              {topic.description && <p className="oral-band-topic-note">{topic.description}</p>}
-                              {topic.subtopics
-                                ? topic.subtopics.map(sub => (
-                                    <div key={sub.id} className="oral-band-sub">
-                                      <h4 className="oral-band-sub-title">
-                                        <span className="oral-band-sub-letter">{sub.letter}.</span>
-                                        {sub.title}
-                                      </h4>
-                                      {renderQuestionList(
-                                        sub.questions,
-                                        `${gravity.label} ${topic.letter}.${sub.letter}. ${sub.title}`,
-                                        null
-                                      )}
-                                    </div>
-                                  ))
-                                : renderQuestionList(
-                                    topic.questions || [],
-                                    `${gravity.label} ${topic.letter}. ${topic.title}`,
-                                    null
-                                  )}
-                            </div>
-                          )}
-                        </section>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function OralReferenceList({ title, items, tone = "default" }) {
   if (!items?.length) return null;
 
@@ -6988,200 +6544,6 @@ function CrucialQuestionContent({ source }) {
   );
 }
 
-// The book runs in thematic order, so its own sequence already carries the
-// chapters — these ranges name what is actually there rather than slicing the
-// list into arbitrary tens. Keyed on `number`, which is a stable identifier.
-const CRUCIAL_CHAPTERS = [
-  { from: 1, to: 10, title: "Εκτίμηση, κίνδυνος & επείγοντα" },
-  { from: 11, to: 19, title: "Σχιζοφρένεια & ψυχώσεις" },
-  { from: 20, to: 27, title: "Διαταραχές διάθεσης" },
-  { from: 28, to: 36, title: "Άγχος, τραύμα & σωματικά συμπτώματα" },
-  { from: 37, to: 44, title: "Ουσίες & εξαρτήσεις" },
-  { from: 45, to: 51, title: "Ντελίριο & νευρογνωστικές διαταραχές" },
-  { from: 52, to: 58, title: "Διασυνδετική & νευροψυχιατρική" },
-  { from: 59, to: 61, title: "Νευροαναπτυξιακές διαταραχές" },
-  { from: 62, to: 64, title: "Διαταραχές πρόσληψης τροφής" },
-  { from: 65, to: 67, title: "Ύπνος" },
-  { from: 68, to: 70, title: "Διαταραχές προσωπικότητας" },
-  { from: 71, to: 73, title: "Σεξουαλικότητα & φύλο" },
-  { from: 74, to: 88, title: "Ψυχοφαρμακολογία" },
-  { from: 89, to: 93, title: "ΗΣΘ & ψυχοθεραπείες" },
-  { from: 94, to: 96, title: "Νευροεπιστήμη & γενετική" },
-  { from: 97, to: 100, title: "Ειδικά θέματα" },
-];
-
-function CrucialQuestionsIndex({ onBack, onHome, onOpenQuestion }) {
-  const [questions, setQuestions] = useState(null);
-  const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    let isActive = true;
-    loadCrucialQuestions().then(items => {
-      if (isActive) setQuestions(items);
-    });
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  const visibleQuestions = useMemo(() => {
-    if (!questions) return [];
-    const normalizedQuery = normalizeGreekSearch(query);
-    if (!normalizedQuery) return questions;
-    return questions.filter(question => normalizeGreekSearch(
-      `${question.id} ${question.number} ${question.title}`
-    ).includes(normalizedQuery));
-  }, [questions, query]);
-
-  const groups = useMemo(() => {
-    if (!visibleQuestions.length) return [];
-    return CRUCIAL_CHAPTERS
-      .map(chapter => ({
-        ...chapter,
-        items: visibleQuestions.filter(q => q.number >= chapter.from && q.number <= chapter.to),
-      }))
-      .filter(chapter => chapter.items.length > 0);
-  }, [visibleQuestions]);
-
-  const isFiltered = query.trim().length > 0;
-
-  return (
-    <div className="crucial-index">
-      <div className="screen-topbar">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-      </div>
-
-      <div className="sheet-head">
-        <div className="sheet-head-text">
-          <span className="sheet-eyebrow">Προφορικά</span>
-          <h2>100 Κρίσιμα Θέματα</h2>
-          <span className="sheet-sub">Πρότυπες απαντήσεις, άξονες ανάκλησης και παγίδες εξεταστή</span>
-        </div>
-      </div>
-
-      <div className="crucial-search">
-        <input
-          type="search"
-          value={query}
-          onChange={event => setQuery(event.target.value)}
-          placeholder="Αναζήτηση στα 100 θέματα…"
-          aria-label="Αναζήτηση στα 100 κρίσιμα θέματα"
-        />
-      </div>
-
-      {!isFiltered && (
-        <div className="crucial-chapter-pills" role="navigation" aria-label="Γρήγορη μετάβαση σε κεφάλαιο">
-          {CRUCIAL_CHAPTERS.map(ch => (
-            <button
-              key={`${ch.from}-${ch.to}`}
-              type="button"
-              className="review-filter-pill"
-              onClick={() => {
-                const el = document.getElementById(`crucial-chap-${ch.from}`);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-            >
-              {ch.title} <small style={{ opacity: 0.6 }}>({ch.from}–{ch.to})</small>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {!questions ? (
-        <div className="crucial-loading" role="status">Φόρτωση ευρετηρίου…</div>
-      ) : (
-        <>
-          <div className="crucial-index-count">
-            {visibleQuestions.length === questions.length
-              ? `${plural(questions.length, "ερώτηση", "ερωτήσεις")}`
-              : `${visibleQuestions.length} από ${plural(questions.length, "ερώτηση", "ερωτήσεις")}`}
-          </div>
-          {visibleQuestions.length > 0 ? (
-            groups.map((chapter, chapterIndex) => (
-              <div key={`${chapter.from}-${chapter.to}`} id={`crucial-chap-${chapter.from}`}>
-                {!isFiltered && (
-                  <div className="subscale" style={chapterIndex === 0 ? { marginTop: 0 } : undefined}>
-                    <h3 className="subscale-title">{chapter.title}</h3>
-                    <span className="subscale-rule" />
-                    <span className="subscale-total">{chapter.from}–{chapter.to}</span>
-                  </div>
-                )}
-                <div className="crucial-index-list">
-                  {chapter.items.map(question => (
-                    <button
-                      key={question.id}
-                      className="crucial-index-item"
-                      onClick={() => onOpenQuestion(questions, questions.indexOf(question))}
-                    >
-                      <span className="crucial-index-number">{question.number}</span>
-                      <span className="crucial-index-title">{question.title}</span>
-                      <Icons.ChevronRight />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="crucial-empty">Δεν βρέθηκε ερώτηση για «{query}».</div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-function CrucialQuestionViewer({ questions, initialIndex, onBack, onHome }) {
-  const [currentIdx, setCurrentIdx] = useState(initialIndex);
-  const source = questions[currentIdx];
-  const total = questions.length;
-
-  const navigate = (nextIndex) => {
-    if (nextIndex < 0 || nextIndex >= total) return;
-    setCurrentIdx(nextIndex);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const swipeHandlers = useSwipeGesture({
-    onSwipeLeft: () => navigate(currentIdx + 1),
-    onSwipeRight: () => navigate(currentIdx - 1),
-    enabled: Boolean(source),
-  });
-
-  return (
-    <div className="oral-viewer" {...swipeHandlers}>
-      <div className="screen-topbar">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Ευρετήριο
-        </button>
-      </div>
-
-      <header className="crucial-viewer-heading">
-        <div className="oral-viewer-meta">
-          <span className="oral-source-badge">{source.id}</span>
-          <span className="oral-q-counter">Ερώτηση {currentIdx + 1} / {total}</span>
-        </div>
-        <h2>{source.title}</h2>
-      </header>
-
-      <section className="crucial-viewer-content">
-        <CrucialQuestionContent source={source} />
-      </section>
-
-      <div style={{ height: 80 }} />
-      <div className="nav-bar">
-        <button className="nav-btn" onClick={() => navigate(currentIdx - 1)} disabled={currentIdx === 0}>
-          <Icons.ChevronLeft /> Προηγούμενη
-        </button>
-        <button className="nav-btn" onClick={() => navigate(currentIdx + 1)} disabled={currentIdx === total - 1}>
-          Επόμενη <Icons.ChevronRight />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function renderStructuredOralAnswer(text) {
   if (!text) return null;
   const paragraphs = String(text).split(/\n\n+/).filter(Boolean);
@@ -7212,227 +6574,8 @@ function renderStructuredOralAnswer(text) {
   });
 }
 
-function OralQuestionViewer({ questions, title, initialIndex = 0, oralProgress, onQuestionMastered, onBack, onHome }) {
-  const [currentIdx, setCurrentIdx] = useState(() => Math.min(Math.max(0, initialIndex), questions.length - 1));
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [showJumper, setShowJumper] = useState(false);
-  const [studyMode, setStudyMode] = useState(() => {
-    try {
-      return localStorage.getItem("psych_oral_study_mode") === "true";
-    } catch {
-      return false;
-    }
-  });
-
-  const q = questions[currentIdx];
-  const total = questions.length;
-  const normalizedOralProgress = normalizeOralProgress(oralProgress);
-  const sectionSummary = summarizeOralProgress(normalizedOralProgress, questions);
-  const isMastered = Boolean(normalizedOralProgress.mastered[q?.id]);
-  const isAnswerVisible = studyMode || showAnswer;
-
-  const goPrev = () => {
-    if (currentIdx > 0) {
-      setCurrentIdx(currentIdx - 1);
-      setShowAnswer(false);
-    }
-  };
-
-  const goNext = () => {
-    if (currentIdx < total - 1) {
-      setCurrentIdx(currentIdx + 1);
-      setShowAnswer(false);
-    }
-  };
-
-  // Space reveals, arrows move. Recall practice works best hands-on-keyboard.
-  useWindowKeydown(event => {
-    if (event.ctrlKey || event.metaKey || event.altKey) return;
-    const target = event.target;
-    if (
-      target instanceof HTMLElement &&
-      (target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable ||
-        target.tagName === "BUTTON")
-    ) {
-      return;
-    }
-    if (event.key === " " && !studyMode) {
-      event.preventDefault();
-      setShowAnswer(shown => !shown);
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      goNext();
-    } else if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      goPrev();
-    }
-  });
-
-  const swipeHandlers = useSwipeGesture({
-    onSwipeLeft: goNext,
-    onSwipeRight: goPrev,
-    enabled: Boolean(q),
-  });
-
-  if (!q) return null;
-
-  return (
-    <div className="oral-viewer" {...swipeHandlers}>
-      <div className="screen-topbar">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-      </div>
-
-      <div className="oral-viewer-head">
-        <span className="sheet-eyebrow">{title}</span>
-        <div className="oral-viewer-head-side">
-          <button
-            type="button"
-            className={`oral-mode-toggle ${studyMode ? "study" : ""}`}
-            onClick={() => {
-              const next = !studyMode;
-              setStudyMode(next);
-              try {
-                localStorage.setItem("psych_oral_study_mode", String(next));
-              } catch {}
-            }}
-            title="Εναλλαγή: Μελέτη (πάντα ανοιχτή απάντηση) vs Αυτοεξέταση (κρυφή απάντηση)"
-          >
-            {studyMode ? "📚 Μελέτη (Ανοιχτή)" : "🧠 Αυτοεξέταση"}
-          </button>
-          <ScaleStrip
-            level={sectionSummary.total ? Math.round((sectionSummary.mastered / sectionSummary.total) * 5) : 0}
-            label="Πρόοδος ενότητας"
-          />
-          <span className="plate">{sectionSummary.mastered}/{sectionSummary.total}</span>
-        </div>
-      </div>
-
-      <div className="oral-q-block">
-        <button
-          type="button"
-          className="oral-q-jumper-btn"
-          onClick={() => setShowJumper(open => !open)}
-          title="Πλοηγός: Άμεση μετάβαση σε οποιαδήποτε ερώτηση"
-        >
-          <span className="oral-q-position-now">{currentIdx + 1}</span>
-          <span className="oral-q-position-total">/ {total}</span>
-          <span className="oral-jumper-caret">{showJumper ? "▲" : "▼"}</span>
-        </button>
-        <p className="oral-q-text">{q.text}</p>
-      </div>
-
-      {showJumper && (
-        <div
-          className="oral-jumper-overlay"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setShowJumper(false)}
-        >
-          <div
-            className="oral-jumper-card"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="oral-jumper-head">
-              <strong>Πλοηγός Ερωτήσεων ({total})</strong>
-              <button
-                type="button"
-                className="nav-btn"
-                onClick={() => setShowJumper(false)}
-              >
-                Κλείσιμο
-              </button>
-            </div>
-            <div className="oral-jumper-list">
-              {questions.map((item, idx) => {
-                const itemMastered = Boolean(normalizedOralProgress.mastered[item.id]);
-                const isCurrent = idx === currentIdx;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`oral-jumper-item ${isCurrent ? "current" : ""}`}
-                    onClick={() => {
-                      setCurrentIdx(idx);
-                      setShowAnswer(false);
-                      setShowJumper(false);
-                    }}
-                  >
-                    <span className="oral-jumper-num">#{idx + 1}</span>
-                    <span className="oral-jumper-text">{item.text}</span>
-                    {itemMastered && (
-                      <span style={{ color: "var(--accent)", flex: "none" }}>
-                        <Icons.Check />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!isAnswerVisible ? (
-        <div className="oral-answer-prompt">
-          <button className="oral-answer-reveal" onClick={() => setShowAnswer(true)}>
-            <Icons.Eye />
-            <span className="oral-answer-reveal-label">Εμφάνιση απάντησης</span>
-          </button>
-          <span className="oral-answer-reveal-hint">Πρώτα δοκίμασε να απαντήσεις προφορικά.</span>
-        </div>
-      ) : (
-        <section className="oral-answer-panel">
-          <div className="oral-answer-toolbar">
-            <span className="oral-answer-kicker">Απάντηση</span>
-            {!studyMode && (
-              <button className="oral-answer-hide" onClick={() => setShowAnswer(false)}>Απόκρυψη</button>
-            )}
-          </div>
-          <div className="oral-quick-answer">
-            {renderStructuredOralAnswer(q.answer)}
-            {q.source && <div className="oral-legacy-source" style={{ marginTop: "var(--s3)", fontSize: "var(--t-meta)", color: "var(--ink-3)" }}>Συμπληρωματική πηγή: {q.source}</div>}
-          </div>
-        </section>
-      )}
-
-      <div className="oral-viewer-foot">
-        <button className="nav-btn" onClick={goPrev} disabled={currentIdx === 0}>
-          <Icons.ChevronLeft /> Προηγούμενη
-        </button>
-        <button
-          type="button"
-          className={`oral-mastery-toggle ${isMastered ? "mastered" : ""}`}
-          aria-pressed={isMastered}
-          onClick={() => onQuestionMastered(q.id, !isMastered)}
-          title={isMastered ? "Mastered (κλικ για αποεπιλογή)" : "Mastered"}
-          aria-label={isMastered ? "Mastered" : "Mark as mastered"}
-        >
-          <Icons.Check />
-        </button>
-        <button className="nav-btn" onClick={goNext} disabled={currentIdx === total - 1}>
-          Επόμενη <Icons.ChevronRight />
-        </button>
-      </div>
-      <div className="desktop-keyboard-hint" aria-hidden="true">
-        <span><kbd>Space</kbd> {!isAnswerVisible ? "Αποκάλυψη" : "Απόκρυψη"}</span>
-        <span>·</span>
-        <span><kbd>←</kbd> <kbd>→</kbd> Πλοήγηση</span>
-      </div>
-    </div>
-  );
-}
-
-const VERDICT_LABELS = {
-  ready: "Επαρκώς",
-  partial: "Μερικώς",
-  review: "Χρειάζεται επανάληψη",
-};
-
-function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, onQuestionsMastered }) {
+function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, onQuestionsMastered, questionBank = oralCoreQuestions }) {
+  const VERDICT_LABELS = { ready: "Επαρκώς", partial: "Μερικώς", review: "Χρειάζεται επανάληψη" };
   const [phase, setPhase] = useState("start");
   const [session, setSession] = useState([]);
   const [examinerIndex, setExaminerIndex] = useState(0);
@@ -7468,7 +6611,7 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
   }, { ready: 0, partial: 0, review: 0, unrated: 0 });
 
   const startExam = () => {
-    const nextSession = createOralExamSession();
+    const nextSession = createOralExamSession(questionBank);
     setSession(nextSession);
     setExaminerIndex(0);
     setQuestionIndex(0);
@@ -7566,12 +6709,11 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
                         </span>
                       </span>
                       <span className="item-side">
-                        <ScaleStrip
-                          level={isMastered ? 1 : 0}
-                          max={1}
-                          label="Mastered"
-                          onSet={next => onQuestionMastered(question.id, next === 1)}
-                        />
+                        <button type="button" className={`oral-check ${isMastered ? "is-checked" : ""}`}
+                          aria-label={`Ολοκληρώθηκε: ${getOralExamQuestionText(question)}`}
+                          aria-pressed={isMastered} onClick={() => onQuestionMastered(question.id, !isMastered)}>
+                          <Icons.Check />
+                        </button>
                       </span>
                     </div>
                   );
@@ -7602,7 +6744,7 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
             >
               {recorded
                 ? "Καταχωρίστηκαν"
-                : `Καταχώρηση ${plural(tally.ready, "ερώτησης", "ερωτήσεων")} ως mastered`}
+                : `Καταχώρηση ${plural(tally.ready, "ερώτησης", "ερωτήσεων")} με ✓`}
             </button>
           )}
           <button className="results-btn" onClick={startExam}>
@@ -7742,32 +6884,6 @@ function OralExamSimulator({ onBack, onHome, oralProgress, onQuestionMastered, o
           {nextButtonLabel} <Icons.ChevronRight />
         </button>
       </div>
-    </div>
-  );
-}
-
-function OralTable({ rows, onBack, onHome }) {
-  return (
-    <div className="ref-table">
-      <div className="screen-topbar">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Πίσω
-        </button>
-      </div>
-      <div className="sheet-head">
-        <div className="sheet-head-text">
-          <span className="sheet-eyebrow">Προφορικά</span>
-          <h2>Γρήγορες Απαντήσεις</h2>
-          <span className="sheet-sub">Αριθμοί που πρέπει να ξέρεις</span>
-        </div>
-      </div>
-
-      {rows.map((row, i) => (
-        <div key={i} className="ref-row">
-          <span className="ref-topic">{row.topic}</span>
-          <span className="ref-value">{row.value}</span>
-        </div>
-      ))}
     </div>
   );
 }
@@ -9573,9 +8689,6 @@ export default function App() {
       navigate(pathForMcqMode("category", nextTopic), options);
     }
   }, [navigate, screen, testMode]);
-  const [oralViewerData, setOralViewerData] = useState(null);
-  const [oralTableData, setOralTableData] = useState(null);
-  const [crucialQuestionViewerData, setCrucialQuestionViewerData] = useState(null);
   const [referenceSources, setReferenceSources] = useState(null);
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
@@ -9741,7 +8854,7 @@ export default function App() {
   }, [activeProfileId]);
 
   useEffect(() => {
-    if (!activeProfileId || screen === "home") return;
+    if (!activeProfileId || screen === "home" || screen === "oral") return;
     const title = SCREEN_TITLES[screen] || "Μελέτη";
     const label = testMode ? `${title} · ${MCQ_MODE_LABELS[testMode] || testMode}` : title;
     saveStudyPosition(activeProfileId, {
@@ -9865,30 +8978,6 @@ export default function App() {
       navigate("/mcq/category", { replace: true });
     }
   }, [navigate, selectedMcqTopic]);
-
-  useEffect(() => {
-    if (!activeProfile) return;
-    if (screen === "oral-crucial-viewer" && !crucialQuestionViewerData) {
-      navigate("/oral/crucial", { replace: true });
-      return;
-    }
-    if (screen === "oral-viewer" && !oralViewerData) {
-      navigate("/oral/past", { replace: true });
-      return;
-    }
-    if (screen === "oral-table" && !oralTableData) {
-      navigate("/oral/past", { replace: true });
-      return;
-    }
-  }, [
-    activeProfile,
-    crucialQuestionViewerData,
-    hasAdminAccess,
-    navigate,
-    oralTableData,
-    oralViewerData,
-    screen,
-  ]);
 
   useEffect(() => {
     saveProfileStore(profileStore);
@@ -10343,7 +9432,7 @@ export default function App() {
       if (mastered) {
         nextMastered[questionId] = true;
       } else {
-        delete nextMastered[questionId];
+        nextMastered[questionId] = false;
       }
 
       return {
@@ -10679,76 +9768,12 @@ export default function App() {
           </div>
         )}
         {activeProfile && screen === 'oral' && (
-          <OralHub
-            onOpenPast={() => setScreen('oral-past')}
-            onOpenSimulator={() => setScreen('oral-simulator')}
-            onOpenCrucialQuestions={() => {
-              setCrucialQuestionViewerData(null);
-              setScreen('oral-crucial-index');
-            }}
-            oralProgress={oralProgress}
-          />
-        )}
-        {activeProfile && screen === 'oral-past' && (
-          <OralAccordion
-            onBack={() => setScreen('oral')}
-            onHome={() => setScreen('home')}
-            onNavigateToViewer={(questions, title, initialIndex = 0) => {
-              setOralViewerData({ questions, title, initialIndex });
-              setScreen('oral-viewer');
-            }}
-            onNavigateToTable={(rows) => {
-              setOralTableData(rows);
-              setScreen('oral-table');
-            }}
-            oralProgress={oralProgress}
-            profileId={activeProfile.id}
-          />
-        )}
-        {activeProfile && screen === 'oral-crucial-index' && (
-          <CrucialQuestionsIndex
-            onBack={() => setScreen('oral')}
-            onHome={() => setScreen('home')}
-            onOpenQuestion={(questions, initialIndex) => {
-              setCrucialQuestionViewerData({ questions, initialIndex });
-              setScreen('oral-crucial-viewer');
-            }}
-          />
-        )}
-        {activeProfile && screen === 'oral-crucial-viewer' && crucialQuestionViewerData && (
-          <CrucialQuestionViewer
-            questions={crucialQuestionViewerData.questions}
-            initialIndex={crucialQuestionViewerData.initialIndex}
-            onBack={() => setScreen('oral-crucial-index')}
-            onHome={() => { setCrucialQuestionViewerData(null); setScreen('home'); }}
-          />
-        )}
-        {activeProfile && screen === 'oral-simulator' && (
-          <OralExamSimulator
-            onBack={() => setScreen('oral')}
-            onHome={() => setScreen('home')}
-            oralProgress={oralProgress}
-            onQuestionMastered={setOralQuestionMastered}
+          <OralWorkspace key={activeProfile.id} profileId={activeProfile.id}
+            oralProgress={oralProgress} onQuestionMastered={setOralQuestionMastered}
             onQuestionsMastered={setOralQuestionsMastered}
-          />
-        )}
-        {activeProfile && screen === 'oral-viewer' && oralViewerData && (
-          <OralQuestionViewer
-            questions={oralViewerData.questions}
-            title={oralViewerData.title}
-            initialIndex={oralViewerData.initialIndex}
-            oralProgress={oralProgress}
-            onQuestionMastered={setOralQuestionMastered}
-            onBack={() => setScreen('oral-past')}
-            onHome={() => { setOralViewerData(null); setScreen('home'); }}
-          />
-        )}
-        {activeProfile && screen === 'oral-table' && oralTableData && (
-          <OralTable
-            rows={oralTableData}
-            onBack={() => setScreen('oral-past')}
-            onHome={() => { setOralTableData(null); setScreen('home'); }}
-          />
+            renderAnswer={renderStructuredOralAnswer}
+            renderCrucial={source => <CrucialQuestionContent source={source} />}
+            ExamSimulator={OralExamSimulator} onHome={() => setScreen('home')} />
         )}
         {activeProfile && screen === 'sos' && (
           <SosHome

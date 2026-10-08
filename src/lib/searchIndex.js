@@ -87,7 +87,7 @@ async function build() {
               "Προφορικά",
               question.text,
               [gravity.label, topic.title, subtopicTitle].filter(Boolean).join(" · "),
-              "/oral/past",
+              `/oral?question=${encodeURIComponent(question.id)}`,
               { oralQuestionId: question.id, oralTopicId: topic.id },
               question.answer
             )
@@ -112,7 +112,7 @@ async function build() {
         "Κρίσιμη ερώτηση",
         question.title,
         question.number ? `#${question.number}` : "",
-        "/oral/crucial",
+        `/oral?question=${encodeURIComponent(question.id)}`,
         { crucialIndex: index },
         bodyText
       )
