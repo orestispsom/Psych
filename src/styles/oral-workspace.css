@@ -7,24 +7,24 @@
 .oral-contents-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--field); color: var(--ink-2); font: inherit; font-size: 14px; cursor: pointer; }
 .oral-contents-toggle[aria-expanded=true] { background: var(--sec-oral-quiet); color: var(--ink); }
 .oral-workspace-layout { display: grid; grid-template-columns: minmax(0, 1fr); }
-.contents-open .oral-workspace-layout { grid-template-columns: 280px minmax(0, 1fr); gap: 24px; }
+.contents-open .oral-workspace-layout { grid-template-columns: 210px minmax(0, 1fr); gap: 20px; }
 .oral-chapters { align-self: start; position: sticky; top: 24px; max-height: calc(100vh - 90px); overflow: auto; padding: 16px 12px 16px 0; border-right: 1px solid var(--rule); }
-.oral-chapters button { width: 100%; display: flex; align-items: baseline; gap: 10px; border: 0; border-radius: 4px; background: transparent; padding: 12px 8px; color: var(--ink-2); text-align: left; font: inherit; font-size: 14px; line-height: 1.5; cursor: pointer; }
-.oral-chapters button small { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.oral-chapters a { width: 100%; display: flex; align-items: baseline; gap: 10px; border: 0; border-radius: 4px; background: transparent; padding: 12px 8px; color: var(--ink-2); text-align: left; font: inherit; font-size: 14px; line-height: 1.5; cursor: pointer; }
+.oral-chapters a small { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .oral-chapters small .icon { width: 14px; height: 14px; }
 .oral-chapter-number { color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.oral-chapters button[aria-current] { background: var(--sec-oral-quiet); color: var(--ink); }
-.oral-chapters button:hover, .oral-question-index button:hover { background: var(--raised); }
-.oral-chapters button.is-checked, .oral-question-index button.is-checked { background: color-mix(in srgb, var(--pass) 10%, transparent); color: var(--pass); }
-.oral-chapters button.is-checked .oral-chapter-number, .oral-chapters button small.has-completion, .oral-question-index button.is-checked .oral-list-position { color: var(--pass); }
+.oral-chapters a[aria-current] { background: var(--sec-oral-quiet); color: var(--ink); }
+.oral-chapters a:hover, .oral-question-index a:hover { background: var(--raised); }
+.oral-chapters a.is-checked, .oral-question-index a.is-checked { background: color-mix(in srgb, var(--pass) 10%, transparent); color: var(--pass); }
+.oral-chapters a.is-checked .oral-chapter-number, .oral-chapters a small.has-completion, .oral-question-index a.is-checked .oral-list-position { color: var(--pass); }
 .oral-desk { min-width: 0; }
 .oral-desk-heading { padding: 20px 0; border-bottom: 1px solid var(--rule); }
 .oral-desk-heading h3 { margin: 0; font-size: clamp(18px, 2vw, 24px); line-height: 1.4; }
-.oral-desk-heading button { flex: none; }
+.oral-desk-heading .oral-contents-toggle { flex: none; }
 .oral-list-caption { padding: 16px 0; color: var(--ink-3); font-size: 13px; }
 .oral-question-index ol { list-style: none; padding: 0; margin: 0; }
 .oral-question-index li { border-top: 1px solid var(--rule); }
-.oral-question-index button { width: 100%; display: flex; align-items: baseline; gap: 12px; text-align: left; background: transparent; border: 0; padding: 16px 10px; font: inherit; font-size: 17px; line-height: 1.6; color: var(--ink-2); cursor: pointer; }
+.oral-question-index a { width: 100%; display: flex; align-items: baseline; gap: 12px; text-align: left; background: transparent; border: 0; padding: 16px 10px; font: inherit; font-size: 17px; line-height: 1.6; color: var(--ink-2); cursor: pointer; }
 .oral-list-position { flex: none; font-size: 13px; color: var(--ink-3); width: 26px; }
 .oral-question-index .icon { flex: none; margin-left: auto; color: var(--pass); }
 .oral-reading { min-width: 0; padding: 24px 0; }
@@ -39,7 +39,7 @@
 .oral-reading-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--ink-3); }
 .oral-reading-nav button { font-size: 13px; }
 .oral-desk-empty { padding: 30px 0; color: var(--ink-3); line-height: 1.7; }
-.oral-workspace button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.oral-workspace :is(button, a):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 @media (max-width: 700px) {
   .oral-workspace { padding: 16px 0; }
   .oral-workspace-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
@@ -48,3 +48,8 @@
   .oral-desk-heading { flex-wrap: wrap; gap: 12px; }
   .oral-reading-nav button { padding: 10px 8px; }
 }
+
+.oral-workspace a { text-decoration: none; }
+.oral-chapters a { align-items: start; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px 8px; font-size: 13px; }
+.oral-chapters a small { grid-column: 2; margin-left: 0; font-size: 12px; }
+.oral-chapters a:first-child { display: flex; flex-wrap: wrap; }

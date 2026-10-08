@@ -74,6 +74,11 @@ export function pathForTableScreen(screen, chapter = null) {
   return TABLE_PATHS[screen] || "/tables";
 }
 
+export function pathForOralPage(chapter = null, question = null) {
+  const base = chapter ? `/oral/chapters/${encodeURIComponent(chapter)}` : '/oral';
+  return question ? `${base}/questions/${encodeURIComponent(question)}` : base;
+}
+
 export function parseAppPath(pathname) {
   const path = cleanPathname(pathname);
   const segments = path.split("/").filter(Boolean).map(decodePathSegment);
@@ -101,6 +106,14 @@ export function parseAppPath(pathname) {
     if (path === "/tables/crash-course" || path === "/tables/crash-course/list") return { valid: true, screen: "pinakakia", tableScreen: "crash-list" };
     if (path === "/tables/viewer") return { valid: true, screen: "pinakakia", tableScreen: "viewer" };
     return { valid: false, screen: "pinakakia", tableScreen: "sources" };
+  }
+
+  if (segments[0] === 'oral' && segments[1] === 'chapters') {
+    const chapter = Number(segments[2]);
+    const valid = Number.isInteger(chapter) && chapter >= 1 && chapter <= 26
+      && (segments.length === 3 || (segments.length === 5 && segments[3] === 'questions'));
+    return { valid, screen: 'oral', oralChapter: valid ? chapter : null,
+      oralQuestion: valid && segments.length === 5 ? segments[4] : null, testMode: null };
   }
 
   // Retain old bookmarks while sending every oral entry to the unified workspace.
