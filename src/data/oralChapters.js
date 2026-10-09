@@ -36,7 +36,30 @@ const crucial = [3,1,3,21,21,18,3,4,4,1,11,11,11,5,11,11,11,11,25,9,9,9,10,10,10
   16,16,17,13,13,13,13,13,13,15,15,15,13,13,13,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,
   24,24,24,24,5,5,5,10,9,25,8];
 
+// Standalone follow-ups must be placed by the question's main task, not only
+// by their original anchor's chapter. These moves were reviewed individually.
+const editorialOverrides = {
+  "oral_core_016_fu04": 4,
+  "1Ae5": 11,
+  "jan2026_04": 11,
+  "jan2026_29": 11,
+  "oral_core_009_fu01": 1,
+  "oral_core_009_fu02": 1,
+  "oral_core_006_fu05": 25,
+  "oral_core_004_fu06": 4,
+  "oral_core_005_fu05": 25,
+  "oral_core_001_fu07": 25,
+  "oral_core_002_fu04": 25,
+  "oral_core_001_fu06": 25,
+  "4C3": 9,
+  "oral_core_033_fu03": 25,
+  "Q6": 3,
+  "oral_core_007_fu03": 4,
+  "1Az1": 11
+};
+
 export function chapterForQuestion(id) {
+  if (Object.hasOwn(editorialOverrides, id)) return editorialOverrides[id];
   if (/^Q\d+$/.test(id)) return crucial[Number(id.slice(1)) - 1];
   if (id.startsWith('oral_challenge_')) return 3;
   if (id.startsWith('oral_core_')) return core[Number(id.split('_')[2]) - 1];

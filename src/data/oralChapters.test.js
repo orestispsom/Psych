@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import chapterMoves from '../../docs/oral-chapter-audit-moves.json';
 import previous from './oral';
 import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
@@ -59,6 +60,24 @@ describe('Greek oral chapter organization', () => {
     expect(related['1Ag4']).not.toContain('Q100');
     ['5A4', '5A8', '5A9', '5A10', '5A11', '5A12', '4B5'].forEach(id => expect(related[id]).toEqual([]));
   });
+  it('applies every audited move exactly once without changing answer content or its parent scenario', () => {
+    const bank = buildOralBank(previous, clinical, crucial);
+    expect(chapterMoves).toHaveLength(17);
+    for (const move of chapterMoves) {
+      const matches = bank.filter(q => q.id === move.id);
+      expect(matches).toHaveLength(1);
+      expect(matches[0].chapter).toBe(move.to);
+      expect(matches[0].text).toBe(move.question);
+    }
+    expect(chapterForQuestion('oral_core_016')).toBe(3);
+    expect(chapterForQuestion('oral_core_016_fu04')).toBe(4);
+    expect(chapterForQuestion('oral_core_001')).toBe(11);
+    expect(chapterForQuestion('oral_core_001_fu07')).toBe(25);
+    expect(chapterForQuestion('oral_core_009')).toBe(8);
+    expect(chapterForQuestion('oral_core_009_fu01')).toBe(1);
+    expect(chapterForQuestion('Q14')).toBe(5);
+    expect(chapterForQuestion('jan2026_04')).toBe(11);
+  });
   it('distinguishes symptom chapters, ethics, research, suicide and biological therapies', () => {
     expect(oralChapters).toHaveLength(26);
     expect(chapterForQuestion('jan2026_16')).toBe(11);
@@ -66,7 +85,7 @@ describe('Greek oral chapter organization', () => {
     expect(chapterForQuestion('3D2')).toBe(1);
     expect(chapterForQuestion('3D3')).toBe(12);
     expect(chapterForQuestion('Q61')).toBe(17);
-    expect(chapterForQuestion('Q6')).toBe(18);
+    expect(chapterForQuestion('Q6')).toBe(3);
     expect(chapterForQuestion('4B5')).toBe(4);
     expect(chapterForQuestion('5A11')).toBe(6);
     expect(chapterForQuestion('1Ab6')).toBe(21);
