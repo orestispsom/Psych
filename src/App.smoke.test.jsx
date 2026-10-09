@@ -158,18 +158,18 @@ describe("golden path smoke tests", () => {
     const first = renderApp();
     await createProfile(user, 'ΣωστήΑπάντηση', first.container);
     first.unmount();
-    window.history.pushState({}, '', '/oral/chapters/1/questions/3D2');
+    window.history.pushState({}, '', '/oral/chapters/1/questions/1Aa2');
     renderApp();
-    expect(await screen.findByRole('heading', { name: /Πώς εξετάζονται οι διαταραχές βούλησης/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Ποια τα συμπτώματα α΄ τάξης/ })).toBeInTheDocument();
     const related = await screen.findByRole('navigation', { name: 'Σχετικές ερωτήσεις' });
     expect(within(related).getAllByRole('link')).toHaveLength(1);
-    expect(document.querySelector('.oral-reading-answer').textContent).toContain('Κατατονία:');
+    expect(document.querySelector('.oral-reading-answer').textContent).toContain('Δεν είναι παθογνωμονικά');
     expect(screen.queryByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Πότε μπορεί ένας ασθενής να νοσηλευτεί ακούσια/ })).not.toBeInTheDocument();
-    await user.click(within(related).getByRole('link', { name: 'Πώς αναγνωρίζετε την κατατονία και πώς την αντιμετωπίζετε;' }));
-    expect(window.location.pathname).toBe('/oral/chapters/1/questions/Q10');
+    await user.click(within(related).getByRole('link', { name: 'Περιγράψτε την κλινική εικόνα και τη διάγνωση της σχιζοφρένειας.' }));
+    expect(window.location.pathname).toBe('/oral/chapters/11/questions/Q12');
     expect(await screen.findByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Πώς αναγνωρίζετε την κατατονία και πώς την αντιμετωπίζετε;' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Περιγράψτε την κλινική εικόνα και τη διάγνωση της σχιζοφρένειας.' })).toBeInTheDocument();
   });
   it('does not show a bipolar model response under a statistics question', async () => {
     const user = userEvent.setup();
@@ -178,7 +178,7 @@ describe("golden path smoke tests", () => {
     first.unmount();
     window.history.pushState({}, '', '/oral/chapters/6/questions/5A4');
     renderApp();
-    expect(await screen.findByRole('heading', { name: /Τι είναι ο NNT/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Πώς διακρίνονται σχετικός κίνδυνος/ })).toBeInTheDocument();
     expect(document.querySelector('.oral-reading-answer').textContent).toContain('NNT');
     expect(screen.queryByRole('navigation', { name: 'Σχετικές ερωτήσεις' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).not.toBeInTheDocument();
@@ -204,7 +204,7 @@ describe("golden path smoke tests", () => {
     expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/11/questions/jan2026_16');
     await user.click(screen.getByRole('link', { name: /^01\s*Σημεία και συμπτώματα/ }));
     expect(screen.queryByRole('link', { name: /Τι είναι τα ήπια νευρολογικά σημεία/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Πώς εξετάζονται οι διαταραχές βούλησης/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Πώς αναγνωρίζετε την κατατονία/ })).toBeInTheDocument();
   });
 
   it('resumes a retired saved question at its replacement without losing historical checks', async () => {
@@ -214,17 +214,17 @@ describe("golden path smoke tests", () => {
     first.unmount();
     const store = readProfileStore();
     const profile = Object.values(store.profiles)[0];
-    profile.oralProgress.mastered['2Ag2'] = true;
+    profile.oralProgress.mastered['oral_core_017_fu04'] = true;
     window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(store));
-    saveStudyPosition(profile.id, { path: '/oral/chapters/25/questions/2Ag2', title: 'Παλιό θέμα', section: 'Προφορικά' });
+    saveStudyPosition(profile.id, { path: '/oral/chapters/1/questions/oral_core_017_fu04', title: 'Παλιό θέμα', section: 'Προφορικά' });
     renderApp();
     await user.click(await screen.findByRole('button', { name: /Συνέχεια:.*Παλιό θέμα/ }));
-    expect(await screen.findByRole('heading', { name: /Πώς συγκρίνονται τα SSRI μεταξύ τους/ })).toBeInTheDocument();
-    expect(window.location.pathname).toBe('/oral/chapters/25/questions/2Ag1');
+    expect(await screen.findByRole('heading', { name: /Πώς αναγνωρίζετε την κατατονία/ })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/oral/chapters/1/questions/Q10');
     expect(screen.getByRole('button', { name: 'Ολοκληρώθηκε' })).toHaveAttribute('aria-pressed', 'false');
-    expect(readProfileStore().profiles[profile.id].oralProgress.mastered['2Ag2']).toBe(true);
-    expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/25/questions/2Ag1');
-    expect(screen.getByText(/Η μεγαλύτερη εκλεκτικότητα δεν σημαίνει/)).toBeInTheDocument();
+    expect(readProfileStore().profiles[profile.id].oralProgress.mastered['oral_core_017_fu04']).toBe(true);
+    expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/1/questions/Q10');
+    expect(screen.getByText(/Η ECT μπορεί να χρειαστεί επειγόντως/)).toBeInTheDocument();
   });
   it('redirects a legacy query bookmark for a retired challenge across chapters', async () => {
     const user = userEvent.setup();

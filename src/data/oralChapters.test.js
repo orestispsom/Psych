@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import consolidations from '../../docs/oral-duplicate-consolidation.json';
 import chapterMoves from '../../docs/oral-chapter-audit-moves.json';
 import previous from './oral';
 import clinical from './oralCore';
@@ -23,8 +24,8 @@ describe('Greek oral chapter organization', () => {
   it('places every active question exactly once and preserves archived source records', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const history = previous.flatMap(g => g.topics.flatMap(t => (t.subtopics || [t]).flatMap(s => s.questions || [])));
-    expect(Object.keys(oralRetirements)).toHaveLength(35);
-    expect(bank).toHaveLength(491);
+    expect(Object.keys(oralRetirements)).toHaveLength(119);
+    expect(bank).toHaveLength(407);
     expect(bank).toHaveLength(history.length + clinical.length + crucial.length - Object.keys(oralRetirements).length);
     expect(new Set(bank.map(q => q.id)).size).toBe(bank.length);
     expect(bank.filter(q => !oralChapters.some(ch => ch.id === q.chapter))).toEqual([]);
@@ -46,9 +47,30 @@ describe('Greek oral chapter organization', () => {
     });
     expect(bank.find(q => q.id === '2Ag1').additionalAnswer.join(' ')).toContain('μεγαλύτερη αντικαταθλιπτική αποτελεσματικότητα');
   });
+  it('consolidates Chapter 1 while retaining clinical distinctions and unique treatment details', () => {
+    const bank = buildOralBank(previous, clinical, crucial);
+    expect(bank.filter(q => q.chapter === 1)).toHaveLength(12);
+    ['Q10', 'oral_core_017_fu02', 'oral_core_035_fu03', 'oral_core_035_fu05', 'oral_core_035_fu06'].forEach(id => expect(bank.some(q => q.id === id)).toBe(true));
+    const catatonia = bank.find(q => q.id === 'Q10');
+    expect(catatonia.modelAnswer.join(' ')).toContain('Τα 12 χαρακτηριστικά σημεία');
+    expect(catatonia.additionalAnswer.join(' ')).toContain('ραβδομυόλυσης');
+    expect(catatonia.additionalAnswer.join(' ')).toContain('νόμιμη διαδικασία συναίνεσης');
+    expect(bank.find(q => q.id === 'oral_core_017_fu02').additionalAnswer.join(' ')).toContain('εσωτερική ανάγκη για συνεχή κίνηση');
+  });
+  it('keeps every audited consolidation destination live and its source archived', () => {
+    const bank = buildOralBank(previous, clinical, crucial);
+    for (const item of consolidations) {
+      expect(oralRetirements[item.retired]).toBe(item.retained);
+      expect(bank.some(q => q.id === item.retired)).toBe(false);
+      expect(bank.find(q => q.id === item.retained)?.chapter).toBe(item.chapter);
+    }
+    expect(bank.find(q => q.id === 'Q67').additionalAnswer.join(' ')).toContain('0,5–2 Hz');
+    expect(bank.find(q => q.id === '5A9').additionalAnswer.join(' ')).toContain('1/0,10 = 10');
+    expect(bank.find(q => q.id === 'oral_core_007_fu02').additionalAnswer.join(' ')).toContain('24ωρο');
+  });
   it('uses the same active bank in global search, excluding all retired cards', async () => {
     const oral = (await getSearchIndex()).filter(item => item.scope === 'oral');
-    expect(oral).toHaveLength(491);
+    expect(oral).toHaveLength(407);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
   });
@@ -63,7 +85,7 @@ describe('Greek oral chapter organization', () => {
   it('applies every audited move exactly once without changing answer content or its parent scenario', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     expect(chapterMoves).toHaveLength(17);
-    for (const move of chapterMoves) {
+    for (const move of chapterMoves.filter(move => !oralRetirements[move.id])) {
       const matches = bank.filter(q => q.id === move.id);
       expect(matches).toHaveLength(1);
       expect(matches[0].chapter).toBe(move.to);
