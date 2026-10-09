@@ -1,0 +1,450 @@
+[
+  {
+    "retired": "1Aa3",
+    "retained": "Q12",
+    "fromChapter": 2,
+    "toChapter": 11,
+    "question": "Ποιες οι διαφορές κριτηρίων DSM-5 / ICD-10 για σχιζοφρένεια;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_016_fu01",
+    "retained": "Q6",
+    "fromChapter": 3,
+    "toChapter": 3,
+    "question": "Πώς αξιολογείτε άμεσα τον κίνδυνο βίας σε διεγερτικό και απειλητικό ασθενή στα ΤΕΠ;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_016_fu02",
+    "retained": "Q3",
+    "fromChapter": 3,
+    "toChapter": 3,
+    "question": "Ποια οργανικά, τοξικά ή στερητικά αίτια διέγερσης πρέπει να αποκλείσετε;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_016_fu03",
+    "retained": "Q7",
+    "fromChapter": 3,
+    "toChapter": 3,
+    "question": "Σε ασθενή με σοβαρή διέγερση στα ΤΕΠ, πώς κλιμακώνετε την αντιμετώπιση από τη λεκτική αποκλιμάκωση μέχρι τη φαρμακευτική καταστολή;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_016_fu05",
+    "retained": "Q3",
+    "fromChapter": 3,
+    "toChapter": 3,
+    "question": "Πώς αποφεύγετε να αντιμετωπίσετε ως “ψυχιατρικό” ένα περιστατικό που είναι delirium, υπογλυκαιμία ή τοξίκωση;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_030",
+    "retained": "Q8",
+    "fromChapter": 4,
+    "toChapter": 4,
+    "question": "Πώς αξιολογείτε την ικανότητα ενός ασθενούς να λάβει απόφαση για θεραπεία;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_031",
+    "retained": "Q9",
+    "fromChapter": 4,
+    "toChapter": 4,
+    "question": "Πότε σκέφτεστε ακούσια νοσηλεία σε ψυχιατρικό ασθενή;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_031_fu01",
+    "retained": "Q9",
+    "fromChapter": 4,
+    "toChapter": 4,
+    "question": "Ποια κλινικά στοιχεία υποστηρίζουν ανάγκη ακούσιας νοσηλείας;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Ae1",
+    "retained": "Q14",
+    "fromChapter": 5,
+    "toChapter": 5,
+    "question": "Ποια η ντοπαμινεργική και ποια η γλουταμινεργική υπόθεση για τη σχιζοφρένεια; Πώς αντιστοιχούν στα συμπτώματα;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Ae4",
+    "retained": "5A5",
+    "fromChapter": 5,
+    "toChapter": 5,
+    "question": "Τι ξέρετε για το ρόλο της κακοποίησης/ψυχοκοινωνικών παραγόντων στη σχιζοφρένεια; (ευαισθητοποίηση DA)",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "3A3",
+    "retained": "Q32",
+    "fromChapter": 7,
+    "toChapter": 7,
+    "question": "Ποια η κλινική εικόνα του PTSD;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_010",
+    "retained": "Q32",
+    "fromChapter": 7,
+    "toChapter": 7,
+    "question": "Ασθενής μετά από τραυματικό γεγονός αναφέρει εφιάλτες, αποφυγή και υπερεπαγρύπνηση. Ποια στοιχεία θα αναζητήσετε πρώτα;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "3A1",
+    "retained": "Q28",
+    "fromChapter": 8,
+    "toChapter": 8,
+    "question": "Ποια η κλινική εικόνα και το γνωσιακό μοντέλο της διαταραχής πανικού;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "3A2",
+    "retained": "Q28",
+    "fromChapter": 8,
+    "toChapter": 8,
+    "question": "Πώς θεραπεύεται η διαταραχή πανικού; (SSRI + CBT)",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_008_fu02",
+    "retained": "Q28",
+    "fromChapter": 8,
+    "toChapter": 8,
+    "question": "Ποια είναι τα χαρακτηριστικά της κρίσης πανικού και της διαταραχής πανικού;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_009",
+    "retained": "Q31",
+    "fromChapter": 8,
+    "toChapter": 8,
+    "question": "Ασθενής αναφέρει επαναλαμβανόμενες ανεπιθύμητες σκέψεις και τελετουργίες που του καταναλώνουν ώρες. Τι θέλετε να διευκρινίσετε;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_006",
+    "retained": "Q20",
+    "fromChapter": 9,
+    "toChapter": 9,
+    "question": "Ασθενής προσέρχεται με χαμηλή διάθεση, ανηδονία και λειτουργική έκπτωση. Ποια είναι τα πρώτα κρίσιμα ερωτήματα στην εκτίμησή σας;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_006_fu03",
+    "retained": "Q20",
+    "fromChapter": 9,
+    "toChapter": 9,
+    "question": "Ποια είναι η διαφορική διάγνωση της κατάθλιψης;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "jan2026_25",
+    "retained": "1Ca1",
+    "fromChapter": 9,
+    "toChapter": 9,
+    "question": "Ποιοι είναι οι βασικοί κλινικοί προσδιοριστές και οι μορφές της κατάθλιψης;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Cg2",
+    "retained": "Q97",
+    "fromChapter": 10,
+    "toChapter": 10,
+    "question": "Τι είναι τα mixed features; Τι το rapid cycling;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_004_fu05",
+    "retained": "Q24",
+    "fromChapter": 10,
+    "toChapter": 10,
+    "question": "Ποια είναι η άμεση αντιμετώπιση της οξείας μανίας;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_005_fu01",
+    "retained": "Q23",
+    "fromChapter": 10,
+    "toChapter": 10,
+    "question": "Πώς διαφοροποιείται η διπολική διαταραχή τύπου Ι από τη διπολική διαταραχή τύπου ΙΙ;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_005_fu03",
+    "retained": "Q25",
+    "fromChapter": 10,
+    "toChapter": 10,
+    "question": "Γιατί πρέπει να είμαστε προσεκτικοί με τα αντικαταθλιπτικά σε διπολική διαταραχή;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Ab1",
+    "retained": "Q11",
+    "fromChapter": 11,
+    "toChapter": 11,
+    "question": "Πώς αντιμετωπίζετε ένα πρώτο ψυχωτικό επεισόδιο;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Ad1",
+    "retained": "Q18",
+    "fromChapter": 11,
+    "toChapter": 11,
+    "question": "Πώς ορίζεται η ανθεκτική σχιζοφρένεια (Treatment-Resistant Schizophrenia);",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_002_fu07",
+    "retained": "Q18",
+    "fromChapter": 11,
+    "toChapter": 11,
+    "question": "Αν ένας ασθενής δεν ανταποκρίνεται σε αντιψυχωσικό, τι πρέπει να ελέγξετε πριν τον χαρακτηρίσετε ανθεκτικό;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1Ag1",
+    "retained": "Q16",
+    "fromChapter": 11,
+    "toChapter": 11,
+    "question": "Ποια νοητικά ελλείμματα παρατηρούνται στη σχιζοφρένεια;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_024_fu01",
+    "retained": "Q62",
+    "fromChapter": 13,
+    "toChapter": 13,
+    "question": "Ποια είναι τα βασικά χαρακτηριστικά της νευρογενούς ανορεξίας;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_033_fu02",
+    "retained": "Q65",
+    "fromChapter": 13,
+    "toChapter": 13,
+    "question": "Ποιες μη φαρμακευτικές παρεμβάσεις είναι πρώτης γραμμής στην αϋπνία;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1B1",
+    "retained": "Q45",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Τι είναι το ντελίριο (delirium) και ποια είναι τα βασικά κλινικά χαρακτηριστικά του;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1B2",
+    "retained": "Q45",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Ποιες αιτίες ντελίριου (delirium) πρέπει να αναζητήσετε και πώς οργανώνετε τη διερεύνησή τους;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "1B8",
+    "retained": "Q45",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Πότε χρειάζεται φαρμακευτική αντιμετώπιση στο delirium και ποιο φάρμακο χρησιμοποιείται συχνότερα;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_011_fu04",
+    "retained": "Q45",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Ποια είναι η βασική αντιμετώπιση του delirium;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "3C3",
+    "retained": "Q51",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Τι είναι τα BPSD (Behavioral and Psychological Symptoms of Dementia); Ποια η φαρμακευτική τους αντιμετώπιση;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_013",
+    "retained": "Q53",
+    "fromChapter": 14,
+    "toChapter": 14,
+    "question": "Νεαρή γυναίκα εμφανίζει οξεία ψύχωση, επιληπτικές κρίσεις, δυσκινησίες, διακύμανση συνείδησης και αυτόνομη αστάθεια. Πώς θα την προσεγγίσετε;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_022_fu03",
+    "retained": "oral_core_036",
+    "fromChapter": 15,
+    "toChapter": 10,
+    "question": "Πώς διαφοροποιείτε οριακή διαταραχή προσωπικότητας από διπολική διαταραχή;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "5B4",
+    "retained": "jan2026_28",
+    "fromChapter": 15,
+    "toChapter": 15,
+    "question": "Τι είναι η παρανοειδής διαταραχή προσωπικότητας;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_025_fu01",
+    "retained": "oral_core_025",
+    "fromChapter": 16,
+    "toChapter": 16,
+    "question": "Ποια είναι τα βασικά συμπτωματικά πεδία της ΔΕΠΥ;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_026_fu03",
+    "retained": "oral_core_026",
+    "fromChapter": 16,
+    "toChapter": 16,
+    "question": "Τι αναπτυξιακό ιστορικό χρειάζεται στην εκτίμηση αυτισμού;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_027_fu03",
+    "retained": "3D29",
+    "fromChapter": 16,
+    "toChapter": 16,
+    "question": "Ποιες συννοσηρότητες πρέπει να αξιολογηθούν σε σύνδρομο Tourette;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_032_fu01",
+    "retained": "Q52",
+    "fromChapter": 19,
+    "toChapter": 19,
+    "question": "Ποια είναι η διαφορική διάγνωση σοβαρής αυτοπαραμέλησης σε ηλικιωμένο;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_032_fu02",
+    "retained": "Q52",
+    "fromChapter": 19,
+    "toChapter": 19,
+    "question": "Ποιους άμεσους κινδύνους αξιολογείτε σε ηλικιωμένο με σοβαρή αυτοπαραμέληση και διαβίωση σε ακραία ακαταστασία;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_032_fu04",
+    "retained": "Q52",
+    "fromChapter": 19,
+    "toChapter": 19,
+    "question": "Σε ηλικιωμένο με σοβαρή αυτοπαραμέληση που αρνείται βοήθεια, πότε χρειάζεται εκτίμηση ικανότητας λήψης απόφασης και εμπλοκή κοινωνικών υπηρεσιών;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_014_fu06",
+    "retained": "Q38",
+    "fromChapter": 20,
+    "toChapter": 20,
+    "question": "Ποια βενζοδιαζεπίνη προτιμάται σε στέρηση αλκοόλ με σοβαρή ηπατική δυσλειτουργία;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_007_fu01",
+    "retained": "Q4",
+    "fromChapter": 21,
+    "toChapter": 21,
+    "question": "Ποια στοιχεία πρέπει να περιλαμβάνει μια πλήρης εκτίμηση αυτοκτονικού κινδύνου;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_007",
+    "retained": "Q4",
+    "fromChapter": 21,
+    "toChapter": 21,
+    "question": "Ασθενής με κατάθλιψη αναφέρει ότι δεν αντέχει άλλο και έχει σκεφτεί να βάλει τέλος στη ζωή του. Πώς τον αξιολογείτε και τι κάνετε;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "4B3",
+    "retained": "Q91",
+    "fromChapter": 24,
+    "toChapter": 24,
+    "question": "Τι είναι η μεταβίβαση και η αντιμεταβίβαση;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_029_fu04",
+    "retained": "Q91",
+    "fromChapter": 24,
+    "toChapter": 24,
+    "question": "Πώς χρησιμοποιείται κλινικά η αντιμεταβίβαση χωρίς να γίνεται αυθαίρετη ερμηνεία;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_028_fu02",
+    "retained": "Q90",
+    "fromChapter": 24,
+    "toChapter": 24,
+    "question": "Ποιες είναι βασικές τεχνικές CBT;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "4B1",
+    "retained": "Q90",
+    "fromChapter": 24,
+    "toChapter": 24,
+    "question": "Τι είναι η CBT; Ποιες οι εφαρμογές της; Τι είναι τα γνωσιακά σχήματα;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "2Ad1",
+    "retained": "Q77",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Ποιες εξωπυραμιδικές ανεπιθύμητες ενέργειες μπορούν να προκαλέσουν τα αντιψυχωσικά;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_020_fu03",
+    "retained": "Q77",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Πώς αντιμετωπίζετε οξεία δυστονία, παρκινσονισμό και ακαθησία από αντιψυχωσικά;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "2Ad5",
+    "retained": "Q76",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Πώς επιλέγετε αντιψυχωτικό βάσει προφίλ ΑΕ;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_001_fu06",
+    "retained": "Q76",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Πώς επιλέγετε αρχικό αντιψυχωσικό σε πρώτο ψυχωτικό επεισόδιο;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_002_fu04",
+    "retained": "oral_core_001_fu07",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Ποιες ανεπιθύμητες ενέργειες των αντιψυχωσικών πρέπει να παρακολουθείτε;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  },
+  {
+    "retired": "oral_core_003_fu02",
+    "retained": "Q19",
+    "fromChapter": 25,
+    "toChapter": 25,
+    "question": "Ποια αιματολογική παρακολούθηση απαιτείται με κλοζαπίνη;",
+    "reason": "Overlapping definition, assessment or management; unique details retained in destination."
+  }
+]

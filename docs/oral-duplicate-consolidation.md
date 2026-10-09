@@ -1,5 +1,7 @@
 # Oral question duplicate review
 
+This is the first-pass historical report. The [second pass](oral-duplicate-second-pass.md) supersedes its active counts and redirects where further consolidation was possible.
+
 Reviewed all 26 chapter inventories in order and compared answers for each proposed duplicate pair. This is an editorial consolidation of existing approved content, not a new medical evidence review.
 
 | Chapter | Before | After | Consolidated |
