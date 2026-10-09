@@ -185,6 +185,28 @@ describe("golden path smoke tests", () => {
     expect(document.querySelector('.oral-reading-answer').textContent).not.toContain('rapid cycling');
   });
 
+  it('resumes a reclassified question in its new chapter while keeping its checkmark', async () => {
+    const user = userEvent.setup();
+    const first = renderApp();
+    await createProfile(user, 'ΣωστόΚεφάλαιο', first.container);
+    first.unmount();
+    const store = readProfileStore();
+    const profile = Object.values(store.profiles)[0];
+    profile.oralProgress.mastered.jan2026_16 = true;
+    window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(store));
+    saveStudyPosition(profile.id, { path: '/oral/chapters/1/questions/jan2026_16', title: 'Soft signs', section: 'Προφορικά' });
+    renderApp();
+    await user.click(await screen.findByRole('button', { name: /Συνέχεια:.*Soft signs/ }));
+    expect(await screen.findByRole('heading', { name: /Τι είναι τα ήπια νευρολογικά σημεία/ })).toBeInTheDocument();
+    await waitFor(() => expect(window.location.pathname).toBe('/oral/chapters/11/questions/jan2026_16'));
+    expect(screen.getByRole('heading', { name: '11. Σχιζοφρένεια' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ολοκληρώθηκε' })).toHaveAttribute('aria-pressed', 'true');
+    expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/11/questions/jan2026_16');
+    await user.click(screen.getByRole('link', { name: /^01\s*Σημεία και συμπτώματα/ }));
+    expect(screen.queryByRole('link', { name: /Τι είναι τα ήπια νευρολογικά σημεία/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Πώς εξετάζονται οι διαταραχές βούλησης/ })).toBeInTheDocument();
+  });
+
   it('resumes a retired saved question at its replacement without losing historical checks', async () => {
     const user = userEvent.setup();
     const first = renderApp();

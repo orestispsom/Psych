@@ -61,6 +61,9 @@ describe('Greek oral chapter organization', () => {
   });
   it('distinguishes symptom chapters, ethics, research, suicide and biological therapies', () => {
     expect(oralChapters).toHaveLength(26);
+    expect(chapterForQuestion('jan2026_16')).toBe(11);
+    expect(chapterForQuestion('3D1')).toBe(1);
+    expect(chapterForQuestion('3D2')).toBe(1);
     expect(chapterForQuestion('3D3')).toBe(12);
     expect(chapterForQuestion('Q61')).toBe(17);
     expect(chapterForQuestion('Q6')).toBe(18);
