@@ -153,6 +153,38 @@ describe("golden path smoke tests", () => {
     expect(workspace.getByRole("navigation", { name: "Κεφάλαια προφορικών" })).toBeInTheDocument();
   });
 
+  it('keeps related model responses on their own pages instead of appending them to a narrow question', async () => {
+    const user = userEvent.setup();
+    const first = renderApp();
+    await createProfile(user, 'ΣωστήΑπάντηση', first.container);
+    first.unmount();
+    window.history.pushState({}, '', '/oral/chapters/1/questions/3D2');
+    renderApp();
+    expect(await screen.findByRole('heading', { name: /Πώς εξετάζονται οι διαταραχές βούλησης/ })).toBeInTheDocument();
+    const related = await screen.findByRole('navigation', { name: 'Σχετικές ερωτήσεις' });
+    expect(within(related).getAllByRole('link')).toHaveLength(1);
+    expect(document.querySelector('.oral-reading-answer').textContent).toContain('Κατατονία:');
+    expect(screen.queryByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Πότε μπορεί ένας ασθενής να νοσηλευτεί ακούσια/ })).not.toBeInTheDocument();
+    await user.click(within(related).getByRole('link', { name: 'Πώς αναγνωρίζετε την κατατονία και πώς την αντιμετωπίζετε;' }));
+    expect(window.location.pathname).toBe('/oral/chapters/1/questions/Q10');
+    expect(await screen.findByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Πώς αναγνωρίζετε την κατατονία και πώς την αντιμετωπίζετε;' })).toBeInTheDocument();
+  });
+  it('does not show a bipolar model response under a statistics question', async () => {
+    const user = userEvent.setup();
+    const first = renderApp();
+    await createProfile(user, 'Στατιστική', first.container);
+    first.unmount();
+    window.history.pushState({}, '', '/oral/chapters/6/questions/5A4');
+    renderApp();
+    expect(await screen.findByRole('heading', { name: /Τι είναι ο NNT/ })).toBeInTheDocument();
+    expect(document.querySelector('.oral-reading-answer').textContent).toContain('NNT');
+    expect(screen.queryByRole('navigation', { name: 'Σχετικές ερωτήσεις' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).not.toBeInTheDocument();
+    expect(document.querySelector('.oral-reading-answer').textContent).not.toContain('rapid cycling');
+  });
+
   it('resumes a retired saved question at its replacement without losing historical checks', async () => {
     const user = userEvent.setup();
     const first = renderApp();

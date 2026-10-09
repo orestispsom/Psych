@@ -4,6 +4,7 @@ import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
 import { buildOralBank, chapterForQuestion, oralChapters } from './oralChapters';
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
+import related from './oralPreviousQuestionSources';
 import { getSearchIndex } from '../lib/searchIndex';
 import { parseAppPath, pathForOralPage } from '../appRoutes';
 
@@ -49,6 +50,14 @@ describe('Greek oral chapter organization', () => {
     expect(oral).toHaveLength(491);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
+  });
+  it('keeps corrected references aligned with catatonia, cannabis, somatic symptoms and research methods', () => {
+    expect(related['3D2']).toEqual(['Q10']);
+    expect(related['3D17']).toEqual(['Q41']);
+    expect(related['3D23']).toEqual(['Q71', 'Q73']);
+    expect(related['3D27']).toEqual(['Q35']);
+    expect(related['1Ag4']).not.toContain('Q100');
+    ['5A4', '5A8', '5A9', '5A10', '5A11', '5A12', '4B5'].forEach(id => expect(related[id]).toEqual([]));
   });
   it('distinguishes symptom chapters, ethics, research, suicide and biological therapies', () => {
     expect(oralChapters).toHaveLength(26);

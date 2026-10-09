@@ -88,15 +88,16 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
               onClick={() => onQuestionMastered(current.id, !checked[current.id])}><Icons.Check /></button>
           </div>
           <div className="oral-reading-answer">
-            {current.kind === 'crucial' ? renderCrucial(current) : <>
-              {renderAnswer(current.answer)}
-              {(previousSources[current.id] || []).map(id => {
-                const source = sources?.find(item => item.id === id);
-                return source && <section className="oral-supplement" key={id}>{renderCrucial(source)}</section>;
-              })}
-            </>}
+            {current.kind === 'crucial' ? renderCrucial(current) : renderAnswer(current.answer)}
             {current.additionalAnswer.map((paragraph, i) => <div key={i}>{renderAnswer(paragraph)}</div>)}
           </div>
+          {(previousSources[current.id] || []).length > 0 && sources && <nav className="oral-related" aria-label="Σχετικές ερωτήσεις">
+            <h5>Σχετικές ερωτήσεις</h5>
+            <ul>{previousSources[current.id].map(id => {
+              const related = bank.find(q => q.id === id);
+              return related && <li key={id}><Link to={pathForOralPage(related.chapter, related.id)}>{related.text}</Link></li>;
+            })}</ul>
+          </nav>}
           <footer className="oral-reading-nav"><button type="button" className="nav-btn" disabled={index <= 0} onClick={() => select(visible[index - 1].id)}><Icons.ChevronLeft /> Προηγούμενη</button>
             <span>{index + 1}/{visible.length}</span><button type="button" className="nav-btn" disabled={index === visible.length - 1} onClick={() => select(visible[index + 1].id)}>Επόμενη <Icons.ChevronRight /></button></footer>
         </article> : <section className="oral-question-index" aria-label="Ερωτήσεις κεφαλαίου">
