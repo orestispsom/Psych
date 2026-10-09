@@ -526,7 +526,7 @@ const oralCoreAnchors = [
       { id: "oral_core_035_fu01", role: "follow_up", followUpType: "definition", difficulty: "core", trigger: "always", question: "Τι είναι βούληση και πώς διαφέρει από την ψυχοκινητικότητα;" },
       { id: "oral_core_035_fu02", role: "follow_up", followUpType: "assessment", difficulty: "core", trigger: "always", question: "Πώς εξετάζετε κλινικά την ψυχοκινητικότητα;" },
       { id: "oral_core_035_fu03", role: "follow_up", followUpType: "definition", difficulty: "intermediate", trigger: "always", question: "Πώς διαφοροποιείτε ψυχοκινητική επιβράδυνση, ψυχοκινητική αναστολή και πλήρη εμβροντησία;" },
-      { id: "oral_core_035_fu04", role: "follow_up", followUpType: "definition", difficulty: "intermediate", trigger: "always", question: "Τι εννοούμε με αστερισμό της κατατονικής ψυχοκινητικότητας;" },
+      { id: "oral_core_035_fu04", role: "follow_up", followUpType: "definition", difficulty: "intermediate", trigger: "always", question: "Ποιες ψυχοκινητικές διαταραχές χαρακτηρίζουν την κατατονία;" },
       { id: "oral_core_035_fu05", role: "follow_up", followUpType: "differential", difficulty: "intermediate", trigger: "always", question: "Τι είναι εναντίωση, αρνητισμός, καταληψία και κηρώδης ευκαμψία και πώς τα ξεχωρίζετε;" },
       { id: "oral_core_035_fu06", role: "follow_up", followUpType: "definition", difficulty: "intermediate", trigger: "always", question: "Τι είναι αμφιβουλησία ή αμφιπραξία, και τι είναι κινητική αμφιτιμία ή αμφιρρέπεια;" },
       { id: "oral_core_035_fu07", role: "challenge", followUpType: "exam_trap", difficulty: "intermediate", trigger: "if_good_answer", question: "Πώς διαφοροποιείτε κλινικά την κατατονία από φαρμακοεπαγόμενο παρκινσονισμό και από ακαθησία;" },
