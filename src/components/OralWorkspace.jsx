@@ -36,6 +36,12 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
     return () => { active = false; };
   }, [retry]);
   const bank = useMemo(() => buildOralBank(previous, clinical, sources || []), [sources]);
+  const selectedQuestion = bank.find(q => q.id === selectedId);
+  useEffect(() => {
+    if (selectedQuestion && chapterId && selectedQuestion.chapter !== chapterId) {
+      navigate(pathForOralPage(selectedQuestion.chapter, selectedQuestion.id), { replace: true });
+    }
+  }, [selectedQuestion, chapterId, navigate]);
   const chapter = oralChapters.find(ch => ch.id === chapterId);
   const visible = useMemo(() => bank.filter(q => !chapterId || q.chapter === chapterId), [bank, chapterId]);
   const current = visible.find(q => q.id === selectedId);
