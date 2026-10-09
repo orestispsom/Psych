@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import secondPass from '../../docs/oral-duplicate-second-pass.json';
 import consolidations from '../../docs/oral-duplicate-consolidation.json';
 import chapterMoves from '../../docs/oral-chapter-audit-moves.json';
 import previous from './oral';
@@ -24,8 +25,8 @@ describe('Greek oral chapter organization', () => {
   it('places every active question exactly once and preserves archived source records', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const history = previous.flatMap(g => g.topics.flatMap(t => (t.subtopics || [t]).flatMap(s => s.questions || [])));
-    expect(Object.keys(oralRetirements)).toHaveLength(119);
-    expect(bank).toHaveLength(407);
+    expect(Object.keys(oralRetirements)).toHaveLength(175);
+    expect(bank).toHaveLength(351);
     expect(bank).toHaveLength(history.length + clinical.length + crucial.length - Object.keys(oralRetirements).length);
     expect(new Set(bank.map(q => q.id)).size).toBe(bank.length);
     expect(bank.filter(q => !oralChapters.some(ch => ch.id === q.chapter))).toEqual([]);
@@ -60,17 +61,30 @@ describe('Greek oral chapter organization', () => {
   it('keeps every audited consolidation destination live and its source archived', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     for (const item of consolidations) {
-      expect(oralRetirements[item.retired]).toBe(item.retained);
+      const replacement = oralRetirements[item.retained] || item.retained;
+      expect(oralRetirements[item.retired]).toBe(replacement);
       expect(bank.some(q => q.id === item.retired)).toBe(false);
-      expect(bank.find(q => q.id === item.retained)?.chapter).toBe(item.chapter);
+      expect(bank.find(q => q.id === replacement)?.chapter).toBe(item.chapter);
     }
     expect(bank.find(q => q.id === 'Q67').additionalAnswer.join(' ')).toContain('0,5–2 Hz');
     expect(bank.find(q => q.id === '5A9').additionalAnswer.join(' ')).toContain('1/0,10 = 10');
     expect(bank.find(q => q.id === 'oral_core_007_fu02').additionalAnswer.join(' ')).toContain('24ωρο');
   });
+  it('consolidates cross-chapter classification and the four repeated assessment follow-ups', () => {
+    const bank = buildOralBank(previous, clinical, crucial);
+    expect(bank.filter(q => q.chapter === 3).map(q => q.id)).toEqual(['Q1', 'Q3', 'Q6', 'Q7']);
+    expect(bank.filter(q => q.chapter === 2)).toHaveLength(0);
+    expect(oralRetirements['1Aa3']).toBe('Q12');
+    expect(bank.find(q => q.id === 'Q12').additionalAnswer.join(' ')).toContain('όχι κριτήρια ICD-11');
+    for (const item of secondPass) {
+      expect(oralRetirements[item.retired]).toBe(item.retained);
+      expect(bank.some(q => q.id === item.retired)).toBe(false);
+      expect(bank.find(q => q.id === item.retained)?.chapter).toBe(item.toChapter);
+    }
+  });
   it('uses the same active bank in global search, excluding all retired cards', async () => {
     const oral = (await getSearchIndex()).filter(item => item.scope === 'oral');
-    expect(oral).toHaveLength(407);
+    expect(oral).toHaveLength(351);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
   });
