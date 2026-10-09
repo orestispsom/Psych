@@ -260,7 +260,7 @@ const oralCoreAnchors = [
     question: "Ασθενής εμφανίζει ακινησία, αλαλία, κηρώδη ευκαμψία και αρνητισμό. Πώς θα προσεγγίσετε την πιθανή κατατονία;",
     followUps: [
       { id: "oral_core_017_fu01", role: "follow_up", followUpType: "diagnostic_criteria", difficulty: "core", trigger: "always", question: "Ποια είναι τα κλινικά σημεία της κατατονίας;" },
-      { id: "oral_core_017_fu02", role: "follow_up", followUpType: "differential", difficulty: "core", trigger: "always", question: "Ποια είναι η διαφορική διάγνωση της κατατονίας;" },
+      { id: "oral_core_017_fu02", role: "follow_up", followUpType: "differential", difficulty: "core", trigger: "always", question: "Ποια είναι η διαφορική διάγνωση της κατατονίας και πώς τη διακρίνετε από φαρμακοεπαγόμενο παρκινσονισμό και ακαθησία;" },
       { id: "oral_core_017_fu03", role: "follow_up", followUpType: "management", difficulty: "core", trigger: "always", question: "Ποιος είναι ο ρόλος της λοραζεπάμης στην κατατονία;" },
       { id: "oral_core_017_fu04", role: "follow_up", followUpType: "management", difficulty: "intermediate", trigger: "always", question: "Πότε έχει ένδειξη η ECT στην κατατονία;" },
       { id: "oral_core_017_fu05", role: "challenge", followUpType: "exam_trap", difficulty: "intermediate", trigger: "if_good_answer", question: "Γιατί μπορεί να είναι επικίνδυνη η άκριτη χορήγηση αντιψυχωσικού σε κατατονία;" },
