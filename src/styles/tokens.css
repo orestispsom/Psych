@@ -165,3 +165,7 @@
   --lift: 0 6px 16px -8px rgba(24, 26, 32, 0.28), 0 2px 4px -2px rgba(24, 26, 32, 0.16);
   --lift-modal: 0 24px 56px -20px rgba(24, 26, 32, 0.34), 0 8px 16px -8px rgba(24, 26, 32, 0.2);
 }
+
+:root { --sec-study: #71b59b; --sec-study-quiet: rgba(113,181,155,.13); }
+
+:root[data-theme="light"] { --sec-study:#2c6f58; --sec-study-quiet:rgba(44,111,88,.1); }

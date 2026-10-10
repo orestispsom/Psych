@@ -4252,3 +4252,6 @@ input.crucial-search::placeholder { color: var(--ink-3); }
     min-width: 880px;
   }
 }
+
+.home-module-study { --module: var(--sec-study); --module-quiet: var(--sec-study-quiet); --module-rule: var(--rule-strong); }
+.sheet-study { max-width: none; }

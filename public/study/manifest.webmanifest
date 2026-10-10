@@ -1,0 +1,21 @@
+{
+  "name": "Psych — Μελέτη",
+  "short_name": "Μελέτη",
+  "start_url": "/study",
+  "scope": "/study",
+  "display": "standalone",
+  "background_color": "#0d0f14",
+  "theme_color": "#0d0f14",
+  "icons": [
+    {
+      "src": "/study/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/study/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

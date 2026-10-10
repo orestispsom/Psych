@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 
-if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = function () {};
+if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = function () {};
 
 // This jsdom/Node combination doesn't wire up window.localStorage by
 // default (Node's own experimental localStorage needs a --localstorage-file

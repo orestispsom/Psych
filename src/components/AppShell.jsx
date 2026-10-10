@@ -11,6 +11,7 @@ import { Icons } from "./Icons.jsx";
  */
 
 export const SECTIONS = [
+  { id: "study", path: "/study", label: "Μελέτη", full: "Μελέτη", Icon: Icons.BookOpen },
   { id: "mcq", path: "/mcq", label: "Πολλαπλής", full: "Πολλαπλής Επιλογής", Icon: Icons.ClipboardCheck },
   { id: "oral", path: "/oral", label: "Προφορικά", full: "Προφορικά", Icon: Icons.Mic },
   { id: "sos", path: "/sos", label: "SOS", full: "SOS Ψυχιατρικής", Icon: Icons.Bolt },
@@ -21,6 +22,7 @@ const RAIL_COLLAPSED_KEY = "psych_rail_collapsed";
 
 function sectionFor(screen) {
   if (!screen) return null;
+  if (screen === "study") return "study";
   if (screen === "mcq") return "mcq";
   if (screen === "pinakakia") return "pinakakia";
   if (screen.startsWith("oral")) return "oral";
@@ -31,6 +33,7 @@ function sectionFor(screen) {
 // Section identity colour, cascaded as --accent so the rail and the active
 // screen pick up the same ink without every surface naming its own section.
 const SECTION_ACCENT_VAR = {
+  study: "--sec-study",
   mcq: "--sec-mcq",
   oral: "--sec-oral",
   sos: "--sec-sos",

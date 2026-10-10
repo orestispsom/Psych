@@ -1,5 +1,6 @@
 const SCREEN_PATHS = {
   home: "/",
+  study: "/study",
   pinakakia: "/tables",
   mcq: "/mcq",
   oral: "/oral",
