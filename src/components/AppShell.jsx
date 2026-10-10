@@ -11,11 +11,11 @@ import { Icons } from "./Icons.jsx";
  */
 
 export const SECTIONS = [
-  { id: "study", path: "/study", label: "Μελέτη", full: "Μελέτη", Icon: Icons.BookOpen },
   { id: "mcq", path: "/mcq", label: "Πολλαπλής", full: "Πολλαπλής Επιλογής", Icon: Icons.ClipboardCheck },
   { id: "oral", path: "/oral", label: "Προφορικά", full: "Προφορικά", Icon: Icons.Mic },
   { id: "sos", path: "/sos", label: "SOS", full: "SOS Ψυχιατρικής", Icon: Icons.Bolt },
   { id: "pinakakia", path: "/tables", label: "Πινακάκια", full: "Πινακάκια", Icon: Icons.Table },
+  { id: "study", path: "/study", label: "Μελέτη", full: "Μελέτη", Icon: Icons.BookOpen },
 ];
 
 const RAIL_COLLAPSED_KEY = "psych_rail_collapsed";
