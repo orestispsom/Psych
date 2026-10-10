@@ -1,7 +1,7 @@
 {
   "name": "psychiatry-specialty-exams",
   "version": "1.0.0",
-  "description": "Προετοιμασία για τις εξετάσεις ειδικότητας ψυχιατρικής — γραπτά, προφορικά, SOS υλικό και πινακάκια.",
+  "description": "\u03a0\u03c1\u03bf\u03b5\u03c4\u03bf\u03b9\u03bc\u03b1\u03c3\u03af\u03b1 \u03b3\u03b9\u03b1 \u03c4\u03b9\u03c2 \u03b5\u03be\u03b5\u03c4\u03ac\u03c3\u03b5\u03b9\u03c2 \u03b5\u03b9\u03b4\u03b9\u03ba\u03cc\u03c4\u03b7\u03c4\u03b1\u03c2 \u03c8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae\u03c2 \u2014 \u03b3\u03c1\u03b1\u03c0\u03c4\u03ac, \u03c0\u03c1\u03bf\u03c6\u03bf\u03c1\u03b9\u03ba\u03ac, SOS \u03c5\u03bb\u03b9\u03ba\u03cc \u03ba\u03b1\u03b9 \u03c0\u03b9\u03bd\u03b1\u03ba\u03ac\u03ba\u03b9\u03b1.",
   "main": "index.js",
   "scripts": {
     "wow:questions": "node scripts/wow/questions.mjs",
@@ -12,7 +12,7 @@
     "wow:install": "node scripts/wow/install.mjs",
     "wow:test": "node --test scripts/wow/tests/*.test.mjs",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc -p tsconfig.study.json && vite build && node scripts/build-study-offline.cjs",
     "preview": "vite preview",
     "test": "vitest run",
     "backup:supabase": "node scripts/backup-supabase.cjs",
@@ -26,9 +26,13 @@
   "type": "commonjs",
   "dependencies": {
     "@vitejs/plugin-react": "^6.0.1",
+    "dexie": "4.4.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-markdown": "10.1.0",
     "react-router": "^7.18.2",
+    "remark-gfm": "4.0.1",
+    "ts-fsrs": "5.4.2",
     "vite": "^8.0.3"
   },
   "devDependencies": {
@@ -36,7 +40,11 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "fake-indexeddb": "6.2.5",
     "jsdom": "^30.0.1",
+    "typescript": "5.9.3",
     "vitest": "^4.1.11"
   }
 }

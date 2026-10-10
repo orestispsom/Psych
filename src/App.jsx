@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import { Icons } from "./components/Icons.jsx";
 import AppShell from "./components/AppShell.jsx";
+const StudyModule = lazy(() => import("./study/StudyModule.tsx"));
+
 import OralWorkspace from "./components/OralWorkspace.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
@@ -1240,13 +1242,14 @@ async function loadRemoteProfileStore(activeProfileId = null, localProfiles = {}
   return { version: 1, activeProfileId: activeId, profiles };
 }
 
-async function ensureRemoteProfile(profile) {
+async function ensureRemoteProfile(profile, signal) {
   return supabaseProfilesRequest(
     { on_conflict: "id" },
     {
       method: "POST",
       headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
       body: JSON.stringify(profileToRemoteMetadataRow(profile)),
+      signal,
     }
   );
 }
@@ -2774,6 +2777,7 @@ const SCREEN_TITLES = {
   home: "Επανάληψη Ψυχιατρικής",
   admin: "Επιλογές διαχειριστή",
   mcq: "Πολλαπλής Επιλογής",
+  study: "Μελέτη",
   oral: "Προφορικά",
   "oral-past": "Σημαντικά Θέματα",
   "oral-viewer": "Σημαντικά Θέματα",
@@ -3040,10 +3044,10 @@ function SectionRow({ id, icon, title, detail, level, onOpen }) {
   );
 }
 
-// The four functions the whole app is organised around, so the home hub
+// The study sections the app is organised around, so the home hub
 // gets one deliberate exception to the "no cards" rule: this is the single
 // dispatch point, not a list of study items.
-const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes" };
+const HOME_MODULE_ACCENT = { mcq: "mcq", oral: "oral", sos: "sos", pinakakia: "boxes", study: "study" };
 
 function HomeModuleCard({ id, icon, title, onOpen }) {
   return (
@@ -3071,6 +3075,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
 
   const sections = [
+    { id: 'study', icon: <Icons.BookOpen />, title: 'Μελέτη' },
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
@@ -8445,6 +8450,7 @@ export default function App() {
 
   useEffect(() => {
     const onKeyDown = event => {
+      if (screen === "study") return;
       const target = event.target;
       const typing =
         target instanceof HTMLElement &&
@@ -8468,7 +8474,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [screen]);
 
   // ─── Resume: remember where the trainee last was ───
   const activeProfileId = profileStore.activeProfileId;
@@ -9191,14 +9197,14 @@ export default function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onNavigateSection={section => navigate(section.path)}
-        onOpenSearch={() => setPaletteOpen(true)}
+        onOpenSearch={() => screen === "study" ? window.dispatchEvent(new Event("psych-study-open-search")) : setPaletteOpen(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onSwitchProfile={switchProfile}
         onHome={() => setScreen("home")}
         onOpenAdmin={hasAdminAccess ? () => setScreen("admin") : undefined}
         hideMobileHeader={inMcqTest}
       >
-        <div className={`sheet${inMcqTest ? " sheet-mcq-active" : ""}`}>
+        <div className={`sheet${inMcqTest ? " sheet-mcq-active" : screen === "study" ? " sheet-study" : ""}`}>
         {activeProfile && screen === 'admin' && (
           <AdminOptionsScreen
             onBack={() => setScreen('home')}
@@ -9377,6 +9383,11 @@ export default function App() {
               onHome={() => setScreen('home')}
             />
           </div>
+        )}
+        {activeProfile && screen === 'study' && (
+          <Suspense fallback={<p role="status">Φόρτωση μελέτης…</p>}>
+            <StudyModule key={activeProfile.id} profile={activeProfile} ensureProfile={ensureRemoteProfile} />
+          </Suspense>
         )}
         {activeProfile && screen === 'oral' && (
           <OralWorkspace key={activeProfile.id} profileId={activeProfile.id}
