@@ -3075,7 +3075,6 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
   const [updateEditorStatus, setUpdateEditorStatus] = useState(null);
 
   const sections = [
-    { id: 'study', icon: <Icons.BookOpen />, title: 'Μελέτη' },
     {
       id: 'mcq',
       icon: <Icons.ClipboardCheck />,
@@ -3096,6 +3095,7 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
       icon: <Icons.Table />,
       title: 'Πινακάκια',
     },
+    { id: 'study', icon: <Icons.BookOpen />, title: 'Μελέτη' },
   ];
 
   useEffect(() => {

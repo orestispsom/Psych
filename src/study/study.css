@@ -1750,3 +1750,31 @@
 .study-module .focus-header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; }
 .study-module .focus-header button { white-space:nowrap; }
 .study-module .focus-header > span { text-align:right; }
+
+/* Comfortable Greek reading rhythm, shared by study text and recall answers. */
+.study-module .reading-page p:not(.eyebrow),
+.study-module .reading-page li,
+.study-module .model-answer {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  letter-spacing: 0.005em;
+  word-spacing: 0.025em;
+}
+.study-module .reading-page p:not(.eyebrow),
+.study-module .model-answer p { margin-block: 0 1.25em; }
+.study-module .reading-page li,
+.study-module .model-answer li { margin-block: 0.4em; }
+.study-module .reading-page h1,
+.study-module .review-card .review-prompt {
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+.study-module .reading-page h2,
+.study-module .reading-page h3 { line-height: 1.4; letter-spacing: 0; }
+.study-module .model-answer { max-width: 100%; margin: 28px 0; }
+@media (max-width: 760px) {
+  .study-module .reading-page p:not(.eyebrow),
+  .study-module .reading-page li,
+  .study-module .model-answer { font-size: 1.0625rem; line-height: 1.8; }
+}
