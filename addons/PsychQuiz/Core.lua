@@ -6,13 +6,16 @@ P.isForever = interfaceVersion >= 16000 and interfaceVersion < 17000
 P.font = 'Interface\\AddOns\\PsychQuiz\\Media\\FiraSans-Regular.ttf'
 P.symbolFont = 'Interface\\AddOns\\PsychQuiz\\Media\\NotoSansSymbols2-Regular.ttf'
 P.defaults = {width=410, height=570, fontSize=16, opacity=0.96, collapsed=false,
-    open=false, mode='random', category='', length=25, autoExplanation=true}
+    open=false, mode='random', category='', length=25, autoExplanation=true, locked=false}
 P.colors = {
-    surface={0.85,0.92,0.96}, ink={0.085,0.20,0.27}, muted={0.24,0.37,0.45},
-    border={0.55,0.70,0.79}, selected={0.70,0.85,0.92}, hover={0.78,0.89,0.95},
-    primary={0.17,0.36,0.53}, white={0.97,0.99,1}, correct={0.09,0.36,0.25},
-    wrong={0.58,0.19,0.19}, rule={0.61,0.75,0.83},
+    surface={0.085,0.095,0.11}, ink={0.89,0.88,0.84}, muted={0.67,0.70,0.73},
+    border={0.31,0.29,0.25}, selected={0.27,0.22,0.14}, hover={0.18,0.20,0.23},
+    button={0.14,0.16,0.19}, primary={0.80,0.64,0.36}, primaryHover={0.89,0.73,0.44},
+    primaryText={0.10,0.085,0.065}, accent={0.91,0.75,0.45}, white={0.94,0.93,0.89},
+    correct={0.56,0.87,0.66}, wrong={0.97,0.63,0.58}, rule={0.26,0.28,0.31},
+    correctFill={0.105,0.23,0.17}, wrongFill={0.30,0.13,0.13},
 }
+
 function P.Copy(value)
     if type(value) ~= 'table' then return value end
     local out = {}; for k,v in pairs(value) do out[k]=P.Copy(v) end; return out

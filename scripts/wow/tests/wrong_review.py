@@ -3,18 +3,21 @@ from pathlib import Path
 from lupa.lua51 import LuaRuntime
 root = Path(__file__).resolve().parents[3]
 vm = LuaRuntime(unpack_returned_tuples=True)
-vm.execute("P={}; unpack=unpack or table.unpack")
-for name in ['Quiz.lua', 'UI.lua']:
+vm.execute("""P={}; unpack=unpack or table.unpack; SlashCmdList={}
+function GetBuildInfo() return '', '', '', 16001 end
+function CreateFrame() return {RegisterEvent=function() end,SetScript=function() end} end
+""")
+for name in ['Core.lua', 'Quiz.lua', 'UI.lua']:
     vm.execute('local f=assert(loadstring(...)); f("PsychQuiz",P)',
                (root/'addons/PsychQuiz'/name).read_text(encoding='utf8'))
 vm.execute(r'''
 function region()
     return {SetText=function(self,t) self.value=t end,SetShown=function(self,v) self.visible=v end,
-        SetEnabled=function() end,SetAlpha=function() end,IsEnabled=function() return true end}
+        SetEnabled=function() end,SetAlpha=function() end,SetColorTexture=function() end,SetTextColor=function() end,IsEnabled=function() return true end}
 end
-P.colors={}; P.frame={}; P.Layout=function() end; P.RefreshAnswers=function() end
+P.frame={}; P.Layout=function() end; P.RefreshAnswers=function() end
 P.compact=region(); P.topic=region(); P.progress=region(); P.feedback=region(); P.stem=region()
-P.headerMode={label=region()}; P.action=region(); P.action.label=region()
+P.headerMode={label=region()}; P.action=region(); P.action.label=region(); P.action.bg=region()
 P.summaryNewBtn=region(); P.answers={region(),region()}
 P.Now=function() return 1800000000 end
 P.bank={bankVersion='test',questions={}}

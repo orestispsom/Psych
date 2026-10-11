@@ -16,13 +16,13 @@ local function text(parent,size,token)
 end
 local function button(parent,label,width,height,action,primary)
     local b=CreateFrame('Button',nil,parent)
-    b:SetSize(width,height)
+    b:SetSize(width,height); b.primary=primary
     b.bg=b:CreateTexture(nil,'BACKGROUND'); b.bg:SetAllPoints()
-    color(b.bg,primary and 'primary' or 'selected',primary and 1 or 0.35)
-    b.label=text(b,14,primary and 'white' or 'ink'); b.label:SetPoint('CENTER')
+    color(b.bg,primary and 'primary' or 'button')
+    b.label=text(b,14,primary and 'primaryText' or 'ink'); b.label:SetPoint('CENTER')
     b.label:SetJustifyH('CENTER'); b.label:SetText(label)
-    b:SetScript('OnEnter',function() color(b.bg,primary and 'primary' or 'hover') end)
-    b:SetScript('OnLeave',function() color(b.bg,primary and 'primary' or 'selected',primary and 1 or 0.35) end)
+    b:SetScript('OnEnter',function() if b:IsEnabled() then color(b.bg,b.primary and 'primaryHover' or 'hover') end end)
+    b:SetScript('OnLeave',function() color(b.bg,b.primary and 'primary' or 'button') end)
     b:SetScript('OnClick',action)
     return b
 end
@@ -73,30 +73,44 @@ function P.MakeAnswer(index)
     row:SetScript('OnClick',function() P.Select(index) end)
     row:SetScript('OnEnter',function()
         local s=P.db.session
-        if s and not s.revealed and s.selected~=index then color(row.bg,'hover',0.8) end
+        if s and not s.revealed and s.selected~=index then color(row.bg,'hover') end
     end)
     row:SetScript('OnLeave',function() P.RefreshAnswers() end)
     return row
+end
+-- Selection and correctness are separate, and exams never leak the answer early.
+function P.AnswerAppearance(s,q,index)
+    local selected=s.selected==index
+    if s.revealed and (s.mode~='exam' or P.IsWrongReview(s)) then
+        if index-1==q.correct then return 'correct','correctFill','✓' end
+        if selected then return 'wrong','wrongFill','×' end
+    end
+    return selected and 'accent' or 'ink',selected and 'selected' or nil,selected and '●' or '○'
 end
 function P.RefreshAnswers()
     local q=P.CurrentQuestion(); local s=P.db.session
     for i,row in ipairs(P.answers) do
         if q and i<=#q.options then
-            local selected=s.selected==i
-            color(row.bg,'selected',selected and 0.85 or 0)
-            row.mark:SetText(selected and '●' or '○')
+            local token,fill,mark=P.AnswerAppearance(s,q,i)
+            color(row.bg,fill or 'button',fill and 1 or 0)
+            row.mark:SetText(mark)
             row.letter:SetText(answerLetters[i] or tostring(i))
             row.body:SetText(plain(q.options[i]))
-            local token='ink'
-            if s.revealed and (s.mode~='exam' or P.IsWrongReview(s)) then
-                if i-1==q.correct then token='correct'; row.mark:SetText('✓')
-                elseif selected then token='wrong'; row.mark:SetText('×') end
-            end
             row.mark:SetTextColor(unpack(C[token])); row.body:SetTextColor(unpack(C[token]))
+            row.letter:SetTextColor(unpack(C[fill and token or 'muted']))
             row:EnableMouse(not s.revealed or (P.IsForeverExam(s) and not P.IsWrongReview(s)))
         end
     end
 end
+function P.ExplanationVisible()
+    if P.showExplanation~=nil then return P.showExplanation end
+    return P.db.settings.autoExplanation~=false
+end
+local function tinted(value,token)
+    local c=C[token]
+    return string.format('|cff%02x%02x%02x',math.floor(c[1]*255),math.floor(c[2]*255),math.floor(c[3]*255))..value..'|r'
+end
+
 function P.RefreshForeverExamMeta()
     local s=P.db and P.db.session
     local q=P.CurrentQuestion()
@@ -114,11 +128,11 @@ function P.Layout()
     if not P.frame then return end
     local f=P.frame; local settings=P.db.settings
     local collapsed=settings.collapsed
-    P.main:SetShown(not collapsed); P.resize:SetShown(not collapsed)
+    P.main:SetShown(not collapsed); P.resize:SetShown(not collapsed and not settings.locked)
     P.collapse.label:SetText(collapsed and '+' or '−')
     local maxHeaderBtnWidth=math.max(120,math.min(240,f:GetWidth()-210))
     P.headerMode:SetWidth(maxHeaderBtnWidth)
-    P.headerMode.label:SetWidth(maxHeaderBtnWidth-14)
+    P.headerMode.label:SetWidth(maxHeaderBtnWidth-30)
     local w=f:GetWidth()-40
     P.topic:SetWidth(math.max(160,f:GetWidth()-110))
     local topY=math.max(70,48+P.topic:GetStringHeight()+8)
@@ -144,6 +158,10 @@ function P.Layout()
     if P.feedback:GetText() and P.feedback:GetText()~='' then
         y=y+18; P.feedback:ClearAllPoints(); P.feedback:SetPoint('TOPLEFT',0,-y)
         y=y+P.feedback:GetStringHeight()+12
+    end
+    if P.explanationBtn and P.explanationBtn:IsShown() then
+        P.explanationBtn:ClearAllPoints(); P.explanationBtn:SetPoint('TOPLEFT',0,-y)
+        P.explanationBtn:SetWidth(math.min(w,240)); y=y+42
     end
     P.content:SetHeight(math.max(1,y))
     P.scroll:UpdateScrollChildRect()
@@ -186,8 +204,13 @@ function P.Refresh()
         local len=settings.length==0 and 'Όλες' or tostring(settings.length)
         modeText=label..' ('..len..')'
     end
-    P.headerMode.label:SetText(modeText..' ▾')
+    P.headerMode.label:SetText(modeText)
     P.feedback:SetText('')
+    if P.explanationBtn then
+        local canExplain=q and s.revealed and s.mode~='exam' and not P.IsWrongReview(s) and q.explanation and q.explanation~=''
+        P.explanationBtn:SetShown(canExplain and true or false)
+        P.explanationBtn.label:SetText(P.ExplanationVisible() and 'Απόκρυψη επεξήγησης' or 'Εμφάνιση επεξήγησης')
+    end
     if P.feedbackBtn then
         if q then
             local hasComment=P.db and P.db.feedback and P.db.feedback[tostring(q.id)] and P.db.feedback[tostring(q.id)].text~=''
@@ -232,8 +255,8 @@ function P.Refresh()
             else
                 local correct=s.selected-1==q.correct
                 local title=correct and 'Σωστή απάντηση' or 'Λάθος απάντηση'
-                local message=title..'\n\nΣωστή: '..plain(q.options[q.correct+1])
-                message=message..'\n\n'..plain(q.explanation)
+                local message=tinted(title,correct and 'correct' or 'wrong')..'\n\nΣωστή: '..plain(q.options[q.correct+1])
+                if P.ExplanationVisible() then message=message..'\n\n'..plain(q.explanation) end
                 P.feedback:SetText(message)
             end
         else P.action.label:SetText('Απάντηση') end
@@ -265,7 +288,9 @@ function P.Refresh()
         P.action.label:SetText('Έναρξη')
     end
     P.action:SetEnabled(not q or P.IsForeverExam(s) or s.revealed or s.selected~=nil)
-    P.action.label:SetAlpha(P.action:IsEnabled() and 1 or 0.5)
+    color(P.action.bg,P.action:IsEnabled() and 'primary' or 'button')
+    P.action.label:SetTextColor(unpack(C[P.action:IsEnabled() and 'primaryText' or 'muted']))
+    P.action.label:SetAlpha(1)
     P.Layout()
 end
 local function ensureMenu(titleText)
@@ -298,8 +323,9 @@ local function menuRow(label,sublabel,action,isPrimary)
         b.subtext=text(b,11,'muted')
         P.rowPool[P.rowCursor]=b
     end
-    color(b.bg,isPrimary and 'primary' or 'selected',isPrimary and 1 or 0.35)
-    b.label:SetTextColor(unpack(C[isPrimary and 'white' or 'ink']))
+    b.primary=isPrimary
+    color(b.bg,isPrimary and 'primary' or 'button')
+    b.label:SetTextColor(unpack(C[isPrimary and 'primaryText' or 'ink']))
     b:ClearAllPoints(); b.label:ClearAllPoints(); b.label:SetJustifyH('LEFT'); b.label:SetFont(P.font,13,'')
     b.label:SetText(label)
     if sublabel and sublabel~='' then
@@ -346,6 +372,15 @@ function P.OpenSettings()
     menuTitle('Εμφάνιση παραθύρου')
     menuSlider('Αδιαφάνεια φόντου',0.65,1,0.01,settings.opacity,function(v) settings.opacity=v end)
     menuSlider('Μέγεθος γραμμάτων',14,24,1,settings.fontSize,function(v) settings.fontSize=math.floor(v+0.5) end)
+    menuRow(settings.locked and 'Παράθυρο: κλειδωμένο' or 'Παράθυρο: ελεύθερο',
+        'Κλείδωμα μετακίνησης και μεγέθους.',function()
+            settings.locked=not settings.locked; P.OpenSettings(); P.Layout()
+        end)
+    menuRow(settings.autoExplanation~=false and 'Επεξηγήσεις: αυτόματα' or 'Επεξηγήσεις: με κλικ',
+        'Η σωστή απάντηση παραμένει ορατή μετά την υποβολή.',function()
+            settings.autoExplanation=settings.autoExplanation==false; P.showExplanation=nil
+            P.OpenSettings(); P.Refresh()
+        end)
     menuTitle('Συγχρονισμός & Δεδομένα')
     menuTitle(P.PendingCount()..' απαντήσεις χωρίς επιβεβαίωση συγχρονισμού')
     local fbCount=0
@@ -520,7 +555,7 @@ function P.CreateUI()
     f:SetMovable(true); f:SetResizable(true); f:SetResizeBounds(340,300,900,1000); f:EnableMouse(true)
     local header=CreateFrame('Frame',nil,f); header:SetPoint('TOPLEFT'); header:SetPoint('TOPRIGHT'); header:SetHeight(36)
     header:EnableMouse(true); header:RegisterForDrag('LeftButton')
-    header:SetScript('OnDragStart',function() P.CloseMenu(); f:StartMoving() end)
+    header:SetScript('OnDragStart',function() if not P.db.settings.locked then P.CloseMenu(); f:StartMoving() end end)
     header:SetScript('OnDragStop',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
 
     P.headerMode=button(header,'',160,26,function()
@@ -536,9 +571,12 @@ function P.CreateUI()
     P.headerMode.label:ClearAllPoints()
     P.headerMode.label:SetPoint('LEFT',8,0)
 
+    P.headerArrow=text(P.headerMode,12,'accent'); P.headerArrow:SetFont(P.symbolFont,12,'')
+    P.headerArrow:SetText('▾'); P.headerArrow:SetPoint('RIGHT',-7,0)
+
     P.compact=text(header,12,'muted'); P.compact:SetPoint('RIGHT',-112,0)
 
-    P.gear=button(header,'⚙',26,26,function()
+    P.gear=button(header,'☰',26,26,function()
         if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='Ρυθμίσεις' then
             P.CloseMenu()
         else
@@ -574,6 +612,10 @@ function P.CreateUI()
     P.scrollbar:SetScript('OnValueChanged',function(_,v) P.scroll:SetVerticalScroll(v) end)
 
     P.stem=text(P.content,17); P.feedback=text(P.content,16); P.answers={}
+    P.explanationBtn=button(P.content,'',240,32,function()
+        P.showExplanation=not P.ExplanationVisible(); P.Refresh()
+    end)
+    P.explanationBtn:Hide()
     P.action=button(P.main,'Έναρξη',120,34,function()
         if P.IsWrongReview() then P.Next()
         elseif not P.CurrentQuestion() then
@@ -602,7 +644,7 @@ function P.CreateUI()
     P.resize=CreateFrame('Button',nil,f); P.resize:SetSize(18,18); P.resize:SetPoint('BOTTOMRIGHT',-1,1)
     P.resize:SetNormalTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up')
     P.resize:SetHighlightTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight')
-    P.resize:SetScript('OnMouseDown',function(_,which) if which=='LeftButton' then P.CloseMenu(); f:StartSizing('BOTTOMRIGHT') end end)
+    P.resize:SetScript('OnMouseDown',function(_,which) if which=='LeftButton' and not P.db.settings.locked then P.CloseMenu(); f:StartSizing('BOTTOMRIGHT') end end)
     P.resize:SetScript('OnMouseUp',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
     f:SetScript('OnSizeChanged',function() if not P.restoring then P.Layout() end end)
     f:SetScript('OnUpdate',function(_,elapsed)

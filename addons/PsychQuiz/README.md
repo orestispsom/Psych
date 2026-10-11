@@ -32,7 +32,9 @@ npm run wow:install -- "C:/Program Files (x86)/World of Warcraft/_classic_era_"
 
 Enable PsychQuiz in the character-selection AddOns list and enter `/psych`. Restart the client if a newly installed addon is not listed. `/psych reset-position` restores the default location and dimensions. The installer preserves SavedVariables and backs up an existing recognized addon folder before updating it.
 
-Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
+The addon uses a charcoal dark theme with soft ivory text and muted gold controls. Selected answers use gold; revealed correct answers use green with a check, and wrong selections use coral with a cross. Exam correctness remains hidden until completion. The header menu icons use verified glyphs from the bundled symbol font.
+
+Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Keep background opacity near 0.96–1 when the game scene is bright. The ☰ settings menu includes a window lock to prevent accidental movement/resizing, and an automatic/click-to-show explanation preference. After answering outside exam mode, an explanation button lets you show or hide long explanations without hiding the correct answer. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
 
 Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. In Forever, an active 100-question exam stores every choice in its SavedVariables session draft, restores that draft automatically, keeps choices editable until completion, and shows whole elapsed minutes without seconds. Answer events are committed when the exam is completed. Every mode offers **Νέα συνεδρία** (a fresh run) or **Ξανά λάθη (n)** (retake only the questions answered incorrectly in the completed run). Retakes clear previous selections and scores, create a new session, and record new answers normally. Each retake ends with the same choices using only its own remaining mistakes: 10 questions → 5 mistakes → 2 mistakes → none. Correctly answered questions leave the retry pool. Retakes preserve the original mode’s feedback and exam-submission behavior; reload resumes the active retake. All-questions sessions stop at their summary after exhausting the eligible bank so mistakes remain available for review; the next shuffled session starts only when requested. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
 
@@ -68,11 +70,12 @@ The exporter parses a restricted Lua table format; it does not execute SavedVari
 npm run wow:test
 python scripts/wow/tests/runtime.py
 python scripts/wow/tests/wrong_review.py
+python scripts/wow/tests/appearance.py
 ```
 
-The optional Lua test requires Python `lupa` with its Lua 5.1 runtime. Node tests cover the full bank, parser safety, event validation and deterministic export. Lua tests execute production study logic using nonvisual API doubles; UI syntax is compiled. These do not prove WoW rendering or client integration.
+The optional Lua tests require Python `lupa` with its Lua 5.1 runtime; appearance glyph checks also use `fonttools`. Node tests cover the full bank, parser safety, event validation and deterministic export. Lua tests execute production study logic using nonvisual API doubles; UI syntax is compiled. These do not prove WoW rendering or client integration.
 
-Target inspected locally: Classic Era 1.15.9.69722, Interface 11509. No retail/private-server compatibility claim is made. The final in-game acceptance check must cover long Greek questions (2309), long explanations (2298), six choices (3221/3264/3266), minimum/maximum size, movement, collapse/expand, opacity, combat interaction, `/reload` persistence and Lua errors. No in-game screenshots have been captured.
+Target inspected locally: Classic Era 1.15.9.69722, Interface 11509. No retail/private-server compatibility claim is made. The final in-game acceptance check must cover long Greek questions (2309), long explanations (2298), six choices (3221/3264/3266), minimum/maximum size, movement, collapse/expand, opacity, combat interaction, `/reload` persistence and Lua errors. A user-provided in-game screenshot shows the earlier light theme; the updated dark theme still requires in-game visual acceptance.
 
 ### WoW Forever beta
 
