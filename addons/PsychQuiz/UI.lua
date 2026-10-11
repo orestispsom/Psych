@@ -174,7 +174,9 @@ function P.Refresh()
     local mode=s and q and s.mode or settings.mode
     local label=P.modeLabels[mode] or 'Τυχαίες'
     local modeText=label
-    if mode=='exam' then
+    if s and q and (s.retryRound or 0)>0 then
+        modeText='Επανάληψη λαθών ('..#s.ids..')'
+    elseif mode=='exam' then
         modeText='Εξέταση (100)'
     elseif mode=='category' then
         local cat=(s and q and q.topic) or (settings.category~='' and settings.category) or 'Όλες'
@@ -242,7 +244,7 @@ function P.Refresh()
             local wrong=P.WrongResultCount(s)
             local unanswered=#s.ids-s.answered
             out[#out+1]=wrong..' λάθος'..(unanswered>0 and ' · '..unanswered..' αναπάντητες' or '')
-            P.action.label:SetText(wrong>0 and ('Λάθη ('..wrong..')') or 'Νέα συνεδρία')
+            P.action.label:SetText(wrong>0 and ('Ξανά λάθη ('..wrong..')') or 'Νέα συνεδρία')
         elseif s.mode=='exam' then
             for _,result in ipairs(s.results) do
                 local item=P.byId[tostring(result.questionId)]
@@ -255,7 +257,7 @@ function P.Refresh()
             P.action.label:SetText('Νέα συνεδρία')
         end
         local wrong=P.WrongResultCount(s)
-        if wrong>0 then P.action.label:SetText('Λάθη ('..wrong..')') end
+        if wrong>0 then P.action.label:SetText('Ξανά λάθη ('..wrong..')') end
         P.feedback:SetText(table.concat(out,'\n\n'))
     else
         P.stem:SetText('Λίγος χρόνος για μελέτη.')
@@ -576,7 +578,7 @@ function P.CreateUI()
         if P.IsWrongReview() then P.Next()
         elseif not P.CurrentQuestion() then
             local s=P.db and P.db.session
-            if s and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongReview()
+            if s and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongRetake()
             else P.StartSession() end
         elseif P.IsForeverExam() then P.Next()
         elseif P.db.session.revealed then P.Next() else P.Submit() end

@@ -17,62 +17,70 @@ P.compact=region(); P.topic=region(); P.progress=region(); P.feedback=region(); 
 P.headerMode={label=region()}; P.action=region(); P.action.label=region()
 P.summaryNewBtn=region(); P.answers={region(),region()}
 P.Now=function() return 1800000000 end
-P.bank={bankVersion='test',questions={
-    {id=1,topic='A',stem='First',correct=0,options={'correct','wrong'},explanation='First explanation'},
-    {id=2,topic='A',stem='Second',correct=0,options={'correct','wrong'},explanation='Second explanation'},
-    {id=3,topic='A',stem='Third',correct=0,options={'correct','wrong'},explanation='Third explanation'}}}
-local events=0
+P.bank={bankVersion='test',questions={}}
+for i=1,10 do
+    P.bank.questions[i]={id=i,topic='A',stem='Question '..i,correct=0,
+        options={'correct','wrong'},explanation='Explanation '..i}
+end
+local events={}
 P.RecordAnswer=function(q,selected,s)
-    events=events+1; return {isCorrect=selected-1==q.correct}
+    events[#events+1]={questionId=q.id,selected=selected,sessionId=s.id}
+    return {isCorrect=selected-1==q.correct}
+end
+local function answerRun(wrongCount)
+    local s=P.db.session
+    for i=1,#s.ids do
+        P.Select(i<=wrongCount and 2 or 1)
+        if not P.IsForeverExam(s) then P.Submit(); P.Submit() end
+        P.Next()
+    end
+    assert(P.db.session==s and not P.CurrentQuestion(),'completed run was replaced automatically')
+    assert(P.WrongResultCount()==wrongCount and s.answered==#s.ids)
+    assert(s.correct==#s.ids-wrongCount)
+    assert(P.summaryNewBtn.visible==(wrongCount>0))
+    assert(P.action.label.value==(wrongCount>0 and ('Ξανά λάθη ('..wrongCount..')') or 'Νέα συνεδρία'))
 end
 for _,forever in ipairs({false,true}) do
     P.isForever=forever
     for _,mode in ipairs({'random','category','weakness','due','exam'}) do
         P.db={installId='test',settings={mode=mode,category='',length=10},derived={}}
-        for i=1,3 do P.db.derived[tostring(i)]={wrongCount=1,nextReviewAt=1} end
+        for i=1,10 do P.db.derived[tostring(i)]={wrongCount=1,nextReviewAt=1} end
         P.InitializeQuiz(); P.StartSession()
-        local s=P.db.session
-        P.StartWrongReview(); assert(not P.IsWrongReview(),'review opened during active session')
-        local first=P.CurrentQuestion().id
-        P.Select(2); if not P.IsForeverExam(s) then P.Submit() end
-        P.Next(); P.Select(1); if not P.IsForeverExam(s) then P.Submit() end
-        P.Next(); local last=P.CurrentQuestion().id
-        P.Select(2); if not P.IsForeverExam(s) then P.Submit() end
-        P.Next()
-        assert(P.db.session==s and P.CurrentQuestion()==nil,'session silently restarted')
-        assert(P.WrongResultCount()==2 and s.answered==3 and s.correct==1)
-        assert(P.action.label.value=='Λάθη (2)' and P.summaryNewBtn.visible)
-        local recorded=events
-        P.StartWrongReview()
-        assert(P.CurrentQuestion().id==first and s.selected==2 and s.revealed)
-        assert(P.feedback.value:find(P.CurrentQuestion().explanation,1,true))
-        assert(P.feedback.value:find('Η απάντησή σου',1,true) and P.feedback.value:find('Σωστή απάντηση',1,true))
-        assert(not P.summaryNewBtn.visible)
-        P.Select(1); P.Submit(); assert(s.selected==2 and events==recorded)
-        P.Next(); assert(P.CurrentQuestion().id==last and s.reviewWrongIndex==2)
-        P.InitializeQuiz(); P.Refresh()
-        assert(P.CurrentQuestion().id==last and s.revealed and s.selected==2,'reload lost review')
-        P.Prev(); assert(P.CurrentQuestion().id==first)
-        P.Next(); P.Next()
-        assert(not P.IsWrongReview() and P.CurrentQuestion()==nil)
-        assert(events==recorded and s.correct==1 and s.answered==3,'review mutated results')
-        P.StartWrongReview(); s.bankVersion='old'; P.InitializeQuiz()
-        assert(s.index==#s.ids+1 and s.selected==2 and s.revealed,'bank refresh corrupted summary index')
-        P.EndWrongReview()
-        s.results={}; P.Refresh(); P.StartWrongReview()
-        assert(not P.IsWrongReview() and P.action.label.value=='Νέα συνεδρία' and not P.summaryNewBtn.visible)
-        s.results={{questionId=999,selected=2,isCorrect=false}}
-        assert(P.WrongResultCount()==0,'removed bank question entered review')
-        P.StartSession(); assert(P.db.session~=s and not P.IsWrongReview())
+        local first=P.db.session; local count=#events
+        P.StartWrongRetake(); assert(P.db.session==first,'active run allowed a retake')
+        answerRun(5)
+        assert(#events==count+10,'initial run not recorded exactly once')
+        local expected={}
+        for _,result in ipairs(first.results) do if not result.isCorrect then expected[#expected+1]=result.questionId end end
+        P.StartWrongRetake()
+        local retry=P.db.session
+        assert(retry~=first and retry.id~=first.id and retry.mode==mode and retry.retryRound==1)
+        assert(#retry.ids==5 and retry.correct==0 and retry.answered==0 and #retry.results==0)
+        for i,id in ipairs(retry.ids) do assert(id==expected[i],'retake included a correct question') end
+        assert(retry.selected==nil and not retry.revealed and next(retry.answersById)==nil)
+        assert(P.feedback.value=='' and not P.summaryNewBtn.visible,'previous answers leaked into retake')
+        P.Select(2); P.InitializeQuiz(); P.Refresh()
+        assert(P.db.session==retry and retry.selected==2,'reload lost active retake choice')
+        answerRun(2)
+        assert(#events==count+15,'retake did not record five new answers exactly once')
+        P.StartWrongRetake()
+        local second=P.db.session
+        assert(second.id~=retry.id and #second.ids==2 and second.retryRound==2)
+        assert(second.ids[1]==retry.ids[1] and second.ids[2]==retry.ids[2])
+        answerRun(0)
+        assert(#events==count+17)
+        P.StartWrongRetake(); assert(P.db.session==second,'empty retry created a run')
+        P.StartSession(); assert(P.db.session~=second and #P.db.session.ids==10 and P.db.session.retryRound==0)
+        -- Unknown/deleted questions never become retry items.
+        P.db.session.index=11; P.db.session.results={{questionId=999,selected=2,isCorrect=false}}
+        local empty=P.db.session; P.StartWrongRetake(); assert(P.db.session==empty)
     end
 end
--- All-questions lengths also retain the finished session instead of erasing results.
+-- All-question modes stop at their summary before offering the retry choice.
 P.isForever=false
 for _,mode in ipairs({'random','weakness','due'}) do
     P.db.settings.mode=mode; P.db.settings.length=0; P.StartSession()
-    local s=P.db.session
-    for i=1,#s.ids do P.Select(2); P.Submit(); P.Next() end
-    assert(P.db.session==s and P.CurrentQuestion()==nil and P.WrongResultCount()==3)
+    answerRun(5); P.StartWrongRetake(); assert(#P.db.session.ids==5)
 end
 ''')
-print('PASS: both clients, all five modes, all-question sessions, summary controls, read-only review, navigation, reload, bank updates, empty/no-wrong results.')
+print('PASS: both clients, all five modes, 10 -> 5 -> 2 -> 0 retakes, fresh runs, new answer events, no leaked answers, reload and all-question sessions.')

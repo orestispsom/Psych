@@ -56,6 +56,14 @@ function P.IsDue(state)
     return state and ((state.nextReviewAt and state.nextReviewAt<=P.Now()) or
         (not state.nextReviewAt and ((state.correctCount or 0)+(state.wrongCount or 0)>0)))
 end
+local function createSession(ids,mode,endless,retryRound)
+    P.db.sessionSequence=(P.db.sessionSequence or 0)+1
+    P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
+        mode=mode,retryRound=retryRound or 0,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=endless,
+        bankVersion=P.bank.bankVersion,startedAt=P.Now(),elapsedSeconds=0,answersById={},recordedById={}}
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    if P.Refresh then P.Refresh() end
+end
 function P.StartSession()
     local settings=P.db.settings
     P.showExplanation=nil
@@ -86,12 +94,7 @@ function P.StartSession()
     local length=mode=='exam' and 100 or settings.length
     local count=length==0 and #candidates or math.min(length,#candidates)
     local ids={}; for i=1,count do ids[i]=candidates[i].q.id end
-    P.db.sessionSequence=(P.db.sessionSequence or 0)+1
-    P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
-        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=length==0,
-        bankVersion=P.bank.bankVersion,startedAt=P.Now(),elapsedSeconds=0,answersById={},recordedById={}}
-    if P.scroll then P.scroll:SetVerticalScroll(0) end
-    if P.Refresh then P.Refresh() end
+    createSession(ids,mode,length==0)
 end
 function P.CurrentQuestion()
     local s=P.db.session
@@ -108,6 +111,18 @@ local function wrongResults(session)
 end
 function P.WrongResultCount(session)
     return #wrongResults(session or (P.db and P.db.session))
+end
+function P.StartWrongRetake()
+    local s=P.db and P.db.session
+    if not s or s.index<=#s.ids then return end
+    local ids,seen={},{}
+    for _,result in ipairs(wrongResults(s)) do
+        local key=tostring(result.questionId)
+        if not seen[key] then ids[#ids+1]=result.questionId; seen[key]=true end
+    end
+    if #ids==0 then return end
+    P.showExplanation=nil
+    createSession(ids,s.mode,false,(s.retryRound or 0)+1)
 end
 function P.IsWrongReview(session)
     local s=session or (P.db and P.db.session)
