@@ -158,11 +158,12 @@ function P.Refresh()
     if not P.frame then return end
     local s=P.db.session; local q=P.CurrentQuestion()
     local finished=s and not q
+    if P.summaryNewBtn then P.summaryNewBtn:SetShown(finished and P.WrongResultCount(s)>0) end
     local score=s and s.answered>0 and (' · '..math.floor(s.correct/s.answered*100+0.5)..'%') or ''
     if s and s.mode=='exam' and not finished and not P.IsWrongReview(s) then score='' end
     P.compact:SetText(s and (s.answered..'/'..#s.ids..score) or '')
     if not P.RefreshForeverExamMeta() then
-        P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
+        P.topic:SetText(P.IsWrongReview(s) and ('MCQ #'..q.id..'  ·  Λάθος '..s.reviewWrongIndex..'/'..P.WrongResultCount(s)) or (q and q.topic or 'Η μελέτη σου, στον χρόνο σου'))
     end
     if P.IsWrongReview(s) then
         P.progress:SetText(s.reviewWrongIndex..' / '..P.WrongResultCount(s))
@@ -241,7 +242,7 @@ function P.Refresh()
             local wrong=P.WrongResultCount(s)
             local unanswered=#s.ids-s.answered
             out[#out+1]=wrong..' λάθος'..(unanswered>0 and ' · '..unanswered..' αναπάντητες' or '')
-            P.action.label:SetText(wrong>0 and ('Εξέταση λαθών ('..wrong..')') or 'Νέα συνεδρία')
+            P.action.label:SetText(wrong>0 and ('Λάθη ('..wrong..')') or 'Νέα συνεδρία')
         elseif s.mode=='exam' then
             for _,result in ipairs(s.results) do
                 local item=P.byId[tostring(result.questionId)]
@@ -253,6 +254,8 @@ function P.Refresh()
         else
             P.action.label:SetText('Νέα συνεδρία')
         end
+        local wrong=P.WrongResultCount(s)
+        if wrong>0 then P.action.label:SetText('Λάθη ('..wrong..')') end
         P.feedback:SetText(table.concat(out,'\n\n'))
     else
         P.stem:SetText('Λίγος χρόνος για μελέτη.')
@@ -573,11 +576,15 @@ function P.CreateUI()
         if P.IsWrongReview() then P.Next()
         elseif not P.CurrentQuestion() then
             local s=P.db and P.db.session
-            if P.IsForeverExam(s) and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongReview()
+            if s and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongReview()
             else P.StartSession() end
         elseif P.IsForeverExam() then P.Next()
         elseif P.db.session.revealed then P.Next() else P.Submit() end
     end,true); P.action:SetPoint('BOTTOMRIGHT',-18,16)
+
+    P.summaryNewBtn=button(P.main,'Νέα συνεδρία',110,34,function() P.StartSession() end)
+    P.summaryNewBtn:SetPoint('RIGHT',P.action,'LEFT',-6,0)
+    P.summaryNewBtn:Hide()
 
     P.nextBtn=button(P.main,'›',34,34,function() P.Next() end)
     P.nextBtn:SetPoint('RIGHT',P.action,'LEFT',-6,0)

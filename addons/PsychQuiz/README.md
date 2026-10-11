@@ -34,7 +34,7 @@ Enable PsychQuiz in the character-selection AddOns list and enter `/psych`. Rest
 
 Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
 
-Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. In Forever, an active 100-question exam stores every choice in its SavedVariables session draft, restores that draft automatically, keeps choices editable until completion, and shows whole elapsed minutes without seconds. Answer events are committed when the exam is completed. The completion screen stays compact and offers a one-question-at-a-time review of every wrong answer, including the selected answer, correct answer and explanation. Endless mode starts another shuffled session after exhausting its eligible bank, resetting session totals but preserving all answer events. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
+Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. In Forever, an active 100-question exam stores every choice in its SavedVariables session draft, restores that draft automatically, keeps choices editable until completion, and shows whole elapsed minutes without seconds. Answer events are committed when the exam is completed. Every mode offers a one-question-at-a-time review of all wrong answers at session end, including the selected answer, correct answer and explanation. Review is read-only and preserves scores and answer events; previous/next navigation and reload resume the review. Use **Νέα συνεδρία** to skip review or start again. All-questions sessions stop at their summary after exhausting the eligible bank so mistakes remain available for review; the next shuffled session starts only when requested. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
 
 ## Questions and progress
 
@@ -67,6 +67,7 @@ The exporter parses a restricted Lua table format; it does not execute SavedVari
 ```powershell
 npm run wow:test
 python scripts/wow/tests/runtime.py
+python scripts/wow/tests/wrong_review.py
 ```
 
 The optional Lua test requires Python `lupa` with its Lua 5.1 runtime. Node tests cover the full bank, parser safety, event validation and deterministic export. Lua tests execute production study logic using nonvisual API doubles; UI syntax is compiled. These do not prove WoW rendering or client integration.
