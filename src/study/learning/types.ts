@@ -1,4 +1,5 @@
 import type { Card } from 'ts-fsrs'
+import type { StudyPath } from './paths'
 export type ReviewRating = 'again' | 'hard' | 'good' | 'easy'
 export type SerializedCard = Omit<Card, 'due' | 'last_review'> & {
   due: string
@@ -62,9 +63,12 @@ export type UIRecord = {
   activeSessionId?: string
   reviewTopic: boolean
   expandedDomains: string[]
+  activePathId?: string
+  pathScreen?: 'home' | 'choose' | 'active'
 }
 export type LearningSnapshot = {
   settings: StudySettings
+  paths: StudyPath[]
   chunks: ChunkProgressRecord[]
   questions: QuestionStateRecord[]
   logs: ReviewLogRecord[]
