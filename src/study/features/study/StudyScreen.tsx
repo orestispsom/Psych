@@ -30,7 +30,7 @@ export function StudyScreen({
           ← {revisit ? t('backToQuestion') : onPrevious ? (locale === 'el' ? 'Προηγούμενο' : 'Previous') : t('back')}
         </button>
         {position && <span>{position}</span>}
-        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>
+        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>}
         <span>
           {chunk.id} · {domainName(chunk.domainId, locale)}
         </span>
