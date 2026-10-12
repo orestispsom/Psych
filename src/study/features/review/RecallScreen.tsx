@@ -10,6 +10,7 @@ export function RecallScreen({
   onRate,
   onTopic,
   onBack,
+  onHome,
 }: {
   chunk: RuntimeChunk
   question: RuntimeQuestion
@@ -18,8 +19,9 @@ export function RecallScreen({
   onRate: (r: ReviewRating) => void
   onTopic: () => void
   onBack: () => void
+  onHome?: () => void
 }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const ratingLabels = [
     t('ratingAgain'),
     t('ratingHard'),
@@ -35,6 +37,7 @@ export function RecallScreen({
         <span>
           {session.cursor + 1} / {session.items.length}
         </span>
+        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>
       </header>
       <div
         className="session-progress"
