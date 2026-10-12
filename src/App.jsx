@@ -1,3 +1,4 @@
+import { totalAnswers } from "./lib/answerTotals.js";
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -1184,11 +1185,12 @@ async function loadRemoteProfileDetail(profileId, fallbackProfile = null) {
   });
   if (!rows?.[0]) return fallbackProfile;
 
-  const [sessionRow, questionStateRows, attemptRows, sosRows] = await Promise.all([
+  const [sessionRow, questionStateRows, attemptRows, sosRows, summaryRows] = await Promise.all([
     loadRemoteMcqSessionState(profileId),
     loadRemoteQuestionStates(profileId),
     loadRemoteAttempts(profileId),
     loadRemoteSosMastery([profileId]),
+    supabaseTableRequest("profile_progress_summary", { select: "total_answers", profile_id: `eq.${profileId}` }),
   ]);
   const row = rows[0];
   const legacyProgress = normalizeMcqProgress(row.mcq_progress);
@@ -1201,6 +1203,7 @@ async function loadRemoteProfileDetail(profileId, fallbackProfile = null) {
   profile.mcqProgress = {
     ...profile.mcqProgress,
     attempts: mergeAttemptRows(profile.mcqProgress.attempts, attemptRows, 500, profile.mcqProgress.resetAt),
+    totalAnswers: Math.max(totalAnswers(profile.mcqProgress), Number(summaryRows[0]?.total_answers) || 0),
   };
   return profile;
 }
@@ -1212,12 +1215,13 @@ async function loadRemoteProfileStore(activeProfileId = null, localProfiles = {}
       order: "name.asc",
     }),
     supabaseTableRequest("profile_progress_summary", {
-      select: "profile_id,attempted_questions,mastered_questions,mastered_oral_questions",
+      select: "profile_id,attempted_questions,mastered_questions,mastered_oral_questions,total_answers",
     }),
   ]);
   const summaries = Object.fromEntries(summaryRows.map(row => [
     row.profile_id,
     {
+      totalAnswers: Number(row.total_answers) || 0,
       attempted: Number(row.attempted_questions) || 0,
       mastered: Number(row.mastered_questions) || 0,
       review: Math.max(0, (Number(row.attempted_questions) || 0) - (Number(row.mastered_questions) || 0)),
@@ -2527,6 +2531,7 @@ function recordQuestionAnswer(progress, question, selected, {
   return {
     ...progress,
     attempts,
+    totalAnswers: totalAnswers(progress) + 1,
     dailyChallenges,
     updatedAt: new Date().toISOString(),
     questions: {
@@ -2819,7 +2824,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
   const [adminError, setAdminError] = useState("");
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(false);
   const profiles = Object.values(profileStore.profiles)
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => Number(isAdminProfile(b)) - Number(isAdminProfile(a)) || a.name.localeCompare(b.name));
 
   const requestProfileSelection = (profile) => {
     if (!isAdminProfile(profile)) {
@@ -2959,6 +2964,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
                         <>
                           <span>{summary.attempted ?? (summary.mastered + summary.review)} MCQs απαντημένα</span>
                           <span>{summary.review} για επανάληψη</span>
+                          <span title="Κάθε απάντηση μετράει, μαζί με τις επαναλήψεις">Συνολικές απαντήσεις {Math.max(summary.totalAnswers || 0, totalAnswers(profile.mcqProgress)).toLocaleString("el-GR")}</span>
                           <span>{summary.mastered} mastered</span>
                         </>
                       ) : (
@@ -8975,9 +8981,13 @@ export default function App() {
       if (!profile) return prev;
 
       const currentProgress = profile.mcqProgress || createEmptyMcqProgress();
-      const nextProgress = typeof nextOrUpdater === "function"
+      const proposedProgress = typeof nextOrUpdater === "function"
         ? nextOrUpdater(currentProgress)
         : nextOrUpdater;
+      const nextProgress = {
+        ...proposedProgress,
+        totalAnswers: Math.max(totalAnswers(currentProgress), totalAnswers(proposedProgress)),
+      };
 
       const existingPending = pendingMcqRemoteSaveRef.current?.profileId === profileId
         ? pendingMcqRemoteSaveRef.current
