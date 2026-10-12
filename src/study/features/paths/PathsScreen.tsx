@@ -30,7 +30,7 @@ export function PathsScreen({
   const selectMode = choosing || paths.length === 0
   return <div className="page path-home">
     <div className="path-home__heading">
-      <div className="path-home__symbol" aria-hidden="true">♧</div>
+      <div className="path-home__symbol" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7a8 8 0 0 0-9-2v14a8 8 0 0 1 9 2"/><path d="M12 7a8 8 0 0 1 9-2v14a8 8 0 0 0-9 2"/><path d="M12 7v14"/></svg></div>
       <h1>{selectMode ? (greek ? 'Διάλεξε διαδρομή μελέτης' : 'Choose a Study Path')
         : (greek ? 'Οι διαδρομές σου' : 'Your Study Paths')}</h1>
       <p className="muted">{selectMode
