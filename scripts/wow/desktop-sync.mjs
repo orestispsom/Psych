@@ -35,9 +35,9 @@ try {
    const backup=path.join(output,'SavedVariables-'+(save.forever?'forever':'era')+'-'+Date.now()+'-'+hash(first).slice(0,12)+'.lua');
    await writeFile(backup,first,{flag:'wx'});report.backups.push({client:save.name,path:backup});
    const exported=JSON.parse(run('export.mjs',[backup]));report.exports.push({client:save.name,...exported});
-   console.log(save.name+': backed up and validated '+exported.events+' answer events.');
+   console.log(save.name+': backed up and validated '+exported.events+' answer events and '+exported.completedExams+' completed exams.');
    const upload=JSON.parse(run('sync.mjs',[exported.destination,'--apply']));report.uploads.push({client:save.name,...upload});
-   console.log(save.name+': uploaded '+upload.inserted+' new answers; '+upload.duplicates+' already synchronized.');
+   console.log(save.name+': uploaded '+upload.inserted+' new answers; '+upload.duplicates+' already synchronized; '+upload.examsApplied+' exam scores recorded.');
    if(save.forever){
      const installedSeed=path.join(save.root,'Interface/AddOns/PsychQuiz/SavedVariablesSeed.lua');
      await stat(path.join(path.dirname(installedSeed),'PsychQuiz.toc'));
