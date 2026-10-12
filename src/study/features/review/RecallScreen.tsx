@@ -37,7 +37,7 @@ export function RecallScreen({
         <span>
           {session.cursor + 1} / {session.items.length}
         </span>
-        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>
+        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>}
       </header>
       <div
         className="session-progress"
