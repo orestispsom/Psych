@@ -35,3 +35,4 @@ export function SettingsForm({ initial, onSave, submitLabel }: {
     </label>
     <button className="primary-button" type="submit">{submitLabel ?? t('saveSettings')}</button>
   </form>
+}
