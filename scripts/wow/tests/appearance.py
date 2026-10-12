@@ -11,6 +11,8 @@ function GetServerTime() return 1800000000 end
 local noop=function() end
 local methods={
     SetScript=function(self,k,v) self.scripts[k]=v end,
+    SetAutoFocus=function(self,v) self.autoFocus=v end,
+    SetFocus=function(self) self.focus=true end,ClearFocus=function(self) self.focus=false end,
     SetText=function(self,v) self.value=v end,GetText=function(self) return self.value or '' end,
     SetShown=function(self,v) self.visible=v end,Show=function(self) self.visible=true end,
     Hide=function(self) self.visible=false end,IsShown=function(self) return self.visible end,
@@ -37,7 +39,7 @@ methods.CreateFontString=function(self) return object('FontString',self) end
 function CreateFrame(kind,name,parent) local f=object(kind,parent); frames[#frames+1]=f; return f end
 UIParent=object('Frame'); UIParent.width=1800; UIParent.height=1000
 ''')
-for name in ['Core.lua','Quiz.lua','UI.lua']:
+for name in ['Core.lua','Progress.lua','Quiz.lua','Library.lua','UI.lua']:
     vm.execute('local f=assert(loadstring(...)); f("PsychQuiz",P)',
                (root/'addons/PsychQuiz'/name).read_text(encoding='utf8'))
 vm.execute(r'''

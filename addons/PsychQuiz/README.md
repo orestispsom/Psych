@@ -1,10 +1,10 @@
 # PsychQuiz
 
-Personal, offline psychiatry MCQ addon for Orestis. Mouse-only answering; no keyboard bindings, network access, automatic prompts, or game actions.
+Personal, offline psychiatry addon for Orestis. Mouse-only answering; search accepts typed input only in its explicit text field. No global keyboard bindings, network access, automatic prompts, or game actions.
 
 ## Status
 
-The addon, generated bank, private progress import, portable exporter and desktop synchronization are implemented. Supabase ingestion is transactional and repeat-safe. **In-game behavior and visual quality remain unverified**; the user deferred that check. WoW Forever compatibility is not established.
+MCQ practice, repeated mistake retakes, a dark interface and the first expansion stage are implemented. The user confirmed the retake version works in-game. The newer dark theme, home menu, search and progress screens still need in-game visual/interaction checks. Automated native-logic checks are nonvisual. [EXPANSION.md](EXPANSION.md) records the remaining stages; oral/SOS/tables/Study and the other practice formats are not yet ported.
 
 ## Desktop sync — everyday use
 
@@ -34,9 +34,17 @@ Enable PsychQuiz in the character-selection AddOns list and enter `/psych`. Rest
 
 The addon uses a charcoal dark theme with soft ivory text and muted gold controls. Selected answers use gold; revealed correct answers use green with a check, and wrong selections use coral with a cross. Exam correctness remains hidden until completion. The header menu icons use verified glyphs from the bundled symbol font.
 
-Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Keep background opacity near 0.96–1 when the game scene is bright. The ☰ settings menu includes a window lock to prevent accidental movement/resizing, and an automatic/click-to-show explanation preference. After answering outside exam mode, an explanation button lets you show or hide long explanations without hiding the correct answer. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
+Drag the title bar to move. Drag the bottom-right corner to resize both dimensions (340–900 wide; 300–1000 high). Default: 410 × 570. Collapse leaves a 36-high title/progress bar. The mode button opens settings; scroll that menu for additional controls. Background opacity and font size are adjustable; text opacity stays unchanged. Keep background opacity near 0.96–1 when the game scene is bright. The settings screen reached through ☰ includes a window lock to prevent accidental movement/resizing, and an automatic/click-to-show explanation preference. After answering outside exam mode, an explanation button lets you show or hide long explanations without hiding the correct answer. Mode/filter/length changes take effect in a new session. The entire addon remains interactive during combat; there are no automatic popups.
 
 Modes: random, category, weak, due, exam, one question. Exam feedback appears at session end. In Forever, an active 100-question exam stores every choice in its SavedVariables session draft, restores that draft automatically, keeps choices editable until completion, and shows whole elapsed minutes without seconds. Answer events are committed when the exam is completed. Every mode offers **Νέα συνεδρία** (a fresh run) or **Ξανά λάθη (n)** (retake only the questions answered incorrectly in the completed run). Retakes clear previous selections and scores, create a new session, and record new answers normally. Each retake ends with the same choices using only its own remaining mistakes: 10 questions → 5 mistakes → 2 mistakes → none. Correctly answered questions leave the retry pool. Retakes preserve the original mode’s feedback and exam-submission behavior; reload resumes the active retake. All-questions sessions stop at their summary after exhausting the eligible bank so mistakes remain available for review; the next shuffled session starts only when requested. Session reset never deletes progress. Destructive local-progress reset is intentionally not exposed.
+
+## Home, search and progress
+
+The ☰ header button opens the home menu: resume, MCQ modes, search, progress and settings. The mode button continues to open the quiz wizard. Search and progress do not replace the active quiz. Search by word/topic or an exact question number (e.g. `#2309`); Greek case and accents are ignored. Click the field to type, then press Enter or click **Αναζήτηση**. Search displays the first 40 results and the total; add terms to narrow it. Opening a result previews its question without showing the answer. **Εξάσκηση αυτής της ερώτησης** explicitly starts a new one-question run; it uses normal answer events and supports mistake retakes.
+
+Progress shows coverage, mastered/due questions and answer accuracy for the current MCQ bank, using existing imported/local derived progress. Historical IDs absent from that bank are excluded. A topic opens the usual confirmation screen before beginning a category run. These are MCQ statistics, not the separate web Study scheduler.
+
+Restart WoW after this update to load the added Library.lua module. SavedVariables, the question bank, private profile import and Forever seed are preserved.
 
 ## Questions and progress
 
@@ -71,6 +79,7 @@ npm run wow:test
 python scripts/wow/tests/runtime.py
 python scripts/wow/tests/wrong_review.py
 python scripts/wow/tests/appearance.py
+python scripts/wow/tests/library.py
 ```
 
 The optional Lua tests require Python `lupa` with its Lua 5.1 runtime; appearance glyph checks also use `fonttools`. Node tests cover the full bank, parser safety, event validation and deterministic export. Lua tests execute production study logic using nonvisual API doubles; UI syntax is compiled. These do not prove WoW rendering or client integration.

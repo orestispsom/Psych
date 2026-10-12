@@ -96,6 +96,13 @@ function P.StartSession()
     local ids={}; for i=1,count do ids[i]=candidates[i].q.id end
     createSession(ids,mode,length==0)
 end
+function P.StartQuestionSession(questionId)
+    local q=P.byId[tostring(questionId)]
+    if not q then return false end
+    P.showExplanation=nil
+    createSession({q.id},'random',false)
+    return true
+end
 function P.CurrentQuestion()
     local s=P.db.session
     local review=P.CurrentWrongResult and P.CurrentWrongResult(s)

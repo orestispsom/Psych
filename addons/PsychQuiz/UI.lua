@@ -36,6 +36,7 @@ local function surface(frame,alpha)
     frame:SetBackdropBorderColor(C.border[1],C.border[2],C.border[3],0.85)
 end
 function P.CloseMenu()
+    if P.searchBox then P.searchBox:ClearFocus() end
     if P.menu then P.menu:Hide() end
     if P.feedbackDialog then P.feedbackDialog:Hide() end
 end
@@ -308,6 +309,14 @@ local function ensureMenu(titleText)
             self:SetVerticalScroll(math.max(0,math.min(self:GetVerticalScroll()-delta*42,math.max(0,P.menuY-self:GetHeight()))))
         end)
     end
+    local searching=titleText=='Αναζήτηση MCQ'
+    if P.searchBox then
+        P.searchBox:SetShown(searching)
+        if not searching then P.searchBox:ClearFocus() end
+    end
+    P.menuScroll:ClearAllPoints()
+    P.menuScroll:SetPoint('TOPLEFT',10,searching and -82 or -42)
+    P.menuScroll:SetPoint('BOTTOMRIGHT',-10,10)
     P.menuTitle:SetText(titleText or '')
     for _,row in ipairs(P.menuRows or {}) do row:Hide() end
     P.menuRows={}; P.menuY=0; P.rowCursor=0; P.titleCursor=0; P.sliderCursor=0; P.menu:Show()
@@ -364,6 +373,87 @@ local function menuSlider(label,minimum,maximum,step,value,onChange)
     if slider.Low then slider.Low:SetText('') end; if slider.High then slider.High:SetText('') end
     slider:SetScript('OnValueChanged',function(_,v) onChange(v); P.Refresh() end)
     P.menuY=P.menuY+32; P.menuRows[#P.menuRows+1]=slider
+end
+
+local function finishMenu()
+    P.menuContent:SetHeight(math.max(1,P.menuY)); P.menuScroll:SetVerticalScroll(0)
+end
+function P.OpenHub()
+    ensureMenu('PsychQuiz')
+    if P.CurrentQuestion() then
+        menuRow('Συνέχεια συνεδρίας','Η συνεδρία σου παραμένει ενεργή.',P.CloseMenu,true)
+    end
+    menuRow('Πολλαπλής επιλογής','Επιλογή τρόπου μελέτης ή νέας εξέτασης.',function() P.OpenModeWizard('mode') end)
+    menuRow('Αναζήτηση MCQ','Βρες ερώτηση με λέξη, θέμα ή αριθμό.',P.OpenSearch)
+    menuRow('Πρόοδος','Κάλυψη ερωτήσεων και πρόοδος ανά θέμα.',P.OpenProgress)
+    menuRow('Ρυθμίσεις','Εμφάνιση, κλείδωμα και επεξηγήσεις.',P.OpenSettings)
+    finishMenu()
+end
+function P.OpenProgress()
+    ensureMenu('Πρόοδος MCQ')
+    local summary=P.ProgressOverview()
+    menuRow('‹ Αρχική','',P.OpenHub)
+    menuTitle(summary.attempted..' / '..summary.total..' ερωτήσεις με απάντηση')
+    menuTitle(summary.mastered..' κατακτημένες · '..summary.due..' για επανάληψη')
+    local attempts=summary.correct+summary.wrong
+    if attempts>0 then
+        menuTitle(summary.correct..' σωστές / '..attempts..' προσπάθειες ('..math.floor(summary.correct/attempts*100+0.5)..'%)')
+    end
+    menuTitle(P.PendingCount()..' απαντήσεις αναμένουν συγχρονισμό')
+    menuTitle('Μετρήσεις για την τρέχουσα τράπεζα MCQ.')
+    for _,title in ipairs(P.topics) do
+        local topic=summary.topics[title]
+        local sub=topic.attempted..'/'..topic.total..' με απάντηση · '..topic.mastered..' κατακτημένες · '..topic.due..' για επανάληψη'
+        menuRow(plain(title),sub,function()
+            P.OpenModeWizard('confirm',{mode='category',category=title,length=0})
+        end)
+    end
+    finishMenu()
+end
+function P.OpenQuestionPreview(questionId)
+    local q=P.byId[tostring(questionId)]
+    if not q then return end
+    ensureMenu('MCQ #'..q.id)
+    menuRow('‹ Αποτελέσματα','',function() P.ShowSearchResults(P.searchQuery or '') end)
+    menuTitle(plain(q.topic))
+    menuTitle(plain(q.stem))
+    menuRow('Εξάσκηση αυτής της ερώτησης','Ξεκινά νέα συνεδρία μίας ερώτησης.',function()
+        P.CloseMenu(); P.StartQuestionSession(q.id)
+    end,true)
+    finishMenu()
+end
+function P.ShowSearchResults(query)
+    P.searchQuery=query
+    ensureMenu('Αναζήτηση MCQ')
+    menuRow('‹ Αρχική','',P.OpenHub)
+    menuRow('Αναζήτηση','Πληκτρολόγησε στο πεδίο και πάτησε Enter ή εδώ.',function()
+        P.searchBox:ClearFocus(); P.ShowSearchResults(P.searchBox:GetText())
+    end)
+    local results,total=P.SearchQuestions(query)
+    if not query:find('%S') then menuTitle('Λέξη, θέμα ή αριθμός ερώτησης, π.χ. #2309.')
+    elseif total==0 then menuTitle('Δεν βρέθηκαν ερωτήσεις. Δοκίμασε άλλη λέξη.')
+    else
+        menuTitle(total..' αποτελέσματα'..(total>#results and ' · πρώτα '..#results..', πρόσθεσε λέξεις για πιο ακριβή αναζήτηση' or ''))
+        for _,q in ipairs(results) do
+            menuRow('#'..q.id..' · '..plain(q.topic),plain(q.stem),function() P.OpenQuestionPreview(q.id) end)
+        end
+    end
+    finishMenu()
+end
+function P.OpenSearch()
+    ensureMenu('Αναζήτηση MCQ')
+    if not P.searchBox then
+        local box=CreateFrame('EditBox',nil,P.menu,'BackdropTemplate'); P.searchBox=box
+        box:SetPoint('TOPLEFT',12,-42); box:SetPoint('TOPRIGHT',-12,-42); box:SetHeight(32)
+        box:SetFont(P.font,14,''); box:SetTextColor(unpack(C.ink)); box:SetTextInsets(10,10,5,5)
+        box:SetMaxLetters(120); box:SetAutoFocus(false); surface(box,1)
+        box:SetScript('OnEnterPressed',function(self)
+            self:ClearFocus(); P.ShowSearchResults(self:GetText())
+        end)
+        box:SetScript('OnEscapePressed',P.CloseMenu)
+    end
+    P.searchBox:SetText(P.searchQuery or ''); P.searchBox:Show()
+    P.ShowSearchResults(P.searchQuery or '')
 end
 
 function P.OpenSettings()
@@ -577,10 +667,10 @@ function P.CreateUI()
     P.compact=text(header,12,'muted'); P.compact:SetPoint('RIGHT',-112,0)
 
     P.gear=button(header,'☰',26,26,function()
-        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='Ρυθμίσεις' then
+        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='PsychQuiz' then
             P.CloseMenu()
         else
-            P.OpenSettings()
+            P.OpenHub()
         end
     end)
     P.gear:SetPoint('RIGHT',-76,0)
