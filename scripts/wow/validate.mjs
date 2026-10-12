@@ -19,7 +19,7 @@ export function validateCompletedExams(exams,bank) {
   const known=new Set(bank.questions.map(q=>q.id)),sessions=new Set();
   for(const e of exams) {
     if(!e||e.schemaVersion!==1||e.profileId!=='orestis'||
-      typeof e.sessionId!=='string'||!/^wow-session:[\\w-]+:\\d+$/.test(e.sessionId)||
+      typeof e.sessionId!=='string'||!/^wow-session:[\w-]+:\d+$/.test(e.sessionId)||
       sessions.has(e.sessionId))throw new Error('Malformed or duplicate completed exam');
     sessions.add(e.sessionId);
     if(!Number.isSafeInteger(e.startedAt)||!Number.isSafeInteger(e.completedAt)||
