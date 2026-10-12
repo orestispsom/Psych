@@ -187,12 +187,18 @@ export default function StudyApp({
   const storePath = (path: StudyPath, patch: Partial<UIRecord> = {}) =>
     run(async () => {
       await savePath(path, db)
+      if (path.cursor !== activePath?.cursor) {
+        const next = index?.chunks.get(path.sequence[path.cursor])
+        if (next) await openChunk(next, db)
+      }
       await saveUI({ ...state!.ui, ...patch }, db)
     })
   const studyHome = () => updateUI({ tab: 'today', mode: 'shell', pathScreen: 'home', reviewTopic: false })
-  const usePath = (path: StudyPath) => updateUI({
-    tab: 'today', mode: 'shell', pathScreen: 'active', activePathId: path.id,
-    reviewTopic: false,
+  const usePath = (path: StudyPath) => run(async () => {
+    const next = index?.chunks.get(path.sequence[path.cursor])
+    if (next) await openChunk(next, db)
+    await saveUI({ ...state!.ui, tab: 'today', mode: 'shell',
+      pathScreen: 'active', activePathId: path.id, reviewTopic: false }, db)
   })
   const newPath = (strategy: PathStrategy) => run(async () => {
     const existing = state!.paths.filter(p => p.strategy === strategy).length
@@ -200,6 +206,8 @@ export default function StudyApp({
     const path = createPath(data!, strategy, existing ? label + ' ' + (existing + 1) : label,
       state!.chunks, state!.questions, state!.logs)
     await savePath(path, db)
+    const first = index?.chunks.get(path.sequence[0])
+    if (first) await openChunk(first, db)
     await saveUI({
       ...state!.ui, tab: 'today', mode: 'shell',
       pathScreen: 'active', activePathId: path.id, reviewTopic: false,
