@@ -183,7 +183,7 @@ function P.CompleteForeverExam()
             s.answered=s.answered+1; s.correct=s.correct+(isCorrect and 1 or 0)
         end
     end
-    s.completedAt=P.Now(); s.reviewWrongIndex=nil; s.selected=nil; s.revealed=false; s.index=#s.ids+1
+    s.completedAt=P.Now(); P.RecordExamCompletion(s); s.reviewWrongIndex=nil; s.selected=nil; s.revealed=false; s.index=#s.ids+1
     if P.scroll then P.scroll:SetVerticalScroll(0) end
     P.Refresh()
 end
@@ -236,6 +236,9 @@ function P.Next()
     if s.index>=#s.ids then
         if s.revealed then
             s.index=#s.ids+1
+            if s.mode=='exam' and #s.ids==100 then
+                s.completedAt=P.Now(); P.RecordExamCompletion(s)
+            end
             if s.endless then P.StartSession(); return end
             if P.scroll then P.scroll:SetVerticalScroll(0) end
             P.Refresh()
