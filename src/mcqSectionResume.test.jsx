@@ -59,7 +59,8 @@ describe('Unintentional section navigation during MCQs', () => {
     await waitFor(() => expect(container.querySelector('.mcq-question-header')).toBeTruthy());
     const nav = container.querySelector('.mobile-sim-tray-btn');
     await user.click(nav);
-    const modal = screen.getByText(/Πλοηγός 1–100/).closest('.sim-tray-modal');
+    const modal = container.querySelector('.sim-tray-modal');
+    expect(modal).toBeTruthy();
     await user.click(within(modal).getByRole('button', { name: '15' }));
     await waitFor(() => expect(container.querySelector('.mcq-q-index').textContent).toMatch(/15/));
     const stem = container.querySelector('.question-stem');
