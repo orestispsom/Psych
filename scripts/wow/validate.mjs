@@ -13,3 +13,22 @@ export function validateEvents(events,bank) {
   }
   return events;
 }
+
+export function validateCompletedExams(exams,bank) {
+  if(!Array.isArray(exams))throw new Error('Completed exams must be an array');
+  const known=new Set(bank.questions.map(q=>q.id)),sessions=new Set();
+  for(const e of exams) {
+    if(!e||e.schemaVersion!==1||e.profileId!=='orestis'||
+      typeof e.sessionId!=='string'||!/^wow-session:[\\w-]+:\\d+$/.test(e.sessionId)||
+      sessions.has(e.sessionId))throw new Error('Malformed or duplicate completed exam');
+    sessions.add(e.sessionId);
+    if(!Number.isSafeInteger(e.startedAt)||!Number.isSafeInteger(e.completedAt)||
+      e.startedAt<1||e.completedAt<e.startedAt||e.completedAt>Date.now()/1000+300)
+      throw new Error('Invalid exam timestamps: '+e.sessionId);
+    if(!Array.isArray(e.questionIds)||e.questionIds.length!==100||
+      new Set(e.questionIds).size!==100||
+      e.questionIds.some(id=>!Number.isSafeInteger(id)||!known.has(id)))
+      throw new Error('Invalid 100-question exam bank: '+e.sessionId);
+  }
+  return exams;
+}
