@@ -28,9 +28,9 @@ export function NavItems({
           onClick={() => onChange(tab)}
         >
           <span className="nav-icon" aria-hidden="true">
-            {tab === 'today' ? '●' : tab === 'library' ? '▤' : '↗'}
+            {tab === 'today' ? '⌂' : tab === 'library' ? '▤' : '↗'}
           </span>
-          <span>{t(tab)}</span>
+          <span>{tab === 'today' ? (t('paths')) : t(tab)}</span>
         </button>
       ))}
     </div>

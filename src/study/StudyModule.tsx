@@ -4,7 +4,6 @@ import { PsychFlashDatabase } from './db/database'
 import { ProfileSync } from './cloud/sync'
 import { cloudEnabled } from './cloud/config'
 import { I18nProvider, type Locale } from './i18n'
-import { defaultUI } from './learning/types'
 import './study.css'
 
 // One controller per existing Psych profile, even if the section is reopened
@@ -88,8 +87,6 @@ export default function StudyModule({ profile, ensureProfile }: {
         if (!active) return
         const savedLocale = (await controller.db.settings.get('locale'))?.value
         setLocale(savedLocale === 'en' ? 'en' : 'el')
-        const ui = (await controller.db.ui.get('current')) ?? defaultUI
-        await controller.db.ui.put({ ...ui, tab: 'today', mode: 'shell', reviewTopic: false })
         if (!active) return
         setReady(true)
         const pending = await controller.db.outbox.count()

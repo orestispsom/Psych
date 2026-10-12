@@ -2826,6 +2826,15 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
   const profiles = Object.values(profileStore.profiles)
     .sort((a, b) => Number(isAdminProfile(b)) - Number(isAdminProfile(a)) || a.name.localeCompare(b.name));
 
+  // A remembered selection without a remembered admin unlock should prompt
+  // directly for its password, not force the user to select the profile again.
+  useEffect(() => {
+    if (profileStore.activeProfileId === ADMIN_PROFILE_ID && !rememberedAdminAccess) {
+      const admin = profileStore.profiles[ADMIN_PROFILE_ID];
+      if (admin) setPendingAdminProfile(admin);
+    }
+  }, [profileStore.activeProfileId, rememberedAdminAccess, profileStore.profiles[ADMIN_PROFILE_ID]?.id]);
+
   const requestProfileSelection = (profile) => {
     if (!isAdminProfile(profile)) {
       onSelectProfile(profile.id);

@@ -7,11 +7,19 @@ export function StudyScreen({
   revisit,
   onBack,
   onTest,
+  onHome,
+  onNext,
+  onPrevious,
+  position,
 }: {
   chunk: RuntimeChunk
   revisit: boolean
   onBack: () => void
   onTest: () => void
+  onHome?: () => void
+  onNext?: () => void
+  onPrevious?: () => void
+  position?: string
 }) {
   const { t, locale } = useI18n()
   const roles: Record<string, string> = { clinical:'Κλινικό θέμα', management:'Αντιμετώπιση', precision:'Κριτήρια και όρια', framework:'Πλαίσιο', comparison:'Σύγκριση', differential:'Διαφορική διάγνωση', mechanism:'Μηχανισμός', methodology:'Μεθοδολογία', synthesis:'Σύνθεση' }
@@ -19,8 +27,10 @@ export function StudyScreen({
     <div className="content-mode">
       <header className="focus-header">
         <button className="utility-button" onClick={onBack}>
-          ← {revisit ? t('backToQuestion') : t('back')}
+          ← {revisit ? t('backToQuestion') : onPrevious ? (locale === 'el' ? 'Προηγούμενο' : 'Previous') : t('back')}
         </button>
+        {position && <span>{position}</span>}
+        {onHome && <button className="utility-button" type="button" onClick={onHome} aria-label={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'} title={locale === 'el' ? 'Αρχική Μελέτης' : 'Study Home'}>⌂</button>}
         <span>
           {chunk.id} · {domainName(chunk.domainId, locale)}
         </span>
@@ -36,9 +46,13 @@ export function StudyScreen({
         <aside className="remember-box" aria-label={t('summary')}>
           <AuthoredMarkdown text={chunk.rememberMarkdown} />
         </aside>
-        <button className="primary-button" onClick={revisit ? onBack : onTest}>
-          {revisit ? t('backToQuestion') : t('testYourself')}
-        </button>
+        <div className="path-reader-actions">
+          <button className="primary-button" onClick={revisit ? onBack : onTest}>
+            {revisit ? t('backToQuestion') : t('testYourself')}
+          </button>
+          {onPrevious && <button className="utility-button" onClick={onPrevious}>← {locale === 'el' ? 'Προηγούμενο θέμα' : 'Previous topic'}</button>}
+          {onNext && <button className="utility-button" onClick={onNext}>{locale === 'el' ? 'Επόμενο θέμα' : 'Next topic'} →</button>}
+        </div>
       </article>
     </div>
   )

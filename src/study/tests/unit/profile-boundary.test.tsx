@@ -17,7 +17,7 @@ it('does not present an empty schedule as restored progress on a first offline v
   const ensure = vi.fn().mockRejectedValue(new Error('offline'))
   render(<StudyModule profile={profile} ensureProfile={ensure} />)
   await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('πρώτη φόρτωση'))
-  expect(screen.queryByRole('heading', { name: 'Σήμερα' })).toBeNull()
+  expect(screen.queryByRole('heading', { name: 'Διάλεξε διαδρομή μελέτης' })).toBeNull()
 })
 it('opens a cached profile immediately while unavailable cloud sync retries in the background', async () => {
   const profile = { id: `unit-cached-${crypto.randomUUID()}`, name: 'Synthetic cached visit' }
@@ -33,6 +33,6 @@ it('opens a cached profile immediately while unavailable cloud sync retries in t
   }))
   const ensure = vi.fn().mockRejectedValue(new Error('offline'))
   render(<StudyModule profile={profile} ensureProfile={ensure} />)
-  expect(await screen.findByRole('heading', { name: 'Σήμερα' })).toBeTruthy()
+  expect(await screen.findByRole('heading', { name: 'Διάλεξε διαδρομή μελέτης' })).toBeTruthy()
   expect(screen.getByText(/Πρόοδος: Synthetic cached visit/)).toBeTruthy()
 })

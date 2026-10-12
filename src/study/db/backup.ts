@@ -54,7 +54,7 @@ function rows(
 export function parseBackup(value: unknown): Backup {
   if (!record(value) || value.schemaVersion !== 1 || !date(value.exportedAt))
     return fail()
-  for (const s of rows(value.settings, 'key', 100)) {
+  for (const s of rows(value.settings, 'key', 1000)) {
     if (s.key === 'examDate' && s.value !== null && !validExamDate(s.value))
       fail()
     if (

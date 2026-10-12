@@ -49,6 +49,7 @@ const en = {
   ratings: "ratings",
   notEnoughHistory: "Not enough review history yet.",
 
+  paths: 'Study Paths',
   today: 'Today',
   todayDailyStudy: 'Daily study',
   todayDailyPlan: 'New topics per day: {count} · due reviews included',
@@ -122,13 +123,13 @@ const en = {
   dueIncluded: 'Due reviews are always included, even when they exceed your target.',
   continue: 'Continue',
   saveSettings: 'Save study settings',
-  studyPlan: 'Study plan',
+  studyPlan: 'Review preferences',
   languageContent: 'Language & content',
   languageHelp:
     'Changing language keeps the same progress and review history. Greek is shown for translated topics; topics not translated yet remain in English.',
   savedOnDevice: 'Saved on this device',
   autosaveBody:
-    'Psych Flash saves automatically as you study: topic progress, review ratings and due dates, current session position, navigation state, study-plan settings and language preference.',
+    'Psych Flash saves learning history, independent Study Paths and their position, question reviews, scheduling and language preference automatically.',
   backupIncludes:
     'The backup includes the saved study state above, active sessions and spaced-repetition scheduling.',
   localProgress: 'Backup & restore',
@@ -188,6 +189,7 @@ const el: Record<Key, string> = {
   ratings: "αξιολογήσεις",
   notEnoughHistory: "Δεν υπάρχουν ακόμη αρκετές επαναλήψεις.",
 
+  paths: 'Διαδρομές',
   today: 'Σήμερα',
   todayDailyStudy: 'Καθημερινή μελέτη',
   todayDailyPlan: 'Νέα θέματα ανά ημέρα: {count} · οι οφειλόμενες επαναλήψεις περιλαμβάνονται',
@@ -262,13 +264,13 @@ const el: Record<Key, string> = {
     'Οι οφειλόμενες επαναλήψεις περιλαμβάνονται πάντα, ακόμη κι αν υπερβαίνουν τον στόχο.',
   continue: 'Συνέχεια',
   saveSettings: 'Αποθήκευση ρυθμίσεων μελέτης',
-  studyPlan: 'Πλάνο μελέτης',
+  studyPlan: 'Προτιμήσεις επανάληψης',
   languageContent: 'Γλώσσα και περιεχόμενο',
   languageHelp:
     'Η ύλη είναι διαθέσιμη στα Ελληνικά και στα Αγγλικά. Η αλλαγή γλώσσας διατηρεί την ίδια πρόοδο και το ιστορικό επαναλήψεων.',
   savedOnDevice: 'Αποθηκευμένα στη συσκευή',
   autosaveBody:
-    'Το Psych Flash αποθηκεύει αυτόματα καθώς μελετάτε: πρόοδο θεμάτων, αξιολογήσεις και ημερομηνίες επανάληψης, θέση στην τρέχουσα συνεδρία, κατάσταση πλοήγησης, ρυθμίσεις πλάνου μελέτης και επιλογή γλώσσας.',
+    'Το Psych Flash αποθηκεύει αυτόματα την πρόοδο, τις ανεξάρτητες διαδρομές και τη θέση τους, τις επαναλήψεις, τον προγραμματισμό και την επιλογή γλώσσας.',
   backupIncludes:
     'Το αντίγραφο ασφαλείας περιλαμβάνει την παραπάνω αποθηκευμένη κατάσταση, τις ενεργές συνεδρίες και τον προγραμματισμό διαστηματικής επανάληψης.',
   localProgress: 'Αντίγραφο ασφαλείας και επαναφορά',

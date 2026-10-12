@@ -12,6 +12,7 @@ import {
 import { planToday, questionOrder } from '../learning/planner'
 import { localDay, validExamDate } from '../learning/dates'
 import { scheduleReview } from '../learning/scheduler'
+import { PATH_KEY_PREFIX, readPaths, type StudyPath } from '../learning/paths'
 
 export async function snapshot(db = database): Promise<LearningSnapshot> {
   return db.transaction('r', db.tables, async () => {
@@ -59,6 +60,7 @@ export async function snapshot(db = database): Promise<LearningSnapshot> {
     }
     return {
       settings,
+      paths: readPaths(records),
       chunks,
       questions,
       logs,
@@ -106,6 +108,13 @@ export async function saveSettings(settings: StudySettings, db = database) {
         value: settings.dailyTargetMinutes,
       })
   })
+}
+export async function savePath(path: StudyPath, db = database) {
+  await db.settings.put({ key: PATH_KEY_PREFIX + path.id, value: JSON.stringify(path) })
+}
+export async function removePath(id: string, db = database) {
+  // A null tombstone travels through cloud sync; learner progress is untouched.
+  await db.settings.put({ key: PATH_KEY_PREFIX + id, value: null })
 }
 export async function saveUI(ui: UIRecord, db = database) {
   await db.ui.put(ui)
