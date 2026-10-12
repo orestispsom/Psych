@@ -43,17 +43,26 @@ function P.InitializeQuiz()
         end
         if s.bankVersion~=P.bank.bankVersion then
             -- Never make a recorded answer submit-able again after a bank update.
-            if s.revealed then s.index=s.index+1 end
+            if s.revealed and not s.reviewWrongIndex then s.index=s.index+1 end
             s.selected=nil; s.revealed=false; s.bankVersion=P.bank.bankVersion
         end
         -- Stable IDs survive regeneration; missing items are skipped, never reassigned.
         while s.index<=#s.ids and not P.byId[tostring(s.ids[s.index])] do s.index=s.index+1 end
         normalizeForeverExam(s)
+        if P.IsWrongReview(s) then P.RestoreQuestionState() end
     end
 end
 function P.IsDue(state)
     return state and ((state.nextReviewAt and state.nextReviewAt<=P.Now()) or
         (not state.nextReviewAt and ((state.correctCount or 0)+(state.wrongCount or 0)>0)))
+end
+local function createSession(ids,mode,endless,retryRound)
+    P.db.sessionSequence=(P.db.sessionSequence or 0)+1
+    P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
+        mode=mode,retryRound=retryRound or 0,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=endless,
+        bankVersion=P.bank.bankVersion,startedAt=P.Now(),elapsedSeconds=0,answersById={},recordedById={}}
+    if P.scroll then P.scroll:SetVerticalScroll(0) end
+    if P.Refresh then P.Refresh() end
 end
 function P.StartSession()
     local settings=P.db.settings
@@ -85,12 +94,14 @@ function P.StartSession()
     local length=mode=='exam' and 100 or settings.length
     local count=length==0 and #candidates or math.min(length,#candidates)
     local ids={}; for i=1,count do ids[i]=candidates[i].q.id end
-    P.db.sessionSequence=(P.db.sessionSequence or 0)+1
-    P.db.session={id='wow-session:'..P.db.installId..':'..P.db.sessionSequence,ids=ids,index=1,
-        mode=mode,answered=0,correct=0,selected=nil,revealed=false,results={},resultsById={},endless=length==0,
-        bankVersion=P.bank.bankVersion,startedAt=P.Now(),elapsedSeconds=0,answersById={},recordedById={}}
-    if P.scroll then P.scroll:SetVerticalScroll(0) end
-    if P.Refresh then P.Refresh() end
+    createSession(ids,mode,length==0)
+end
+function P.StartQuestionSession(questionId)
+    local q=P.byId[tostring(questionId)]
+    if not q then return false end
+    P.showExplanation=nil
+    createSession({q.id},'random',false)
+    return true
 end
 function P.CurrentQuestion()
     local s=P.db.session
@@ -101,16 +112,29 @@ end
 local function wrongResults(session)
     local wrong={}
     for _,result in ipairs((session and session.results) or {}) do
-        if not result.isCorrect then wrong[#wrong+1]=result end
+        if not result.isCorrect and P.byId[tostring(result.questionId)] then wrong[#wrong+1]=result end
     end
     return wrong
 end
 function P.WrongResultCount(session)
     return #wrongResults(session or (P.db and P.db.session))
 end
+function P.StartWrongRetake()
+    local s=P.db and P.db.session
+    if not s or s.index<=#s.ids then return end
+    local ids,seen={},{}
+    for _,result in ipairs(wrongResults(s)) do
+        local key=tostring(result.questionId)
+        if not seen[key] then ids[#ids+1]=result.questionId; seen[key]=true end
+    end
+    if #ids==0 then return end
+    P.showExplanation=nil
+    createSession(ids,s.mode,false,(s.retryRound or 0)+1)
+end
 function P.IsWrongReview(session)
     local s=session or (P.db and P.db.session)
-    return P.IsForeverExam(s) and type(s.reviewWrongIndex)=='number' and s.reviewWrongIndex>=1
+    return s~=nil and s.index>#s.ids and type(s.reviewWrongIndex)=='number' and
+        s.reviewWrongIndex>=1 and s.reviewWrongIndex<=P.WrongResultCount(s)
 end
 function P.CurrentWrongResult(session)
     local s=session or (P.db and P.db.session)
@@ -126,7 +150,7 @@ local function restoreWrongReviewState(session)
 end
 function P.StartWrongReview()
     local s=P.db and P.db.session
-    if not P.IsForeverExam(s) or P.WrongResultCount(s)==0 then return end
+    if not s or s.index<=#s.ids or P.WrongResultCount(s)==0 then return end
     s.reviewWrongIndex=1
     restoreWrongReviewState(s)
     if P.scroll then P.scroll:SetVerticalScroll(0) end
@@ -192,7 +216,9 @@ function P.RestoreQuestionState()
     if not s then return end
     local q=P.CurrentQuestion()
     P.showExplanation=nil
-    if q and P.IsForeverExam(s) then
+    if P.IsWrongReview(s) then
+        restoreWrongReviewState(s)
+    elseif q and P.IsForeverExam(s) then
         s.answersById=s.answersById or {}
         s.selected=s.answersById[tostring(q.id)]
         s.revealed=false
@@ -236,7 +262,6 @@ function P.Next()
     if s.index>=#s.ids then
         if s.revealed then
             s.index=#s.ids+1
-            if s.endless then P.StartSession(); return end
             if P.scroll then P.scroll:SetVerticalScroll(0) end
             P.Refresh()
         end
@@ -244,7 +269,6 @@ function P.Next()
     end
     s.index=s.index+1
     while s.index<=#s.ids and not P.byId[tostring(s.ids[s.index])] do s.index=s.index+1 end
-    if s.index>#s.ids and s.endless then P.StartSession(); return end
     P.RestoreQuestionState()
     if P.scroll then P.scroll:SetVerticalScroll(0) end
     P.Refresh()

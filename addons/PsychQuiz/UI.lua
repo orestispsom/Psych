@@ -16,13 +16,13 @@ local function text(parent,size,token)
 end
 local function button(parent,label,width,height,action,primary)
     local b=CreateFrame('Button',nil,parent)
-    b:SetSize(width,height)
+    b:SetSize(width,height); b.primary=primary
     b.bg=b:CreateTexture(nil,'BACKGROUND'); b.bg:SetAllPoints()
-    color(b.bg,primary and 'primary' or 'selected',primary and 1 or 0.35)
-    b.label=text(b,14,primary and 'white' or 'ink'); b.label:SetPoint('CENTER')
+    color(b.bg,primary and 'primary' or 'button')
+    b.label=text(b,14,primary and 'primaryText' or 'ink'); b.label:SetPoint('CENTER')
     b.label:SetJustifyH('CENTER'); b.label:SetText(label)
-    b:SetScript('OnEnter',function() color(b.bg,primary and 'primary' or 'hover') end)
-    b:SetScript('OnLeave',function() color(b.bg,primary and 'primary' or 'selected',primary and 1 or 0.35) end)
+    b:SetScript('OnEnter',function() if b:IsEnabled() then color(b.bg,b.primary and 'primaryHover' or 'hover') end end)
+    b:SetScript('OnLeave',function() color(b.bg,b.primary and 'primary' or 'button') end)
     b:SetScript('OnClick',action)
     return b
 end
@@ -36,6 +36,7 @@ local function surface(frame,alpha)
     frame:SetBackdropBorderColor(C.border[1],C.border[2],C.border[3],0.85)
 end
 function P.CloseMenu()
+    if P.searchBox then P.searchBox:ClearFocus() end
     if P.menu then P.menu:Hide() end
     if P.feedbackDialog then P.feedbackDialog:Hide() end
 end
@@ -73,30 +74,44 @@ function P.MakeAnswer(index)
     row:SetScript('OnClick',function() P.Select(index) end)
     row:SetScript('OnEnter',function()
         local s=P.db.session
-        if s and not s.revealed and s.selected~=index then color(row.bg,'hover',0.8) end
+        if s and not s.revealed and s.selected~=index then color(row.bg,'hover') end
     end)
     row:SetScript('OnLeave',function() P.RefreshAnswers() end)
     return row
+end
+-- Selection and correctness are separate, and exams never leak the answer early.
+function P.AnswerAppearance(s,q,index)
+    local selected=s.selected==index
+    if s.revealed and (s.mode~='exam' or P.IsWrongReview(s)) then
+        if index-1==q.correct then return 'correct','correctFill','✓' end
+        if selected then return 'wrong','wrongFill','×' end
+    end
+    return selected and 'accent' or 'ink',selected and 'selected' or nil,selected and '●' or '○'
 end
 function P.RefreshAnswers()
     local q=P.CurrentQuestion(); local s=P.db.session
     for i,row in ipairs(P.answers) do
         if q and i<=#q.options then
-            local selected=s.selected==i
-            color(row.bg,'selected',selected and 0.85 or 0)
-            row.mark:SetText(selected and '●' or '○')
+            local token,fill,mark=P.AnswerAppearance(s,q,i)
+            color(row.bg,fill or 'button',fill and 1 or 0)
+            row.mark:SetText(mark)
             row.letter:SetText(answerLetters[i] or tostring(i))
             row.body:SetText(plain(q.options[i]))
-            local token='ink'
-            if s.revealed and (s.mode~='exam' or P.IsWrongReview(s)) then
-                if i-1==q.correct then token='correct'; row.mark:SetText('✓')
-                elseif selected then token='wrong'; row.mark:SetText('×') end
-            end
             row.mark:SetTextColor(unpack(C[token])); row.body:SetTextColor(unpack(C[token]))
+            row.letter:SetTextColor(unpack(C[fill and token or 'muted']))
             row:EnableMouse(not s.revealed or (P.IsForeverExam(s) and not P.IsWrongReview(s)))
         end
     end
 end
+function P.ExplanationVisible()
+    if P.showExplanation~=nil then return P.showExplanation end
+    return P.db.settings.autoExplanation~=false
+end
+local function tinted(value,token)
+    local c=C[token]
+    return string.format('|cff%02x%02x%02x',math.floor(c[1]*255),math.floor(c[2]*255),math.floor(c[3]*255))..value..'|r'
+end
+
 function P.RefreshForeverExamMeta()
     local s=P.db and P.db.session
     local q=P.CurrentQuestion()
@@ -114,11 +129,11 @@ function P.Layout()
     if not P.frame then return end
     local f=P.frame; local settings=P.db.settings
     local collapsed=settings.collapsed
-    P.main:SetShown(not collapsed); P.resize:SetShown(not collapsed)
+    P.main:SetShown(not collapsed); P.resize:SetShown(not collapsed and not settings.locked)
     P.collapse.label:SetText(collapsed and '+' or '−')
     local maxHeaderBtnWidth=math.max(120,math.min(240,f:GetWidth()-210))
     P.headerMode:SetWidth(maxHeaderBtnWidth)
-    P.headerMode.label:SetWidth(maxHeaderBtnWidth-14)
+    P.headerMode.label:SetWidth(maxHeaderBtnWidth-30)
     local w=f:GetWidth()-40
     P.topic:SetWidth(math.max(160,f:GetWidth()-110))
     local topY=math.max(70,48+P.topic:GetStringHeight()+8)
@@ -145,6 +160,10 @@ function P.Layout()
         y=y+18; P.feedback:ClearAllPoints(); P.feedback:SetPoint('TOPLEFT',0,-y)
         y=y+P.feedback:GetStringHeight()+12
     end
+    if P.explanationBtn and P.explanationBtn:IsShown() then
+        P.explanationBtn:ClearAllPoints(); P.explanationBtn:SetPoint('TOPLEFT',0,-y)
+        P.explanationBtn:SetWidth(math.min(w,240)); y=y+42
+    end
     P.content:SetHeight(math.max(1,y))
     P.scroll:UpdateScrollChildRect()
     local range=math.max(0,y-P.scroll:GetHeight())
@@ -158,11 +177,12 @@ function P.Refresh()
     if not P.frame then return end
     local s=P.db.session; local q=P.CurrentQuestion()
     local finished=s and not q
+    if P.summaryNewBtn then P.summaryNewBtn:SetShown(finished and P.WrongResultCount(s)>0) end
     local score=s and s.answered>0 and (' · '..math.floor(s.correct/s.answered*100+0.5)..'%') or ''
     if s and s.mode=='exam' and not finished and not P.IsWrongReview(s) then score='' end
     P.compact:SetText(s and (s.answered..'/'..#s.ids..score) or '')
     if not P.RefreshForeverExamMeta() then
-        P.topic:SetText(q and q.topic or 'Η μελέτη σου, στον χρόνο σου')
+        P.topic:SetText(P.IsWrongReview(s) and ('MCQ #'..q.id..'  ·  Λάθος '..s.reviewWrongIndex..'/'..P.WrongResultCount(s)) or (q and q.topic or 'Η μελέτη σου, στον χρόνο σου'))
     end
     if P.IsWrongReview(s) then
         P.progress:SetText(s.reviewWrongIndex..' / '..P.WrongResultCount(s))
@@ -173,7 +193,9 @@ function P.Refresh()
     local mode=s and q and s.mode or settings.mode
     local label=P.modeLabels[mode] or 'Τυχαίες'
     local modeText=label
-    if mode=='exam' then
+    if s and q and (s.retryRound or 0)>0 then
+        modeText='Επανάληψη λαθών ('..#s.ids..')'
+    elseif mode=='exam' then
         modeText='Εξέταση (100)'
     elseif mode=='category' then
         local cat=(s and q and q.topic) or (settings.category~='' and settings.category) or 'Όλες'
@@ -183,8 +205,13 @@ function P.Refresh()
         local len=settings.length==0 and 'Όλες' or tostring(settings.length)
         modeText=label..' ('..len..')'
     end
-    P.headerMode.label:SetText(modeText..' ▾')
+    P.headerMode.label:SetText(modeText)
     P.feedback:SetText('')
+    if P.explanationBtn then
+        local canExplain=q and s.revealed and s.mode~='exam' and not P.IsWrongReview(s) and q.explanation and q.explanation~=''
+        P.explanationBtn:SetShown(canExplain and true or false)
+        P.explanationBtn.label:SetText(P.ExplanationVisible() and 'Απόκρυψη επεξήγησης' or 'Εμφάνιση επεξήγησης')
+    end
     if P.feedbackBtn then
         if q then
             local hasComment=P.db and P.db.feedback and P.db.feedback[tostring(q.id)] and P.db.feedback[tostring(q.id)].text~=''
@@ -229,8 +256,8 @@ function P.Refresh()
             else
                 local correct=s.selected-1==q.correct
                 local title=correct and 'Σωστή απάντηση' or 'Λάθος απάντηση'
-                local message=title..'\n\nΣωστή: '..plain(q.options[q.correct+1])
-                message=message..'\n\n'..plain(q.explanation)
+                local message=tinted(title,correct and 'correct' or 'wrong')..'\n\nΣωστή: '..plain(q.options[q.correct+1])
+                if P.ExplanationVisible() then message=message..'\n\n'..plain(q.explanation) end
                 P.feedback:SetText(message)
             end
         else P.action.label:SetText('Απάντηση') end
@@ -241,7 +268,7 @@ function P.Refresh()
             local wrong=P.WrongResultCount(s)
             local unanswered=#s.ids-s.answered
             out[#out+1]=wrong..' λάθος'..(unanswered>0 and ' · '..unanswered..' αναπάντητες' or '')
-            P.action.label:SetText(wrong>0 and ('Εξέταση λαθών ('..wrong..')') or 'Νέα συνεδρία')
+            P.action.label:SetText(wrong>0 and ('Ξανά λάθη ('..wrong..')') or 'Νέα συνεδρία')
         elseif s.mode=='exam' then
             for _,result in ipairs(s.results) do
                 local item=P.byId[tostring(result.questionId)]
@@ -253,6 +280,8 @@ function P.Refresh()
         else
             P.action.label:SetText('Νέα συνεδρία')
         end
+        local wrong=P.WrongResultCount(s)
+        if wrong>0 then P.action.label:SetText('Ξανά λάθη ('..wrong..')') end
         P.feedback:SetText(table.concat(out,'\n\n'))
     else
         P.stem:SetText('Λίγος χρόνος για μελέτη.')
@@ -260,7 +289,9 @@ function P.Refresh()
         P.action.label:SetText('Έναρξη')
     end
     P.action:SetEnabled(not q or P.IsForeverExam(s) or s.revealed or s.selected~=nil)
-    P.action.label:SetAlpha(P.action:IsEnabled() and 1 or 0.5)
+    color(P.action.bg,P.action:IsEnabled() and 'primary' or 'button')
+    P.action.label:SetTextColor(unpack(C[P.action:IsEnabled() and 'primaryText' or 'muted']))
+    P.action.label:SetAlpha(1)
     P.Layout()
 end
 local function ensureMenu(titleText)
@@ -278,6 +309,14 @@ local function ensureMenu(titleText)
             self:SetVerticalScroll(math.max(0,math.min(self:GetVerticalScroll()-delta*42,math.max(0,P.menuY-self:GetHeight()))))
         end)
     end
+    local searching=titleText=='Αναζήτηση MCQ'
+    if P.searchBox then
+        P.searchBox:SetShown(searching)
+        if not searching then P.searchBox:ClearFocus() end
+    end
+    P.menuScroll:ClearAllPoints()
+    P.menuScroll:SetPoint('TOPLEFT',10,searching and -82 or -42)
+    P.menuScroll:SetPoint('BOTTOMRIGHT',-10,10)
     P.menuTitle:SetText(titleText or '')
     for _,row in ipairs(P.menuRows or {}) do row:Hide() end
     P.menuRows={}; P.menuY=0; P.rowCursor=0; P.titleCursor=0; P.sliderCursor=0; P.menu:Show()
@@ -293,8 +332,9 @@ local function menuRow(label,sublabel,action,isPrimary)
         b.subtext=text(b,11,'muted')
         P.rowPool[P.rowCursor]=b
     end
-    color(b.bg,isPrimary and 'primary' or 'selected',isPrimary and 1 or 0.35)
-    b.label:SetTextColor(unpack(C[isPrimary and 'white' or 'ink']))
+    b.primary=isPrimary
+    color(b.bg,isPrimary and 'primary' or 'button')
+    b.label:SetTextColor(unpack(C[isPrimary and 'primaryText' or 'ink']))
     b:ClearAllPoints(); b.label:ClearAllPoints(); b.label:SetJustifyH('LEFT'); b.label:SetFont(P.font,13,'')
     b.label:SetText(label)
     if sublabel and sublabel~='' then
@@ -335,12 +375,102 @@ local function menuSlider(label,minimum,maximum,step,value,onChange)
     P.menuY=P.menuY+32; P.menuRows[#P.menuRows+1]=slider
 end
 
+local function finishMenu()
+    P.menuContent:SetHeight(math.max(1,P.menuY)); P.menuScroll:SetVerticalScroll(0)
+end
+function P.OpenHub()
+    ensureMenu('PsychQuiz')
+    if P.CurrentQuestion() then
+        menuRow('Συνέχεια συνεδρίας','Η συνεδρία σου παραμένει ενεργή.',P.CloseMenu,true)
+    end
+    menuRow('Πολλαπλής επιλογής','Επιλογή τρόπου μελέτης ή νέας εξέτασης.',function() P.OpenModeWizard('mode') end)
+    menuRow('Αναζήτηση MCQ','Βρες ερώτηση με λέξη, θέμα ή αριθμό.',P.OpenSearch)
+    menuRow('Πρόοδος','Κάλυψη ερωτήσεων και πρόοδος ανά θέμα.',P.OpenProgress)
+    menuRow('Ρυθμίσεις','Εμφάνιση, κλείδωμα και επεξηγήσεις.',P.OpenSettings)
+    finishMenu()
+end
+function P.OpenProgress()
+    ensureMenu('Πρόοδος MCQ')
+    local summary=P.ProgressOverview()
+    menuRow('‹ Αρχική','',P.OpenHub)
+    menuTitle(summary.attempted..' / '..summary.total..' ερωτήσεις με απάντηση')
+    menuTitle(summary.mastered..' κατακτημένες · '..summary.due..' για επανάληψη')
+    local attempts=summary.correct+summary.wrong
+    if attempts>0 then
+        menuTitle(summary.correct..' σωστές / '..attempts..' προσπάθειες ('..math.floor(summary.correct/attempts*100+0.5)..'%)')
+    end
+    menuTitle(P.PendingCount()..' απαντήσεις αναμένουν συγχρονισμό')
+    menuTitle('Μετρήσεις για την τρέχουσα τράπεζα MCQ.')
+    for _,title in ipairs(P.topics) do
+        local topic=summary.topics[title]
+        local sub=topic.attempted..'/'..topic.total..' με απάντηση · '..topic.mastered..' κατακτημένες · '..topic.due..' για επανάληψη'
+        menuRow(plain(title),sub,function()
+            P.OpenModeWizard('confirm',{mode='category',category=title,length=0})
+        end)
+    end
+    finishMenu()
+end
+function P.OpenQuestionPreview(questionId)
+    local q=P.byId[tostring(questionId)]
+    if not q then return end
+    ensureMenu('MCQ #'..q.id)
+    menuRow('‹ Αποτελέσματα','',function() P.ShowSearchResults(P.searchQuery or '') end)
+    menuTitle(plain(q.topic))
+    menuTitle(plain(q.stem))
+    menuRow('Εξάσκηση αυτής της ερώτησης','Ξεκινά νέα συνεδρία μίας ερώτησης.',function()
+        P.CloseMenu(); P.StartQuestionSession(q.id)
+    end,true)
+    finishMenu()
+end
+function P.ShowSearchResults(query)
+    P.searchQuery=query
+    ensureMenu('Αναζήτηση MCQ')
+    menuRow('‹ Αρχική','',P.OpenHub)
+    menuRow('Αναζήτηση','Πληκτρολόγησε στο πεδίο και πάτησε Enter ή εδώ.',function()
+        P.searchBox:ClearFocus(); P.ShowSearchResults(P.searchBox:GetText())
+    end)
+    local results,total=P.SearchQuestions(query)
+    if not query:find('%S') then menuTitle('Λέξη, θέμα ή αριθμός ερώτησης, π.χ. #2309.')
+    elseif total==0 then menuTitle('Δεν βρέθηκαν ερωτήσεις. Δοκίμασε άλλη λέξη.')
+    else
+        menuTitle(total..' αποτελέσματα'..(total>#results and ' · πρώτα '..#results..', πρόσθεσε λέξεις για πιο ακριβή αναζήτηση' or ''))
+        for _,q in ipairs(results) do
+            menuRow('#'..q.id..' · '..plain(q.topic),plain(q.stem),function() P.OpenQuestionPreview(q.id) end)
+        end
+    end
+    finishMenu()
+end
+function P.OpenSearch()
+    ensureMenu('Αναζήτηση MCQ')
+    if not P.searchBox then
+        local box=CreateFrame('EditBox',nil,P.menu,'BackdropTemplate'); P.searchBox=box
+        box:SetPoint('TOPLEFT',12,-42); box:SetPoint('TOPRIGHT',-12,-42); box:SetHeight(32)
+        box:SetFont(P.font,14,''); box:SetTextColor(unpack(C.ink)); box:SetTextInsets(10,10,5,5)
+        box:SetMaxLetters(120); box:SetAutoFocus(false); surface(box,1)
+        box:SetScript('OnEnterPressed',function(self)
+            self:ClearFocus(); P.ShowSearchResults(self:GetText())
+        end)
+        box:SetScript('OnEscapePressed',P.CloseMenu)
+    end
+    P.searchBox:SetText(P.searchQuery or ''); P.searchBox:Show()
+    P.ShowSearchResults(P.searchQuery or '')
+end
+
 function P.OpenSettings()
     ensureMenu('Ρυθμίσεις')
     local settings=P.db.settings
     menuTitle('Εμφάνιση παραθύρου')
     menuSlider('Αδιαφάνεια φόντου',0.65,1,0.01,settings.opacity,function(v) settings.opacity=v end)
     menuSlider('Μέγεθος γραμμάτων',14,24,1,settings.fontSize,function(v) settings.fontSize=math.floor(v+0.5) end)
+    menuRow(settings.locked and 'Παράθυρο: κλειδωμένο' or 'Παράθυρο: ελεύθερο',
+        'Κλείδωμα μετακίνησης και μεγέθους.',function()
+            settings.locked=not settings.locked; P.OpenSettings(); P.Layout()
+        end)
+    menuRow(settings.autoExplanation~=false and 'Επεξηγήσεις: αυτόματα' or 'Επεξηγήσεις: με κλικ',
+        'Η σωστή απάντηση παραμένει ορατή μετά την υποβολή.',function()
+            settings.autoExplanation=settings.autoExplanation==false; P.showExplanation=nil
+            P.OpenSettings(); P.Refresh()
+        end)
     menuTitle('Συγχρονισμός & Δεδομένα')
     menuTitle(P.PendingCount()..' απαντήσεις χωρίς επιβεβαίωση συγχρονισμού')
     local fbCount=0
@@ -515,7 +645,7 @@ function P.CreateUI()
     f:SetMovable(true); f:SetResizable(true); f:SetResizeBounds(340,300,900,1000); f:EnableMouse(true)
     local header=CreateFrame('Frame',nil,f); header:SetPoint('TOPLEFT'); header:SetPoint('TOPRIGHT'); header:SetHeight(36)
     header:EnableMouse(true); header:RegisterForDrag('LeftButton')
-    header:SetScript('OnDragStart',function() P.CloseMenu(); f:StartMoving() end)
+    header:SetScript('OnDragStart',function() if not P.db.settings.locked then P.CloseMenu(); f:StartMoving() end end)
     header:SetScript('OnDragStop',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
 
     P.headerMode=button(header,'',160,26,function()
@@ -531,13 +661,16 @@ function P.CreateUI()
     P.headerMode.label:ClearAllPoints()
     P.headerMode.label:SetPoint('LEFT',8,0)
 
+    P.headerArrow=text(P.headerMode,12,'accent'); P.headerArrow:SetFont(P.symbolFont,12,'')
+    P.headerArrow:SetText('▾'); P.headerArrow:SetPoint('RIGHT',-7,0)
+
     P.compact=text(header,12,'muted'); P.compact:SetPoint('RIGHT',-112,0)
 
-    P.gear=button(header,'⚙',26,26,function()
-        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='Ρυθμίσεις' then
+    P.gear=button(header,'☰',26,26,function()
+        if P.menu and P.menu:IsShown() and P.menuTitle and P.menuTitle:GetText()=='PsychQuiz' then
             P.CloseMenu()
         else
-            P.OpenSettings()
+            P.OpenHub()
         end
     end)
     P.gear:SetPoint('RIGHT',-76,0)
@@ -569,15 +702,23 @@ function P.CreateUI()
     P.scrollbar:SetScript('OnValueChanged',function(_,v) P.scroll:SetVerticalScroll(v) end)
 
     P.stem=text(P.content,17); P.feedback=text(P.content,16); P.answers={}
+    P.explanationBtn=button(P.content,'',240,32,function()
+        P.showExplanation=not P.ExplanationVisible(); P.Refresh()
+    end)
+    P.explanationBtn:Hide()
     P.action=button(P.main,'Έναρξη',120,34,function()
         if P.IsWrongReview() then P.Next()
         elseif not P.CurrentQuestion() then
             local s=P.db and P.db.session
-            if P.IsForeverExam(s) and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongReview()
+            if s and s.index>#s.ids and P.WrongResultCount(s)>0 then P.StartWrongRetake()
             else P.StartSession() end
         elseif P.IsForeverExam() then P.Next()
         elseif P.db.session.revealed then P.Next() else P.Submit() end
     end,true); P.action:SetPoint('BOTTOMRIGHT',-18,16)
+
+    P.summaryNewBtn=button(P.main,'Νέα συνεδρία',110,34,function() P.StartSession() end)
+    P.summaryNewBtn:SetPoint('RIGHT',P.action,'LEFT',-6,0)
+    P.summaryNewBtn:Hide()
 
     P.nextBtn=button(P.main,'›',34,34,function() P.Next() end)
     P.nextBtn:SetPoint('RIGHT',P.action,'LEFT',-6,0)
@@ -593,7 +734,7 @@ function P.CreateUI()
     P.resize=CreateFrame('Button',nil,f); P.resize:SetSize(18,18); P.resize:SetPoint('BOTTOMRIGHT',-1,1)
     P.resize:SetNormalTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up')
     P.resize:SetHighlightTexture('Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight')
-    P.resize:SetScript('OnMouseDown',function(_,which) if which=='LeftButton' then P.CloseMenu(); f:StartSizing('BOTTOMRIGHT') end end)
+    P.resize:SetScript('OnMouseDown',function(_,which) if which=='LeftButton' and not P.db.settings.locked then P.CloseMenu(); f:StartSizing('BOTTOMRIGHT') end end)
     P.resize:SetScript('OnMouseUp',function() f:StopMovingOrSizing(); P.SaveGeometry() end)
     f:SetScript('OnSizeChanged',function() if not P.restoring then P.Layout() end end)
     f:SetScript('OnUpdate',function(_,elapsed)

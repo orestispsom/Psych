@@ -17,7 +17,7 @@ P={}
 ''')
 def load(name):
     vm.execute('local f=assert(loadstring(...)); f("PsychQuiz",P)',(root/'addons/PsychQuiz'/name).read_text(encoding='utf8'))
-for name in ['SavedVariablesSeed.lua','Seed.lua','Core.lua','Questions.lua','ProfileImport.lua','Progress.lua','Quiz.lua']:
+for name in ['SavedVariablesSeed.lua','Seed.lua','Core.lua','Questions.lua','ProfileImport.lua','Progress.lua','Quiz.lua','Library.lua']:
     load(name)
 vm.execute('''
 -- Real private snapshot is read, but test state never leaves this runtime.
