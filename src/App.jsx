@@ -4739,12 +4739,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   }, [questions]);
 
   useEffect(() => {
-    if (mode !== "written" || writtenResult || writtenDraftChoice === "choice") return undefined;
+    if (mode !== "written" || !isActive || writtenResult || writtenDraftChoice === "choice") return undefined;
     const timer = setInterval(() => {
       setSimSeconds(sec => sec + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [mode, writtenResult, writtenDraftChoice]);
+  }, [mode, isActive, writtenResult, writtenDraftChoice]);
 
   const formatSimTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -5032,7 +5032,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const mcqSwipe = useSwipeGesture({
     onSwipeLeft: handleMcqSwipeLeft,
     onSwipeRight: handleMcqSwipeRight,
-    enabled: !retryQuestions && (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
+    enabled: isActive && !retryQuestions && (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
   });
 
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
@@ -8342,6 +8342,9 @@ export default function App() {
   const [historyLoadStatus, setHistoryLoadStatus] = useState(null);
   const [activeSprintSize, setActiveSprintSize] = useState(sprintSize);
   const [activeSprintSessionKey, setActiveSprintSessionKey] = useState(null);
+  // Keep the current MCQ route and its mounted question component while visiting
+  // other app sections. This cache belongs only to the selected profile.
+  const [parkedMcqRoute, setParkedMcqRoute] = useState(null);
   const suppressSprintAutoStartRef = useRef(false);
   const [sosStudyData, setSosStudyData] = useState(null);
   const [sosStudyLoadError, setSosStudyLoadError] = useState(null);
@@ -8375,6 +8378,15 @@ export default function App() {
     ? selectedProfile
     : null;
   const hasAdminAccess = Boolean(activeProfile && isAdminProfile(activeProfile) && adminUnlocked);
+  const pausedMcq = activeProfile && parkedMcqRoute?.profileId === activeProfile.id
+    ? parkedMcqRoute : null;
+  const mcqResumePath = pausedMcq?.path || null;
+  // While another section is visible, keep the exact same MCQ instance mounted
+  // offscreen; route-derived props must also remain stable while it is paused.
+  const retainedMcqMode = screen === "mcq" ? testMode : pausedMcq?.mode || null;
+  const retainedMcqTopic = screen === "mcq" ? selectedMcqTopic : pausedMcq?.topic || null;
+  const retainedMcqReviewId = screen === "mcq" ? historicalSessionId : pausedMcq?.reviewId || null;
+  const mcqSessionVisible = screen === "mcq" && Boolean(testMode);
   const handleThemePreferenceChange = useCallback((nextTheme) => {
     const normalized = normalizeThemePreference(nextTheme);
     try {
@@ -8424,10 +8436,10 @@ export default function App() {
     return { mastered, total: total || 233 };
   }, [sosProgress]);
   const selectedMcqTopicQuestions = useMemo(
-    () => selectedMcqTopic
-      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(selectedMcqTopic), mcqProgress, mcqQualitySignals)
+    () => retainedMcqTopic
+      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(retainedMcqTopic), mcqProgress, mcqQualitySignals)
       : [],
-    [selectedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
+    [retainedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή.";
@@ -8440,6 +8452,28 @@ export default function App() {
   useEffect(() => {
     if (!route.valid) navigate("/", { replace: true });
   }, [navigate, route.valid]);
+
+  // A section switch must never reset MCQ-local state (question order, answer
+  // selection, position, modal state). Clearing the mode via the test's own
+  // Back/Menu button is deliberate and releases its parked instance.
+  useEffect(() => {
+    if (!activeProfile || screen !== "mcq") return;
+    if (!testMode) {
+      setParkedMcqRoute(null);
+      return;
+    }
+    const next = {
+      profileId: activeProfile.id,
+      mode: testMode,
+      topic: selectedMcqTopic,
+      reviewId: historicalSessionId,
+      path: location.pathname + location.search,
+    };
+    setParkedMcqRoute(previous =>
+      previous?.profileId === next.profileId && previous.path === next.path
+        ? previous : next
+    );
+  }, [activeProfile?.id, screen, testMode, selectedMcqTopic, historicalSessionId, location.pathname, location.search]);
 
   // Keep a Mini-test mounted while the user briefly visits another section.
   // Mobile bottom-navigation taps can otherwise unmount it and discard the
@@ -9141,9 +9175,14 @@ export default function App() {
   const switchProfile = useCallback(() => {
     setAdminUnlocked(false);
     setActiveSprintSessionKey(null);
+    setParkedMcqRoute(null);
     setScreen('home');
     setProfileStore(prev => ({ ...prev, activeProfileId: null }));
   }, [setScreen]);
+
+  const navigateToSection = useCallback(section => {
+    navigate(section.id === "mcq" && mcqResumePath ? mcqResumePath : section.path);
+  }, [navigate, mcqResumePath]);
 
   const startMcqMode = useCallback((mode, count = SPRINT_SESSION_SIZE) => {
     if (mode !== "category") setSelectedMcqTopic(null);
@@ -9155,11 +9194,11 @@ export default function App() {
     navigate(pathForMcqMode(mode) + (mode === "sprint" ? `?count=${count}` : ""));
   }, [navigate, setSelectedMcqTopic]);
 
-  const historicalSession = historicalSessionId
-    ? getWrittenExamSessions(mcqProgress).find(session => session.id === historicalSessionId)
+  const historicalSession = retainedMcqReviewId
+    ? getWrittenExamSessions(mcqProgress).find(session => session.id === retainedMcqReviewId)
     : null;
   const historicalExam = historicalSession ? {
-    ...recoverWrittenExam(historicalSession, [...(mcqProgress.attempts || []), ...(historicalAttempts[`${activeProfile?.id}:${historicalSessionId}`] || [])], getQuestionById, getWrittenExamResult, mcqProgress),
+    ...recoverWrittenExam(historicalSession, [...(mcqProgress.attempts || []), ...(historicalAttempts[`${activeProfile?.id}:${retainedMcqReviewId}`] || [])], getQuestionById, getWrittenExamResult, mcqProgress),
     completedAt: historicalSession.completedAt,
   } : null;
   if (historicalExam && !historicalExam.result) {
@@ -9172,17 +9211,17 @@ export default function App() {
 
   useEffect(() => {
     if (!historicalSession || historicalExam?.result?.reviewUnavailable !== true || !ONLINE_PROFILES_ENABLED) return;
-    const cacheKey = `${activeProfile.id}:${historicalSessionId}`;
+    const cacheKey = `${activeProfile.id}:${retainedMcqReviewId}`;
     if (historicalAttempts[cacheKey]) return;
     let cancelled = false;
     setHistoryLoadStatus("loading");
-    loadRemoteAttempts(activeProfile.id, historicalSessionId).then(rows => {
+    loadRemoteAttempts(activeProfile.id, retainedMcqReviewId).then(rows => {
       if (cancelled) return;
       setHistoricalAttempts(prev => ({ ...prev, [cacheKey]: mergeAttemptRows([], rows) }));
       setHistoryLoadStatus(null);
     }).catch(() => { if (!cancelled) setHistoryLoadStatus("error"); });
     return () => { cancelled = true; };
-  }, [activeProfile?.id, historicalSessionId, historicalSession, historicalAttempts, historicalExam?.result?.reviewUnavailable]);
+  }, [activeProfile?.id, retainedMcqReviewId, historicalSession, historicalAttempts, historicalExam?.result?.reviewUnavailable]);
 
   if (!activeProfile) {
     return (
@@ -9215,7 +9254,7 @@ export default function App() {
         isAdmin={hasAdminAccess}
         theme={theme}
         onToggleTheme={toggleTheme}
-        onNavigateSection={section => navigate(section.path)}
+        onNavigateSection={navigateToSection}
         onOpenSearch={() => screen === "study" ? window.dispatchEvent(new Event("psych-study-open-search")) : setPaletteOpen(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onSwitchProfile={switchProfile}
@@ -9236,7 +9275,7 @@ export default function App() {
         )}
         {activeProfile && screen === 'home' && (
           <HomeScreen
-            onNavigate={(id) => setScreen(id)}
+            onNavigate={(id) => id === "mcq" && mcqResumePath ? navigate(mcqResumePath) : setScreen(id)}
             profileName={activeProfile.name}
             isAdmin={hasAdminAccess}
             rememberAdmin={rememberAdmin}
@@ -9333,7 +9372,8 @@ export default function App() {
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'vignettes' && mcqFeatureData.vignettes && (
+        {activeProfile && retainedMcqMode === 'vignettes' && mcqFeatureData.vignettes && (
+          <div style={mcqSessionVisible ? undefined : { display: 'none' }}>
           <McqVignetteMode
             vignettes={mcqFeatureData.vignettes.vignettes}
             progress={mcqProgress}
@@ -9341,35 +9381,42 @@ export default function App() {
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
+          </div>
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'matching' && mcqFeatureData.matching && (
+        {activeProfile && retainedMcqMode === 'matching' && mcqFeatureData.matching && (
+          <div style={mcqSessionVisible ? undefined : { display: 'none' }}>
           <McqMatchingMode
             matchingSets={mcqFeatureData.matching.matchingSets}
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
+          </div>
         )}
-        {activeProfile && screen === 'mcq' && testMode === 'DSM5' && mcqFeatureData.DSM5 && (
+        {activeProfile && retainedMcqMode === 'DSM5' && mcqFeatureData.DSM5 && (
+          <div style={mcqSessionVisible ? undefined : { display: 'none' }}>
           <DSM5McqMode
             chapters={mcqFeatureData.DSM5.chapters}
             questionBank={mcqFeatureData.DSM5.questionBank}
             onBack={() => setTestMode(null)}
             onHome={() => { setTestMode(null); setScreen('home'); }}
           />
+          </div>
         )}
         {activeProfile && screen === 'mcq' && historicalSessionId && !historicalSession && <p role="status">Η αποθηκευμένη προσομοίωση δεν βρέθηκε σε αυτό το προφίλ. <button type="button" className="results-btn" onClick={() => setTestMode(null)}>Μενού MCQ</button></p>}
         {activeProfile && screen === 'mcq' && historicalSessionId && historyLoadStatus === "loading" && <p role="status">Φόρτωση αποθηκευμένων απαντήσεων…</p>}
         {activeProfile && screen === 'mcq' && historicalSessionId && historyLoadStatus === "error" && <p role="status">Δεν φορτώθηκαν οι παλαιότερες απαντήσεις. Έλεγξε τη σύνδεση και άνοιξε ξανά την προσομοίωση.</p>}
-        {activeProfile && questionBankStatus === 'ready' && screen === 'mcq' && (!historicalSessionId || historicalSession) && testMode && testMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(testMode) && (testMode !== 'category' || selectedMcqTopic) && (
+        {activeProfile && questionBankStatus === 'ready' && (!retainedMcqReviewId || historicalSession) && retainedMcqMode && retainedMcqMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(retainedMcqMode) && (retainedMcqMode !== 'category' || retainedMcqTopic) && (
+          <div style={mcqSessionVisible ? undefined : { display: 'none' }} data-testid="retained-mcq-session">
           <McqTest
-            key={`${testMode}:${historicalSessionId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
+            key={`${retainedMcqMode}:${retainedMcqReviewId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
             historicalExam={historicalExam}
-            mode={testMode}
+            mode={retainedMcqMode}
+            isActive={mcqSessionVisible}
             progress={mcqProgress}
             qualitySignals={mcqQualitySignals}
             onProgressChange={updateMcqProgress}
-            sessionQuestions={testMode === 'category' ? selectedMcqTopicQuestions : null}
-            sessionTitle={testMode === 'category' ? selectedMcqTopic : null}
+            sessionQuestions={retainedMcqMode === 'category' ? selectedMcqTopicQuestions : null}
+            sessionTitle={retainedMcqMode === 'category' ? retainedMcqTopic : null}
             onBack={() => {
               if (testMode === 'category') {
                 setSelectedMcqTopic(null);
@@ -9383,6 +9430,7 @@ export default function App() {
               setScreen('home');
             }}
           />
+          </div>
         )}
         {activeProfile && questionBankStatus === 'ready' && activeSprintSessionKey && (
           <div style={screen === 'mcq' && testMode === 'sprint' ? undefined : { display: 'none' }}>
