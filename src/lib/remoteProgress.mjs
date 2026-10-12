@@ -37,6 +37,7 @@ export function mergeMcqProgressSnapshots(remoteProgress = {}, localProgress = {
     ...older,
     ...newer,
     version: 2,
+    totalAnswers: Math.max(remoteProgress.totalAnswers || 0, localProgress.totalAnswers || 0),
     questions: mergeRecords(remoteProgress.questions, localProgress.questions),
     attempts: mergeArraysById(remoteProgress.attempts, localProgress.attempts, 500),
     sprintSessions: mergeArraysById(remoteProgress.sprintSessions, localProgress.sprintSessions, 30),

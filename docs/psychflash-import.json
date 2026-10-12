@@ -5,7 +5,7 @@
   "greekContentBranch": "i18n/greek-content",
   "files": {
     "runtime-content.json": {
-      "sha256": "5b0c7ce1177400c167878b03539d6900d4ff6ee79f5cff1241740cb3c1aea6f8",
+      "sha256": "c12272ad101fd5b4787eea80669be0a021ce0803f505c6e80782711fca485073",
       "topics": 455,
       "questions": 1849
     },
