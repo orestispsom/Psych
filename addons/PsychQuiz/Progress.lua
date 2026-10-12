@@ -28,6 +28,7 @@ function P.InitializeProgress()
     -- Schema 0 -> 1 adds preferences without deleting existing events.
     db.schemaVersion=1; db.profileId='orestis'; db.events=db.events or {}; db.sequence=db.sequence or 0
     db.settings=db.settings or {}
+    db.completedExams=db.completedExams or {}
     db.feedback=db.feedback or {}
     for k,v in pairs(P.defaults) do if db.settings[k]==nil then db.settings[k]=v end end
     db.settings.width=math.max(340,math.min(900,tonumber(db.settings.width) or 410))
@@ -74,6 +75,18 @@ function P.RecordAnswer(question,index,session)
     local id=tostring(question.id)
     db.derived[id]=P.ApplyAnswer(db.derived[id],event)
     return event
+end
+function P.RecordExamCompletion(session)
+    if not session or session.mode~='exam' or #session.ids~=100 or not session.completedAt then return end
+    local saved=P.db.completedExams
+    for _,entry in ipairs(saved) do
+        if entry.sessionId==session.id then return end
+    end
+    saved[#saved+1]={
+        schemaVersion=1,profileId='orestis',sessionId=session.id,
+        questionIds=P.Copy(session.ids),startedAt=session.startedAt,
+        completedAt=session.completedAt,
+    }
 end
 function P.PendingCount()
     local n=0
