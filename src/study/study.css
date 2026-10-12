@@ -1778,3 +1778,44 @@
   .study-module .reading-page li,
   .study-module .model-answer { font-size: 1.0625rem; line-height: 1.8; }
 }
+
+
+/* Study Paths: compact reference-like selection, not a settings wizard. */
+.study-module .path-home { width:min(920px,calc(100% - 32px)); padding:28px 0 76px; }
+.study-module .path-home__heading { text-align:center; margin:0 0 30px; }
+.study-module .path-home__symbol { font-size:2rem; margin-bottom:8px; line-height:1; color:var(--accent); }
+.study-module .path-home__heading h1 { margin:0 0 8px; font:650 clamp(1.5rem,3vw,2.1rem)/1.2 inherit; }
+.study-module .path-home__heading p { margin:0; font-size:.92rem; }
+.study-module .path-mode-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.study-module .path-mode { border:1px solid var(--line); background:var(--surface); border-radius:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; padding:22px 15px; min-height:152px; text-align:center; cursor:pointer; }
+.study-module .path-mode:hover, .study-module .saved-path:hover { border-color:var(--accent); }
+.study-module .path-mode__icon { color:var(--muted); font-size:1.7rem; height:31px; line-height:1; }
+.study-module .path-mode strong { font-size:1rem; line-height:1.3; }
+.study-module .path-mode small { color:var(--muted); line-height:1.45; max-width:230px; }
+.study-module .path-note { margin-top:24px; font-size:.78rem; line-height:1.5; }
+.study-module .path-back-home { margin:20px auto 0; }
+.study-module .saved-paths { display:grid; gap:12px; max-width:740px; margin:0 auto; }
+.study-module .saved-path { border:1px solid var(--line); border-radius:15px; background:var(--surface); overflow:hidden; }
+.study-module .saved-path__resume { width:100%; padding:18px; background:transparent; border:0; display:flex; gap:18px; align-items:center; text-align:left; cursor:pointer; }
+.study-module .saved-path__icon { font-size:1.5rem; color:var(--accent); flex:0 0 30px; text-align:center; }
+.study-module .saved-path__info { flex:1; min-width:0; display:grid; gap:7px; }
+.study-module .saved-path__info strong { overflow-wrap:anywhere; }
+.study-module .saved-path__info small { color:var(--muted); }
+.study-module .path-progress { height:4px; background:var(--line); overflow:hidden; border-radius:99px; }
+.study-module .path-progress > span { display:block; height:100%; background:var(--accent); border-radius:99px; }
+.study-module .saved-path__actions { display:flex; flex-wrap:wrap; padding:2px 18px 12px; gap:16px; border-top:1px solid var(--line); }
+.study-module .saved-path__actions .utility-button { min-height:38px; font-size:.8rem; }
+.study-module .path-add { display:block; margin:20px auto; min-width:230px; }
+.study-module .path-reader-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:32px 0; }
+.study-module .path-reader-actions .utility-button { border:1px solid var(--line); border-radius:9px; padding:10px 12px; min-height:45px; }
+.study-module .focus-header button[aria-label="Αρχική Μελέτης"],
+.study-module .focus-header button[aria-label="Study Home"] { min-width:44px; min-height:44px; display:grid; place-items:center; font-size:1.6rem; color:var(--text); border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+@media(max-width:600px) {
+  .study-module .path-mode-grid { gap:8px; }
+  .study-module .path-mode { padding:16px 8px; min-height:144px; }
+  .study-module .path-mode strong { font-size:.91rem; }
+  .study-module .path-mode small { font-size:.74rem; }
+  .study-module .path-reader-actions { display:grid; }
+  .study-module .path-reader-actions button { width:100%; justify-content:center; }
+  .study-module .focus-header { flex-wrap:wrap; }
+}
