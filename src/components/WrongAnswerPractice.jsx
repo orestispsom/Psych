@@ -102,7 +102,7 @@ export default function WrongAnswerPractice({ questions: initialQuestions, title
 
   if (!question) return null;
   return <div className="structured-mcq wrong-answer-practice">
-    <button type="button" className="back-link" onClick={onBack}><Icons.ChevronLeft /> Επιστροφή στο αρχικό τεστ</button>
+    <button type="button" className="back-link" onClick={onBack}><Icons.ChevronLeft /> {backLabel}</button>
     <h2>Εξάσκηση μόνο των λαθών</h2>
     <p className="sheet-sub">{title} · Ερώτηση {index + 1}/{questions.length}</p>
     {context && <div className="vignette-text">{context}</div>}
