@@ -8564,7 +8564,7 @@ export default function App() {
   }, [activeProfileId]);
 
   useEffect(() => {
-    if (!activeProfileId || screen === "home" || screen === "oral") return;
+    if (!activeProfileId || screen === "home" || screen === "oral" || screen === "activity") return;
     const title = SCREEN_TITLES[screen] || "Μελέτη";
     const label = testMode ? `${title} · ${MCQ_MODE_LABELS[testMode] || testMode}` : title;
     saveStudyPosition(activeProfileId, {
