@@ -710,7 +710,13 @@ function loadProfileStore() {
           },
         ])
     );
-    const activeProfileId = profiles[parsed.activeProfileId] ? parsed.activeProfileId : null;
+    // Remembered Orestis must also restore when the last selected ID was
+    // cleared by an older version or an interrupted profile sync.
+    const activeProfileId = profiles[parsed.activeProfileId]
+      ? parsed.activeProfileId
+      : loadRememberedAdminAccess() && profiles[ADMIN_PROFILE_ID]
+        ? ADMIN_PROFILE_ID
+        : null;
 
     return { version: 1, activeProfileId, profiles };
   } catch {
@@ -2843,6 +2849,7 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingAdminProfile, setPendingAdminProfile] = useState(null);
+  const [rememberThisDevice, setRememberThisDevice] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(false);
@@ -2888,9 +2895,10 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
     setIsVerifyingAdmin(true);
     setAdminError("");
     try {
-      await onSelectProfile(pendingAdminProfile.id, adminPassword);
+      await onSelectProfile(pendingAdminProfile.id, adminPassword, { rememberDevice: rememberThisDevice });
       setPendingAdminProfile(null);
       setAdminPassword("");
+      setRememberThisDevice(false);
     } catch (err) {
       setAdminError(err.message || "Δεν ήταν δυνατό το ξεκλείδωμα αυτού του προφίλ.");
     } finally {
@@ -3034,6 +3042,11 @@ function ProfileScreen({ profileStore, syncStatus, syncMessage, rememberedAdminA
               }}
               autoFocus
             />
+            <label className="admin-remember-login">
+              <input type="checkbox" checked={rememberThisDevice}
+                onChange={event => setRememberThisDevice(event.target.checked)} />
+              Να με θυμάται σε αυτή τη συσκευή
+            </label>
             <div className="admin-pin-pad" aria-label="Αριθμητικό πληκτρολόγιο">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
                 <button className="admin-pin-key" type="button" key={digit} onClick={() => appendAdminDigit(digit)}>
@@ -3196,6 +3209,25 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
         )}
       </div>
 
+      <div className="home-modules-section">
+        <div className="subscale">
+          <h2 className="subscale-title">Ενότητες</h2>
+          <span className="subscale-rule" />
+        </div>
+        <div className="home-modules">
+          {sections.map(section => (
+            <HomeModuleCard key={section.id} {...section} onOpen={onNavigate} />
+          ))}
+        </div>
+      </div>
+
+      <McqActivityCalendar
+        profileId={profileId}
+        progress={mcqProgress}
+        loadRemote={loadActivity}
+        onOpenDay={onOpenActivityDay}
+      />
+
       <div>
         <button className="home-update-note" type="button" onClick={handleUpdateNoteClick}>
           <span className="bar-label">Update</span>
@@ -3244,25 +3276,6 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
           <span className="figure-label">Ευστοχία</span>
         </div>
       </div>
-
-      <div className="home-modules-section">
-        <div className="subscale">
-          <h2 className="subscale-title">Ενότητες</h2>
-          <span className="subscale-rule" />
-        </div>
-        <div className="home-modules">
-          {sections.map(section => (
-            <HomeModuleCard key={section.id} {...section} onOpen={onNavigate} />
-          ))}
-        </div>
-      </div>
-
-      <McqActivityCalendar
-        profileId={profileId}
-        progress={mcqProgress}
-        loadRemote={loadActivity}
-        onOpenDay={onOpenActivityDay}
-      />
 
       {isAdmin && (
         <div className="profile-bar">
@@ -8395,6 +8408,8 @@ export default function App() {
   const [adminUnlocked, setAdminUnlocked] = useState(
     () => isAdminProfile(profileStore.activeProfileId) && loadRememberedAdminAccess()
   );
+  // An explicit Switch Profile action must not be undone by delayed remote data.
+  const suppressAdminAutoRestoreRef = useRef(false);
   const remoteSaveTimerRef = useRef(null);
   const oralRemoteSaveTimerRef = useRef(null);
   const lastRemoteAttemptIdRef = useRef({});
@@ -8789,8 +8804,10 @@ export default function App() {
     async function loadProfiles() {
       setSyncStatus("loading");
       try {
+        const requestedProfileId = profileStore.activeProfileId ||
+          (rememberAdmin && !suppressAdminAutoRestoreRef.current ? ADMIN_PROFILE_ID : null);
         const remoteStore = await loadRemoteProfileStore(
-          profileStore.activeProfileId,
+          requestedProfileId,
           profileStore.profiles
         );
         if (cancelled) return;
@@ -8805,9 +8822,12 @@ export default function App() {
               themePreference,
             };
           }
-          const activeProfileId = (mergedProfiles[prev.activeProfileId])
+          const activeProfileId = mergedProfiles[prev.activeProfileId]
             ? prev.activeProfileId
-            : remoteStore.activeProfileId;
+            : !suppressAdminAutoRestoreRef.current && rememberAdmin && mergedProfiles[ADMIN_PROFILE_ID]
+              ? ADMIN_PROFILE_ID
+              : remoteStore.activeProfileId && mergedProfiles[remoteStore.activeProfileId]
+                && !suppressAdminAutoRestoreRef.current ? remoteStore.activeProfileId : null;
           return {
             version: 1,
             profiles: mergedProfiles,
@@ -8904,6 +8924,10 @@ export default function App() {
         if (!passwordMatches) throw new Error("Λάθος κωδικός.");
       }
       setAdminUnlocked(true);
+      if (options.rememberDevice) {
+        saveRememberedAdminAccess(true);
+        setRememberAdmin(true);
+      }
     } else {
       setAdminUnlocked(false);
     }
@@ -9204,6 +9228,7 @@ export default function App() {
   }, [profileStore.activeProfileId]);
 
   const switchProfile = useCallback(() => {
+    suppressAdminAutoRestoreRef.current = true;
     setAdminUnlocked(false);
     setActiveSprintSessionKey(null);
     setParkedMcqRoute(null);
@@ -9253,6 +9278,13 @@ export default function App() {
     }).catch(() => { if (!cancelled) setHistoryLoadStatus("error"); });
     return () => { cancelled = true; };
   }, [activeProfile?.id, retainedMcqReviewId, historicalSession, historicalAttempts, historicalExam?.result?.reviewUnavailable]);
+
+  if (!activeProfile && rememberAdmin && !selectedProfile && syncStatus === "loading"
+      && !suppressAdminAutoRestoreRef.current) {
+    return <div className="app"><main className="profile-restore-status" role="status">
+      Επαναφορά προφίλ Orestis…
+    </main></div>;
+  }
 
   if (!activeProfile) {
     return (
