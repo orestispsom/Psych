@@ -11,6 +11,8 @@ import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
 import WrongAnswerPractice from "./components/WrongAnswerPractice.jsx";
+import { McqActivityCalendar, McqActivityDay } from "./components/McqActivityCalendar.jsx";
+import { remoteAttemptToRecord } from "./progressPersistence.mjs";
 import SupportWidget from "./components/SupportWidget.jsx";
 import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
@@ -1165,6 +1167,26 @@ async function loadRemoteAttempts(profileId, sessionId = null) {
     order: "attempted_at.desc",
     limit: "500",
   });
+}
+
+// Fetch the selected month, rather than only the newest 500 local attempts.
+// Bounds are deliberately wider than Athens midnight to cover both DST offsets.
+async function loadRemoteActivityAttempts(profileId, { start, end }) {
+  if (!ONLINE_PROFILES_ENABLED || !profileId) return [];
+  const rows = await fetchAllPages(({ offset, limit }) => supabaseTableRequest("question_attempts", {
+    select: [
+      "id", "client_attempt_id", "profile_id", "question_id", "client_session_id",
+      "mode", "selected_index", "selected_option", "is_correct", "confidence",
+      "time_taken_ms", "point_breakdown", "points_awarded", "streak_position",
+      "attempted_at", "event_origin", "event_payload",
+    ].join(","),
+    profile_id: `eq.${profileId}`,
+    and: `(attempted_at.gte.${start},attempted_at.lt.${end})`,
+    order: "attempted_at.desc",
+    limit: String(limit),
+    offset: String(offset),
+  }), 1000);
+  return rows.map(remoteAttemptToRecord);
 }
 
 async function loadRemoteMcqSessionState(profileId) {
@@ -2783,6 +2805,7 @@ const SCREEN_TITLES = {
   admin: "Επιλογές διαχειριστή",
   mcq: "Πολλαπλής Επιλογής",
   study: "Μελέτη",
+  activity: "Αποτελέσματα MCQ ημέρας",
   oral: "Προφορικά",
   "oral-past": "Σημαντικά Θέματα",
   "oral-viewer": "Σημαντικά Θέματα",
@@ -3082,7 +3105,7 @@ function HomeModuleCard({ id, icon, title, onOpen }) {
   );
 }
 
-function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, sosProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch }) {
+function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleRememberAdmin, onSwitchProfile, updateMessage, updateMessageStatus, onSaveUpdateMessage, mcqProgressSummary, oralProgressSummary, sosProgressSummary, resumePosition, onResume, onDismissResume, onOpenSearch, profileId, mcqProgress, loadActivity, onOpenActivityDay }) {
   const [updateClickCount, setUpdateClickCount] = useState(0);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [updateDraft, setUpdateDraft] = useState(updateMessage || DEFAULT_UPDATE_MESSAGE);
@@ -3233,6 +3256,13 @@ function HomeScreen({ onNavigate, profileName, isAdmin, rememberAdmin, onToggleR
           ))}
         </div>
       </div>
+
+      <McqActivityCalendar
+        profileId={profileId}
+        progress={mcqProgress}
+        loadRemote={loadActivity}
+        onOpenDay={onOpenActivityDay}
+      />
 
       {isAdmin && (
         <div className="profile-bar">
@@ -8417,6 +8447,7 @@ export default function App() {
     }
   }, [profileStore.activeProfileId, profileStore.profiles]);
   const mcqProgress = activeProfile?.mcqProgress || createEmptyMcqProgress();
+  const loadActivity = ONLINE_PROFILES_ENABLED ? loadRemoteActivityAttempts : null;
   const oralProgress = activeProfile?.oralProgress || createEmptyOralProgress();
   const sosProgress = activeProfile?.sosProgress || createEmptySosProgress();
   const mcqProgressSummary = useMemo(
@@ -8534,7 +8565,7 @@ export default function App() {
   }, [activeProfileId]);
 
   useEffect(() => {
-    if (!activeProfileId || screen === "home" || screen === "oral") return;
+    if (!activeProfileId || screen === "home" || screen === "oral" || screen === "activity") return;
     const title = SCREEN_TITLES[screen] || "Μελέτη";
     const label = testMode ? `${title} · ${MCQ_MODE_LABELS[testMode] || testMode}` : title;
     saveStudyPosition(activeProfileId, {
@@ -9294,6 +9325,10 @@ export default function App() {
               setResumePosition(null);
             }}
             onOpenSearch={() => setPaletteOpen(true)}
+            profileId={activeProfile.id}
+            mcqProgress={mcqProgress}
+            loadActivity={loadActivity}
+            onOpenActivityDay={date => navigate(`/activity/${date}`)}
           />
         )}
         {activeProfile && screen === 'pinakakia' && !referenceSources && (
@@ -9450,6 +9485,23 @@ export default function App() {
               onHome={() => setScreen('home')}
             />
           </div>
+        )}
+        {activeProfile && screen === 'activity' && route.activityDay && (
+          <McqActivityDay
+            key={`${activeProfile.id}:${route.activityDay}`}
+            date={route.activityDay}
+            profileId={activeProfile.id}
+            progress={mcqProgress}
+            loadRemote={loadActivity}
+            getQuestion={getQuestionById}
+            bankReady={questionBankStatus === 'ready'}
+            onRecordAnswer={(question, selection, meta) => updateMcqProgress(previous => recordQuestionAnswer(previous, question, selection, {
+              mode: "weakness", sessionId: meta.sessionId,
+              timeTakenMs: meta.timeTakenMs,
+              pointsAwarded: selection === question.correct ? 100 : 0,
+            }))}
+            onBack={() => navigate("/")}
+          />
         )}
         {activeProfile && screen === 'study' && (
           <Suspense fallback={<p role="status">Φόρτωση μελέτης…</p>}>
