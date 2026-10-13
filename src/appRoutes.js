@@ -89,7 +89,7 @@ export function parseAppPath(pathname) {
 
   if (segments[0] === "activity") {
     const key = segments[1];
-    const valid = segments.length === 2 && /^\\d{4}-\\d{2}-\\d{2}$/.test(key || '') &&
+    const valid = segments.length === 2 && /^\d{4}-\d{2}-\d{2}$/.test(key || '') &&
       !Number.isNaN(new Date(key + 'T12:00:00Z').getTime()) && new Date(key + 'T12:00:00Z').toISOString().slice(0,10) === key;
     return { valid, screen: 'activity', activityDay: valid ? key : null, testMode: null };
   }
