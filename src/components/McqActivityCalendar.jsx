@@ -113,6 +113,7 @@ export function McqActivityDay({ date, profileId, progress, loadRemote, getQuest
       title={dayLabel(date)}
       isActive
       onBack={() => setReviewing(false)}
+      backLabel="Επιστροφή στα αποτελέσματα ημέρας"
       onAnswer={(question, selection, meta) => onRecordAnswer(question, selection, meta)}
     /> : <>
       <button type="button" className="back-link" onClick={onBack}><Icons.ChevronLeft /> Αρχική</button>
