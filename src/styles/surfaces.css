@@ -2383,6 +2383,11 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 /* ═══ ADMIN PIN ═══════════════════════════════════════════════ */
 
 .admin-unlock-modal { display: grid; gap: var(--s4); }
+.admin-remember-login { display: flex; align-items: center; gap: var(--s3);
+  min-height: 44px; color: var(--ink-2); font-size: var(--t-meta); cursor: pointer; }
+.admin-remember-login input { width: 18px; height: 18px; accent-color: var(--accent, var(--mark)); }
+.profile-restore-status { display: grid; min-height: 55vh; place-items: center;
+  padding: var(--s8); color: var(--ink-2); text-align: center; }
 .admin-pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
 .admin-pin-key { min-height: 52px; font-family: var(--code); font-size: var(--t-item); }
 .admin-pin-error { font-size: var(--t-meta); color: var(--mark); }
