@@ -2805,6 +2805,7 @@ const SCREEN_TITLES = {
   admin: "Επιλογές διαχειριστή",
   mcq: "Πολλαπλής Επιλογής",
   study: "Μελέτη",
+  activity: "Αποτελέσματα MCQ ημέρας",
   oral: "Προφορικά",
   "oral-past": "Σημαντικά Θέματα",
   "oral-viewer": "Σημαντικά Θέματα",
@@ -9493,6 +9494,7 @@ export default function App() {
             progress={mcqProgress}
             loadRemote={loadActivity}
             getQuestion={getQuestionById}
+            bankReady={questionBankStatus === 'ready'}
             onRecordAnswer={(question, selection, meta) => updateMcqProgress(previous => recordQuestionAnswer(previous, question, selection, {
               mode: "weakness", sessionId: meta.sessionId,
               timeTakenMs: meta.timeTakenMs,
