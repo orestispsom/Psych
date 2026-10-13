@@ -97,11 +97,11 @@ export function McqActivityCalendar({ profileId, progress, loadRemote, onOpenDay
   </section>
 }
 
-export function McqActivityDay({ date, profileId, progress, loadRemote, getQuestion, onRecordAnswer, onBack }) {
+export function McqActivityDay({ date, profileId, progress, loadRemote, getQuestion, onRecordAnswer, onBack, bankReady = true }) {
   const [reviewing, setReviewing] = useState(false)
   const { attempts, status } = useMonthActivity({ profileId, month: date.slice(0, 7), progress, loadRemote })
   const daily = useMemo(() => attemptsOnDay(attempts, date), [attempts, date])
-  const wrong = useMemo(() => distinctWrongQuestions(daily, getQuestion), [daily, getQuestion])
+  const wrong = useMemo(() => bankReady ? distinctWrongQuestions(daily, getQuestion) : [], [daily, getQuestion, bankReady])
   const correctCount = daily.filter(a => a.isCorrect).length
   const wrongCount = daily.length - correctCount
   const modes = useMemo(() => dayModeCounts(daily), [daily])
@@ -135,8 +135,8 @@ export function McqActivityDay({ date, profileId, progress, loadRemote, getQuest
           ? <div className="activity-mode-list">{modes.map(([mode, count]) => <div key={mode}><span>{modeNames[mode] || mode}</span><strong>{count}</strong></div>)}</div>
           : <p className="muted">Δεν υπάρχουν καταγεγραμμένες απαντήσεις για αυτή την ημέρα.</p>}
         <button type="button" className="btn btn-primary activity-review-button"
-          disabled={!wrong.length} onClick={() => setReviewing(true)}>
-          Επανάληψη λαθών ({wrong.length})
+          disabled={!bankReady || !wrong.length} onClick={() => setReviewing(true)}>
+          {bankReady ? `Επανάληψη λαθών (${wrong.length})` : 'Φόρτωση τράπεζας MCQ…'}
         </button>
         {wrongCount > wrong.length && <p className="muted activity-footnote">
           Τα ίδια ερωτήματα εμφανίζονται μία φορά στην επανάληψη.
