@@ -21,7 +21,7 @@ const isCorrect = (question, selection = []) => {
 
 // Keeps each source test mounted and intact. Retries have their own answers,
 // locks and session ID; specialised banks retain their multiple-answer rules.
-export default function WrongAnswerPractice({ questions: initialQuestions, title, context, onBack, onAnswer, isActive = true }) {
+export default function WrongAnswerPractice({ questions: initialQuestions, title, context, onBack, onAnswer, isActive = true, backLabel = 'Επιστροφή στο αρχικό τεστ' }) {
   const [questions, setQuestions] = useState(() => initialQuestions);
   const [orders, setOrders] = useState(() => optionOrders(initialQuestions));
   const [index, setIndex] = useState(0);
@@ -95,7 +95,7 @@ export default function WrongAnswerPractice({ questions: initialQuestions, title
         {remainingWrong.length > 0 && <button type="button" className="results-btn primary" onClick={retryRemaining}>
           Επανάληψη των υπόλοιπων {remainingWrong.length} λαθών
         </button>}
-        <button type="button" className="results-btn" onClick={onBack}>Επιστροφή στο αρχικό τεστ</button>
+        <button type="button" className="results-btn" onClick={onBack}>{backLabel}</button>
       </div>
     </div>;
   }
