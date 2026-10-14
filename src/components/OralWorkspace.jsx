@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { parseAppPath, pathForOralPage } from '../appRoutes';
 import { Icons } from './Icons';
 import { oralRetirements } from '../data/oralRetirements';
-import { oralChapters, buildOralBank, chapterForQuestion } from '../data/oralChapters';
+import { oralChapters, buildOralBank, chapterForQuestion, orderOralQuestions } from '../data/oralChapters';
 import previous from '../data/oral';
 import clinical from '../data/oralCore';
 import previousSources from '../data/oralPreviousQuestionSources';
@@ -43,7 +43,7 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
     }
   }, [selectedQuestion, chapterId, navigate]);
   const chapter = oralChapters.find(ch => ch.id === chapterId);
-  const visible = useMemo(() => bank.filter(q => !chapterId || q.chapter === chapterId), [bank, chapterId]);
+  const visible = useMemo(() => orderOralQuestions(bank.filter(q => !chapterId || q.chapter === chapterId)), [bank, chapterId]);
   const current = visible.find(q => q.id === selectedId);
   useEffect(() => {
     if (current) saveStudyPosition(profileId, {
