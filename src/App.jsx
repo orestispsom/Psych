@@ -6022,6 +6022,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
 
           <div className="mcq-q-actions">
+            {mode === "sprint" && sessionStats.total === totalQ && totalQ > 0 && !showSprintCompleteModal && (
+              <button type="button" className="results-btn" onClick={() => setShowSprintCompleteModal(true)}>
+                Αποτελέσματα Mini-test
+              </button>
+            )}
             {mode === "written" && !practiceWrittenWrongActive && (
               <>
                 <button
@@ -6387,7 +6392,14 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       )}
 
       {mode === "sprint" && showSprintCompleteModal && (
-        <div className="sprint-summary-overlay" role="dialog" aria-modal="true">
+        <div
+          className="sprint-summary-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Αποτελέσματα Mini-test"
+          onClick={event => { if (event.target === event.currentTarget) setShowSprintCompleteModal(false); }}
+          onKeyDown={event => { if (event.key === "Escape") setShowSprintCompleteModal(false); }}
+        >
           <div className="sprint-summary-card">
             <div className="sheet-eyebrow">Mini-Test Ολοκληρώθηκε</div>
             <div className="sprint-score-badge">
