@@ -1401,11 +1401,9 @@ function getQuestionRecord(records, questionId) {
   return records[questionId] || records[String(questionId)] || records[Number(questionId)] || {};
 }
 
-const TOTAL_MCQ_COUNT = 1858;
-
 function summarizeMcqProgress(progress) {
   const records = progress?.questions || {};
-  const total = QUESTIONS.length || TOTAL_MCQ_COUNT;
+  const total = QUESTIONS.length;
 
   let seen = 0;
   let attempted = 0;
@@ -3383,19 +3381,19 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
 
       <div className="mcq-memory">
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value" style={{ color: 'var(--pass)' }}>{progressSummary.mastered}</span>
-          <span className="mcq-memory-label">Mastered</span>
+          <span className="mcq-memory-value">{progressSummary.unseen}</span>
+          <span className="mcq-memory-label">Νέες</span>
         </div>
         <div className="mcq-memory-stat">
           <span className="mcq-memory-value">{progressSummary.attempted}</span>
           <span className="mcq-memory-label">Απαντημένες</span>
         </div>
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value">{progressSummary.unseen}</span>
-          <span className="mcq-memory-label">Νέες</span>
+          <span className="mcq-memory-value" style={{ color: 'var(--pass)' }}>{progressSummary.mastered}</span>
+          <span className="mcq-memory-label">Mastered</span>
         </div>
         <div className="mcq-memory-stat">
-          <span className="mcq-memory-value">{progressSummary.accuracy}%</span>
+          <span className={`mcq-memory-value results-score ${getPercentageColorClass(progressSummary.accuracy)}`}>{progressSummary.accuracy}%</span>
           <span className="mcq-memory-label">Ευστοχία</span>
         </div>
       </div>
