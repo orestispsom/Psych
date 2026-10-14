@@ -1,4 +1,5 @@
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
+import chapterThirteenFoundations from './oralChapter13Foundations';
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [
@@ -106,10 +107,10 @@ function chapterTwentySortKey(question) {
 }
 
 const chapterThirteenOrder = [
-  'Q62','oral_core_024','oral_core_024_fu01','Q63','oral_core_024_fu02','oral_core_024_fu03',
-  '3D22','oral_core_024_fu05','Q64',
-  'Q67','4C1','4C2','Q65','jan2026_13','Q66','oral_core_033',
-  'Q71','3D23','Q72','Q73',
+  'Q62','ch13_eating_risk','oral_core_024','oral_core_024_fu01','Q63','oral_core_024_fu02','oral_core_024_fu03',
+  '3D22','oral_core_024_fu05','Q64','ch13_binge_arfid',
+  'Q67','4C1','4C2','Q65','jan2026_13','ch13_sleep_differential','Q66','ch13_parasomnias','oral_core_033',
+  'Q71','ch13_sexual_categories','3D23','Q72','Q73',
 ];
 const chapterThirteenPriority = new Map(chapterThirteenOrder.map((id,index)=>[id,index]));
 function chapterThirteenGroup(question) {
@@ -139,7 +140,7 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     (topic.subtopics || [topic]).flatMap(section => (section.questions || []).map(q => ({
       ...q, kind: 'past', context: [topic.title, section !== topic && section.title].filter(Boolean).join(' · '),
     })))));
-  return [...history, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
+  return [...history, ...chapterThirteenFoundations, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
     .map(q => ({ ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [] }));
