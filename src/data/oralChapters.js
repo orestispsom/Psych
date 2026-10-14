@@ -104,9 +104,29 @@ function chapterTwentySortKey(question) {
   const group = substanceTerms.findIndex(re => re.test(text));
   return [group < 0 ? 8 : group, 1000];
 }
+
+const chapterThirteenOrder = [
+  'Q62','oral_core_024','oral_core_024_fu01','Q63','oral_core_024_fu02','oral_core_024_fu03',
+  '3D22','oral_core_024_fu05','Q64',
+  'Q67','4C1','4C2','Q65','jan2026_13','Q66','oral_core_033',
+  'Q71','3D23','Q72','Q73',
+];
+const chapterThirteenPriority = new Map(chapterThirteenOrder.map((id,index)=>[id,index]));
+function chapterThirteenGroup(question) {
+  const text = question.text || '';
+  if (/ανορεξ|βουλιμ|υπερφαγ|επανασίτισ|διατροφ|πρόσληψη τροφ/i.test(text)) return 0;
+  if (/ύπν|αϋπν|υπνηλ|ναρκοληψ|REM|κιρκάδι/i.test(text)) return 1;
+  if (/σεξουαλ|στυτικ|παραφιλ|φύλου/i.test(text)) return 2;
+  return 3;
+}
+
 export function orderOralQuestions(questions) {
   return questions.map((question, originalIndex) => ({ question, originalIndex }))
     .sort((a, b) => {
+      if (a.question.chapter === 13 && b.question.chapter === 13) {
+        const ga = chapterThirteenGroup(a.question), gb = chapterThirteenGroup(b.question);
+        return ga - gb || (chapterThirteenPriority.get(a.question.id) ?? 1000) - (chapterThirteenPriority.get(b.question.id) ?? 1000) || a.originalIndex - b.originalIndex;
+      }
       if (a.question.chapter !== 20 || b.question.chapter !== 20) return a.originalIndex - b.originalIndex;
       const ka = chapterTwentySortKey(a.question);
       const kb = chapterTwentySortKey(b.question);
