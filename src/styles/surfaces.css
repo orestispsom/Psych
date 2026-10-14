@@ -3822,6 +3822,7 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   border-color: var(--sec-sos);
   box-shadow: 0 8px 24px rgba(225, 29, 72, 0.18);
 }
+.sos-medication-link { text-decoration: none; }
 .sos-deck-head {
   display: flex;
   align-items: center;

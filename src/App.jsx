@@ -7405,6 +7405,17 @@ function SosHome({ data, onBack, onHome, onOpenSection, sosProgress }) {
             </button>
           );
         })}
+        <a className="sos-deck-card sos-medication-link" href="https://medication-guide.vercel.app/" target="_blank" rel="noopener noreferrer">
+          <div className="sos-deck-head">
+            <span className="sos-deck-icon" aria-hidden="true"><Icons.Pill /></span>
+            <div className="sos-deck-head-text">
+              <h3 className="sos-deck-title">Οδηγός Φαρμάκων</h3>
+              <span className="sos-deck-stat">Ανοίγει σε νέα καρτέλα</span>
+            </div>
+            <span className="sos-deck-go" aria-hidden="true">↗</span>
+          </div>
+          <p className="sos-deck-desc">Η εφαρμογή μας για τα φάρμακα</p>
+        </a>
       </div>
     </div>
   );
