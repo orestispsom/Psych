@@ -1,6 +1,10 @@
 // Consolidated source records stay archived for history and old links.
 // Retired questions are excluded from the active bank and search index.
 export const oralRetirements = {
+  "3D18": "Q40",
+  "3D17": "Q41",
+  "3B2": "Q38",
+  "3B1": "Q38",
   "oral_challenge_001": "Q1",
   "oral_challenge_002": "Q3",
   "oral_challenge_003": "Q3",
