@@ -36,9 +36,13 @@ describe('Unintentional section navigation during MCQs', () => {
   it('restores randomized practice at the exact selected answer and original question order', async () => {
     const user = userEvent.setup();
     const { container } = await boot(user);
-    await user.click(screen.getByText('Τυχαία Θέματα', { exact: true }));
+    await user.click(screen.getByText('Ερωτήσεις ανά Κατηγορία', { exact: true }));
+    await user.click(screen.getByRole('button', { name: '25 ερωτήσεις' }));
+    await waitFor(() => expect(container.querySelector('.mcq-select .items .item:not([disabled])')).toBeTruthy());
+    await user.click(container.querySelector('.mcq-select .items .item:not([disabled])'));
     await waitFor(() => expect(container.querySelector('.question-stem')).toBeTruthy());
-    expect(window.location.pathname).toBe('/mcq/random');
+    const originalPath = window.location.pathname;
+    expect(window.location.search).toBe('?count=25');
     const originalStem = container.querySelector('.question-stem').textContent;
     const originalQuestionElement = container.querySelector('.question-stem');
     const option = container.querySelector('.option-btn:not([disabled])');
@@ -46,7 +50,8 @@ describe('Unintentional section navigation during MCQs', () => {
     expect(option).toHaveClass('selected');
 
     await leaveAndReturn(user);
-    await waitFor(() => expect(window.location.pathname).toBe('/mcq/random'));
+    await waitFor(() => expect(window.location.pathname).toBe(originalPath));
+    expect(window.location.search).toBe('?count=25');
     expect(container.querySelector('.question-stem')).toBe(originalQuestionElement);
     expect(container.querySelector('.question-stem').textContent).toBe(originalStem);
     expect(container.querySelector('.option-btn.selected')).toBe(option);
@@ -78,7 +83,8 @@ describe('Unintentional section navigation during MCQs', () => {
   it('does not silently return to a deliberately exited MCQ session', async () => {
     const user = userEvent.setup();
     const { container } = await boot(user);
-    await user.click(screen.getByText('Τυχαία Θέματα', { exact: true }));
+    await user.click(screen.getByText('Mini-test', { exact: true }));
+    await user.click(screen.getByRole('button', { name: '10 ερωτήσεις' }));
     await waitFor(() => expect(container.querySelector('.mcq-header-back-btn')).toBeTruthy());
     await user.click(container.querySelector('.mcq-header-back-btn'));
     await waitFor(() => expect(window.location.pathname).toBe('/mcq'));

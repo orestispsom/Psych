@@ -60,6 +60,8 @@ const editorialOverrides = {
 };
 
 export function chapterForQuestion(id) {
+  const foundation = chapterThirteenFoundations.find(question => question.id === id);
+  if (foundation) return foundation.chapter;
   if (Object.hasOwn(editorialOverrides, id)) return editorialOverrides[id];
   if (/^Q\d+$/.test(id)) return crucial[Number(id.slice(1)) - 1];
   if (id.startsWith('oral_challenge_')) return 3;

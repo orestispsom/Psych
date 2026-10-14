@@ -257,7 +257,7 @@ describe("golden path smoke tests", () => {
 
     await user.click(home.getByText("Πολλαπλής Επιλογής"));
 
-    expect(await screen.findByText("Τυχαία Θέματα", {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(await screen.findByText("Επανάληψη λαθών", {}, { timeout: 10000 })).toBeInTheDocument();
     expect(screen.getByText("Vignettes")).toBeInTheDocument();
     expect(screen.getByText("Αντιστοίχηση")).toBeInTheDocument();
   });
@@ -270,6 +270,7 @@ describe("golden path smoke tests", () => {
     await user.click(home.getByText("Πολλαπλής Επιλογής"));
     const categoryMode = await screen.findByRole("button", { name: /Ερωτήσεις ανά Κατηγορία/i }, { timeout: 10000 });
     await user.click(categoryMode);
+    await user.click(screen.getByRole("button", { name: "Όλες οι ερωτήσεις" }));
 
     await waitFor(() => {
       expect(container.querySelector(".mcq-select .items .item:not([disabled])")).toBeTruthy();

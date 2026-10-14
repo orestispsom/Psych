@@ -49,7 +49,8 @@ it("increases a lifetime total on an actual answer and shows it after switching 
   const { container } = render(<BrowserRouter><App /></BrowserRouter>);
   await waitFor(() => expect(container.querySelector(".home-modules")).toBeTruthy());
   await user.click(container.querySelector(".home-modules").querySelector('button'));
-  await user.click(await screen.findByRole("button", { name: /Τυχαία Θέματα/ }, { timeout: 10000 }));
+  await user.click(await screen.findByRole("button", { name: /Mini-test/ }, { timeout: 10000 }));
+  await user.click(screen.getByRole("button", { name: "10 ερωτήσεις" }));
   await waitFor(() => expect(container.querySelector(".option-btn:not([disabled])")).toBeTruthy());
   await user.click(container.querySelector(".option-btn:not([disabled])"));
   await user.click(screen.getByRole("button", { name: /Καταχώρηση/ }));
