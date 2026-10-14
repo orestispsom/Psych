@@ -69,6 +69,51 @@ export function chapterForQuestion(id) {
   return Object.entries(previousGroups).find(([prefix]) => id.startsWith(prefix))?.[1];
 }
 
+
+// Chapter 20 is a study sequence, not import order. Keep each substance's
+// assessment, intoxication, withdrawal and management questions together.
+// Explicit question IDs override keyword matching (e.g. naltrexone is also
+// used in alcohol treatment); fallback leaves unfamiliar questions visible.
+const substanceOrder = [
+  ['general', ['Q37', '3D15', '3B9', 'jan2026_18', '3B7']],
+  ['alcohol', ['oral_core_014', 'oral_core_014_fu01', 'Q38', 'oral_core_014_fu02',
+    '1B6', 'oral_core_014_fu04', 'oral_core_014_fu06', '3B5', '3B3', 'Q39']],
+  ['opioids', ['Q40', '3D18', '3B6']],
+  ['cannabis', ['Q41', '3D17']],
+  ['stimulants', ['Q42', '3D19', '3B8']],
+  ['sedatives', ['Q43']],
+  ['hallucinogens', ['3D16', 'oral_core_039']],
+  ['behavioral', ['Q44']],
+];
+const substancePriority = new Map(substanceOrder.flatMap(([group, ids], groupIndex) =>
+  ids.map((id, itemIndex) => [id, [groupIndex, itemIndex]])));
+const substanceTerms = [
+  /(?:διαταραχ.{0,25}χρήσ.{0,20}ουσι|εξάρτησ|ανοχ|στερητικ.{0,12}σύνδρομ|ανίχνευσ.{0,20}ούρ|νευροβιολογ)/i,
+  /αλκοόλ|αιθανόλ|wernicke|korsakoff|delirium tremens|θειαμίν/i,
+  /οπιοειδ|μορφίν|ηρωίν|μεθαδόν|βουπρενορφίν|ναλοξόν/i,
+  /κάνναβ|κανναβι|\bTHC\b|\bCB1\b/i,
+  /κοκαΐν|αμφεταμίν|μεθαμφεταμίν|διεγερτικ/i,
+  /βενζοδιαζεπίν|ηρεμιστικ|υπνωτικ/i,
+  /\bLSD\b|παραισθησιογόν|ψυχεδελικ/i,
+  /τζόγ|gambling/i,
+];
+function chapterTwentySortKey(question) {
+  const explicit = substancePriority.get(question.id);
+  if (explicit) return explicit;
+  const text = question.text || '';
+  const group = substanceTerms.findIndex(re => re.test(text));
+  return [group < 0 ? 8 : group, 1000];
+}
+export function orderOralQuestions(questions) {
+  return questions.map((question, originalIndex) => ({ question, originalIndex }))
+    .sort((a, b) => {
+      if (a.question.chapter !== 20 || b.question.chapter !== 20) return a.originalIndex - b.originalIndex;
+      const ka = chapterTwentySortKey(a.question);
+      const kb = chapterTwentySortKey(b.question);
+      return ka[0] - kb[0] || ka[1] - kb[1] || a.originalIndex - b.originalIndex;
+    }).map(item => item.question);
+}
+
 export function buildOralBank(previous, clinical, crucialQuestions) {
   const history = previous.flatMap(group => (group.topics || []).flatMap(topic =>
     (topic.subtopics || [topic]).flatMap(section => (section.questions || []).map(q => ({
