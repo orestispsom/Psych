@@ -480,6 +480,12 @@
   box-shadow: 0 8px 26px -4px rgba(0, 0, 0, 0.4);
 }
 .mcq-hub .mode-tile:focus-visible { border-color: var(--accent, var(--sec-mcq)); }
+.mcq-hub .mode-tile-exam { grid-column: 1 / -1; }
+.mcq-hub .mode-tile-clinical {
+  --accent: var(--pass);
+  --accent-quiet: color-mix(in srgb, var(--pass) 12%, var(--field));
+  border-color: color-mix(in srgb, var(--pass) 40%, var(--rule-strong));
+}
 .mcq-hub .mode-tile-icon {
   display: flex;
   align-items: center;

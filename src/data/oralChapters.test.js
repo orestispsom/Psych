@@ -5,6 +5,7 @@ import chapterMoves from '../../docs/oral-chapter-audit-moves.json';
 import previous from './oral';
 import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
+import chapterThirteenFoundations from './oralChapter13Foundations';
 import { buildOralBank, chapterForQuestion, oralChapters } from './oralChapters';
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
 import related from './oralPreviousQuestionSources';
@@ -25,14 +26,15 @@ describe('Greek oral chapter organization', () => {
   it('places every active question exactly once and preserves archived source records', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const history = previous.flatMap(g => g.topics.flatMap(t => (t.subtopics || [t]).flatMap(s => s.questions || [])));
-    expect(Object.keys(oralRetirements)).toHaveLength(175);
-    expect(bank).toHaveLength(351);
-    expect(bank).toHaveLength(history.length + clinical.length + crucial.length - Object.keys(oralRetirements).length);
+    expect(Object.keys(oralRetirements)).toHaveLength(179);
+    expect(bank).toHaveLength(352);
+    expect(bank).toHaveLength(history.length + clinical.length + crucial.length + chapterThirteenFoundations.length - Object.keys(oralRetirements).length);
     expect(new Set(bank.map(q => q.id)).size).toBe(bank.length);
     expect(bank.filter(q => !oralChapters.some(ch => ch.id === q.chapter))).toEqual([]);
     history.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
     clinical.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
     crucial.forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
+    chapterThirteenFoundations.forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
   });
   it('redirects every retirement to a live question without chains and retains consolidated details', () => {
     const bank = buildOralBank(previous, clinical, crucial);
@@ -84,7 +86,7 @@ describe('Greek oral chapter organization', () => {
   });
   it('uses the same active bank in global search, excluding all retired cards', async () => {
     const oral = (await getSearchIndex()).filter(item => item.scope === 'oral');
-    expect(oral).toHaveLength(351);
+    expect(oral).toHaveLength(352);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
   });

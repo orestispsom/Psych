@@ -2192,7 +2192,7 @@ function selectBookmarkedQuestions(progress, allQuestions = QUESTIONS) {
   return allQuestions.filter(question => Boolean(bookmarks[question.id] || bookmarks[String(question.id)]));
 }
 
-function getSessionQuestions(mode, progress, qualitySignals = {}) {
+function getSessionQuestions(mode, progress, qualitySignals = {}, count = WEAKNESS_SESSION_SIZE) {
   if (mode === "bookmarks") {
     return selectBookmarkedQuestions(progress);
   }
@@ -2202,7 +2202,7 @@ function getSessionQuestions(mode, progress, qualitySignals = {}) {
       .filter(Boolean);
   }
   if (mode === "sprint") return selectSprintQuestions(progress, SPRINT_SESSION_SIZE, qualitySignals);
-  if (mode === "weakness") return selectWeaknessQuestions(progress, WEAKNESS_SESSION_SIZE, qualitySignals);
+  if (mode === "weakness") return selectWeaknessQuestions(progress, count, qualitySignals);
   if (mode === "written") return selectWrittenExamQuestions(progress, WRITTEN_EXAM_SIZE, qualitySignals);
   return selectRandomPracticeQuestions(progress, qualitySignals);
 }
@@ -2832,7 +2832,7 @@ const MCQ_MODE_LABELS = {
   sprint: "Mini-test",
   random: "Τυχαία Θέματα",
   daily: "Αδύναμα Θέματα",
-  weakness: "Αδυναμίες",
+  weakness: "Επανάληψη λαθών",
   category: "Ερωτήσεις ανά Κατηγορία",
   written: "Προσομοίωση 100 Πολλαπλής",
   vignettes: "Vignettes",
@@ -3354,22 +3354,21 @@ function AdminOptionsScreen({
 }
 
 function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessions, onOpenWrittenSession }) {
-  const [showSprintPicker, setShowSprintPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState(null);
   const sprintDialogRef = useRef(null);
   useEffect(() => {
-    if (showSprintPicker) sprintDialogRef.current?.showModal();
-  }, [showSprintPicker]);
+    if (pickerMode) sprintDialogRef.current?.showModal();
+  }, [pickerMode]);
   const recentWrittenExamSessions = writtenExamSessions;
 
   const modes = [
     { id: 'sprint', icon: <Icons.Bolt />, title: 'Mini-test', detail: '10, 25, 50 ή 100 ερωτήσεις εξάσκησης' },
-    { id: 'random', icon: <Icons.Search />, title: 'Τυχαία Θέματα', detail: 'Ελεύθερη επιλογή από ολόκληρη την ύλη' },
-    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: `${MCQ_TOPIC_CATEGORIES.length} θεματικές ενότητες & κεφάλαια` },
-    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Επίσημο format εξετάσεων' },
-    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών' },
-    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη' },
-    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Αδύναμα Θέματα', detail: 'Εστίαση σε λάθη & αδύναμα σημεία' },
-    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
+    { id: 'weakness', icon: <Icons.ThumbsDown />, title: 'Επανάληψη λαθών', detail: '10, 25, 50 ή 100 ερωτήσεις από τα λάθη σου' },
+    { id: 'category', icon: <Icons.BookOpen />, title: 'Ερωτήσεις ανά Κατηγορία', detail: `10, 25, 50 ή όλες · ${MCQ_TOPIC_CATEGORIES.length} θεματικές ενότητες` },
+    { id: 'bookmarks', icon: <Icons.Bookmark filled />, title: 'Σημειωμένες Ερωτήσεις', detail: 'Αποθηκευμένες ερωτήσεις για επανάληψη' },
+    { id: 'written', icon: <Icons.ClipboardCheck />, title: 'Προσομοίωση Εξετάσεων', detail: '100 ερωτήσεις · Οι απαντήσεις αποκαλύπτονται μόνο στο τέλος', tileClass: 'mode-tile-exam' },
+    { id: 'vignettes', icon: <Icons.FileText />, title: 'Vignettes', detail: 'Κλινικά σενάρια & περιπτώσεις ασθενών', tileClass: 'mode-tile-clinical' },
+    { id: 'matching', icon: <Icons.Check />, title: 'Αντιστοίχηση', detail: 'Διαγνωστικά & θεραπευτικά ζεύγη', tileClass: 'mode-tile-clinical' },
   ];
 
   return (
@@ -3406,8 +3405,8 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           <button
             key={mode.id}
             type="button"
-            className="mode-tile"
-            onClick={() => mode.id === "sprint" ? setShowSprintPicker(true) : onStart(mode.id)}
+            className={`mode-tile ${mode.tileClass || ''}`}
+            onClick={() => ['sprint', 'weakness', 'category'].includes(mode.id) ? setPickerMode(mode.id) : onStart(mode.id)}
           >
             <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
             <span className="mode-tile-body">
@@ -3419,20 +3418,21 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
         ))}
       </div>
 
-      {showSprintPicker && (
+      {pickerMode && (
         <dialog ref={sprintDialogRef} className="mini-test-dialog" aria-labelledby="mini-test-title"
-          onCancel={() => setShowSprintPicker(false)} onClose={() => setShowSprintPicker(false)}>
-          <h3 id="mini-test-title">Mini-test</h3>
+          onCancel={() => setPickerMode(null)} onClose={() => setPickerMode(null)}>
+          <h3 id="mini-test-title">{modes.find(mode => mode.id === pickerMode)?.title}</h3>
           <p>Πόσες ερωτήσεις θέλεις να απαντήσεις;</p>
           <div className="mini-test-sizes">
-            {[10, 25, 50, 100].map(count => (
+            {(pickerMode === 'category' ? [10, 25, 50, 'all'] : [10, 25, 50, 100]).map(count => (
               <button key={count} type="button" className="results-btn" onClick={() => {
-                setShowSprintPicker(false);
-                onStart("sprint", count);
-              }}>{count} ερωτήσεις</button>
+                setPickerMode(null);
+                onStart(pickerMode, count);
+              }}>{count === 'all' ? 'Όλες οι ερωτήσεις' : `${count} ερωτήσεις`}</button>
             ))}
           </div>
-          <button type="button" className="btn btn-quiet" onClick={() => setShowSprintPicker(false)}>Άκυρο</button>
+          {pickerMode === 'weakness' && <p>Αν τα διαθέσιμα λάθη είναι λιγότερα, θα εμφανιστούν όλα.</p>}
+          <button type="button" className="btn btn-quiet" onClick={() => setPickerMode(null)}>Άκυρο</button>
         </dialog>
       )}
       {recentWrittenExamSessions.length > 0 && (
@@ -4544,7 +4544,7 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   );
 }
 
-function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, historicalExam = null }) {
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, practiceSize = WEAKNESS_SESSION_SIZE, historicalExam = null }) {
   const initialHistoryRef = useRef(historicalExam);
   const sprintSizeRef = useRef(sprintSize);
   const initialWrittenDraftRef = useRef(mode === "written" && !historicalExam ? getWrittenExamDraft(progress) : null);
@@ -4558,7 +4558,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       ? initialWrittenQuestionsRef.current
       : initialCategoryQuestionsRef.current?.length
         ? initialCategoryQuestionsRef.current
-        : (Array.isArray(sessionQuestions) && sessionQuestions.length ? sessionQuestions : (mode === "sprint" ? selectSprintQuestions(progress, sprintSize, qualitySignals) : getSessionQuestions(mode, progress, qualitySignals)))
+        : (Array.isArray(sessionQuestions) ? sessionQuestions : (mode === "sprint" ? selectSprintQuestions(progress, sprintSize, qualitySignals) : getSessionQuestions(mode, progress, qualitySignals, practiceSize)))
   );
   const sessionIdRef = useRef(
     initialWrittenDraftRef.current?.sessionId ||
@@ -4650,7 +4650,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         daily: "Αδύναμα Θέματα",
         random: "Τυχαία Θέματα",
         sprint: "Mini-test",
-        weakness: "Αδυναμίες",
+        weakness: "Επανάληψη λαθών",
         written: "Προσομοίωση με 100 Πολλαπλής",
         category: sessionTitle || "Ερωτήσεις ανά Κατηγορία",
       }[mode] || "MCQ";
@@ -8374,9 +8374,9 @@ export default function App() {
   }, [navigate, screen]);
   const setSelectedMcqTopic = useCallback((nextTopic, options) => {
     if (nextTopic || (screen === "mcq" && testMode === "category")) {
-      navigate(pathForMcqMode("category", nextTopic), options);
+      navigate(pathForMcqMode("category", nextTopic) + location.search, options);
     }
-  }, [navigate, screen, testMode]);
+  }, [navigate, screen, testMode, location.search]);
   const [referenceSources, setReferenceSources] = useState(null);
   const [referenceLoadError, setReferenceLoadError] = useState(null);
   const [mcqFeatureData, setMcqFeatureData] = useState({});
@@ -8431,6 +8431,9 @@ export default function App() {
   const retainedMcqMode = screen === "mcq" ? testMode : pausedMcq?.mode || null;
   const retainedMcqTopic = screen === "mcq" ? selectedMcqTopic : pausedMcq?.topic || null;
   const retainedMcqReviewId = screen === "mcq" ? historicalSessionId : pausedMcq?.reviewId || null;
+  const retainedCountParam = new URLSearchParams(screen === "mcq" ? location.search : pausedMcq?.path?.split('?')[1]).get('count');
+  const retainedPracticeSize = [10, 25, 50, 100].includes(Number(retainedCountParam)) ? Number(retainedCountParam) : WEAKNESS_SESSION_SIZE;
+  const retainedCategorySize = [10, 25, 50].includes(Number(retainedCountParam)) ? Number(retainedCountParam) : Infinity;
   const mcqSessionVisible = screen === "mcq" && Boolean(testMode);
   const handleThemePreferenceChange = useCallback((nextTheme) => {
     const normalized = normalizeThemePreference(nextTheme);
@@ -8483,9 +8486,9 @@ export default function App() {
   }, [sosProgress]);
   const selectedMcqTopicQuestions = useMemo(
     () => retainedMcqTopic
-      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(retainedMcqTopic), mcqProgress, mcqQualitySignals)
+      ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(retainedMcqTopic), mcqProgress, mcqQualitySignals).slice(0, retainedCategorySize)
       : [],
-    [retainedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
+    [retainedMcqTopic, retainedCategorySize, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή.";
@@ -9247,7 +9250,7 @@ export default function App() {
       suppressSprintAutoStartRef.current = false;
       setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
     }
-    navigate(pathForMcqMode(mode) + (mode === "sprint" ? `?count=${count}` : ""));
+    navigate(pathForMcqMode(mode) + (['sprint', 'weakness', 'category'].includes(mode) ? `?count=${count}` : ""));
   }, [navigate, setSelectedMcqTopic]);
 
   const historicalSession = retainedMcqReviewId
@@ -9475,9 +9478,10 @@ export default function App() {
         {activeProfile && questionBankStatus === 'ready' && (!retainedMcqReviewId || historicalSession) && retainedMcqMode && retainedMcqMode !== 'sprint' && !['vignettes', 'matching', 'DSM5'].includes(retainedMcqMode) && (retainedMcqMode !== 'category' || retainedMcqTopic) && (
           <div style={mcqSessionVisible ? undefined : { display: 'none' }} data-testid="retained-mcq-session">
           <McqTest
-            key={`${retainedMcqMode}:${retainedMcqReviewId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
+            key={`${retainedMcqMode}:${retainedMcqTopic || ''}:${retainedCountParam || ''}:${retainedMcqReviewId || "active"}:${historicalExam?.result?.reviewUnavailable ? "summary" : "review"}`}
             historicalExam={historicalExam}
             mode={retainedMcqMode}
+            practiceSize={retainedPracticeSize}
             isActive={mcqSessionVisible}
             progress={mcqProgress}
             qualitySignals={mcqQualitySignals}
