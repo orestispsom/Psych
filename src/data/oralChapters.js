@@ -6,10 +6,14 @@ import chapterFifteenNotes from './oralChapter15Notes';
 import chapterSixteenNotes from './oralChapter16Notes';
 import chaptersSeventeenToNineteenNotes from './oralChapters17to19Notes';
 import chapterTwentyNotes from './oralChapter20Notes';
+import chapterTwentyOneNotes from './oralChapter21Notes';
+import chapterTwentyTwoNotes from './oralChapter22Notes';
+import chapterTwentyFourNotes from './oralChapter24Notes';
 
 const revisionNotes = {
   ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
   ...chapterSixteenNotes, ...chaptersSeventeenToNineteenNotes, ...chapterTwentyNotes,
+  ...chapterTwentyOneNotes, ...chapterTwentyTwoNotes, ...chapterTwentyFourNotes,
 };
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
