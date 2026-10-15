@@ -80,7 +80,9 @@ async function build() {
     safeImport(() => import('../data/crucialQuestionsContent.js')),
   ]);
   for (const question of buildOralBank(oral?.default || [], clinical?.default || [], crucial?.default || [])) {
-    const bodyText = [question.answer, ...(question.modelAnswer || []), ...(question.keyPoints || []),
+    const bodyText = question.studyNotes
+      ? question.studyNotes.sections.flatMap(section => [section.title, ...section.items]).join(' ').replaceAll('**', '')
+      : [question.answer, ...(question.modelAnswer || []), ...(question.keyPoints || []),
       ...(question.examinerQuestions || []).map(eq => `${eq.question} ${(eq.answer || []).join(' ')}`),
       ...(question.examVsPractice || []), ...question.additionalAnswer].filter(Boolean).join(' ');
     items.push(entry('oral', 'Προφορικά', question.text, oralChapters[question.chapter - 1]?.title,
