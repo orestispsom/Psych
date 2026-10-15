@@ -86,4 +86,3 @@ describe('Chapters 21–24 board revision', () => {
     }
   });
 });
-
