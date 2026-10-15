@@ -20,7 +20,7 @@ describe('Chapter 13 board revision', () => {
     const chapter = bank.filter(q => q.chapter === 13);
     expect(chapter).toHaveLength(23);
     expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
-    expect(bank.filter(q => ![13, 14, 15, 16, 17, 19].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
+    expect(bank.filter(q => ![13, 14, 15, 16, 17, 19, 20].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
     for (const q of chapter) {
       expect(q.studyNotes.sections.length).toBeGreaterThanOrEqual(2);
       expect(q.studyNotes.sources.length).toBeGreaterThan(0);
