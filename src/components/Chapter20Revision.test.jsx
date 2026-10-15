@@ -27,7 +27,7 @@ describe('Chapter 20 board revision', () => {
     expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
     for (const q of chapter) expect(q.studyNotes).toBe(notes[q.id]);
     for (const q of bank.filter(q => earlier[q.id])) expect(q.studyNotes).toBe(earlier[q.id]);
-    expect(bank.filter(q => q.chapter < 13 || q.chapter > 20).every(q => !q.studyNotes)).toBe(true);
+    expect(bank.filter(q => q.chapter < 13 || q.chapter > 24).every(q => !q.studyNotes)).toBe(true);
     for (const q of crucial.filter(q => chapter.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id)).toMatchObject(q);
     for (const q of clinical.filter(q => chapter.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id).answer).toBe(q.answer);
   });
