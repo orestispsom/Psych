@@ -2,8 +2,14 @@ import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
 import chapterThirteenFoundations from './oralChapter13Foundations';
 import chapterThirteenNotes from './oralChapter13Notes';
 import chapterFourteenNotes from './oralChapter14Notes';
+import chapterFifteenNotes from './oralChapter15Notes';
+import chapterSixteenNotes from './oralChapter16Notes';
+import chaptersSeventeenToNineteenNotes from './oralChapters17to19Notes';
 
-const revisionNotes = { ...chapterThirteenNotes, ...chapterFourteenNotes };
+const revisionNotes = {
+  ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
+  ...chapterSixteenNotes, ...chaptersSeventeenToNineteenNotes,
+};
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [

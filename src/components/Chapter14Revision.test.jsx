@@ -21,7 +21,7 @@ describe('Chapter 14 revision notes', () => {
   it('revises all 32 active questions without changing imported answers, IDs or other chapters', () => {
     expect(chapter).toHaveLength(32);
     expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
-    expect(bank.filter(q => ![13, 14].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
+    expect(bank.filter(q => ![13, 14, 15, 16, 17, 19].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
     for (const q of bank.filter(q => q.chapter === 13)) expect(q.studyNotes).toBe(chapter13[q.id]);
     for (const q of crucial) expect(bank.find(x => x.id === q.id)).toMatchObject(q);
     for (const q of clinical.filter(q => chapter.some(x => x.id === q.id))) {
