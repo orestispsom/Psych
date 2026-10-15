@@ -8,6 +8,7 @@ import previous from '../data/oral';
 import clinical from '../data/oralCore';
 import previousSources from '../data/oralPreviousQuestionSources';
 import { saveStudyPosition } from '../lib/studyPosition';
+import BoardRevisionNotes from './BoardRevisionNotes';
 import '../styles/oral-workspace.css';
 
 export default function OralWorkspace({ oralProgress, onQuestionMastered, profileId,
@@ -94,8 +95,10 @@ export default function OralWorkspace({ oralProgress, onQuestionMastered, profil
               onClick={() => onQuestionMastered(current.id, !checked[current.id])}><Icons.Check /></button>
           </div>
           <div className="oral-reading-answer">
-            {current.kind === 'crucial' ? renderCrucial(current) : renderAnswer(current.answer)}
-            {current.additionalAnswer.map((paragraph, i) => <div key={i}>{renderAnswer(paragraph)}</div>)}
+            {current.studyNotes ? <BoardRevisionNotes notes={current.studyNotes} /> : <>
+              {current.kind === 'crucial' ? renderCrucial(current) : renderAnswer(current.answer)}
+              {current.additionalAnswer.map((paragraph, i) => <div key={i}>{renderAnswer(paragraph)}</div>)}
+            </>}
           </div>
           {(previousSources[current.id] || []).length > 0 && sources && <nav className="oral-related" aria-label="Σχετικές ερωτήσεις">
             <h5>Σχετικές ερωτήσεις</h5>
