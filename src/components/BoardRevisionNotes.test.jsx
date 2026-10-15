@@ -16,11 +16,11 @@ afterEach(cleanup);
 describe('Chapter 13 board revision', () => {
   const bank = buildOralBank(previous, clinical, crucial);
 
-  it('covers every active Chapter 13 question and leaves other chapters in their current format', () => {
+  it('covers every active Chapter 13 question and leaves chapters awaiting revision in their current format', () => {
     const chapter = bank.filter(q => q.chapter === 13);
     expect(chapter).toHaveLength(23);
     expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
-    expect(bank.filter(q => q.chapter !== 13).every(q => !q.studyNotes)).toBe(true);
+    expect(bank.filter(q => ![13, 14].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
     for (const q of chapter) {
       expect(q.studyNotes.sections.length).toBeGreaterThanOrEqual(2);
       expect(q.studyNotes.sources.length).toBeGreaterThan(0);

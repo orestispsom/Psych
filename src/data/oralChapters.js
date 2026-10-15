@@ -1,6 +1,9 @@
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
 import chapterThirteenFoundations from './oralChapter13Foundations';
 import chapterThirteenNotes from './oralChapter13Notes';
+import chapterFourteenNotes from './oralChapter14Notes';
+
+const revisionNotes = { ...chapterThirteenNotes, ...chapterFourteenNotes };
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [
@@ -147,6 +150,6 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
     .map(q => ({ ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
-      ...(chapterThirteenNotes[q.id] ? { studyNotes: chapterThirteenNotes[q.id] } : {}),
+      ...(revisionNotes[q.id] ? { studyNotes: revisionNotes[q.id] } : {}),
     }));
 }
