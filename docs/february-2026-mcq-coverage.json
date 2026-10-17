@@ -1,0 +1,702 @@
+{
+  "title": "February 2026 written psychiatry examination recall coverage",
+  "auditedAt": "2026-10-18",
+  "validatedAgainst": "7de931ce48d07df81b8fe0ecdf2c54ef4620d265",
+  "source": {
+    "title": "ΠΟΛΛΑΠΛΗΣ ΦΕΒΡΟΥΑΡΙΟΣ 2026",
+    "kind": "User-supplied informal recall, not an official examination or verified answer key",
+    "sha256": "b8443f9cd9a5e8f404aaa63d0dc8fa1287f37a36f4d62df9da4148427d54fe86"
+  },
+  "matchDefinition": "Same assessable learning target and discriminating answer. Wording need not be verbatim. Broad topic overlap alone is not coverage. Neither existing-item mapping nor metadata proves the recalled answer key.",
+  "statusDefinitions": {
+    "matched_existing": "Existing MCQ tests the recalled learning target; no duplicate added.",
+    "corrected_existing": "Existing target had a contradictory key; corrected with sourced explanation.",
+    "added": "New authored reconstruction of the assessable recalled target, not an exact exam transcription.",
+    "adapted_existing": "Existing study question covers a defensible related target after the user authorized adaptation; not an exact match or recovered key.",
+    "adapted_new": "New source-grounded study question resolves an ambiguous recall by specifying its population, scenario, evidence source or learning target; not a recovered key."
+  },
+  "counts": {
+    "recallEntries": 65,
+    "matchedExisting": 18,
+    "correctedExisting": 1,
+    "addedRecallTargets": 25,
+    "adaptedNewRecallTargets": 15,
+    "adaptedExistingRecallTargets": 6,
+    "newQuestions": 38,
+    "unmappedEntries": 0
+  },
+  "scope": "Single-best-answer bank src/data/questions.js. Matching sets and vignettes were not counted as substitutes for missing single-best-answer MCQs. No source-locked textbook text was republished.",
+  "rows": [
+    {
+      "number": 1,
+      "recall": "Ασθενης υπο αντιψυχωσικη αγωγη που εχει αμηνορροια και αυξημενη τριχοφυια, σε τι φαρμακο το αλλαζουμε? Ολανζαπινη",
+      "status": "added",
+      "questionIds": [
+        3324
+      ],
+      "note": "Reconstructed drug comparison preserves olanzapine among specified alternatives; added endocrine exclusion rather than diagnosing hyperprolactinaemia from hirsutism alone."
+    },
+    {
+      "number": 2,
+      "recall": "Ποιο απο τα παρακατω αυξανει το QTc? Σιταλοπραμη",
+      "status": "added",
+      "questionIds": [
+        3325
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 3,
+      "recall": "Ασθενής εμφανίζει α.ε. με χαμηλή δόση ολανζαπίνης, προϊούσα διαταραχή μνημης απο 5ετιας, οπτικες ψευδαισθήσεις? Ανοια lewy body",
+      "status": "matched_existing",
+      "questionIds": [
+        1555
+      ],
+      "note": "Same diagnostic discriminator: visual hallucinations, cognitive decline and antipsychotic sensitivity."
+    },
+    {
+      "number": 4,
+      "recall": "Ασθενής νοσηλεύεται με καταγματα, καταναλωση 4 ποτα/ημέρα. Την 2η μερα νοσηλειας αναφέρει ότι οι νοσηλεύτριες την σχολιάζουν και την 6η μέρα είναι καλά. Είχε ως απαντήσεις αλκοολική ψευδαισθήτωση (το σωστό μάλλον), παρανοϊκη δ/χη προσωπικότητας",
+      "status": "matched_existing",
+      "questionIds": [
+        197
+      ],
+      "note": "Same alcohol-related hallucinosis target. Existing stem explicitly documents a clear sensorium, which the recall omits."
+    },
+    {
+      "number": 5,
+      "recall": "Ψυχοδραμα- Moreno",
+      "status": "matched_existing",
+      "questionIds": [
+        392
+      ],
+      "note": "Moreno and psychodrama."
+    },
+    {
+      "number": 6,
+      "recall": "Ποσοστο Διπολικής Δ/χης Ι σε παιδί με 1 γονέα διπολικό? 5-10%",
+      "status": "adapted_existing",
+      "questionIds": [
+        1041
+      ],
+      "note": "Uses the existing approximate first-degree-relative bipolar-risk question. The recalled bipolar-I-only offspring estimate is not asserted as an exact recovered statistic.",
+      "originalRecallLimitation": "Existing question gives approximately 10% for bipolar disorder in first-degree relatives, not specifically bipolar I in offspring. Need the source for the recalled 5–10% bipolar-I estimate.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 7,
+      "recall": "Ασθενής αναφέρει ενδιάφερον για ufo, φτωχες διαπροσωπικές σχέσεις- υπάρχει σε παλιά θέματα. Σχιζοτυπος",
+      "status": "matched_existing",
+      "questionIds": [
+        1494
+      ],
+      "note": "Same schizotypal personality target: unusual beliefs, eccentricity and interpersonal deficits; not a verbatim UFO vignette."
+    },
+    {
+      "number": 8,
+      "recall": "Ασθενής που δεν θέλει να έχει ερωτική σύντροφο κτλ. Σχιζοειδής",
+      "status": "added",
+      "questionIds": [
+        3326
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 9,
+      "recall": "Κοινό σχιζοειδούς με σχιζότυπου ? Επαφές κυρίως με συγγενείς 1ου βαθμού",
+      "status": "matched_existing",
+      "questionIds": [
+        874
+      ],
+      "note": "Shared restriction of close relationships to relatives."
+    },
+    {
+      "number": 10,
+      "recall": "Μία ερώτηση με θνησιμότητα σε ψ/χ που η απάντηση είναι 1η σε θνησιμότητα η ψ.ανορεξία λόγω σωματικών επιπλοκών.\r\n(α) Η ψυχική διαταραχή με την μεγαλύτερη θνησιμότητα είναι η ψυχογενής ανορεξία και\r\nη κύρια αιτία θανάτου είναι η αυτοκτονία\r\nβ) Η ψυχική διαταραχή με την μεγαλύτερη θνησιμότητα είναι η κατάθλιψη και η κύρια\r\nαιτία θανάτου είναι η αυτοκτονία\r\nγ) Η ψυχική διαταραχή με την μεγαλύτερη θνησιμότητα είναι η κατάθλιψη και η κύρια\r\nαιτία θανάτου είναι οι σωματικές επιπλοκές\r\nδ) Η ψυχική διαταραχή με την μεγαλύτερη θνησιμότητα είναι η ψυχογενής ανορεξία\r\nκαι η κύρια αιτία θανάτου είναι οι σωματικές επιπλοκές\r\nε) Η ψυχική διαταραχή με την μεγαλύτερη θνησιμότητα είναι η ψυχογενής ανορεξία και\r\nη κύρια αιτία θανάτου είναι εξίσου οι αυτοκτονίες και οι σωματικές επιπλοκές)",
+      "status": "adapted_new",
+      "questionIds": [
+        3327
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Added a defensible question about physical complications and suicide, but it does not establish the recalled universal mortality ranking or predominant cause. Need the original source and mortality measure.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 11,
+      "recall": "Σε ποια διαταραχή έχουμε διάσπαση ύπνου και είχε δ.πανικού, ΓΑΔ και κάποια άλλα",
+      "status": "adapted_new",
+      "questionIds": [
+        3349
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Sleep fragmentation is nonspecific; the complete stem and alternatives are missing.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 12,
+      "recall": "Ασθενής αναφέρει ότι ο ταμείας στο σουπερμάρκετ είναι απατεώνας που έχει αντικαταστήσει τη γυναίκα του, η συμπεριφορά του ασθενούς έχει θυμώσει τη σύζυγό του. Σύνδρομο capgras (μάλλον το σωστό), fregoli και κάποια άλλα",
+      "status": "adapted_existing",
+      "questionIds": [
+        410
+      ],
+      "note": "Uses the clear existing Capgras vignette. The ambiguous cashier/wife wording is not reproduced or assigned a recovered key.",
+      "originalRecallLimitation": "The cashier/wife/impostor wording is internally unclear and could distinguish Capgras, Fregoli or another misidentification phenomenon. Related Capgras item exists; need exact wording.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 13,
+      "recall": "Ακούσιες επαναλαμβανόμενες κινήσεις που δεν γίνονται μόνο σε πλαίσιο κρίσεων? Απαντήσεις στερεοτυπίες και κάποια άλλα",
+      "status": "matched_existing",
+      "questionIds": [
+        2392
+      ],
+      "note": "Near-verbatim recalled definition and answer: stereotypies."
+    },
+    {
+      "number": 14,
+      "recall": "Τι είναι οι στερεοτυπίες? Είχε διάφορες απαντήσεις με μια που έλεγε επαναλαμβανόμενο μοτίβο συμπεριφοράς κινητικής και  ομιλίας (μάλλον το σωστό)",
+      "status": "added",
+      "questionIds": [
+        3328
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 15,
+      "recall": "ποσοστα με γονιό με σχιζοφρενεια, τελικα απαντηση 10%",
+      "status": "corrected_existing",
+      "questionIds": [
+        552
+      ],
+      "note": "Corrected the pre-existing 17% key to approximately 10%, with traceable NCBI Medical Genetics source; removed unsupported fixed family-risk table."
+    },
+    {
+      "number": 16,
+      "recall": "Παλιο πολλαπλης με ισχαιμικη καρδιοπαθεια στην ανηφορά",
+      "status": "matched_existing",
+      "questionIds": [
+        202
+      ],
+      "note": "Exertional chest symptoms must prompt investigation for ischemia despite psychotic attribution. Recall only identifies this older question by topic."
+    },
+    {
+      "number": 17,
+      "recall": "Τι νευροαπεικονιστικα εχουμε στην Καταθλιψη;\r\nΑυξηση ιπποκαμπου\r\nΜειωση αμυγδαλης\r\nΜειωση της δραστβριοτηττας της ελικας του προσαγωγιου\r\nΑυξηση του προμετωπιαιου",
+      "status": "adapted_existing",
+      "questionIds": [
+        2410
+      ],
+      "note": "Uses the established structural imaging target: reduced hippocampal volume in depression. No unsupported answer about cingulate activity is inferred from incomplete options.",
+      "originalRecallLimitation": "Incomplete imaging alternatives and unclear structural-versus-functional comparison. Do not infer an answer about cingulate activity from a hippocampal-volume question.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 18,
+      "recall": "Που παραγεται η ντοπαμινη. Μελαινα και καλυπτρα",
+      "status": "added",
+      "questionIds": [
+        3329
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 19,
+      "recall": "Τι λεει το CINP για ανθεκτικη σχιζοφρενεια οτι μπορει να βοηθησει;\r\nΤοπιραματη\r\nΛεβερικεταμη\r\nΤοκοφερολη",
+      "status": "adapted_new",
+      "questionIds": [
+        3350
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Need CINP guideline title, version, population and full choices. The recall does not establish whether this concerns clozapine-resistant illness or another augmentation setting.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 20,
+      "recall": "μητερα λεει οτι το παιδι είναι διαβολικο και λεει να το σκοτωσεις, τι κανεις;\r\nΤης το παιρνουμε, Αντικαταθλιπτικο και αντιψυχωτικο, καποιες άλλες επιλογες",
+      "status": "added",
+      "questionIds": [
+        3330
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 21,
+      "recall": "Αγωγη για PMDD (σελ 779)\r\nssri+ αντισυλληπτικα\r\nsnri+ alla\r\nssri+ progesterone και βρωμοκρυπτίνη",
+      "status": "added",
+      "questionIds": [
+        3331
+      ],
+      "note": "Tests evidence-based options, not a requirement to combine SSRI with a contraceptive in every patient."
+    },
+    {
+      "number": 22,
+      "recall": "77χρονος που παει με κορες και εχει υπερταση, ΣΔ και προοσφατο ΑΕΕ προ 8μηνου.\r\nΤι εχει;\r\nΑγγειακη ανοια\r\nΓηρας με αγγειακούς παραγοντες\r\nΑλτσχαιμερ\r\nΜετωποκροταφικη",
+      "status": "matched_existing",
+      "questionIds": [
+        1590
+      ],
+      "note": "Same vascular dementia discriminator; vascular risk factors or stroke history alone do not establish dementia."
+    },
+    {
+      "number": 23,
+      "recall": "Ενας μαν ειχε πολλα παραληρητικες ιδεες. Ελεγε οτι ειχε αισθηση οτι το φως απο την λαμπα ειναι ευεργετικό γτ σκοτωνει τη σιφυλη του\r\nΣχιζοφρενια\r\nΣχιζοφρενεια, αποδιοργανωτικη\r\nΒραχεια ψυχωτικη\r\nΠαραληρητικη\r\nΤιποτα απο τα παραπανω",
+      "status": "adapted_new",
+      "questionIds": [
+        3351
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Bizarre somatic belief alone does not determine schizophrenia. Need duration, associated symptoms, functional change and full vignette.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 24,
+      "recall": "Ενα παλιο θεμα που ηταν βραχυ ψυχωτικο, εγινε καλα σε 2 μερες, ειχε μαλωσει με γειτονα προ 7ημερων.",
+      "status": "added",
+      "questionIds": [
+        3347
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 25,
+      "recall": "Ποιος εβαλε πρωτος το 1950 το λιθιο στην Διπολικη; Mogens Schou, Carlsson Δεν είχε χαμοντ και cade",
+      "status": "added",
+      "questionIds": [
+        3332
+      ],
+      "note": "Historical correction: Schou led the 1954 controlled study; Cade reported antimanic use in 1949. The recalled “first in 1950” formulation is not reproduced."
+    },
+    {
+      "number": 26,
+      "recall": "Ποιος εβαλε πρωτος αντιψυχωτικο; Delay Κι αλλα ονοματα",
+      "status": "added",
+      "questionIds": [
+        3333
+      ],
+      "note": "Delay and Deniker are distinguished from chemical synthesis by Charpentier and early work by Laborit."
+    },
+    {
+      "number": 27,
+      "recall": "Παλια θεματα με αλκοολικη ψευδαισθητωση",
+      "status": "matched_existing",
+      "questionIds": [
+        197
+      ],
+      "note": "Duplicate topic of recall 4, not an additional distinct MCQ.",
+      "duplicateOf": 4
+    },
+    {
+      "number": 28,
+      "recall": "Dsm->millon",
+      "status": "adapted_new",
+      "questionIds": [
+        3352
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "“DSM → Millon” is insufficient to identify a question or answer.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 29,
+      "recall": "Νοητικα ελλειματα στη σχιζοφρενεια\r\nΔε βελτιωνονται\r\nΠοιοτικα διαφερουν στην ΚΑΤΑΘΛΙΨΗ\r\nΑφορουν μνημη προσοχη\r\nΕιναι γενικά (αυτό κολλούσε)",
+      "status": "added",
+      "questionIds": [
+        3334
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 30,
+      "recall": "Κλοζαπίνη παιρνει και τώρα ξαναεχει ψυχωσικά. Ποια ουσίας η καταχρηση πιθανώς φταίει;\r\nΝικοτινη\r\nΜαριχουανα\r\n(θελει την νικοτινη τελικα, το διασταυρώσαμε)",
+      "status": "added",
+      "questionIds": [
+        3335
+      ],
+      "note": "Corrected smoke-versus-nicotine mechanism: combustion products induce CYP1A2; nicotine does not."
+    },
+    {
+      "number": 31,
+      "recall": "Τι ειναι η πρωτεινη G?\r\nΝευροδραστικο πεπτίδιο\r\nΣυστημα ενδοκυτταριου αγγελιοφορου\r\nΤελεστης αδενοκυκλασης",
+      "status": "matched_existing",
+      "questionIds": [
+        1668
+      ],
+      "note": "G protein and second-messenger signalling."
+    },
+    {
+      "number": 32,
+      "recall": "Ο μεθοριακος τυπος στο icd10 ειναι\r\nυπότυπος της Συναισθηματικης Ασταθους διαταραχής προσωπικότητας\r\nδιακριτική διατραχη\r\nΥποτυπος κυκλοθυμίας\r\nspecifier",
+      "status": "added",
+      "questionIds": [
+        3336
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 33,
+      "recall": "NNT σε μελετες με 6% διαφορα\r\n1/100\r\n10\r\n17",
+      "status": "added",
+      "questionIds": [
+        3337
+      ],
+      "note": "Specified absolute risk reduction, percentage points and follow-up period."
+    },
+    {
+      "number": 34,
+      "recall": "Νευροβιολογια μη αυτοκτονικου αυτοτραυματισμού. Παλιό θεμα, πρεπει να ήταν ολα τα παραπάνω",
+      "status": "adapted_new",
+      "questionIds": [
+        3353
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "No stem, biological mechanisms or options survived. “All of the above” cannot be reconstructed without them.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 35,
+      "recall": "Τι ισχύει για τα φαρμακα του παρκινσον;\r\nΤα ντοπαμινεργικα ευοδωουν την μεταιχμιακη οδο και ετσι προκαλουν τζόγο.\r\nΗ πραμιπεξόλη και ρεγιλολη προκαλεί επρισσοτερο τζογο απο την λεβοντόπα.\r\nΑλλες επιλογές ηταν εντελώς off.",
+      "status": "added",
+      "questionIds": [
+        3338
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 36,
+      "recall": "Ένα πολλαπλής για τη λαμοτριγινη\r\nΓίνεται αργή τιτλοποίηση λόγω εξανθήματος\r\nΤο εξάνθημα εμφανίζεται στις 2-8 εβδομάδες συνήθως\r\nΌλα τα παραπάνω",
+      "status": "added",
+      "questionIds": [
+        3339
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 37,
+      "recall": "Ποιο φάρμακο έχει μικρότερη επίπτωση στο βάρος;\r\nΑριπιπραζόλη\r\nΒουπροπιόνη\r\nΆλλα αντιψυχωτικά & αντικαταθλιπτικά τύπου ρισπεριδόνη κλπ",
+      "status": "added",
+      "questionIds": [
+        3340
+      ],
+      "note": "Reconstructed as an antidepressant comparison; not a verbatim mixed antidepressant/antipsychotic ranking."
+    },
+    {
+      "number": 38,
+      "recall": "Ποιο από τα παρακάτω είναι σύμπτωμα στο προχωρημένο σύνδρομο στέρησης από οπιοειδή;\r\nα)     Δακρύρροια\r\nβ)     μυϊκός σπασμός (Ο φουντουλάκης αυτό είχε πει σε μάθημα, πιθανώς αυτό να ναι το σωστό)\r\nγ)      χασμουρητό\r\nδ)     ταχυκαρδία\r\nε)      ανατριχίλα",
+      "status": "adapted_new",
+      "questionIds": [
+        3354
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Existing question covers established opioid withdrawal, but the recalled alternatives do not give a unique late-stage discriminator. Need the referenced teaching/source timeline.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 39,
+      "recall": "Ποια η ενδεδειγμένη ψυχοθεραπεία για OCD;\r\n Φλουοξετίνη  Έκθεση και αναστολή απάντησης\r\nΦλουοξετίνη και EMDR\r\nφλουοεξετίνη & ψυχοδυναμική",
+      "status": "matched_existing",
+      "questionIds": [
+        637
+      ],
+      "note": "ERP is the psychotherapy target. Existing item does not assert medication must always be combined with it."
+    },
+    {
+      "number": 40,
+      "recall": "Πότε εμφανίζονται επιληπτικές κρίσεις σε στέρηση από αλκοόλ;\r\n Τις πρώτες 24 ώρες\r\nΣε 48-72 ώρες\r\nΣε 1 εβδομάδα\r\nΆλλες επιλογές",
+      "status": "matched_existing",
+      "questionIds": [
+        305
+      ],
+      "note": "Alcohol withdrawal seizures: 6–48 hours. Does not reproduce the inaccurate restriction to the first 24 hours."
+    },
+    {
+      "number": 41,
+      "recall": "Ο ασθενής συνεχώς λέει στον θεραπευτή αν τον κατάλαβε με αυτό που είπε και ο θεραπευτης έρχεται στη δύσκολη θέση να πρέπει να εξηγεί συνέχεια. Τι μηχανισμός άμυνας είναι στην αντιμεταβίβαση;\r\nΠροβλητική ταύτιση\r\nΝαρκισσιστική προσβολή (κάπως έτσι)\r\nΆλλα που δεν πολυταίριαζαν",
+      "status": "matched_existing",
+      "questionIds": [
+        389
+      ],
+      "note": "Same projective identification mechanism: interpersonal pressure on the recipient to experience the projected content."
+    },
+    {
+      "number": 42,
+      "recall": "Φρουντ πώς λέγεται η θεωρία που διαχωριζει το ασυνειδητο, προσυνειδητό και συνειδητό\r\nΚατασκευαστική\r\nΤοπογραφική\r\nΆλλες 3 ο,τι να ναι επιλογές",
+      "status": "added",
+      "questionIds": [
+        3341
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 43,
+      "recall": "Μηχανισμός άμυνας σε οριακό ασθενή που μαλώνει συνέχεια και δεν έχει διατηρήσει σχέση για σχέση\r\nΠροβλητική ταύτιση\r\nΔιανοητικοποίηση\r\nΕκλογίκευση\r\nΣχηματισμός εξ αντιδράσεως \r\n(δεν είχε σχάση - splitting)",
+      "status": "matched_existing",
+      "questionIds": [
+        2527
+      ],
+      "note": "Same borderline vignette and projective identification answer, without splitting among the choices."
+    },
+    {
+      "number": 44,
+      "recall": "Τι ισχύει από τα παρακάτω σε σχέση με τη ψυχοδυναμική και το CBT σύμφωνα με τις τελευταίες μετααναλύσεις για την κατάθλιψη\r\nΥπερτερεί η CBT ασχέτως με τη βαρύτητα της κατάθλιψης\r\nΙσοδυναμούν βραχυπρόθεσμα αλλά υπερτερεί η ψυχοδυναμική μακροπρόθεσμα\r\nΔεν έχει καμία τεκμηρίωση η ψυχοδυναμική για την κατάθλιψη\r\nΚάτι άλλο με ποσοστά υπερ της CBT\r\nΗ ψυχοδυναμική υπερτερεί στην ανθεκτική κατάθλιψη αλλά όχι στις άλλες",
+      "status": "adapted_new",
+      "questionIds": [
+        3355
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Need the cited meta-analysis, treatment format, comparator, outcomes and follow-up. No unsupported claim of universal CBT or long-term psychodynamic superiority was added.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 45,
+      "recall": "Ασθενής με καταθλιψη εχει κανει 3 επεισόδιο και ειναι σταθεροποιημένη με αγωγή με φλουοξετίνη στα 40μγ και το τελευταιο επεισόδιο ειναι προ 6μηνου. Τι κάνεις;\r\nΚρατας τη δοση για 5 τουλάχιστον χρόνια (maudsley λέει >2 χρόνια)\r\nΚρατάς τη δόση για άλλους 6 μήνες\r\nΚόβεις και κάνεις cbt\r\nκόβεις και κάνεις ψυχοδυναμική",
+      "status": "adapted_new",
+      "questionIds": [
+        3356
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Existing item supports long-term maintenance after recurrent episodes. It does not verify a mandatory minimum of five years at 40 mg fluoxetine. Need the edition/page and complete choices.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 46,
+      "recall": "Ισχυρότερος παράγοντας για κατάθλιψη\r\nΔιαζύγιο\r\nΧωρισμός\r\nΣεξουαλική κακοποίηση",
+      "status": "adapted_new",
+      "questionIds": [
+        3357
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Cannot rank sexual abuse, divorce and separation without population, exposure definition and time horizon. Need original source.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 47,
+      "recall": "Τι ισχύει για ηλικιωμένο με κατάθλιψη\r\nΜειωμένος όγκος ιπποκάμπου\r\nΜειωμένα βασικά γάγγλια\r\nΑυξημένος προμετωπιαίος\r\nΜειωμένη δραστηριότητα έλικας του προσαγωγίου",
+      "status": "matched_existing",
+      "questionIds": [
+        2410
+      ],
+      "note": "Reduced hippocampal volume in groups of older adults with depression."
+    },
+    {
+      "number": 48,
+      "recall": "Ποιο από τα παρακάτω έχει το μεγαλύτερο σχετικό κίνδυνο για ανάπτυξη σχιζοφρένειας\r\nΑρνητικά γεγονότα ζωής\r\nΚάνναβη\r\nΜετανάστευση\r\nΤοκετός το χειμώνα\r\nΚαι άλλο ένα",
+      "status": "adapted_new",
+      "questionIds": [
+        3358
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Several listed exposures increase schizophrenia risk; their ranking varies by population and exposure intensity. Need fifth option and source-specific effect estimates.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 49,
+      "recall": "Κλοζαπίνη και λευκά (μάλλον είναι από παλιά guidelines που αναφέρονταν στα λευκά και όχι στα ουδετερόφιλα)\r\n<2000 λευκά σταματάμε οριστικά\r\n<4000 σταμάτα προσωρινά\r\n<4000 σταματάμε οριστικά και δεν κάνουμε rechallenge\r\nΆλλες 2 επιλογές κουλές",
+      "status": "adapted_new",
+      "questionIds": [
+        3359
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Recall uses historical total-WBC cutoffs. Need original guideline/era and all alternatives; do not treat these as current universal clozapine monitoring rules. Related ANC items were not validated in this audit.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 50,
+      "recall": "Ερώτηση με το τι βάζω σε ασθενή με ηπατική δυσλειτουργία (δες σελ 761 maudsley)",
+      "status": "adapted_existing",
+      "questionIds": [
+        1613
+      ],
+      "note": "Uses the existing hepatic-impairment antipsychotic-selection question, specifying paliperidone and its limited hepatic metabolism. The unidentified Maudsley passage is not claimed to have been recovered.",
+      "originalRecallLimitation": "The recall omits the drug class, clinical scenario and choices. Existing hepatic-impairment questions concern different classes and cannot identify the intended answer. Need Maudsley edition and page text.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 51,
+      "recall": "Ποια διαταραχή προσωπικότητας αναφέρει στα κριτήρια ότι μπορεί να υπάρχουν στοιχεία πριν την ηλικία των 15 ετών\r\nΟριακή\r\nΠαρανοική\r\nΨυχαναγκαστική\r\nΑντικοινωνική",
+      "status": "matched_existing",
+      "questionIds": [
+        999
+      ],
+      "note": "Antisocial personality disorder and conduct disorder before age 15."
+    },
+    {
+      "number": 52,
+      "recall": "Πού υπάρχει βλάβη στην Huntington\r\nΚερκοφόρος πυρήνας (ιδίως αυτό προσβάλλεται σελ 439)\r\nΚέλυφος\r\nΡαβδωτό σώμα\r\nΒασικά γάγγλια\r\nΆλλα 2 άσχετα",
+      "status": "matched_existing",
+      "questionIds": [
+        2781
+      ],
+      "note": "Caudate nucleus in Huntington disease."
+    },
+    {
+      "number": 53,
+      "recall": "Ποιο από τα παρακάτω είναι συχνότερο σε ηλικιωμένους παρά σε νέους\r\nΜελαγχολικά στοιχεία\r\nΥπερυπνία\r\nΑυξημένη όρεξη\r\nκι άλλες επιλογές",
+      "status": "adapted_existing",
+      "questionIds": [
+        178
+      ],
+      "note": "Uses the existing older-adult depression comparison of somatic and cognitive presentations. Does not claim a universal age-specific ranking of melancholic features.",
+      "originalRecallLimitation": "Existing older-adult depression item tests somatic and cognitive presentations, not the recalled melancholic-feature comparison. Need full options and source for age-specific claim.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 54,
+      "recall": "Ποια λέξη έχουν οι διαγνώσεις κατάχρησης ουσιών στο DSM\r\nΧρήση (use)\r\nΚατάχρηση (misuse)",
+      "status": "added",
+      "questionIds": [
+        3342
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    },
+    {
+      "number": 55,
+      "recall": "Ποιο από τα παρακάτω ανήκει στο μεταιχμιακό σύστημα;\r\nα) κροταφικός φλοιός\r\nβ) αμυγδαλή\r\nγ) κερκοφόρος",
+      "status": "matched_existing",
+      "questionIds": [
+        2082
+      ],
+      "note": "Amygdala as part of the limbic system."
+    },
+    {
+      "number": 56,
+      "recall": "Τι ισχύει για το Σύνδρομο Stevens-Johnson:\r\nα) είναι ο λόγος που η τιτλοποίηση της λαμοτριγίνης γίνεται με αργό ρυθμό\r\nβ) συμβαίνει τις πρώτες 2-8 εβδομάδες θεραπείας\r\nγ) είναι αυξημένος ο κίνδυνος σε συγχορήγηση λαμοτριγίνης με βαλπροικό\r\nδ)..\r\nε) όλα τα παραπάνω",
+      "status": "added",
+      "questionIds": [
+        3339
+      ],
+      "note": "Same learning target as recall 36; one new MCQ covers both rather than duplicating it.",
+      "duplicateOf": 36
+    },
+    {
+      "number": 57,
+      "recall": "Ποιός από τους παρακάτω είναι ο πλέον κατάλληλος υποψήφιος για ECT?\r\nα) αυτός που δεν τρώει και δεν πίνει\r\nβ) αυτός που θεωρεί πως είναι ήδη νεκρός\r\nγ) αυτός που δεν θέλει να πάρει φ.α.",
+      "status": "added",
+      "questionIds": [
+        3343
+      ],
+      "note": "Uses the unambiguous urgent indication: life-threatening refusal of intake. Does not imply Cotard delusions cannot also warrant ECT."
+    },
+    {
+      "number": 58,
+      "recall": "Ποιο ψυχοπιεστικό προδιαθετειπερισσότερογια καταθλιψη?\r\nα) σεξουαλική κακοποιηση\r\nβ) απωλεια γονέα ή συζύγου\r\nγ) διαζυγιο\r\nδ) απώλεια εργασίας",
+      "status": "adapted_new",
+      "questionIds": [
+        3357
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "duplicateOf": 46,
+      "originalRecallLimitation": "Duplicate ranking issue of recall 46, with different exposure choices. Need original source and population.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 59,
+      "recall": "Ασθενής που παίρνει τα φάρμακά του κάθε πρωί από το κουτί του σύμφωνα με τις οδηγίες\r\nτου γιατρού του είναι ένα παράδειγμα:\r\nΠροτογενούς πρόληψης\r\nΔευτερογενούς πρόληψης\r\nΤριτογενούς πρόληψης",
+      "status": "adapted_existing",
+      "questionIds": [
+        1176
+      ],
+      "note": "Uses the existing maintenance-treatment/tertiary-prevention vignette, which specifies an established illness; adherence alone would not determine a prevention level.",
+      "originalRecallLimitation": "Medication adherence alone does not identify a prevention level. Existing tertiary-prevention item explicitly specifies established schizophrenia and maintenance treatment; need the recalled clinical context.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 60,
+      "recall": "Ασθενής μετά από καρδιολογικό πρόβλημα και επέμβαση (δεν θυμάμαι τι ακριβώς),  σε ΜΕΘ γίνεται συγχυτικοδιεγερτικός (νομίζω περιέγραφε delirium ουσιαστικά) τι κάνεις πρώτα:\r\nα) αλοπεριδόλη\r\nβ) αλλαγή/τροποιποίηση του περιβάλλοντος\r\nγ) βενζο",
+      "status": "added",
+      "questionIds": [
+        3344
+      ],
+      "note": "Explicitly excludes immediate danger and addresses underlying causes alongside environmental measures."
+    },
+    {
+      "number": 61,
+      "recall": "Ποιο από τα παρακάτω αποτελεί παράγοντα κινδύνου για την ανάπτυξη καταθλιπτικής διαταραχής που προκαλείται από ουσίες-φάρμακα;  Διακοπή κατάχρησης ουσιών",
+      "status": "added",
+      "questionIds": [
+        3345
+      ],
+      "note": "Tests the causal temporal relationship with stimulant withdrawal; not a claim that every substance cessation produces a depressive disorder."
+    },
+    {
+      "number": 62,
+      "recall": "Ασθενής 75 ετών πάσχει από μεταστατικό καρκίνο του προστάτη τελικού σταδίου. Ποιο είναι το ψυχιατρικό σύμπτωμα που εμφανίζεται σε ποσοστό πάνω από 90% αυτών των ασθενών; Α. Παραληρητικές ιδέες\r\n Β. Ψευδαισθήσεις \r\nΓ. Ιδεοφυγή\r\nΔ. Άγχος\r\nΕ. Κατάθλιψη\r\n(εγώ από όσο το είχα ψάξει βρήκα τις ψευδαισθήσεις ως πιο σωστό, αλλά δεν είμαι 100% σίγουρη)",
+      "status": "adapted_new",
+      "questionIds": [
+        3360
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "No verified basis for >90% hallucinations, anxiety or another offered symptom across all terminal metastatic prostate-cancer patients. ID 117 is a different symptom-identification question and is not a match. Need original textbook passage.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 63,
+      "recall": "Λανθάνων χρόνος REM και χρόνος REM στην κατάθλιψη (ποιο μειώνεται, ποιο αυξάνεται κτλ)",
+      "status": "added",
+      "questionIds": [
+        3348
+      ],
+      "note": "Specifies the first REM period and absence of REM-suppressing treatment."
+    },
+    {
+      "number": 64,
+      "recall": "Γυναίκα 60 ετών με ιστορικό άγχους και κατάθλιψης με σωματόμορφες εκδηλώσεις από νεαρή ηλικία, χρόνια μετρίως ρυθμιζόμενη υπέρταση και σακχαρώδη διαβήτη, εμφανίζει με υποξεία έναρξη διαταραχές της μνήμης. Στην κλινική εξέταση  είναι καλά προσανατολισμένη στο χώρο και στο  χρόνο, εμφανίζει δυσχέρεια συγκέντρωσης, θυμάται σποραδικά γεγονότα της περασμένης εβδομάδας και εμφανίζει σημαντική δυσκολία να θυμηθεί τον αριθμό και τα ονόματα των παιδιών της. Εμφανίζει δυσκολία σε απλές αριθμητικές πράξεις. Ξεσπά πάρα πολύ εύκολα σε κλάματα. Η πιθανότερη διάγνωση είναι: \r\nΑ. Μη οργανική διαταραχή της διάθεσης (κατάθλιψη) (αυτό μάλλον)\r\nΒ. Οργανική διαταραχή της διάθεσης\r\n Γ. Νόσος Alzheimer\r\nΔ. Αρχόμενη αγγειακή άνοια\r\nΕ. Τίποτε από τα παραπάνω",
+      "status": "adapted_new",
+      "questionIds": [
+        3361
+      ],
+      "note": "Authored, source-grounded question replaces the ambiguous recall with a uniquely answerable teaching target. See question references and explanation; no claim to recover the original examination key.",
+      "originalRecallLimitation": "Related depression-associated cognitive impairment items exist. The recalled vignette lacks sufficient mood criteria, functional course and evaluation to establish a unique depression-versus-neurocognitive diagnosis. Need original source/answer key.",
+      "originalKeyRecovered": false
+    },
+    {
+      "number": 65,
+      "recall": "Ο έλεγχος των συγχυτικών παραγόντων κατά τη φάση της ανάλυσης γίνεται με:\r\nΑ. Τυχαιοποίηση\r\nΒ. Εξομοίωση (matching)\r\nΓ. Χρήση πολυπαραγοντικής ανάλυσης\r\nΔ. Όλα τα παραπάνω\r\nΈ Κανένα από τα παραπάνω",
+      "status": "added",
+      "questionIds": [
+        3346
+      ],
+      "note": "New reconstructed MCQ for the recalled learning target. Wording and missing distractors are authored, not a recovered original."
+    }
+  ],
+  "userClarification": "The user has no fuller source and requested that ambiguous recalls be resolved into quality Greek MCQs, with plausible distractors and no conspicuously longer correct answer.",
+  "newQuestionIds": [
+    3324,
+    3325,
+    3326,
+    3327,
+    3328,
+    3329,
+    3330,
+    3331,
+    3332,
+    3333,
+    3334,
+    3335,
+    3336,
+    3337,
+    3338,
+    3339,
+    3340,
+    3341,
+    3342,
+    3343,
+    3344,
+    3345,
+    3346,
+    3347,
+    3348,
+    3349,
+    3350,
+    3351,
+    3352,
+    3353,
+    3354,
+    3355,
+    3356,
+    3357,
+    3358,
+    3359,
+    3360,
+    3361
+  ]
+}
