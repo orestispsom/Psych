@@ -21,28 +21,28 @@ const bank = buildOralBank(previous, clinical, crucial);
 const chunk = bank.filter(q => q.chapter >= 15 && q.chapter <= 19);
 
 describe('Chapters 15–19 board revision', () => {
-  it('covers all 39 live questions, preserves empty chapter 18 and earlier revisions', () => {
-    expect([15, 16, 17, 18, 19].map(ch => chunk.filter(q => q.chapter === ch).length)).toEqual([17, 18, 1, 0, 3]);
-    expect(Object.keys(additions).sort()).toEqual(chunk.map(q => q.id).sort());
-    for (const q of chunk) expect(q.studyNotes).toBe(additions[q.id]);
-    for (const q of bank.filter(q => q.chapter === 13)) expect(q.studyNotes).toBe(ch13[q.id]);
-    for (const q of bank.filter(q => q.chapter === 14)) expect(q.studyNotes).toBe(ch14[q.id]);
-    expect(bank.filter(q => q.chapter < 13 || q.chapter > 24).every(q => !q.studyNotes)).toBe(true);
+  it('covers the prior questions and the added older-adult comparison, preserves empty chapter 18 and earlier revisions', () => {
+    expect([15, 16, 17, 18, 19].map(ch => chunk.filter(q => q.chapter === ch).length)).toEqual([17, 18, 1, 0, 4]);
+    expect(Object.keys(additions).sort()).toEqual(chunk.filter(q => additions[q.id]).map(q => q.id).sort());
+    for (const q of chunk.filter(q => additions[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(additions[q.id].sections));
+    for (const q of bank.filter(q => q.chapter === 13 && q.id !== 'Q67')) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(ch13[q.id].sections));
+    for (const q of bank.filter(q => q.chapter === 14)) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(ch14[q.id].sections));
+    expect(bank.filter(q => q.studyNotes).every(q => q.studyNotes.hideSources)).toBe(true);
     for (const q of crucial.filter(q => chunk.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id)).toMatchObject(q);
     for (const q of clinical.filter(q => chunk.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id).answer).toBe(q.answer);
   });
 
-  it('renders every card with complete emphasis, focused sections and usable citations', () => {
+  it('renders every card with complete emphasis, focused sections and no visible citations', () => {
     const view = render(<BoardRevisionNotes notes={chunk[0].studyNotes} />);
     for (const q of chunk) {
       view.rerender(<BoardRevisionNotes notes={q.studyNotes} />);
       expect(q.studyNotes.sections.length, q.id).toBeGreaterThanOrEqual(2);
-      expect(q.studyNotes.sections.every(s => s.items.length > 0 && s.items.some(x => x.includes('**'))), q.id).toBe(true);
-      expect(view.container.querySelectorAll('strong').length, q.id).toBeGreaterThan(2);
+      expect(q.studyNotes.sections.every(s => s.items?.length || s.paragraphs?.length || s.table?.rows.length), q.id).toBe(true);
+      expect(view.container.querySelectorAll('section').length, q.id).toBeGreaterThanOrEqual(2);
       expect(view.container.textContent, q.id).not.toContain('**');
       expect(view.container.textContent, q.id).not.toContain('Πρότυπη προφορική απάντηση');
-      expect(q.studyNotes.sources.length, q.id).toBeGreaterThan(0);
-      expect([...view.container.querySelectorAll('a')].every(a => a.href.startsWith('https://')), q.id).toBe(true);
+      expect(q.studyNotes.hideSources, q.id).toBe(true);
+      expect(view.container.querySelector('a'), q.id).toBeNull();
     }
   });
 

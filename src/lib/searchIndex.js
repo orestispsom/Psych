@@ -81,7 +81,8 @@ async function build() {
   ]);
   for (const question of buildOralBank(oral?.default || [], clinical?.default || [], crucial?.default || [])) {
     const bodyText = question.studyNotes
-      ? question.studyNotes.sections.flatMap(section => [section.title, ...section.items]).join(' ').replaceAll('**', '')
+      ? question.studyNotes.sections.flatMap(section => [section.title, ...(section.paragraphs || []),
+        ...(section.items || []), ...(section.table?.columns || []), ...(section.table?.rows.flat() || [])]).join(' ').replaceAll('**', '')
       : [question.answer, ...(question.modelAnswer || []), ...(question.keyPoints || []),
       ...(question.examinerQuestions || []).map(eq => `${eq.question} ${(eq.answer || []).join(' ')}`),
       ...(question.examVsPractice || []), ...question.additionalAnswer].filter(Boolean).join(' ');

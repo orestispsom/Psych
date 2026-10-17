@@ -22,27 +22,27 @@ const chapter = bank.filter(q => q.chapter === 20);
 const earlier = { ...ch13, ...ch14, ...ch15, ...ch16, ...ch17to19 };
 
 describe('Chapter 20 board revision', () => {
-  it('covers all 29 live questions and preserves imported records and earlier notes', () => {
-    expect(chapter).toHaveLength(29);
-    expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
-    for (const q of chapter) expect(q.studyNotes).toBe(notes[q.id]);
-    for (const q of bank.filter(q => earlier[q.id])) expect(q.studyNotes).toBe(earlier[q.id]);
-    expect(bank.filter(q => q.chapter < 13 || q.chapter > 24).every(q => !q.studyNotes)).toBe(true);
+  it('covers the 29 prior and two additional questions and preserves imported records and earlier notes', () => {
+    expect(chapter).toHaveLength(31);
+    expect(Object.keys(notes).sort()).toEqual(chapter.filter(q => notes[q.id]).map(q => q.id).sort());
+    for (const q of chapter.filter(q => notes[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(notes[q.id].sections));
+    for (const q of bank.filter(q => earlier[q.id] && q.id !== 'Q67')) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(earlier[q.id].sections));
+    expect(bank.filter(q => q.studyNotes).every(q => q.studyNotes.hideSources)).toBe(true);
     for (const q of crucial.filter(q => chapter.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id)).toMatchObject(q);
     for (const q of clinical.filter(q => chapter.some(x => x.id === q.id))) expect(bank.find(x => x.id === q.id).answer).toBe(q.answer);
   });
 
-  it('renders every note set with readable emphasis, sections and source links', () => {
+  it('renders every note set with readable emphasis, sections and hidden source metadata', () => {
     const view = render(<BoardRevisionNotes notes={chapter[0].studyNotes} />);
     for (const q of chapter) {
       view.rerender(<BoardRevisionNotes notes={q.studyNotes} />);
       expect(q.studyNotes.sections.length, q.id).toBeGreaterThanOrEqual(2);
-      expect(q.studyNotes.sections.every(s => s.items.length > 0 && s.items.some(x => x.includes('**'))), q.id).toBe(true);
-      expect(view.container.querySelectorAll('strong').length, q.id).toBeGreaterThan(2);
+      expect(q.studyNotes.sections.every(s => s.items?.length || s.paragraphs?.length || s.table?.rows.length), q.id).toBe(true);
+      expect(view.container.querySelectorAll('section').length, q.id).toBeGreaterThanOrEqual(2);
       expect(view.container.textContent, q.id).not.toContain('**');
       expect(view.container.textContent, q.id).not.toContain('Πρότυπη προφορική απάντηση');
-      expect(q.studyNotes.sources.length, q.id).toBeGreaterThan(0);
-      expect([...view.container.querySelectorAll('a')].every(a => a.href.startsWith('https://')), q.id).toBe(true);
+      expect(q.studyNotes.hideSources, q.id).toBe(true);
+      expect(view.container.querySelector('a'), q.id).toBeNull();
     }
   });
 

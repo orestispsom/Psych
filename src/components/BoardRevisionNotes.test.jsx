@@ -16,16 +16,43 @@ afterEach(cleanup);
 describe('Chapter 13 board revision', () => {
   const bank = buildOralBank(previous, clinical, crucial);
 
-  it('covers every active Chapter 13 question and leaves chapters awaiting revision in their current format', () => {
+  it('keeps Chapter 13 coverage while supporting the informational revision across chapters', () => {
     const chapter = bank.filter(q => q.chapter === 13);
     expect(chapter).toHaveLength(23);
     expect(Object.keys(notes).sort()).toEqual(chapter.map(q => q.id).sort());
-    expect(bank.filter(q => ![13, 14, 15, 16, 17, 19, 20, 21, 22, 24].includes(q.chapter)).every(q => !q.studyNotes)).toBe(true);
     for (const q of chapter) {
       expect(q.studyNotes.sections.length).toBeGreaterThanOrEqual(2);
-      expect(q.studyNotes.sources.length).toBeGreaterThan(0);
-      expect(q.studyNotes.sections.every(s => s.items.some(x => x.includes('**')))).toBe(true);
+      expect(q.studyNotes.hideSources).toBe(true);
+      expect(q.studyNotes.sections.every(s => s.items?.length || s.paragraphs?.length || s.table?.rows.length)).toBe(true);
     }
+  });
+
+  it('renders explanatory paragraphs and accessible tables without source attribution', () => {
+    const sleep = bank.find(q => q.id === 'Q67');
+    const { container } = render(<BoardRevisionNotes notes={sleep.studyNotes} />);
+    const table = screen.getByRole('region', { name: 'Χαρακτηριστικά των σταδίων' });
+    expect(within(table).getByRole('columnheader', { name: 'Στάδιο' })).toBeInTheDocument();
+    expect(within(table).getByRole('rowheader', { name: 'REM' })).toBeInTheDocument();
+    expect(screen.getByText(/Τα όνειρα δεν περιορίζονται αποκλειστικά/)).toBeInTheDocument();
+    expect(container.querySelector('details')).toBeNull();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('searches table cells and explanatory prose and opens a new entry with stable completion', async () => {
+    const index = await getSearchIndex();
+    expect(index.find(x => x.state?.oralQuestionId === 'exam_hepatic').body).toContain('γλυκουρονίδωση');
+    expect(index.find(x => x.state?.oralQuestionId === 'Q67').body).toContain('Υπνικές άτρακτοι');
+    const mastered = vi.fn();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    render(<MemoryRouter initialEntries={['/oral/chapters/25/questions/exam_flumazenil']}>
+      <OralWorkspace oralProgress={{ mastered: {} }} profileId="exam-notes" onQuestionMastered={mastered}
+        renderAnswer={() => null} renderCrucial={() => null} />
+    </MemoryRouter>);
+    const article = await screen.findByRole('article');
+    expect(within(article).getByRole('heading', { name: 'Μικτή υπερδοσολογία' })).toBeInTheDocument();
+    await userEvent.setup().click(within(article).getByRole('button', { name: 'Ολοκληρώθηκε' }));
+    expect(mastered).toHaveBeenCalledWith('exam_flumazenil', true);
+    vi.restoreAllMocks();
   });
 
   it('renders critical information as emphasis with readable source links', () => {

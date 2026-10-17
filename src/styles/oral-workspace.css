@@ -64,6 +64,12 @@
 .board-revision-section ul { list-style: disc; padding-left: 24px; margin: 0; }
 .board-revision-section li { padding-left: 4px; margin-bottom: 10px; overflow-wrap: anywhere; }
 .board-revision-section strong { font-weight: 700; color: var(--ink); }
+.board-revision-section p { margin: 0 0 14px; overflow-wrap: anywhere; }
+.board-revision-table-scroll { overflow-x: auto; margin: 12px 0; }
+.board-revision-table-scroll:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.board-revision-table-scroll table { width: 100%; border-collapse: collapse; font-size: .95em; line-height: 1.65; }
+.board-revision-table-scroll th, .board-revision-table-scroll td { padding: 12px; text-align: left; vertical-align: top; border: 1px solid var(--rule); min-width: 130px; overflow-wrap: anywhere; }
+.board-revision-table-scroll thead th { background: var(--paper); }
 .board-revision-sources { border-top: 1px solid var(--rule); padding-top: 16px; font-family: var(--ui); font-size: 14px; line-height: 1.65; }
 .board-revision-sources summary { cursor: pointer; min-height: 44px; color: var(--ink-2); }
 .board-revision-sources a { color: var(--focus); text-decoration: underline; overflow-wrap: anywhere; }
