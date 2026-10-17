@@ -112,7 +112,7 @@ describe("golden path smoke tests", () => {
     const question = await screen.findByRole("link", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ });
     await user.click(question);
     expect(screen.queryByRole("button", { name: "Εμφάνιση απάντησης" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Πρότυπη προφορική απάντηση" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Αρχική ψυχιατρική εκτίμηση" })).toBeInTheDocument();
     const check = screen.getByRole("button", { name: "Ολοκληρώθηκε" });
     await user.click(check);
     await waitFor(() => expect(Object.values(readProfileStore().profiles)[0].oralProgress.mastered.Q1).toBe(true));
@@ -136,7 +136,7 @@ describe("golden path smoke tests", () => {
     unmount();
     window.history.pushState({}, "", "/oral/simulator?chapter=3&mode=exam&source=past&filter=checked&question=Q1");
     renderApp();
-    expect(await screen.findByRole("heading", { name: "Πρότυπη προφορική απάντηση" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Αρχική ψυχιατρική εκτίμηση" })).toBeInTheDocument();
     const workspace = within(document.querySelector(".oral-workspace"));
     expect(workspace.queryByText("Προφορική εξέταση")).not.toBeInTheDocument();
     expect(workspace.queryByRole("searchbox")).not.toBeInTheDocument();

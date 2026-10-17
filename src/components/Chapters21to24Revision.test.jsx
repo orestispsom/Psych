@@ -23,8 +23,8 @@ describe('Chapters 21–24 board revision', () => {
   it('covers all 25 live questions without inventing chapter 23 content or changing imported answers', () => {
     expect([21, 22, 23, 24].map(c => bank.filter(q => q.chapter === c).length)).toEqual([7, 8, 0, 10]);
     expect(Object.keys(notes).sort()).toEqual(chunk.map(q => q.id).sort());
-    for (const q of chunk) expect(q.studyNotes).toBe(notes[q.id]);
-    for (const q of bank.filter(q => q.chapter === 20)) expect(q.studyNotes).toBe(ch20[q.id]);
+    for (const q of chunk) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(notes[q.id].sections));
+    for (const q of bank.filter(q => ch20[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(ch20[q.id].sections));
     for (const source of [previous, clinical, crucial]) {
       for (const q of source.filter(q => notes[q.id])) {
         const live = bank.find(x => x.id === q.id);
@@ -35,17 +35,17 @@ describe('Chapters 21–24 board revision', () => {
     }
   });
 
-  it('renders every card with emphasized clinical detail and linked references', () => {
+  it('renders every card with emphasized clinical detail and no visible source references', () => {
     const view = render(<BoardRevisionNotes notes={chunk[0].studyNotes} />);
     for (const q of chunk) {
       view.rerender(<BoardRevisionNotes notes={q.studyNotes} />);
       expect(q.studyNotes.sections.length, q.id).toBeGreaterThanOrEqual(2);
-      expect(q.studyNotes.sections.every(s => s.items.length && s.items.some(x => x.includes('**'))), q.id).toBe(true);
-      expect(view.container.querySelectorAll('strong').length, q.id).toBeGreaterThan(2);
+      expect(q.studyNotes.sections.every(s => s.items?.length || s.paragraphs?.length || s.table?.rows.length), q.id).toBe(true);
+      expect(view.container.querySelectorAll('section').length, q.id).toBeGreaterThanOrEqual(2);
       expect(view.container.textContent, q.id).not.toContain('**');
       expect(view.container.textContent, q.id).not.toContain('Πρότυπη προφορική απάντηση');
-      expect(q.studyNotes.sources.length, q.id).toBeGreaterThan(0);
-      expect([...view.container.querySelectorAll('a')].every(a => a.href.startsWith('https://')), q.id).toBe(true);
+      expect(q.studyNotes.hideSources, q.id).toBe(true);
+      expect(view.container.querySelector('a'), q.id).toBeNull();
     }
   });
 

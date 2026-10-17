@@ -9,12 +9,26 @@ import chapterTwentyNotes from './oralChapter20Notes';
 import chapterTwentyOneNotes from './oralChapter21Notes';
 import chapterTwentyTwoNotes from './oralChapter22Notes';
 import chapterTwentyFourNotes from './oralChapter24Notes';
+import examStudyNotes from './oralExamStudyNotes';
+import examMoodPsychosis from './oralExamMoodPsychosis';
+import examPharmacology from './oralExamPharmacology';
+import examClinicalExpansions, { appendSections } from './oralExamClinicalExpansions';
+import { extraQuestions } from './oralExamAdditionalContent';
+import examFoundations from './oralExamFoundations';
+import examCarePlans from './oralExamCarePlans';
 
 const revisionNotes = {
   ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
   ...chapterSixteenNotes, ...chaptersSeventeenToNineteenNotes, ...chapterTwentyNotes,
   ...chapterTwentyOneNotes, ...chapterTwentyTwoNotes, ...chapterTwentyFourNotes,
+  ...examStudyNotes, ...examMoodPsychosis, ...examPharmacology, ...examClinicalExpansions,
+  ...examFoundations,
+  ...examCarePlans,
 };
+
+for (const [id, sections] of Object.entries(appendSections)) {
+  revisionNotes[id] = { ...revisionNotes[id], sections: [...revisionNotes[id].sections, ...sections] };
+}
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [
@@ -75,6 +89,8 @@ const editorialOverrides = {
 };
 
 export function chapterForQuestion(id) {
+  const examQuestion = extraQuestions.find(question => question.id === id);
+  if (examQuestion) return examQuestion.chapter;
   const foundation = chapterThirteenFoundations.find(question => question.id === id);
   if (foundation) return foundation.chapter;
   if (Object.hasOwn(editorialOverrides, id)) return editorialOverrides[id];
@@ -157,10 +173,10 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     (topic.subtopics || [topic]).flatMap(section => (section.questions || []).map(q => ({
       ...q, kind: 'past', context: [topic.title, section !== topic && section.title].filter(Boolean).join(' · '),
     })))));
-  return [...history, ...chapterThirteenFoundations, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
+  return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
     .map(q => ({ ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
-      ...(revisionNotes[q.id] ? { studyNotes: revisionNotes[q.id] } : {}),
+      ...((revisionNotes[q.id] || q.studyNotes) ? { studyNotes: { ...(revisionNotes[q.id] || q.studyNotes), hideSources: true } } : {}),
     }));
 }
