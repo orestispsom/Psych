@@ -126,6 +126,14 @@ Historical errors and unsupported prevalence/ranking claims are not reinforced. 
 
 Suitable as an editorially reviewed revision-bank expansion. Not a verified reconstruction of the February examination or a psychometrically validated assessment.
 
+## Validation
+
+- 156 application tests passed; 2 live/external tests skipped.
+- 12 WoW bridge tests and 7 progress-persistence checks passed. The bridge’s pinned bank-size expectation was updated from 2,064 to 2,102.
+- Production build passed. Existing bundle-size and module-loading warnings remain.
+- MCQ audit: zero structural errors; no findings on any new question. The 129 existing editorial review findings are outside this task.
+- Integration tests exercised actual question loading, answer grading, explanation display and saved progress for IDs 3335 and 3355. No clinical psychometric validation or live learner distractor analysis was performed.
+
 ## Coordination
 
 Scope split from PR #41: that PR removes out-of-scope items. This task adds IDs 3324–3361 and corrects ID 552; none of its proposed deletions are modified or restored. No governance, UI, dependency or persistence changes.
