@@ -18,6 +18,8 @@ import examFoundations from './oralExamFoundations';
 import examCarePlans from './oralExamCarePlans';
 import examFollowupNotes, { followupSections } from './oralExamFollowupNotes';
 import examDiagnosticNotes from './oralExamDiagnosticNotes';
+import examAssessmentNotes from './oralExamAssessmentNotes';
+import examTreatmentNotes from './oralExamTreatmentNotes';
 
 const revisionNotes = {
   ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
@@ -27,6 +29,7 @@ const revisionNotes = {
   ...examFoundations,
   ...examCarePlans,
   ...examFollowupNotes, ...examDiagnosticNotes,
+  ...examAssessmentNotes, ...examTreatmentNotes,
 };
 
 for (const [id, sections] of Object.entries(appendSections)) {

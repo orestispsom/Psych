@@ -37,4 +37,20 @@ describe('oral source review traceability', () => {
     expect(bank.get('exam_dat_scan').chapter).toBe(14);
     expect(bank.get('exam_stabilizers').chapter).toBe(25);
   });
+
+  it('presents every source-linked crucial answer as informational notes', () => {
+    const bank = new Map(buildOralBank(previous, clinical, crucial).map(q => [q.id, q]));
+    const destinations = new Set(review.requirements.flatMap(x => x.destinations));
+    for (const id of destinations) {
+      if (!/^Q\d+$/.test(id)) continue;
+      const notes = bank.get(id).studyNotes;
+      expect(notes?.sections.length, id).toBeGreaterThan(0);
+      expect(notes.hideSources, id).toBe(true);
+    }
+    const displayed = id => JSON.stringify(bank.get(id).studyNotes);
+    expect(displayed('Q3')).toContain('μεφλοκίνη');
+    expect(displayed('Q10')).toContain('ραβδομυόλυσης');
+    expect(displayed('Q10')).toContain('48–72 ώρες');
+    expect(displayed('Q99')).toContain('Σεξουαλική δυσλειτουργία με φυσιολογική προλακτίνη');
+  });
 });

@@ -224,7 +224,7 @@ describe("golden path smoke tests", () => {
     expect(screen.getByRole('button', { name: 'Ολοκληρώθηκε' })).toHaveAttribute('aria-pressed', 'false');
     expect(readProfileStore().profiles[profile.id].oralProgress.mastered['oral_core_017_fu04']).toBe(true);
     expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/1/questions/Q10');
-    expect(screen.getByText(/Η ECT μπορεί να χρειαστεί επειγόντως/)).toBeInTheDocument();
+    expect(screen.getByText(/Η ECT χρειάζεται έγκαιρα.*άρνηση τροφής\/υγρών/)).toBeInTheDocument();
   });
   it('redirects a legacy query bookmark for a retired challenge across chapters', async () => {
     const user = userEvent.setup();
