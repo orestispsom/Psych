@@ -38,11 +38,10 @@ describe('oral source review traceability', () => {
     expect(bank.get('exam_stabilizers').chapter).toBe(25);
   });
 
-  it('presents every source-linked crucial answer as informational notes', () => {
+  it('presents every source-linked answer as informational notes', () => {
     const bank = new Map(buildOralBank(previous, clinical, crucial).map(q => [q.id, q]));
     const destinations = new Set(review.requirements.flatMap(x => x.destinations));
     for (const id of destinations) {
-      if (!/^Q\d+$/.test(id)) continue;
       const notes = bank.get(id).studyNotes;
       expect(notes?.sections.length, id).toBeGreaterThan(0);
       expect(notes.hideSources, id).toBe(true);
