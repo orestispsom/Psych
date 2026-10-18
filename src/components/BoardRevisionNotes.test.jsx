@@ -16,6 +16,27 @@ afterEach(cleanup);
 describe('Chapter 13 board revision', () => {
   const bank = buildOralBank(previous, clinical, crucial);
 
+  it.each([
+    [4, 'Q8', 'Λειτουργική κλινική αξιολόγηση', 'Στάθμιση'],
+    [25, 'Q83', 'Μετά από διακοπή', '5 ημιζωές'],
+    [1, '1Aa2', 'Συμπτώματα πρώτης τάξης', 'Schneider'],
+  ])('opens the converted bank entry %s/%s through its existing route', async (chapter, id, heading, detail) => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    const renderCrucial = vi.fn(() => <p>Old model answer</p>);
+    const renderAnswer = vi.fn(() => <p>Old brief answer</p>);
+    render(<MemoryRouter initialEntries={[`/oral/chapters/${chapter}/questions/${id}`]}>
+      <OralWorkspace oralProgress={{ mastered: {} }} profileId="bank-notes-review" onQuestionMastered={() => {}}
+        renderCrucial={renderCrucial} renderAnswer={renderAnswer} />
+    </MemoryRouter>);
+    const article = await screen.findByRole('article');
+    expect(within(article).getByRole('heading', { name: heading })).toBeInTheDocument();
+    expect(article.textContent).toContain(detail);
+    expect(within(article).queryAllByRole('link').every(link => link.getAttribute('href').startsWith('/oral/'))).toBe(true);
+    expect(renderCrucial).not.toHaveBeenCalled();
+    expect(renderAnswer).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
   it('keeps Chapter 13 coverage while supporting the informational revision across chapters', () => {
     const chapter = bank.filter(q => q.chapter === 13);
     expect(chapter).toHaveLength(23);
@@ -141,7 +162,7 @@ describe('Chapter 13 board revision', () => {
     const comparison = within(article).getByRole('region', { name: 'Ταξινόμηση, χρόνος και συμπτώματα' });
     expect(within(comparison).getByRole('rowheader', { name: 'Οξεία διαταραχή στρες — DSM-5-TR' })).toBeInTheDocument();
     expect(within(comparison).getByRole('rowheader', { name: 'Οξεία αντίδραση στρες — ICD-11' })).toBeInTheDocument();
-    expect(within(article).getAllByRole('link').every(link => link.getAttribute('href').startsWith('/oral/'))).toBe(true);
+    expect(within(article).queryAllByRole('link').every(link => link.getAttribute('href').startsWith('/oral/'))).toBe(true);
     expect(renderAnswer).not.toHaveBeenCalled();
     vi.restoreAllMocks();
   });

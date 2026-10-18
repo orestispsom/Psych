@@ -4,8 +4,36 @@ import previous from './oral';
 import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
 import { buildOralBank } from './oralChapters';
+import bankClinicalNotes from './oralBankClinicalNotes';
+import bankEthicsNotes from './oralBankEthicsNotes';
+import bankPharmacologyNotes from './oralBankPharmacologyNotes';
 
 describe('oral source review traceability', () => {
+  it('finishes the 75 bank-only conversions and renders structured notes for the whole bank', () => {
+    const additions = [...Object.keys(bankClinicalNotes), ...Object.keys(bankEthicsNotes), ...Object.keys(bankPharmacologyNotes)];
+    expect(additions).toHaveLength(75);
+    expect(new Set(additions).size).toBe(75);
+    const bank = buildOralBank(previous, clinical, crucial);
+    expect(bank).toHaveLength(370);
+    expect(new Set(bank.map(q => q.id)).size).toBe(370);
+    expect(additions.every(id => bank.some(q => q.id === id))).toBe(true);
+    for (const q of bank) {
+      expect(q.studyNotes?.hideSources, q.id).toBe(true);
+      expect(q.studyNotes?.sections.length, q.id).toBeGreaterThan(0);
+      for (const section of q.studyNotes.sections) {
+        expect(section.title, q.id).toBeTruthy();
+        expect(section.paragraphs?.length || section.items?.length || section.table?.rows.length, `${q.id}: ${section.title}`).toBeGreaterThan(0);
+        if (section.table) {
+          expect(section.table.rows.every(row => row.length === section.table.columns.length), q.id).toBe(true);
+        }
+      }
+    }
+    const displayed = id => JSON.stringify(bank.find(q => q.id === id).studyNotes);
+    expect(displayed('oral_core_018_fu04')).toContain('πλήρη κλινική ανάρρωση');
+    expect(displayed('oral_core_018_fu05')).toContain('αντιπυρετικά δεν');
+    expect(displayed('Q83')).toContain('5 ημιζωές');
+    expect(displayed('Q8')).toContain('δεν αποτελεί αυτοτελές θεσπισμένο ελληνικό νομικό τεστ');
+  });
   it('accounts for each inventoried source occurrence without candidate-only matches', () => {
     const keys = review.occurrences.map(x => `${x.source}:${x.paragraph}`);
     expect(new Set(keys).size).toBe(keys.length);

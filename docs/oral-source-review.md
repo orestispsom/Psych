@@ -80,3 +80,30 @@ Targeted factual checks supplement the supplied document without adding referenc
 Validation for this pass: targeted rendering and source-map tests, baseline/structure checks, full suite, build and production verification are recorded in its PR. The source-map test now requires study notes for **every** mapped destination, beyond the crucial-question subset. Counts establish coverage and format, not independent specialist certification. The four question-mark-only recalls remain unrecoverable.
 
 Final local results for the remaining-destination pass: **165 tests passed, 2 existing skips** with the documented command-line allowance; build and source validator passed. Standard CI and exact-commit production verification are publication gates.
+
+
+## Whole-bank informational notes completion
+
+This follow-on converts the **75 remaining legacy entries**, compared with main `82fd137f517f526beadc55bdb273953b45e87ace`. These are existing bank questions outside the supplied-recall requirement map; this pass does **not** recategorize them as confirmed real-exam recalls. All **370 active entries** now have informational study notes. The 26 Oxford chapters, question IDs, archived legacy fields, retirement redirects and progress keys are preserved.
+
+Primary answer substrate: **ΘΕΜΑΤΑ ΚΑΙ ΑΠΑΝΤΗΣΕΙΣ**, especially its psychopathology, assessment/ethics, anxiety/OCD, mood/psychosis, dementia and biological-treatment sections. Existing reviewed material is reused for overlapping topics. The new displayed answers combine explanatory Greek prose and comparison tables, without first-person oral scripts, examiner names, visible source lists or citations. Their content was compared with previous answers and consolidated details. The four bare question marks remain unrecoverable; no question was invented to replace them.
+
+Editorial verification (references stay outside the app):
+
+- [NICE bipolar guidance](https://www.nice.org.uk/guidance/cg185/chapter/recommendations): lithium targets, baseline and follow-up monitoring; phase-specific treatment selection.
+- [Lamotrigine SmPC](https://www.medicines.org.uk/emc/product/8565/smpc): rash precautions, interactions and retitration after more than five half-lives, rather than a universal four-day rule.
+- [EMA Spravato](https://www.ema.europa.eu/en/medicines/human/EPAR/spravato): treatment context and supervised administration. Proposed plasticity pathways are distinguished from a fully established mechanism.
+- [EMA valproate review](https://www.ema.europa.eu/en/documents/referral/valproate-and-related-substances-article-31-referral-annex-ii_en.pdf): congenital and developmental risks, interpreted as population estimates rather than certain individual outcomes.
+- [NICE PTSD guidance](https://www.nice.org.uk/guidance/ng116/chapter/recommendations): comorbid alcohol/drug misuse alone does not exclude trauma-focused treatment.
+- [NICE panic guidance](https://www.nice.org.uk/guidance/cg113/chapter/Recommendations): benzodiazepines are not routine treatment of panic disorder.
+- [ASAM benzodiazepine tapering guidance](https://www.asam.org/quality-care/clinical-guidelines/benzodiazepine-tapering): physical dependence versus use disorder; individualized withdrawal rather than abrupt discontinuation.
+- [NICE dementia guidance](https://www.nice.org.uk/guidance/ng97/chapter/Recommendations/), [EMA Leqembi](https://www.ema.europa.eu/en/medicines/human/EPAR/leqembi) and [EMA Kisunla](https://www.ema.europa.eu/en/medicines/human/EPAR/kisunla): symptomatic treatment versus newer restricted early-Alzheimer therapies. EU authorization does not establish Greek availability or reimbursement.
+- [Greek Ministry of Health, Code of Medical Ethics](https://www.moh.gov.gr/articles/newspaper/nomothesia-kanonismoi/3246-nomothesia-hlektronikhs-ygeias?fdl=8083), articles 11–13 and 28: information, consent and confidentiality. Functional capacity concepts are not presented as a standalone statutory Greek test; involuntary admission is not blanket consent for treatment.
+
+Changed entries:
+
+`1Aa2`, `1Ab5`, `1Ca6`, `1Cb4`, `2Aa1`, `2Aa2`, `2Aa5`, `2Ab1`, `2Ab2`, `2Ab3`, `2Ad6`, `2C1`, `2C3`, `3A7`, `3D7`, `4A3`, `4A4`, `4B5`, `oral_core_001_fu01`, `oral_core_001_fu02`, `oral_core_001_fu03`, `oral_core_001_fu04`, `oral_core_001_fu05`, `oral_core_001_fu07`, `oral_core_002_fu03`, `oral_core_003_fu05`, `oral_core_004`, `oral_core_004_fu01`, `oral_core_004_fu02`, `oral_core_004_fu03`, `oral_core_004_fu04`, `oral_core_004_fu06`, `oral_core_004_fu07`, `oral_core_005`, `oral_core_005_fu05`, `oral_core_006_fu02`, `oral_core_006_fu04`, `oral_core_006_fu07`, `oral_core_007_fu03`, `oral_core_008`, `oral_core_008_fu05`, `oral_core_009_fu01`, `oral_core_009_fu03`, `oral_core_010_fu03`, `oral_core_010_fu05`, `oral_core_016_fu04`, `oral_core_017_fu02`, `oral_core_018_fu04`, `oral_core_018_fu05`, `oral_core_019_fu02`, `oral_core_019_fu03`, `oral_core_019_fu04`, `oral_core_020_fu01`, `oral_core_020_fu02`, `oral_core_020_fu05`, `oral_core_021`, `oral_core_021_fu01`, `oral_core_021_fu02`, `oral_core_021_fu03`, `oral_core_021_fu05`, `oral_core_030_fu03`, `oral_core_030_fu04`, `oral_core_031_fu02`, `oral_core_031_fu03`, `oral_core_033_fu03`, `oral_core_038`, `Q8`, `Q20`, `Q57`, `Q74`, `Q75`, `Q83`, `Q84`, `Q94`, `Q98`.
+
+Validation: whole-bank structured-content checks and existing source-ledger tests, route/render checks for clinical, ethics and pharmacology entries, fixed-baseline comparison, full suite, build, source validator and publication checks. Results are recorded in the PR. Coverage and automated checks are not independent specialist certification.
+
+Local completion checks: **169 tests passed, 2 existing skips** using the previously documented CLI timeout allowance (repository settings unchanged); build/offline cache, source validator and exact-75 baseline comparison passed. Standard CI and exact-commit production deployment remain publication gates.
