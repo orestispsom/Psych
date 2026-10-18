@@ -95,4 +95,34 @@ describe('Chapter 13 board revision', () => {
     const sleep = index.find(x => x.scope === 'oral' && x.state.oralQuestionId === 'ch13_sleep_differential');
     expect(sleep.body).toContain('κορεσμού τρανσφερρίνης');
   });
+
+  it('opens the recovered DAT question and preserves completion using its stable ID', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    const mastered = vi.fn();
+    const renderCrucial = vi.fn(() => <p>Old model answer</p>);
+    render(<MemoryRouter initialEntries={['/oral/chapters/14/questions/exam_dat_scan']}>
+      <OralWorkspace oralProgress={{ mastered: {} }} profileId="dat-review" onQuestionMastered={mastered}
+        renderCrucial={renderCrucial} renderAnswer={() => null} />
+    </MemoryRouter>);
+    const article = await screen.findByRole('article');
+    expect(within(article).getByRole('heading', { name: 'Έλεγχος φαρμάκων πριν από την εξέταση' })).toBeInTheDocument();
+    expect(within(article).getByText(/Δεν διακόπτονται συλλήβδην/)).toBeInTheDocument();
+    expect(within(article).queryByRole('link')).not.toBeInTheDocument();
+    await userEvent.setup().click(within(article).getByRole('button', { name: 'Ολοκληρώθηκε' }));
+    expect(mastered).toHaveBeenCalledWith('exam_dat_scan', true);
+    expect(renderCrucial).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
+  it('indexes the added follow-up detail while retaining the older core answer', async () => {
+    const index = await getSearchIndex();
+    const body = id => index.find(x => x.scope === 'oral' && x.state.oralQuestionId === id).body;
+    expect(body('3D8')).toContain('Φυσιολογικό πένθος');
+    expect(body('3D8')).toContain('άρνηση–θυμός–διαπραγμάτευση');
+    expect(body('Q64')).toContain('Πώς εφαρμόζεται η CBT-E');
+    expect(body('Q64')).toContain('60 mg/ημέρα');
+    expect(body('Q78')).toContain('τρία από τα πέντε');
+    expect(body('Q80')).toContain('Συναισθηματική άμβλυνση');
+    expect(body('exam_stabilizers')).toContain('4–12 μg/mL');
+  });
 });

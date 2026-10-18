@@ -168,7 +168,7 @@ describe("golden path smoke tests", () => {
     expect(screen.queryByRole('link', { name: /Πότε μπορεί ένας ασθενής να νοσηλευτεί ακούσια/ })).not.toBeInTheDocument();
     await user.click(within(related).getByRole('link', { name: 'Περιγράψτε την κλινική εικόνα και τη διάγνωση της σχιζοφρένειας.' }));
     expect(window.location.pathname).toBe('/oral/chapters/11/questions/Q12');
-    expect(await screen.findByRole('heading', { name: 'Πρότυπη προφορική απάντηση' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Διάγνωση και χρονικά όρια' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Περιγράψτε την κλινική εικόνα και τη διάγνωση της σχιζοφρένειας.' })).toBeInTheDocument();
   });
   it('does not show a bipolar model response under a statistics question', async () => {

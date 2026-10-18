@@ -1,6 +1,7 @@
 import { prose, bullets, table, study, classification, eeg } from './oralExamStudyNotes';
 import { bipolarBiology, bipolarCognition, depressionCourse } from './oralExamMoodPsychosis';
 import { antidepressants, hepatic, flumazenil, stimulation } from './oralExamPharmacology';
+import { datScanNotes, stabilizerNotes, psychodynamicNotes } from './oralExamFollowupNotes';
 
 const opioidReceptors = study(
   prose('Υποδοχείς και κυτταρική δράση', 'Οι κλασικοί οπιοειδείς υποδοχείς μ, δ και κ είναι συζευγμένοι με πρωτεΐνες Gi/o. Η ενεργοποίησή τους μειώνει την αδενυλική κυκλάση, περιορίζει την προσυναπτική είσοδο ασβεστίου και αυξάνει τη μετασυναπτική αγωγιμότητα καλίου, με αναστολή νευρωνικής δραστηριότητας και απελευθέρωσης νευροδιαβιβαστών.'),
@@ -88,4 +89,7 @@ export const extraQuestions = [
   { id: 'exam_flumazenil', chapter: 25, text: 'Ποια είναι η θέση της φλουμαζενίλης σε μικτή υπερδοσολογία βενζοδιαζεπινών και τρικυκλικών;', studyNotes: flumazenil },
   { id: 'exam_stimulation', chapter: 25, text: 'Πώς συγκρίνονται ECT, rTMS, tDCS, VNS και DBS ως προς τεχνική, ενδείξεις και κινδύνους;', studyNotes: stimulation },
   { id: 'exam_eeg', chapter: 3, text: 'Τι πληροφορίες παρέχουν το ΗΕΓ και τα προκλητά δυναμικά στην ψυχιατρική και ποια είναι τα διαγνωστικά τους όρια;', studyNotes: eeg },
+  { id: 'exam_dat_scan', chapter: 14, text: 'Τι δείχνει το DAT-SPECT και ποια φάρμακα χρειάζονται έλεγχο πριν από την εξέταση;', studyNotes: datScanNotes },
+  { id: 'exam_stabilizers', chapter: 25, text: 'Ποιοι είναι οι μηχανισμοί δράσης και τα επίπεδα ορού των βασικών σταθεροποιητών διάθεσης;', studyNotes: stabilizerNotes },
+  { id: 'exam_psychodynamic', chapter: 24, text: 'Πώς διαφέρουν η ψυχανάλυση και η ψυχοδυναμική ψυχοθεραπεία και ποιες τεχνικές χρησιμοποιούν;', studyNotes: psychodynamicNotes },
 ].map(q => ({ ...q, kind: 'past', context: 'Προηγούμενα προφορικά θέματα' }));

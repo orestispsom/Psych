@@ -16,6 +16,8 @@ import examClinicalExpansions, { appendSections } from './oralExamClinicalExpans
 import { extraQuestions } from './oralExamAdditionalContent';
 import examFoundations from './oralExamFoundations';
 import examCarePlans from './oralExamCarePlans';
+import examFollowupNotes, { followupSections } from './oralExamFollowupNotes';
+import examDiagnosticNotes from './oralExamDiagnosticNotes';
 
 const revisionNotes = {
   ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
@@ -24,6 +26,7 @@ const revisionNotes = {
   ...examStudyNotes, ...examMoodPsychosis, ...examPharmacology, ...examClinicalExpansions,
   ...examFoundations,
   ...examCarePlans,
+  ...examFollowupNotes, ...examDiagnosticNotes,
 };
 
 for (const [id, sections] of Object.entries(appendSections)) {
@@ -176,7 +179,14 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
   return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
-    .map(q => ({ ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
-      ...((revisionNotes[q.id] || q.studyNotes) ? { studyNotes: { ...(revisionNotes[q.id] || q.studyNotes), hideSources: true } } : {}),
-    }));
+    .map(q => {
+      const base = revisionNotes[q.id] || q.studyNotes;
+      const extra = followupSections[q.id];
+      // Follow-ups extend the displayed answer, preserving older plain text.
+      const sections = base?.sections || (extra ? [{ title: 'Κύρια στοιχεία', paragraphs: [q.answer] }] : []);
+      return { ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
+        ...((base || extra) ? { studyNotes: { ...base, hideSources: true,
+          sections: [...sections, ...(extra || [])] } } : {}),
+      };
+    });
 }
