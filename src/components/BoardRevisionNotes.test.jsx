@@ -114,6 +114,22 @@ describe('Chapter 13 board revision', () => {
     vi.restoreAllMocks();
   });
 
+  it('displays the mixed-overdose warning through the revised crucial route', async () => {
+    const renderCrucial = vi.fn(() => <p>Old model answer</p>);
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    render(<MemoryRouter initialEntries={['/oral/chapters/25/questions/Q88']}>
+      <OralWorkspace oralProgress={{ mastered: {} }} profileId="overdose-review" onQuestionMastered={() => {}}
+        renderCrucial={renderCrucial} renderAnswer={() => null} />
+    </MemoryRouter>);
+    const article = await screen.findByRole('article');
+    expect(within(article).getByRole('heading', { name: 'Μικτή αμιτριπτυλίνη και βενζοδιαζεπίνη' })).toBeInTheDocument();
+    expect(within(article).getByText(/Η φλουμαζενίλη αποφεύγεται/)).toBeInTheDocument();
+    expect(within(article).getByText(/QRS >100 ms/)).toBeInTheDocument();
+    expect(within(article).queryByRole('link')).not.toBeInTheDocument();
+    expect(renderCrucial).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
   it('indexes the added follow-up detail while retaining the older core answer', async () => {
     const index = await getSearchIndex();
     const body = id => index.find(x => x.scope === 'oral' && x.state.oralQuestionId === id).body;
