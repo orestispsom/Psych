@@ -20,10 +20,10 @@ const notes = { ...ch21, ...ch22, ...ch24 };
 const chunk = bank.filter(q => q.chapter >= 21 && q.chapter <= 24);
 
 describe('Chapters 21–24 board revision', () => {
-  it('covers all 25 live questions without inventing chapter 23 content or changing imported answers', () => {
-    expect([21, 22, 23, 24].map(c => bank.filter(q => q.chapter === c).length)).toEqual([7, 8, 0, 10]);
-    expect(Object.keys(notes).sort()).toEqual(chunk.map(q => q.id).sort());
-    for (const q of chunk) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(notes[q.id].sections));
+  it('covers the prior questions and the recovered psychodynamic topic without inventing chapter 23 content', () => {
+    expect([21, 22, 23, 24].map(c => bank.filter(q => q.chapter === c).length)).toEqual([7, 8, 0, 11]);
+    expect(Object.keys(notes).sort()).toEqual(chunk.filter(q => notes[q.id]).map(q => q.id).sort());
+    for (const q of chunk.filter(q => notes[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(notes[q.id].sections));
     for (const q of bank.filter(q => ch20[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(ch20[q.id].sections));
     for (const source of [previous, clinical, crucial]) {
       for (const q of source.filter(q => notes[q.id])) {

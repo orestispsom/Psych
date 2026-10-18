@@ -18,8 +18,8 @@ describe('Chapter 14 revision notes', () => {
   const bank = buildOralBank(previous, clinical, crucial);
   const chapter = bank.filter(q => q.chapter === 14);
 
-  it('revises all 32 active questions while preserving imported answer fields and stable IDs', () => {
-    expect(chapter).toHaveLength(32);
+  it('revises all 33 active questions while preserving imported answer fields and stable IDs', () => {
+    expect(chapter).toHaveLength(33);
     expect(Object.keys(notes).sort()).toEqual(chapter.filter(q => notes[q.id]).map(q => q.id).sort());
     expect(bank.filter(q => q.studyNotes).every(q => q.studyNotes.hideSources)).toBe(true);
     for (const q of bank.filter(q => q.chapter === 13 && q.id !== 'Q67')) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(chapter13[q.id].sections));
