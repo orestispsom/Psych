@@ -130,6 +130,22 @@ describe('Chapter 13 board revision', () => {
     vi.restoreAllMocks();
   });
 
+  it('shows the classification distinction in a revised past-exam answer', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    const renderAnswer = vi.fn(() => <p>Old brief answer</p>);
+    render(<MemoryRouter initialEntries={['/oral/chapters/7/questions/3A4']}>
+      <OralWorkspace oralProgress={{ mastered: {} }} profileId="stress-recall-review" onQuestionMastered={() => {}}
+        renderCrucial={() => null} renderAnswer={renderAnswer} />
+    </MemoryRouter>);
+    const article = await screen.findByRole('article');
+    const comparison = within(article).getByRole('region', { name: 'Ταξινόμηση, χρόνος και συμπτώματα' });
+    expect(within(comparison).getByRole('rowheader', { name: 'Οξεία διαταραχή στρες — DSM-5-TR' })).toBeInTheDocument();
+    expect(within(comparison).getByRole('rowheader', { name: 'Οξεία αντίδραση στρες — ICD-11' })).toBeInTheDocument();
+    expect(within(article).getAllByRole('link').every(link => link.getAttribute('href').startsWith('/oral/'))).toBe(true);
+    expect(renderAnswer).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
   it('indexes the added follow-up detail while retaining the older core answer', async () => {
     const index = await getSearchIndex();
     const body = id => index.find(x => x.scope === 'oral' && x.state.oralQuestionId === id).body;
