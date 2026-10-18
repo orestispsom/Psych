@@ -21,6 +21,9 @@ import examDiagnosticNotes from './oralExamDiagnosticNotes';
 import examAssessmentNotes from './oralExamAssessmentNotes';
 import examTreatmentNotes from './oralExamTreatmentNotes';
 import examRecallNotes from './oralExamRecallNotes';
+import bankClinicalNotes from './oralBankClinicalNotes';
+import bankEthicsNotes from './oralBankEthicsNotes';
+import bankPharmacologyNotes from './oralBankPharmacologyNotes';
 
 const revisionNotes = {
   ...chapterThirteenNotes, ...chapterFourteenNotes, ...chapterFifteenNotes,
@@ -32,6 +35,7 @@ const revisionNotes = {
   ...examFollowupNotes, ...examDiagnosticNotes,
   ...examAssessmentNotes, ...examTreatmentNotes,
   ...examRecallNotes,
+  ...bankClinicalNotes, ...bankEthicsNotes, ...bankPharmacologyNotes,
 };
 
 for (const [id, sections] of Object.entries(appendSections)) {
