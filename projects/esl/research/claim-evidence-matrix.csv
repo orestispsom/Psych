@@ -1,0 +1,14 @@
+claim_id,section,claim,source_ids,evidence_location,status,notes
+C01,Verified starting points,The DSM-5 study reports 628 distinct symptoms from 1419 entries across 202 diagnostic constructs.,S01,Results,reported,Counts reflect the authors coding choices.
+C02,Verified starting points,The inventory is adult-relevant DSM-5 criteria rather than proven DSM-5-TR or ICD coverage.,S01,Method; Footnote 1,reported,Child-only symptoms and specialized-test signs excluded; OSF dataset not audited.
+C03,Verified starting points,The later study derives a hierarchy from 14762 participants self-reports.,S02,Abstract; Method,reported,An empirical study-specific framework.
+C04,Verified starting points,AMDP offers operational clinical descriptions with edition-specific item counts.,S03;S04,Catalogue edition headings; preview p.x,reported,English ninth-edition counts must not be assigned to German eleventh edition.
+C05,Verified starting points,The AMDP preface identifies SCAN as a systematic assessment with elicitation and rating guidance.,S04,Preface pp.v-vi; reference p.vii,reported,Current SCAN coverage and access not verified.
+C06,Verified starting points,HiTOP provides a dimensional hierarchy and publishes a working model with revision resources.,S02;S05,Introduction pp.463-464; Current Model page,reported,No exhaustive dictionary or version-specific mapping claim.
+C07,Verified starting points,Tio and colleagues compare manual-derived symptom networks for ICD-10 and DSM-IV-TR.,S06,Abstract; Method,reported,Network edges from shared diagnostic criteria do not establish causality.
+C08,Verified starting points,APA Level 1 cross-cutting surveys cover 13 adult and 12 child/adolescent domains.,S07,About the Measures,reported,Brief assessments do not establish exhaustive coverage.
+C09,Verified starting points,HPO supplies a structured hierarchical phenotype terminology.,S08,Overview,reported,Psychiatric coverage not audited.
+C10,Verified starting points,SYMP describes symptoms and intended signs coverage and states CC0 availability.,S09,Repository description,reported,No term-level extraction or coverage audit.
+C11,Verified starting points,NIMH describes RDoC as a research framework with an illustrative evolving matrix.,S10,What is RDoC?,reported,Not an exhaustive inventory or diagnostic guide.
+C12,Diagnostic references,WHO publishes separate ICD-10 clinical guidelines and ICD-11 CDDR.,S11;S12,Publication titles; Overview; dates,reported,Official publication records only; not full-content audits.
+C13,Proposed approach,A reconciled inventory with multiple category mappings is a promising ESL design.,S01;S02;S04;S05,Cross-source synthesis,inferred,Recommendation requiring pilot review; no adopted schema or clinical authority.
