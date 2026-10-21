@@ -7904,8 +7904,9 @@ function DifferentialDiagnosisCard({ entry }) {
   );
 }
 
-function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, searchNoun = ["καταχώρηση", "καταχωρήσεις"], countNoun = ["καταχώρηση", "καταχωρήσεις"] }) {
+function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery, onBack, onHome, renderAnswer = null, inlineExpandable = false, searchNoun = ["καταχώρηση", "καταχωρήσεις"], countNoun = ["καταχώρηση", "καταχωρήσεις"] }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [expandedEntries, setExpandedEntries] = useState({});
   const [query, setQuery] = useState("");
   const [viewMode, setViewMode] = useState("list"); // "list" | "flashcards"
   const [drillIndex, setDrillIndex] = useState(0);
@@ -8294,13 +8295,36 @@ function SosEntrySection({ title, section, entries, sosProgress, onToggleMastery
                 return (
                   <div className="item" key={entry.id}>
                     <span className="item-num">{String(index + 1).padStart(2, "0")}</span>
-                    <button
-                      className="item-body sos-list-open"
-                      type="button"
-                      onClick={() => setSelectedIndex(index)}
-                    >
-                      <span className="item-title">{entry.title}</span>
-                    </button>
+                    {inlineExpandable ? (
+                      <div className="item-body sos-inline-entry">
+                        <button
+                          className="sos-list-open sos-inline-trigger"
+                          type="button"
+                          aria-expanded={Boolean(expandedEntries[entry.id])}
+                          aria-controls={`sos-inline-answer-${entry.id}`}
+                          onClick={() => setExpandedEntries(current => ({
+                            ...current,
+                            [entry.id]: !current[entry.id],
+                          }))}
+                        >
+                          <span className="item-title">{entry.title}</span>
+                          <span className="sos-inline-caret" aria-hidden="true">{expandedEntries[entry.id] ? "−" : "+"}</span>
+                        </button>
+                        {expandedEntries[entry.id] && (
+                          <div className="sos-detail-answer sos-inline-answer" id={`sos-inline-answer-${entry.id}`}>
+                            {renderAnswer ? renderAnswer(entry) : renderStructuredSosContent(entry.answer)}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        className="item-body sos-list-open"
+                        type="button"
+                        onClick={() => setSelectedIndex(index)}
+                      >
+                        <span className="item-title">{entry.title}</span>
+                      </button>
+                    )}
                     <span className="item-side">
                       <ScaleStrip
                         level={entryMastered ? 1 : 0}
@@ -9593,6 +9617,7 @@ export default function App() {
           <SosEntrySection
             title="Αριθμοί που πρέπει να θυμάμαι"
             section="numbers"
+            inlineExpandable
             entries={sosStudyData.numbers}
             sosProgress={sosProgress}
             onToggleMastery={setSosEntryMastered}

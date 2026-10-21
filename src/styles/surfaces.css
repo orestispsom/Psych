@@ -2469,6 +2469,26 @@ input.crucial-search::placeholder { color: var(--ink-3); }
   color: inherit;
 }
 
+/* Numbers: independent inline answer toggles, without leaving the list. */
+.sos-inline-entry { align-content: start; }
+.sos-inline-trigger {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  cursor: pointer;
+}
+.sos-inline-caret {
+  color: var(--ink-3);
+  font-family: var(--ui);
+  font-size: var(--t-item);
+  padding-inline: var(--s2);
+}
+.sos-inline-answer {
+  min-width: 0;
+  max-width: 100%;
+  margin: var(--s1) 0 var(--s2);
+  overflow-wrap: anywhere;
+}
+
 /* ═══ SOS DIFFERENTIAL DIAGNOSIS (SIDE-BY-SIDE) ══════════════ */
 
 .diff-view {
