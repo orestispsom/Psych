@@ -48,9 +48,9 @@ export function recordTopicCoverage(progress, topic, questionId, questions, sele
   };
 }
 
-export function startNextTopicCycle(progress, topic, questions) {
+export function startNextTopicCycle(progress, topic, questions, reset = false) {
   const cycle = getTopicCycle(progress, topic, questions);
-  if (!cycle.isComplete) return progress;
+  if (!reset && !cycle.isComplete) return progress;
   const now = new Date().toISOString();
   const categoryDrafts = { ...(progress.categoryDrafts || {}) };
   delete categoryDrafts[topic];

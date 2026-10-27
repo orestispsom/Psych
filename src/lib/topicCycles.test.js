@@ -51,3 +51,12 @@ it('merges remote coverage and honours a full progress reset', () => {
   expect(mergeLegacyAndSessionProgress(legacy, session).topicCycles.topic.coveredQuestionIds).toEqual(['1', '2']);
   expect(mergeLegacyAndSessionProgress(legacy, { ...session, state: { resetAt: session.updated_at, topicCycles: {} } }).topicCycles).toEqual({});
 });
+
+
+it('an explicit partial reset advances the round so stale synced coverage cannot return', () => {
+  const original = recordTopicCoverage({}, 'topic', 1, questions);
+  const reset = startNextTopicCycle(original, 'topic', questions, true);
+  expect(getTopicCycle(reset, 'topic', questions)).toMatchObject({ round: 2, completed: 0 });
+  expect(mergeTopicCycles(reset.topicCycles, original.topicCycles).topic.coveredQuestionIds).toEqual([]);
+  expect(mergeTopicCycles(original.topicCycles, reset.topicCycles).topic.coveredQuestionIds).toEqual([]);
+});

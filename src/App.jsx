@@ -2269,6 +2269,8 @@ function normalizeCategoryDraft(topic, draft) {
   return {
     sessionId: draft.sessionId || makeCategorySessionId(),
     topic,
+    round: Math.max(1, Number(draft.round) || 1),
+    chunkSize: [10, 25, 50, "all"].includes(draft.chunkSize) ? draft.chunkSize : 25,
     questionIds,
     currentIdx,
     answers,
@@ -2299,6 +2301,7 @@ function getCategoryDraft(progress, topic) {
   const draft = normalizeCategoryDraft(topic, progress?.categoryDrafts?.[topic]);
   if (!draft) return null;
   const cycle = getTopicCycle(progress, topic, getQuestionsForMcqTopic(topic));
+  if (draft.round !== cycle.round) return null;
   const remainingIds = new Set(cycle.remainingQuestions.map(question => String(question.id)));
   const questionIds = draft.questionIds.filter(id => remainingIds.has(String(id)));
   if (!questionIds.length) return null;
@@ -2317,6 +2320,8 @@ function getCategoryDraftQuestions(draft) {
 }
 
 function createCategoryDraft(topic, questions, {
+  round = 1,
+  chunkSize = 25,
   sessionId = makeCategorySessionId(),
   currentIdx = 0,
   answers = {},
@@ -2328,6 +2333,8 @@ function createCategoryDraft(topic, questions, {
   return normalizeCategoryDraft(topic, {
     sessionId,
     topic,
+    round,
+    chunkSize,
     questionIds: questions.map(question => question.id),
     currentIdx,
     answers,
@@ -3427,7 +3434,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
             key={mode.id}
             type="button"
             className={`mode-tile ${mode.tileClass || ''}`}
-            onClick={() => ['sprint', 'weakness', 'category'].includes(mode.id) ? setPickerMode(mode.id) : onStart(mode.id)}
+            onClick={() => ['sprint', 'weakness'].includes(mode.id) ? setPickerMode(mode.id) : onStart(mode.id)}
           >
             <span className="mode-tile-icon" aria-hidden="true">{mode.icon}</span>
             <span className="mode-tile-body">
@@ -3445,7 +3452,7 @@ function McqSelect({ onBack, onStart, onHome, progressSummary, writtenExamSessio
           <h3 id="mini-test-title">{modes.find(mode => mode.id === pickerMode)?.title}</h3>
           <p>Πόσες ερωτήσεις θέλεις να απαντήσεις;</p>
           <div className="mini-test-sizes">
-            {(pickerMode === 'category' ? [10, 25, 50, 'all'] : [10, 25, 50, 100]).map(count => (
+            {[10, 25, 50, 100].map(count => (
               <button key={count} type="button" className="results-btn" onClick={() => {
                 setPickerMode(null);
                 onStart(pickerMode, count);
@@ -4619,8 +4626,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [writtenSubmitError, setWrittenSubmitError] = useState(null);
   const [writtenDraftChoice, setWrittenDraftChoice] = useState(() => mode === "written" && Boolean(initialWrittenDraftRef.current) ? "choice" : "active");
   const [categoryDraftChoice, setCategoryDraftChoice] = useState(() =>
-    mode === "category" && Boolean(initialCategoryDraftRef.current) ? "choice" : "active"
+    mode === "category" ? "choice" : "active"
   );
+  const [categoryChunkSize, setCategoryChunkSize] = useState(initialCategoryDraftRef.current?.chunkSize || 25);
+  const [confirmCategoryReset, setConfirmCategoryReset] = useState(false);
   const [flaggedIds, setFlaggedIds] = useState(() => new Set());
   const [showSimTray, setShowSimTray] = useState(true);
   const [showMobileSimTray, setShowMobileSimTray] = useState(false);
@@ -4744,6 +4753,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     const draftQuestions = overrides.questions || questions;
     const nextLocked = overrides.locked || locked;
     return createCategoryDraft(sessionTitle, draftQuestions, {
+      round: categoryCycle.round,
+      chunkSize: categoryChunkSize,
       sessionId: overrides.sessionId || sessionIdRef.current,
       currentIdx: overrides.currentIdx ?? currentIdx,
       answers: overrides.answers || answers,
@@ -4752,7 +4763,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       sessionStats: overrides.sessionStats || sessionStats,
       startedAt: overrides.startedAt || categoryStartedAtRef.current,
     });
-  }, [answers, currentIdx, locked, mode, optionOrders, questions, sessionStats, sessionTitle]);
+  }, [answers, currentIdx, locked, mode, optionOrders, questions, sessionStats, sessionTitle, categoryChunkSize, categoryCycle?.round]);
 
   const persistCategoryDraft = useCallback((overrides = {}) => {
     if (mode !== "category" || !sessionTitle) return;
@@ -5405,11 +5416,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     persistWrittenDraft();
   }, [persistWrittenDraft]);
 
-  const startNewCategory = useCallback(() => {
+  const startNewCategory = useCallback((count = categoryChunkSize, reset = false) => {
     if (mode !== "category" || !sessionTitle) return;
     const allTopicQuestions = getQuestionsForMcqTopic(sessionTitle);
-    const nextProgress = categoryCycle?.isComplete ? startNextTopicCycle(progress, sessionTitle, allTopicQuestions) : progress;
-    const nextQuestions = selectTopicPracticeQuestions(allTopicQuestions, nextProgress, qualitySignals, sessionTitle);
+    const nextProgress = reset || categoryCycle?.isComplete ? startNextTopicCycle(progress, sessionTitle, allTopicQuestions, reset) : progress;
+    const nextQuestions = selectTopicPracticeQuestions(allTopicQuestions, nextProgress, qualitySignals, sessionTitle).slice(0, count === "all" ? Infinity : count);
     const nextSessionId = makeCategorySessionId();
     const nextOptionOrders = createOptionOrders(nextQuestions);
     const nextStartedAt = new Date().toISOString();
@@ -5422,6 +5433,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       points: 0,
     };
     const nextDraft = createCategoryDraft(sessionTitle, nextQuestions, {
+      round: getTopicCycle(nextProgress, sessionTitle, allTopicQuestions).round,
+      chunkSize: count,
       sessionId: nextSessionId,
       currentIdx: 0,
       answers: {},
@@ -5447,15 +5460,17 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackStatus(null);
     setFeedbackCommentOpen(false);
     setFeedbackCommentText("");
+    setCategoryChunkSize(count);
+    setConfirmCategoryReset(false);
     setCategoryDraftChoice("active");
     if (nextDraft) {
       onProgressChange(prev => {
-        const base = categoryCycle?.isComplete ? startNextTopicCycle(prev, sessionTitle, allTopicQuestions) : prev;
+        const base = reset || categoryCycle?.isComplete ? startNextTopicCycle(prev, sessionTitle, allTopicQuestions, reset) : prev;
         return saveCategoryDraft(clearCategoryDraft(base, sessionTitle), sessionTitle, nextDraft);
       });
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [mode, onProgressChange, progress, qualitySignals, sessionTitle, categoryCycle?.isComplete]);
+  }, [mode, onProgressChange, progress, qualitySignals, sessionTitle, categoryCycle?.isComplete, categoryChunkSize]);
 
   const continueCategory = useCallback(() => {
     setCategoryDraftChoice("active");
@@ -5509,55 +5524,38 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       <p>Απάντησες σε όλες τις ερωτήσεις της κατηγορίας. Ο επόμενος κύκλος ξεκινά από την αρχή, με διατήρηση της συνολικής επίδοσης και του mastery.</p>
       <div className="results-actions">
         {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})</button>}
-        <button type="button" className="results-btn primary" onClick={startNewCategory}>Έναρξη επόμενου κύκλου</button>
+        <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Έναρξη επόμενου κύκλου</button>
         <button type="button" className="results-btn" onClick={onBack}>Κατηγορίες</button>
       </div>
     </div>;
   }
 
   if (mode === "category" && categoryDraftChoice === "choice") {
-    const draftUpdatedAt = initialCategoryDraftRef.current?.updatedAt
-      ? new Date(initialCategoryDraftRef.current.updatedAt).toLocaleString("el-GR")
-      : null;
-
+    const hasPendingDraft = questions.length > 0 && questions.some(question => !locked[question.id]) && progress.categoryDrafts?.[sessionTitle]?.sessionId === sessionIdRef.current;
     return (
       <div className="test-container">
-        <button className="back-link" onClick={onBack}>
-          <Icons.ChevronLeft /> Κατηγορίες
-        </button>
-
+        <button className="back-link" onClick={onBack}><Icons.ChevronLeft /> Κατηγορίες</button>
         <div className="oral-choice">
-          <h2>{sessionTitle || "Ερωτήσεις ανά Κατηγορία"}</h2>
-          <p>Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.</p>
-          <p>{categoryCycle.completed}/{categoryCycle.total} απαντημένες · {categoryCycle.remainingQuestions.length} απομένουν · Κύκλος {categoryCycle.round}</p>
-          <div className="game-hud">
-            <div className="hud-stat">
-              <span className="hud-value">{currentIdx + 1}</span>
-              <span className="hud-label">Τρέχουσα</span>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-value">{categoryCycle.completed}</span>
-              <span className="hud-label">Απαντημένες στον κύκλο</span>
-            </div>
-            <div className="hud-stat">
-              <span className="hud-value">{categoryCycle.total}</span>
-              <span className="hud-label">Σύνολο κατηγορίας</span>
-            </div>
-          </div>
-          {draftUpdatedAt && (
-            <div className="explanation-box">
-              <strong>Αποθηκευμένη πρόοδος</strong>
-              Τελευταία ενημέρωση: {draftUpdatedAt}
-            </div>
-          )}
-          <button className="mode-btn featured" onClick={continueCategory}>
+          <h2>{sessionTitle}</h2>
+          <p className="category-cycle-status" role="status">{categoryCycle.completed}/{categoryCycle.total} απαντημένες · {categoryCycle.remainingQuestions.length} απομένουν · Κύκλος {categoryCycle.round}</p>
+          <p>Η πρόοδος αυτής της κατηγορίας αποθηκεύεται με την καταχώρηση κάθε απάντησης. Οι επόμενες ομάδες περιέχουν μόνο μη απαντημένες ερωτήσεις.</p>
+          {hasPendingDraft && <button className="mode-btn featured" onClick={continueCategory}>
             Συνέχεια από την ερώτηση {currentIdx + 1}
-            <small>Συνέχισε με την ίδια σειρά ερωτήσεων και τις αποθηκευμένες απαντήσεις.</small>
-          </button>
-          <button className="mode-btn" onClick={startNewCategory}>
-            Νέα σειρά μόνο των μη απαντημένων
-            <small>Η κάλυψη του κύκλου διατηρείται. Ανακάτεψε μόνο τις ερωτήσεις που απομένουν.</small>
-          </button>
+            <small>Συνέχισε την αποθηκευμένη ομάδα ερωτήσεων.</small>
+          </button>}
+          <h3>Πόσες ερωτήσεις θέλεις να απαντήσεις;</h3>
+          <div className="mini-test-sizes" role="group" aria-label="Μέγεθος ομάδας ερωτήσεων">
+            {[10, 25, 50, 'all'].map(count => <button key={count} type="button" className="results-btn" onClick={() => startNewCategory(count)}>
+              {count === 'all' ? 'Όλες οι υπόλοιπες' : `${count} ερωτήσεις`}
+            </button>)}
+          </div>
+          <p>Αν απομένουν λιγότερες ερωτήσεις, θα εμφανιστούν όλες.</p>
+          {(categoryCycle.completed > 0 || hasPendingDraft) && <button type="button" className="btn btn-quiet" onClick={() => setConfirmCategoryReset(true)}>Μηδενισμός μνήμης κατηγορίας</button>}
+          {confirmCategoryReset && <div className="explanation-box" role="group" aria-label="Επιβεβαίωση μηδενισμού">
+            <p>Να ξεκινήσει νέος κύκλος για αυτή την κατηγορία; Η συνολική επίδοση, το mastery και οι άλλες κατηγορίες διατηρούνται.</p>
+            <button type="button" className="results-btn" onClick={() => startNewCategory(categoryChunkSize, true)}>Μηδενισμός και νέα ομάδα</button>
+            <button type="button" className="results-btn" onClick={() => setConfirmCategoryReset(false)}>Άκυρο</button>
+          </div>}
         </div>
       </div>
     );
@@ -6164,7 +6162,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
         )}
 
-        {mode === "category" && currentIdx === totalQ - 1 && isLocked && !categoryCycle?.isComplete && <button type="button" className="results-btn" onClick={startNewCategory}>Συνέχεια με τις {categoryCycle.remainingQuestions.length} μη απαντημένες</button>}
+        {mode === "category" && currentIdx === totalQ - 1 && isLocked && !categoryCycle?.isComplete && <div className="results-actions">
+          <p role="status">Τέλος ομάδας · {categoryCycle.remainingQuestions.length} ερωτήσεις απομένουν στην κατηγορία.</p>
+          <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Επόμενες {Math.min(categoryChunkSize === 'all' ? Infinity : categoryChunkSize, categoryCycle.remainingQuestions.length)} ερωτήσεις</button>
+          <button type="button" className="results-btn" onClick={() => startNewCategory('all')}>Όλες οι υπόλοιπες</button>
+          <button type="button" className="results-btn" onClick={() => setCategoryDraftChoice('choice')}>Αλλαγή μεγέθους ομάδας / μηδενισμός</button>
+        </div>}
         {mode !== "written" && wrongSessionQuestions.length > 0 && (
           <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
             <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})
@@ -8526,7 +8529,6 @@ export default function App() {
   const retainedMcqReviewId = screen === "mcq" ? historicalSessionId : pausedMcq?.reviewId || null;
   const retainedCountParam = new URLSearchParams(screen === "mcq" ? location.search : pausedMcq?.path?.split('?')[1]).get('count');
   const retainedPracticeSize = [10, 25, 50, 100].includes(Number(retainedCountParam)) ? Number(retainedCountParam) : WEAKNESS_SESSION_SIZE;
-  const retainedCategorySize = [10, 25, 50].includes(Number(retainedCountParam)) ? Number(retainedCountParam) : Infinity;
   const mcqSessionVisible = screen === "mcq" && Boolean(testMode);
   const handleThemePreferenceChange = useCallback((nextTheme) => {
     const normalized = normalizeThemePreference(nextTheme);
@@ -8581,7 +8583,7 @@ export default function App() {
     () => retainedMcqTopic
       ? selectTopicPracticeQuestions(getQuestionsForMcqTopic(retainedMcqTopic), mcqProgress, mcqQualitySignals, retainedMcqTopic)
       : [],
-    [retainedMcqTopic, retainedCategorySize, mcqProgress, mcqQualitySignals, questionBankStatus]
+    [retainedMcqTopic, mcqProgress, mcqQualitySignals, questionBankStatus]
   );
   const syncMessage = useMemo(() => {
     if (!ONLINE_PROFILES_ENABLED) return "Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή.";
@@ -9343,7 +9345,7 @@ export default function App() {
       suppressSprintAutoStartRef.current = false;
       setActiveSprintSessionKey(`sprint-view-${Date.now()}`);
     }
-    navigate(pathForMcqMode(mode) + (['sprint', 'weakness', 'category'].includes(mode) ? `?count=${count}` : ""));
+    navigate(pathForMcqMode(mode) + (['sprint', 'weakness'].includes(mode) ? `?count=${count}` : ""));
   }, [navigate, setSelectedMcqTopic]);
 
   const historicalSession = retainedMcqReviewId

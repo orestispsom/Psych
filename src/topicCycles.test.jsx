@@ -71,6 +71,7 @@ it('retains mistakes from a completed topic round after reload', async () => {
   } } });
   let view = mount();
   await openTopic(user, view.container);
+  await user.click(screen.getByRole('button', { name: 'Όλες οι υπόλοιπες' }));
   await waitFor(() => expect(view.container.querySelector('.mcq-q-id')).toBeTruthy());
   await user.click(within(view.container.querySelector('.options-list')).getByText(lastQuestion.options[(lastQuestion.correct + 1) % lastQuestion.options.length], { exact: true }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
@@ -94,6 +95,7 @@ it('counts only submitted answers and restores the remaining queue after leaving
   let view = mount();
   await openTopic(user, view.container);
   await waitFor(() => expect(view.container.querySelector('.category-cycle-status')).toBeTruthy());
+  await user.click(screen.getByRole('button', { name: 'Όλες οι υπόλοιπες' }));
   expect(profile().mcqProgress.topicCycles[topic].coveredQuestionIds).toEqual([]);
   const firstId = await answer(user, view.container);
   await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
@@ -111,7 +113,76 @@ it('counts only submitted answers and restores the remaining queue after leaving
   expect(profile().mcqProgress.categoryDrafts[topic].questionIds).not.toContain(firstId);
   await user.click(screen.getByRole('button', { name: 'Επιστροφή στο Μενού MCQ' }));
   await openTopic(user, view.container);
-  await user.click(await screen.findByRole('button', { name: /Νέα σειρά μόνο των μη απαντημένων/ }));
+  await user.click(await screen.findByRole('button', { name: 'Όλες οι υπόλοιπες' }));
   expect(profile().mcqProgress.categoryDrafts[topic].questionIds).not.toContain(firstId);
   expect(profile().mcqProgress.topicCycles[topic].coveredQuestionIds).toEqual([String(firstId)]);
+}, 20000);
+
+
+it('opens categories before choosing size, completes chunks without repeats, and remembers the chosen size on reload', async () => {
+  const user = userEvent.setup();
+  seed();
+  window.history.pushState({}, '', '/mcq');
+  let view = mount();
+  await user.click(await screen.findByRole('button', { name: /Ερωτήσεις ανά Κατηγορία/ }));
+  expect(screen.queryByText('Πόσες ερωτήσεις θέλεις να απαντήσεις;')).not.toBeInTheDocument();
+  await openTopic(user, view.container);
+  expect(screen.getByText('Πόσες ερωτήσεις θέλεις να απαντήσεις;')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: '25 ερωτήσεις' }));
+  const covered = [];
+  for (let index = 0; index < 25; index++) {
+    covered.push(await answer(user, view.container));
+    if (index < 24) await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
+  }
+  expect(profile().mcqProgress.topicCycles[topic].coveredQuestionIds).toHaveLength(25);
+  await user.click(screen.getByRole('button', { name: 'Επόμενες 25 ερωτήσεις' }));
+  expect(profile().mcqProgress.categoryDrafts[topic].questionIds).toHaveLength(25);
+  expect(profile().mcqProgress.categoryDrafts[topic].questionIds.some(id => covered.includes(id))).toBe(false);
+  await answer(user, view.container);
+  view.unmount();
+  window.history.pushState({}, '', '/mcq/category');
+  view = mount();
+  await openTopic(user, view.container);
+  expect(screen.getByText(new RegExp(`26/${topicQuestions.length} απαντημένες`))).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /Συνέχεια από την ερώτηση/ }));
+  expect(profile().mcqProgress.categoryDrafts[topic].chunkSize).toBe(25);
+  expect(view.container.querySelector('.mcq-q-index').textContent).toContain('24');
+}, 30000);
+
+it('keeps category memory independent and resets only the selected category with confirmation', async () => {
+  const user = userEvent.setup();
+  const otherTopic = bank.find(q => q.topic !== topic).topic;
+  const otherQuestion = bank.find(q => q.topic === otherTopic);
+  const otherCycle = { round: 3, coveredQuestionIds: [String(otherQuestion.id)], wrongQuestionIds: [] };
+  seed({ questions: { 1: { attempts: 7, masteryLevel: 5 } }, bookmarks: { 1: true }, topicCycles: {
+    [topic]: { round: 1, coveredQuestionIds: [String(topicQuestions[0].id)] }, [otherTopic]: otherCycle,
+  } });
+  const view = mount();
+  await openTopic(user, view.container);
+  await user.click(screen.getByRole('button', { name: 'Μηδενισμός μνήμης κατηγορίας' }));
+  await user.click(screen.getByRole('button', { name: 'Άκυρο' }));
+  expect(profile().mcqProgress.topicCycles[topic].coveredQuestionIds).toHaveLength(1);
+  await user.click(screen.getByRole('button', { name: 'Μηδενισμός μνήμης κατηγορίας' }));
+  await user.click(screen.getByRole('button', { name: 'Μηδενισμός και νέα ομάδα' }));
+  expect(profile().mcqProgress.topicCycles[topic]).toMatchObject({ round: 2, coveredQuestionIds: [] });
+  expect(profile().mcqProgress.topicCycles[otherTopic]).toEqual(otherCycle);
+  expect(profile().mcqProgress.questions[1]).toMatchObject({ attempts: 7, masteryLevel: 5 });
+  expect(profile().mcqProgress.bookmarks[1]).toBe(true);
+  expect(profile().mcqProgress.categoryDrafts[topic].round).toBe(2);
+}, 20000);
+
+it('caps the final chunk and offers a fresh round after all remaining questions are submitted', async () => {
+  const user = userEvent.setup();
+  seed({ topicCycles: { [topic]: { round: 1, coveredQuestionIds: topicQuestions.slice(0, -2).map(q => String(q.id)) } } });
+  const view = mount();
+  await openTopic(user, view.container);
+  await user.click(screen.getByRole('button', { name: '25 ερωτήσεις' }));
+  expect(profile().mcqProgress.categoryDrafts[topic].questionIds).toHaveLength(2);
+  await answer(user, view.container);
+  await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
+  await answer(user, view.container);
+  expect(await screen.findByText('Ο κύκλος 1 ολοκληρώθηκε')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Έναρξη επόμενου κύκλου' }));
+  expect(profile().mcqProgress.categoryDrafts[topic].questionIds).toHaveLength(25);
+  expect(profile().mcqProgress.topicCycles[topic].round).toBe(2);
 }, 20000);

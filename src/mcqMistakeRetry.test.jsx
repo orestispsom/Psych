@@ -35,6 +35,7 @@ it.each(['sprint', 'random', 'category', 'weakness', 'bookmarks', 'daily'])('ret
   if (mode === 'category') {
     await waitFor(() => expect(container.querySelector('.mcq-select .item:not([disabled])')).toBeTruthy());
     await user.click(container.querySelector('.mcq-select .item:not([disabled])'));
+    await user.click(screen.getByRole('button', { name: '25 ερωτήσεις' }));
   }
   await waitFor(() => expect(container.querySelector('.mcq-q-index')).toBeTruthy());
   const id = Number(container.querySelector('.mcq-q-id').textContent.match(/#\s*(\d+)/)[1]);

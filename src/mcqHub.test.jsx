@@ -48,13 +48,13 @@ it.each([10, 25, 50, 'all'])('limits category sessions to %s', async count => {
   const user = userEvent.setup();
   const { container } = boot();
   await user.click(await screen.findByText('Ερωτήσεις ανά Κατηγορία'));
-  await user.click(screen.getByRole('button', { name: count === 'all' ? 'Όλες οι ερωτήσεις' : `${count} ερωτήσεις` }));
   await waitFor(() => expect(container.querySelector('.mcq-select .items .item:not([disabled])')).toBeTruthy());
   const topicButton = container.querySelector('.mcq-select .items .item:not([disabled])');
-  const available = Number(topicButton.querySelector('.item-meta').textContent.match(/\d+/)[0]);
+  const available = Number(topicButton.querySelector('.item-meta').textContent.match(/\d+\/(\d+)/)[1]);
   await user.click(topicButton);
+  await user.click(screen.getByRole('button', { name: count === 'all' ? 'Όλες οι υπόλοιπες' : `${count} ερωτήσεις` }));
   await waitFor(() => expect(container.querySelector('.mcq-q-index')).toHaveTextContent(`1 / ${count === 'all' ? available : Math.min(count, available)}`));
-  expect(window.location.search).toBe(`?count=${count}`);
+  expect(window.location.search).toBe('');
 });
 
 it('keeps a new profile error review empty instead of filling it with unseen questions', async () => {
