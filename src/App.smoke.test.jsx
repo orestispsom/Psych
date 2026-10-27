@@ -270,7 +270,6 @@ describe("golden path smoke tests", () => {
     await user.click(home.getByText("Πολλαπλής Επιλογής"));
     const categoryMode = await screen.findByRole("button", { name: /Ερωτήσεις ανά Κατηγορία/i }, { timeout: 10000 });
     await user.click(categoryMode);
-    await user.click(screen.getByRole("button", { name: "Όλες οι ερωτήσεις" }));
 
     await waitFor(() => {
       expect(container.querySelector(".mcq-select .items .item:not([disabled])")).toBeTruthy();
@@ -278,6 +277,7 @@ describe("golden path smoke tests", () => {
     const firstCategoryButton = container.querySelector(".mcq-select .items .item:not([disabled])");
     const topic = firstCategoryButton.querySelector(".item-title").textContent;
     await user.click(firstCategoryButton);
+    await user.click(screen.getByRole("button", { name: "Όλες οι υπόλοιπες" }));
 
     await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
     await user.click(screen.getByRole("button", { name: "Επόμενη ερώτηση" }));
@@ -297,7 +297,7 @@ describe("golden path smoke tests", () => {
       .find(button => button.querySelector(".item-title")?.textContent === topic);
     await user.click(savedCategoryButton);
 
-    expect(await screen.findByText("Υπάρχει αποθηκευμένη πρόοδος για αυτή την κατηγορία.")).toBeInTheDocument();
+    expect(await screen.findByText("Πόσες ερωτήσεις θέλεις να απαντήσεις;")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Συνέχεια από την ερώτηση 2/i }));
     await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 2\s*\//));
 
@@ -308,7 +308,7 @@ describe("golden path smoke tests", () => {
     const categoryAgain = [...container.querySelectorAll(".mcq-select .item")]
       .find(button => button.querySelector(".item-title")?.textContent === topic);
     await user.click(categoryAgain);
-    await user.click(await screen.findByRole("button", { name: /Νέα αρχή στην κατηγορία/i }));
+    await user.click(await screen.findByRole("button", { name: "Όλες οι υπόλοιπες" }));
     await waitFor(() => expect(container.querySelector(".mcq-q-index")?.textContent).toMatch(/Ερώτηση 1\s*\//));
 
     await waitFor(() => {
