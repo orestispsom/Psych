@@ -1,3 +1,4 @@
+import { WRITTEN_EXAM_BLUEPRINT, EXAMINER_SIMULATION_TOPICS, getWrittenExamTopic } from '../data/writtenExamTopics.mjs';
 import { describe, expect, it } from 'vitest';
 import { buildWrittenExamWeights, buildWrittenTopicQuotas } from './writtenExamSampling.mjs';
 import { selectWrittenExamByTopic, weightedQuestionOrder } from '../mcqSelection.mjs';
@@ -51,13 +52,13 @@ describe('topic quotas and probabilistic selection', () => {
   it('allocates exactly 100 topic slots independently of learner mastery', () => {
     const quotas = buildWrittenTopicQuotas(bank, 100);
     expect([...quotas.values()].reduce((a, b) => a + b, 0)).toBe(100);
-    expect(quotas.size).toBe(new Set(bank.map(q => q.topic)).size);
-    for (const [topic, count] of quotas) expect(count).toBeLessThanOrEqual(bank.filter(q => q.topic === topic).length);
+    expect(Object.fromEntries(quotas)).toEqual(WRITTEN_EXAM_BLUEPRINT);
+    for (const [topic, count] of quotas) expect(count).toBeLessThanOrEqual(bank.filter(q => getWrittenExamTopic(q) === topic).length);
   });
 
   it('recalculates allocation deficits instead of sending all spare places to one topic', () => {
     const questions = ['a', 'b', 'c'].flatMap((topic, index) => Array.from({ length: 7 + index }, (_, id) => ({ id: `${topic}${id}`, topic })));
-    const quotas = buildWrittenTopicQuotas(questions, 10);
+    const quotas = buildWrittenTopicQuotas(questions, 10, q => q.topic, { a: 3, b: 3.5, c: 3.5 });
     expect([...quotas.values()].reduce((a, b) => a + b, 0)).toBe(10);
     expect(Math.max(...quotas.values()) - Math.min(...quotas.values())).toBeLessThanOrEqual(1);
     expect(buildWrittenTopicQuotas([], 100).size).toBe(0);
@@ -84,13 +85,13 @@ describe('topic quotas and probabilistic selection', () => {
     const selected = [];
     const ids = new Set();
     const result = selectWrittenExamByTopic({
-      eligible: bank, targetCount: 100, topicQuotas: quotas, getTopic: q => q.topic,
+      eligible: bank, targetCount: 100, topicQuotas: quotas, getTopic: getWrittenExamTopic,
       getWeight: q => weights.get(String(q.id)), random, shuffle: items => items,
       getSelected: () => selected, trySelect: q => { if (ids.has(q.id)) return false; ids.add(q.id); selected.push(q); return true; },
     });
     expect(result).toHaveLength(100);
     expect(ids.size).toBe(100);
-    for (const [topic, count] of quotas) expect(result.filter(q => q.topic === topic)).toHaveLength(count);
+    for (const [topic, count] of quotas) expect(result.filter(q => getWrittenExamTopic(q) === topic)).toHaveLength(count);
   });
 
   it('fills exhausted-topic places while respecting the caller’s duplicate guard', () => {
@@ -103,4 +104,15 @@ describe('topic quotas and probabilistic selection', () => {
     });
     expect(new Set(result.map(q => q.id)).size).toBe(4);
   });
+});
+
+it('maps every source-collection item to an approved clinical topic without changing the bank', () => {
+  const items = bank.filter(q => q.topic === 'Τράπεζα εξεταστών Θεσσαλονίκης');
+  expect(items).toHaveLength(115);
+  expect(Object.keys(EXAMINER_SIMULATION_TOPICS)).toHaveLength(115);
+  for (const q of items) {
+    expect(WRITTEN_EXAM_BLUEPRINT[getWrittenExamTopic(q)]).toBeGreaterThan(0);
+    expect(q.topic).toBe('Τράπεζα εξεταστών Θεσσαλονίκης');
+  }
+  for (const q of bank) expect(WRITTEN_EXAM_BLUEPRINT[getWrittenExamTopic(q)]).toBeGreaterThan(0);
 });

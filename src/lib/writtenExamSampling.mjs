@@ -1,3 +1,4 @@
+import { WRITTEN_EXAM_BLUEPRINT, getWrittenExamTopic } from "../data/writtenExamTopics.mjs";
 import { getMcqQualityPreference } from '../mcqSelection.mjs';
 
 const DAY = 86_400_000;
@@ -56,28 +57,18 @@ export function buildWrittenExamWeights(questions, progress = {}, qualitySignals
   }));
 }
 
-export function buildWrittenTopicQuotas(eligible, targetCount, getTopic = question => question.topic) {
+export function buildWrittenTopicQuotas(eligible, targetCount, getTopic = getWrittenExamTopic, blueprint = WRITTEN_EXAM_BLUEPRINT) {
   const counts = new Map();
   eligible.forEach(question => counts.set(getTopic(question), (counts.get(getTopic(question)) || 0) + 1));
   const target = Math.min(Math.max(0, Math.floor(targetCount)), eligible.length);
-  const majorThreshold = Math.max(80, Math.floor(eligible.length * 0.04));
-  const minimum = target >= 60 ? 2 : 1;
-  const rows = [...counts].map(([topic, available]) => {
-    const raw = available / eligible.length * target;
-    const cap = Math.min(available, available >= majorThreshold
-      ? Math.max(14, Math.ceil(target * 0.20)) : Math.max(4, Math.ceil(target * 0.08)));
-    return { topic, raw, cap, quota: available >= minimum && raw >= 0.45 ? Math.min(cap, Math.max(minimum, Math.floor(raw))) : 0 };
+  const blueprintTotal = Object.values(blueprint).reduce((sum, count) => sum + count, 0);
+  const rows = Object.entries(blueprint).map(([topic, count]) => {
+    const raw = count / blueprintTotal * target;
+    const cap = counts.get(topic) || 0;
+    return { topic, raw, cap, quota: Math.min(cap, Math.floor(raw)) };
   });
   let total = rows.reduce((sum, row) => sum + row.quota, 0);
-  while (total > target) {
-    const row = rows.filter(row => row.quota > 0).sort((a, b) => (b.quota - b.raw) - (a.quota - a.raw))[0];
-    if (!row) break;
-    row.quota--;
-    total--;
-  }
   while (total < target) {
-    // Recalculate the deficit after each allocation; a fixed fractional
-    // remainder would award every spare place to the same topic until its cap.
     const row = rows.filter(row => row.quota < row.cap).sort((a, b) => (b.raw - b.quota) - (a.raw - a.quota))[0];
     if (!row) break;
     row.quota++;

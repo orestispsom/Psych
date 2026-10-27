@@ -1,6 +1,6 @@
 # Proposed 100-question simulation selection
 
-Status: PROPOSED — user review required before production rollout.
+Status: APPROVED policy — implemented on a preview branch; user runtime review pending before production rollout.
 
 Baseline inspected: Psych `78abeb90d62964fa4559953f90a723d7fddb7cdc`.
 
@@ -71,16 +71,12 @@ The [Ministry circular hosted by PIS, dated 25 September 2024](https://pis.gr/wp
 
 [Larsen, Butler and Roediger’s randomized trial](https://pubmed.ncbi.nlm.nih.gov/19930508/) supports repeated retrieval with feedback for longer-term retention in medical trainees. It used short-answer testing and does not validate this app’s proposed MCQ weights, topic counts, or recency intervals.
 
-## Implementation and review gate
+## Implementation and user review
 
-The branch contains a candidate weighted sampler, corrected bank-proportional apportionment, and regression tests. **The proposed topic table and the examiner-item clinical mappings are not wired into the application yet.** Current production is unchanged. The corrected bank-proportional allocator is temporary candidate code, not the final proposed blueprint.
+The user approved the topic table and bounded personalization on 27 October 2026 and requested to test the result personally. The approved blueprint and all 115 simulation-only clinical mappings are now wired into selection. The mapping is explicit in `src/data/writtenExamTopics.mjs`; cross-domain assignments can be reviewed there. These are primary-topic assignments from the stems, not a re-audit of the answer keys.
 
-After review:
+New result breakdowns use clinical simulation topics. Existing category labels, IDs, progress and stored historical result objects remain intact. Saved in-progress simulations retain their original question order; the approved blueprint takes effect when starting a new simulation. Cold loading preserves the saved draft until the lazy bank finishes loading.
 
-1. Confirm or revise the topic table and bounded personalization policy.
-2. Add and review the simulation-only clinical mappings for the 115 source-collection items.
-3. Wire the approved blueprint into selection; preserve saved drafts and historical simulations as originally generated.
-4. Verify 100 distinct eligible items, quota adherence, duplicate protection, and continued selection when all items are familiar/mastered. Check multiple generated papers rather than just one successful run.
-5. Run the complete tests/build and browser checks, then merge and verify production under the repository publishing rules.
+Preview validation checks actual app-generated papers for 100 distinct eligible questions and all approved topic quotas, with unseen, familiar and mastered profiles. Full tests/build and browser checks precede the preview handoff. Production rollout is held for the user's personal runtime review.
 
-The tests establish algorithm behavior, not improved examination outcomes. Live two-device operation and the proposed clinical mappings have not been validated in this draft.
+The tests establish algorithm behavior, not improved examination outcomes. Live two-device operation has not been manually validated.

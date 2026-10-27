@@ -1,3 +1,4 @@
+import { getWrittenExamTopic } from "./data/writtenExamTopics.mjs";
 import { totalAnswers } from "./lib/answerTotals.js";
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
@@ -1937,7 +1938,7 @@ function isNearDuplicateQuestion(candidate, selectedQuestions) {
   if (candidateTokens.size < 5) return false;
 
   return selectedQuestions.some(existing => {
-    if (getQuestionTopic(existing) !== getQuestionTopic(candidate)) return false;
+    if (getWrittenExamTopic(existing) !== getWrittenExamTopic(candidate)) return false;
     const existingTokens = getQuestionSignatureTokens(existing);
     if (existingTokens.size < 5) return false;
     let overlap = 0;
@@ -2010,7 +2011,7 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
     question.correct < question.options.length
   );
   const targetCount = Math.min(count, eligible.length);
-  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount, getQuestionTopic);
+  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount, getWrittenExamTopic);
   const weights = buildWrittenExamWeights(eligible, progress, qualitySignals);
   const selected = [];
   const usedIds = new Set();
@@ -2037,7 +2038,7 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
     eligible,
     targetCount,
     topicQuotas,
-    getTopic: getQuestionTopic,
+    getTopic: getWrittenExamTopic,
     getWeight: question => weights.get(String(question.id)),
     trySelect: pushQuestion,
     getSelected: () => selected,
@@ -2292,6 +2293,8 @@ function clearCategoryDraft(progress, topic) {
 
 function normalizeWrittenExamDraft(draft) {
   if (!draft || typeof draft !== "object") return null;
+  // Preserve saved simulations until the lazy question bank can validate IDs.
+  if (!QUESTIONS.length) return draft;
 
   const questionIds = Array.isArray(draft.questionIds)
     ? draft.questionIds.filter(id => getQuestionById(id))
@@ -2671,7 +2674,7 @@ function buildBreakdown(items, getLabel) {
 function buildLifetimeTopicStats(progress) {
   const map = new Map();
   QUESTIONS.forEach(question => {
-    const topic = getQuestionTopic(question);
+    const topic = getWrittenExamTopic(question);
     const record = getQuestionProgress(progress || {}, question.id);
     const correct = record.correctCount || 0;
     const wrong = getWrongCount(record);
@@ -2690,7 +2693,7 @@ function buildLifetimeTopicStats(progress) {
 
 function buildTopicPerformance(items, progress) {
   const lifetimeStats = buildLifetimeTopicStats(progress);
-  return buildBreakdown(items, question => getQuestionTopic(question)).map(row => {
+  return buildBreakdown(items, question => getWrittenExamTopic(question)).map(row => {
     const lifetime = lifetimeStats.get(row.label);
     const lifetimePercent = lifetime?.answered
       ? Math.round((lifetime.correct / lifetime.answered) * 100)
@@ -2731,7 +2734,7 @@ function getWrittenExamResult(questions, answers, progress = null) {
     scorePercent,
     performance: getWrittenPerformanceCategory(scorePercent),
     items,
-    topicBreakdown: buildBreakdown(items, question => getQuestionTopic(question)),
+    topicBreakdown: buildBreakdown(items, question => getWrittenExamTopic(question)),
     topicPerformance: buildTopicPerformance(items, progress),
     wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
   };
