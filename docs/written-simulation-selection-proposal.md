@@ -17,13 +17,13 @@ Every simulation contains 100 questions. Counts describe the primary clinical to
 | Topic | Questions |
 | --- | ---: |
 | Ψυχοφαρμακολογία | 16 |
-| Διαταραχές διάθεσης | 10 |
-| Ψυχωτικές διαταραχές | 9 |
+| Διαταραχές διάθεσης | 11 |
+| Ψυχωτικές διαταραχές | 10 |
 | Αγχώδεις, ΙΨΔ και τραύμα | 7 |
-| Ψυχοπαθολογία | 7 |
+| Ψυχοπαθολογία | 8 |
 | Νευρολογικές και Οργανικές Διαταραχές | 7 |
 | Διαταραχές χρήσης ουσιών | 7 |
-| Νευροαναπτυξιακές και παιδοψυχιατρική | 6 |
+| Νευροαναπτυξιακές και παιδοψυχιατρική | 3 |
 | Επείγουσα ψυχιατρική | 4 |
 | Ψυχιατρική ηλικιωμένων | 3 |
 | Διαταραχές προσωπικότητας | 3 |
@@ -44,6 +44,8 @@ Rationale: substantial coverage of treatment and common diagnostic syndromes, mo
 The bank has 2,102 five-option questions. Its 241 `actual_exam` and 38 `february_2026_recall` entries provide useful question provenance, but do not constitute a verified, complete, randomly sampled series of exam papers. Their topic proportions should not be treated as ground truth. No learner account data was fetched for this analysis.
 
 “Τράπεζα εξεταστών Θεσσαλονίκης” is a source collection rather than a clinical topic. Its 115 directly categorized questions span four broad sections. Before applying this blueprint, those items need an explicit, reviewed **simulation-only clinical-topic mapping**. Keep their source labels, question IDs, category-mode collection, and existing category progress intact. They should compete within their clinical topic, without occupying an additional source quota. Do not silently omit these items or infer their topic from a broad section alone.
+
+User refinement: developmental/child psychiatry reduced from 6 to 3; one place each reassigned to mood disorders, psychotic disorders, and psychopathology to retain 100 questions.
 
 ## Personalization within topics
 
