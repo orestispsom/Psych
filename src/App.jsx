@@ -1,3 +1,4 @@
+import { getWrittenExamTopic } from "./data/writtenExamTopics.mjs";
 import { totalAnswers } from "./lib/answerTotals.js";
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
@@ -18,6 +19,7 @@ import Cyp450Tables from "./components/Cyp450Tables.jsx";
 import { useTheme } from "./lib/useTheme.js";
 import { loadStudyPosition, saveStudyPosition, clearStudyPosition } from "./lib/studyPosition.js";
 import { eligibleTopicQuestions, getTopicCycle, recordTopicCoverage, startNextTopicCycle } from "./lib/topicCycles.mjs";
+import { buildWrittenTopicQuotas, buildWrittenExamWeights } from "./lib/writtenExamSampling.mjs";
 import { recoverWrittenExam } from "./lib/writtenExamHistory.mjs";
 import { useWindowKeydown } from "./lib/useWindowKeydown.js";
 import { useSwipeGesture } from "./lib/useSwipeGesture.js";
@@ -1936,7 +1938,7 @@ function isNearDuplicateQuestion(candidate, selectedQuestions) {
   if (candidateTokens.size < 5) return false;
 
   return selectedQuestions.some(existing => {
-    if (getQuestionTopic(existing) !== getQuestionTopic(candidate)) return false;
+    if (getWrittenExamTopic(existing) !== getWrittenExamTopic(candidate)) return false;
     const existingTokens = getQuestionSignatureTokens(existing);
     if (existingTokens.size < 5) return false;
     let overlap = 0;
@@ -1978,13 +1980,6 @@ const WRITTEN_CONCEPT_CAPS = {
   alcohol_withdrawal: 3,
 };
 
-function getLatestQuestionAttempt(progress, questionId, mode = null) {
-  return (progress.attempts || []).find(attempt =>
-    String(attempt.questionId) === String(questionId) &&
-    (!mode || attempt.mode === mode)
-  ) || null;
-}
-
 async function loadMcqQualitySignals() {
   if (!ONLINE_PROFILES_ENABLED) return {};
 
@@ -2006,87 +2001,9 @@ async function loadMcqQualitySignals() {
   return buildMcqQualitySignals(rows, QUESTIONS, getMcqStem);
 }
 
-function getRecentWrittenExamQuestionIds(progress, sessionCount = 2) {
-  return new Set(
-    getWrittenExamSessions(progress)
-      .slice(0, sessionCount)
-      .flatMap(session => Array.isArray(session.questionIds) ? session.questionIds : [])
-      .map(String)
-  );
-}
-
-function scoreQuestionForWrittenExam(question, progress, qualitySignals = {}, now = new Date()) {
-  const record = getQuestionProgress(progress, question.id);
-  const daysSinceAnswer = getDaysSince(record.lastAnsweredAt || record.seenAt, now);
-  const latestWrittenAttempt = getLatestQuestionAttempt(progress, question.id, "written");
-  const daysSinceWritten = getDaysSince(latestWrittenAttempt?.attemptedAt, now);
-  let score = getMcqQualityPreference(question, qualitySignals, "written") + Math.random() * 8;
-
-  // Day-based anti-recency penalty for any recent answer (smoothly decays over 14 days)
-  if (daysSinceAnswer !== null && daysSinceAnswer < 14) {
-    score -= Math.round(20 * (1 - daysSinceAnswer / 14));
-  }
-
-  // Day-based anti-recency penalty for previous written exam mocks (smoothly decays over 45 days)
-  if (daysSinceWritten !== null && daysSinceWritten < 45) {
-    score -= Math.round(120 * (1 - daysSinceWritten / 45));
-  }
-
-  return score;
-}
-
-function buildWrittenTopicQuotas(eligible, targetCount) {
-  const topicMap = new Map();
-  eligible.forEach(question => {
-    const topic = getQuestionTopic(question);
-    if (!topicMap.has(topic)) topicMap.set(topic, []);
-    topicMap.get(topic).push(question);
-  });
-
-  const topics = [...topicMap.keys()];
-  const majorThreshold = Math.max(80, Math.floor(eligible.length * 0.04));
-  const minTopicQuota = targetCount >= 60 ? 2 : 1;
-  const maxMajorTopic = Math.max(14, Math.ceil(targetCount * 0.20));
-  const maxMinorTopic = Math.max(4, Math.ceil(targetCount * 0.08));
-  const quotaRows = topics.map(topic => {
-    const available = topicMap.get(topic).length;
-    const raw = (available / eligible.length) * targetCount;
-    const maxForTopic = available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-    const includeTopic = available >= minTopicQuota && raw >= 0.45;
-    const quota = includeTopic
-      ? Math.min(available, maxForTopic, Math.max(minTopicQuota, Math.floor(raw)))
-      : 0;
-    return { topic, available, raw, quota, remainder: raw - Math.floor(raw) };
-  });
-
-  let total = quotaRows.reduce((sum, row) => sum + row.quota, 0);
-
-  while (total > targetCount) {
-    const row = quotaRows
-      .filter(item => item.quota > minTopicQuota)
-      .sort((a, b) => a.remainder - b.remainder || b.quota - a.quota)[0];
-    if (!row) break;
-    row.quota -= 1;
-    total -= 1;
-  }
-
-  while (total < targetCount) {
-    const row = quotaRows
-      .filter(item => {
-        const maxForTopic = item.available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-        return item.quota > 0 && item.quota < item.available && item.quota < maxForTopic;
-      })
-      .sort((a, b) => b.remainder - a.remainder || b.available - a.available)[0];
-    if (!row) break;
-    row.quota += 1;
-    total += 1;
-  }
-
-  return new Map(quotaRows.filter(row => row.quota > 0).map(row => [row.topic, row.quota]));
-}
-
 function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, qualitySignals = {}) {
   const eligible = QUESTIONS.filter(question =>
+    question.qualityStatus !== "remove_candidate" &&
     Array.isArray(question.options) &&
     question.options.length === 5 &&
     Number.isInteger(question.correct) &&
@@ -2094,12 +2011,11 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
     question.correct < question.options.length
   );
   const targetCount = Math.min(count, eligible.length);
-  const now = new Date();
-  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount);
+  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount, getWrittenExamTopic);
+  const weights = buildWrittenExamWeights(eligible, progress, qualitySignals);
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
-  const recentWrittenIds = getRecentWrittenExamQuestionIds(progress, 2);
 
   const canUseQuestion = (question) => {
     if (!question || usedIds.has(question.id)) return false;
@@ -2122,9 +2038,8 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
     eligible,
     targetCount,
     topicQuotas,
-    getTopic: getQuestionTopic,
-    scoreQuestion: question => scoreQuestionForWrittenExam(question, progress, qualitySignals, now),
-    isRecent: question => recentWrittenIds.has(String(question.id)),
+    getTopic: getWrittenExamTopic,
+    getWeight: question => weights.get(String(question.id)),
     trySelect: pushQuestion,
     getSelected: () => selected,
     shuffle: shuffleItems,
@@ -2378,6 +2293,8 @@ function clearCategoryDraft(progress, topic) {
 
 function normalizeWrittenExamDraft(draft) {
   if (!draft || typeof draft !== "object") return null;
+  // Preserve saved simulations until the lazy question bank can validate IDs.
+  if (!QUESTIONS.length) return draft;
 
   const questionIds = Array.isArray(draft.questionIds)
     ? draft.questionIds.filter(id => getQuestionById(id))
@@ -2757,7 +2674,7 @@ function buildBreakdown(items, getLabel) {
 function buildLifetimeTopicStats(progress) {
   const map = new Map();
   QUESTIONS.forEach(question => {
-    const topic = getQuestionTopic(question);
+    const topic = getWrittenExamTopic(question);
     const record = getQuestionProgress(progress || {}, question.id);
     const correct = record.correctCount || 0;
     const wrong = getWrongCount(record);
@@ -2776,7 +2693,7 @@ function buildLifetimeTopicStats(progress) {
 
 function buildTopicPerformance(items, progress) {
   const lifetimeStats = buildLifetimeTopicStats(progress);
-  return buildBreakdown(items, question => getQuestionTopic(question)).map(row => {
+  return buildBreakdown(items, question => getWrittenExamTopic(question)).map(row => {
     const lifetime = lifetimeStats.get(row.label);
     const lifetimePercent = lifetime?.answered
       ? Math.round((lifetime.correct / lifetime.answered) * 100)
@@ -2817,7 +2734,7 @@ function getWrittenExamResult(questions, answers, progress = null) {
     scorePercent,
     performance: getWrittenPerformanceCategory(scorePercent),
     items,
-    topicBreakdown: buildBreakdown(items, question => getQuestionTopic(question)),
+    topicBreakdown: buildBreakdown(items, question => getWrittenExamTopic(question)),
     topicPerformance: buildTopicPerformance(items, progress),
     wrongItems: items.filter(item => !item.isUnanswered && !item.isCorrect),
   };
