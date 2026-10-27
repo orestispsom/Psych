@@ -1,3 +1,5 @@
+import { mergeTopicCycles } from "./lib/topicCycles.mjs";
+
 const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 function numberOr(value, fallback = 0) {
@@ -49,8 +51,12 @@ export function mergeLegacyAndSessionProgress(legacyProgress = {}, sessionRow = 
   const lowFrequencyState = preferSessionState
     ? sessionState
     : toRemoteMcqSessionState(legacy);
-  const merged = { ...legacy, ...lowFrequencyState };
   const resetAt = timestampValue(lowFrequencyState.resetAt);
+  const olderSnapshotAt = preferSessionState ? legacyUpdatedAt : sessionUpdatedAt;
+  const topicCycles = resetAt && resetAt >= olderSnapshotAt
+    ? lowFrequencyState.topicCycles || {}
+    : mergeTopicCycles(legacy.topicCycles, sessionState.topicCycles);
+  const merged = { ...legacy, ...lowFrequencyState, topicCycles };
 
   if (resetAt && resetAt >= legacyUpdatedAt) {
     merged.questions = {};

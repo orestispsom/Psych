@@ -4287,3 +4287,8 @@ input.crucial-search::placeholder { color: var(--ink-3); }
 
 .home-module-study { --module: var(--sec-study); --module-quiet: var(--sec-study-quiet); --module-rule: var(--rule-strong); }
 .sheet-study { max-width: none; }
+.category-cycle-status {
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+  margin: 0 0 var(--s2);
+}
