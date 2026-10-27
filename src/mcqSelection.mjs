@@ -210,42 +210,47 @@ export function selectAdaptiveQuestionOrder({
   return selected;
 }
 
+// Independent exponential clocks implement weighted sampling without replacement.
+// Positive weights preserve a chance for every eligible item; they are not ranks.
+export function weightedQuestionOrder(questions, getWeight = () => 1, random = Math.random) {
+  return questions.map(question => {
+    const value = Number(getWeight(question));
+    const weight = Number.isFinite(value) && value > 0 ? value : 1;
+    const draw = Math.max(Number.MIN_VALUE, Math.min(1 - Number.EPSILON, random()));
+    return { question, key: -Math.log(draw) / weight };
+  }).sort((a, b) => a.key - b.key).map(item => item.question);
+}
+
 export function selectWrittenExamByTopic({
   eligible,
   targetCount,
   topicQuotas,
   getTopic,
-  scoreQuestion,
-  isRecent,
+  getWeight = () => 1,
   trySelect,
   getSelected,
   shuffle,
+  random = Math.random,
 }) {
-  const rankWithJitter = questions => shuffle(questions)
-    .map(question => ({
-      question,
-      score: (scoreQuestion ? scoreQuestion(question) : 0) + (Math.random() * 40),
-    }))
-    .sort((left, right) => right.score - left.score)
-    .map(item => item.question);
+  const byTopic = new Map();
+  for (const question of weightedQuestionOrder(eligible, getWeight, random)) {
+    const topic = getTopic(question);
+    if (!byTopic.has(topic)) byTopic.set(topic, []);
+    byTopic.get(topic).push(question);
+  }
 
-  const pickFrom = (candidates, topicLimit) => {
+  const pickFrom = (candidates, limit) => {
     for (const question of candidates) {
-      if (getSelected().length >= targetCount || getSelected().length >= topicLimit) break;
+      if (getSelected().length >= targetCount || getSelected().length >= limit) break;
       trySelect(question);
     }
   };
 
   for (const [topic, quota] of topicQuotas) {
-    const topicLimit = getSelected().length + quota;
-    const topicQuestions = eligible.filter(question => getTopic(question) === topic);
-
-    pickFrom(rankWithJitter(topicQuestions.filter(question => !isRecent(question))), topicLimit);
-    pickFrom(rankWithJitter(topicQuestions), topicLimit);
+    pickFrom(byTopic.get(topic) || [], getSelected().length + quota);
   }
 
-  pickFrom(rankWithJitter(eligible.filter(question => !isRecent(question))), targetCount);
-  pickFrom(rankWithJitter(eligible), targetCount);
-
+  // If deduplication exhausts a topic, fill the remaining places from the bank.
+  pickFrom(weightedQuestionOrder(eligible, getWeight, random), targetCount);
   return shuffle(getSelected());
 }
