@@ -19,6 +19,56 @@ function openChapter(path = '/oral/chapters/1') {
 }
 
 describe('Chapter 1 psychopathology coverage', () => {
+  it('defines the complete mood and affect phenomena rather than only mentioning their names', () => {
+    const question = buildOralBank(previous, clinical, crucial).find(q => q.id === 'ch1_mood_affect');
+    const section = title => question.studyNotes.sections.find(s => s.title === title);
+    const experience = section('Διαταραχές της συναισθηματικής βίωσης').table.rows;
+    expect(experience.find(([name]) => name === 'Ανηδονία / υποηδονία')[1]).toContain('συνήθως ευχάριστες δραστηριότητες');
+    expect(experience.find(([name]) => name === 'Αλεξιθυμία')[1]).toContain('διάκρισής τους από σωματικές αισθήσεις');
+    expect(experience.find(([name]) => name === 'Αίσθημα απώλειας συναισθήματος')[1]).toContain('παρατηρούμενη επιπέδωση');
+    expect(experience.find(([name]) => name === 'Απάθεια')[1]).toContain('δεν είναι συνώνυμη της ανηδονίας');
+    const expression = section('Μεταβολές της συναισθηματικής έκφρασης').table.rows;
+    expect(expression.find(([name]) => name === 'Περίσφιξη της έκφρασης')[1]).toContain('ενδεχομένως εκούσια');
+    expect(expression.find(([name]) => name === 'Συναισθηματική αμφιθυμία')[1]).toContain('από την αμφιβουλησία');
+    expect(section('Μεταβολές της ποιότητας της διάθεσης').table.rows.find(([name]) => name === 'Άγχος / φόβος')[1]).toContain('μελλοντικής απειλής');
+  });
+
+  it('fills the source-guide gaps in their appropriate answers without changing the question set', () => {
+    const bank = buildOralBank(previous, clinical, crucial);
+    const text = id => JSON.stringify(bank.find(q => q.id === id).studyNotes);
+    const coverage = {
+      '3D1': ['Απαρτιωτική παραίσθηση', 'Συναισθηματική παραίσθηση', 'Λιλιπούτειες', 'Κοιναισθητικές', 'αιθουσαίες'],
+      ch1_self_body: ['Ημισωματοαγνωσία', 'Κυριότητα και ιδιωτικότητα', 'απώλειας της συνέχειας'],
+      ch1_speech: ['Τραυλισμός', 'κοπρολαλία', 'Βραδυφημία', 'διαταραχή προσωδίας'],
+      ch1_thought_form: ['Παραλογική σκέψη'],
+      oral_core_009_fu01: ['Ιδεοληπτικοί μηρυκασμοί', 'Ιδεοληπτική βραδύτητα', 'Νοητικές πράξεις', 'διαταραχή παρασυσσώρευσης'],
+      ch1_delusional_experiences: ['Παραληρητική επανερμηνεία ανάμνησης', 'Παραληρητική παράθεση ιδεών'],
+      ch1_delusional_themes: ['Σχέση με τη διάθεση', 'παρενόχληση'],
+      ch1_memory: ['αναγνώριση πληροφοριών', 'Korsakoff', 'εντοπισμένη', 'επιλεκτική', 'υποβολή'],
+      ch1_consciousness: ['Διαύγεια', 'Εύρος', 'Συνοχή', 'Λυκοφωτική κατάσταση', 'Ονειροειδής κατάσταση'],
+      ch1_attention: ['Δυσκολία διατήρησης / διάσπαση προσοχής'],
+      ch1_insight: ['SAI-E', 'Υψηλότερη βαθμολογία σημαίνει καλύτερη', 'BABS', 'Υψηλότερη βαθμολογία σημαίνει πτωχότερη'],
+      exam_volition: ['Αρνητισμός', 'Αυτόματη υπακοή', 'ακινητική αλαλία'],
+      oral_core_035: ['Επιληπτικές κινητικές εκδηλώσεις'],
+      Q10: ['Παθοφυσιολογικά μοντέλα', 'Mitgehen', 'Ηχομιμία', 'αμανταδίνη ή μεμαντίνη'],
+    };
+    for (const [id, terms] of Object.entries(coverage)) for (const term of terms) expect(text(id), `${id}: ${term}`).toContain(term);
+    expect(text('ch1_attention')).not.toContain('BABS');
+    expect(text('Q10')).toContain('χωρίς να αποδεικνύει έναν μοναδικό μηχανισμό');
+    expect(text('Q10')).toContain('Δεν υποκαθιστούν την έγκαιρη ηλεκτροσπασμοθεραπεία');
+    expect(bank.filter(q => q.chapter === 1)).toHaveLength(20);
+    expect(bank.find(q => q.id === '1Aa2').chapter).toBe(11);
+  });
+
+  it('renders the expanded emotional-experience definitions at the existing mood bookmark', async () => {
+    openChapter('/oral/chapters/1/questions/ch1_mood_affect');
+    const experience = await screen.findByRole('region', { name: 'Διαταραχές της συναισθηματικής βίωσης' });
+    expect(within(experience).getByRole('rowheader', { name: 'Αλεξιθυμία', exact: true })).toBeInTheDocument();
+    expect(within(experience).getByRole('cell', { name: /Δυσκολία αναγνώρισης, διαφοροποίησης/ })).toBeInTheDocument();
+    expect(within(experience).getByRole('rowheader', { name: 'Ανηδονία / υποηδονία' })).toBeInTheDocument();
+    expect(screen.queryByText(/Άξονας ανάκλησης|Συχνές παγίδες|Βασικά σημεία για τις εξετάσεις/)).not.toBeInTheDocument();
+  });
+
   it('keeps the requested content with direct titles and consolidated answers', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const chapter = orderOralQuestions(bank.filter(q => q.chapter === 1));
