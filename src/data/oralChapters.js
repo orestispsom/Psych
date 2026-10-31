@@ -14,6 +14,7 @@ import examMoodPsychosis from './oralExamMoodPsychosis';
 import examPharmacology from './oralExamPharmacology';
 import examClinicalExpansions, { appendSections } from './oralExamClinicalExpansions';
 import { extraQuestions } from './oralExamAdditionalContent';
+import chapterOneNotes, { chapterOneAdditions, chapterOneOrder, chapterOnePrompts } from './oralChapter1Notes';
 import examFoundations from './oralExamFoundations';
 import examCarePlans from './oralExamCarePlans';
 import examFollowupNotes, { followupSections } from './oralExamFollowupNotes';
@@ -36,6 +37,7 @@ const revisionNotes = {
   ...examAssessmentNotes, ...examTreatmentNotes,
   ...examRecallNotes,
   ...bankClinicalNotes, ...bankEthicsNotes, ...bankPharmacologyNotes,
+  ...chapterOneNotes,
 };
 
 for (const [id, sections] of Object.entries(appendSections)) {
@@ -101,6 +103,7 @@ const editorialOverrides = {
 };
 
 export function chapterForQuestion(id) {
+  if (Object.hasOwn(chapterOnePrompts, id)) return 1;
   const examQuestion = extraQuestions.find(question => question.id === id);
   if (examQuestion) return examQuestion.chapter;
   const foundation = chapterThirteenFoundations.find(question => question.id === id);
@@ -169,6 +172,10 @@ function chapterThirteenGroup(question) {
 export function orderOralQuestions(questions) {
   return questions.map((question, originalIndex) => ({ question, originalIndex }))
     .sort((a, b) => {
+      if (a.question.chapter === 1 && b.question.chapter === 1) {
+        const rank = id => { const index = chapterOneOrder.indexOf(id); return index < 0 ? 1000 : index; };
+        return rank(a.question.id) - rank(b.question.id) || a.originalIndex - b.originalIndex;
+      }
       if (a.question.chapter === 13 && b.question.chapter === 13) {
         const ga = chapterThirteenGroup(a.question), gb = chapterThirteenGroup(b.question);
         return ga - gb || (chapterThirteenPriority.get(a.question.id) ?? 1000) - (chapterThirteenPriority.get(b.question.id) ?? 1000) || a.originalIndex - b.originalIndex;
@@ -185,7 +192,7 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     (topic.subtopics || [topic]).flatMap(section => (section.questions || []).map(q => ({
       ...q, kind: 'past', context: [topic.title, section !== topic && section.title].filter(Boolean).join(' · '),
     })))));
-  return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
+  return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...chapterOneAdditions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
     .map(q => {
@@ -193,7 +200,7 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
       const extra = followupSections[q.id];
       // Follow-ups extend the displayed answer, preserving older plain text.
       const sections = base?.sections || (extra ? [{ title: 'Κύρια στοιχεία', paragraphs: [q.answer] }] : []);
-      return { ...q, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
+      return { ...q, text: chapterOnePrompts[q.id] || q.text, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
         ...((base || extra) ? { studyNotes: { ...base, hideSources: true,
           sections: [...sections, ...(extra || [])] } } : {}),
       };

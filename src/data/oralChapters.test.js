@@ -7,6 +7,7 @@ import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
 import chapterThirteenFoundations from './oralChapter13Foundations';
 import { extraQuestions } from './oralExamAdditionalContent';
+import { chapterOneAdditions, chapterOnePrompts } from './oralChapter1Notes';
 import { buildOralBank, chapterForQuestion, oralChapters } from './oralChapters';
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
 import related from './oralPreviousQuestionSources';
@@ -28,11 +29,13 @@ describe('Greek oral chapter organization', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const history = previous.flatMap(g => g.topics.flatMap(t => (t.subtopics || [t]).flatMap(s => s.questions || [])));
     expect(Object.keys(oralRetirements)).toHaveLength(179);
-    expect(bank).toHaveLength(352 + extraQuestions.length);
-    expect(bank).toHaveLength(history.length + clinical.length + crucial.length + chapterThirteenFoundations.length + extraQuestions.length - Object.keys(oralRetirements).length);
+    expect(bank).toHaveLength(352 + extraQuestions.length + chapterOneAdditions.length);
+    expect(bank).toHaveLength(history.length + clinical.length + crucial.length + chapterThirteenFoundations.length + extraQuestions.length + chapterOneAdditions.length - Object.keys(oralRetirements).length);
     expect(new Set(bank.map(q => q.id)).size).toBe(bank.length);
     expect(bank.filter(q => !oralChapters.some(ch => ch.id === q.chapter))).toEqual([]);
-    history.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
+    history.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject({
+      ...q, text: chapterOnePrompts[q.id] || q.text,
+    }));
     clinical.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
     crucial.forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
     chapterThirteenFoundations.forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
@@ -53,7 +56,7 @@ describe('Greek oral chapter organization', () => {
   });
   it('consolidates Chapter 1 while retaining clinical distinctions and unique treatment details', () => {
     const bank = buildOralBank(previous, clinical, crucial);
-    expect(bank.filter(q => q.chapter === 1)).toHaveLength(13);
+    expect(bank.filter(q => q.chapter === 1)).toHaveLength(26);
     ['Q10', 'oral_core_017_fu02', 'oral_core_035_fu03', 'oral_core_035_fu05', 'oral_core_035_fu06'].forEach(id => expect(bank.some(q => q.id === id)).toBe(true));
     const catatonia = bank.find(q => q.id === 'Q10');
     expect(catatonia.modelAnswer.join(' ')).toContain('Τα 12 χαρακτηριστικά σημεία');
@@ -87,7 +90,7 @@ describe('Greek oral chapter organization', () => {
   });
   it('uses the same active bank in global search, excluding all retired cards', async () => {
     const oral = (await getSearchIndex()).filter(item => item.scope === 'oral');
-    expect(oral).toHaveLength(352 + extraQuestions.length);
+    expect(oral).toHaveLength(352 + extraQuestions.length + chapterOneAdditions.length);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
   });
@@ -106,7 +109,7 @@ describe('Greek oral chapter organization', () => {
       const matches = bank.filter(q => q.id === move.id);
       expect(matches).toHaveLength(1);
       expect(matches[0].chapter).toBe(move.to);
-      expect(matches[0].text).toBe(move.question);
+      expect(matches[0].text).toBe(chapterOnePrompts[move.id] || move.question);
     }
     expect(chapterForQuestion('oral_core_016')).toBe(3);
     expect(chapterForQuestion('oral_core_016_fu04')).toBe(4);
