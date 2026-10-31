@@ -14,6 +14,7 @@ import examMoodPsychosis from './oralExamMoodPsychosis';
 import examPharmacology from './oralExamPharmacology';
 import examClinicalExpansions, { appendSections } from './oralExamClinicalExpansions';
 import { extraQuestions } from './oralExamAdditionalContent';
+import chapters2to6Notes, { chapters2to6Additions, chapters2to6Prompts, chapters2to6Order } from './oralChapters2to6Notes';
 import chapterOneNotes, { chapterOneAdditions, chapterOneOrder, chapterOnePrompts } from './oralChapter1Notes';
 import examFoundations from './oralExamFoundations';
 import examCarePlans from './oralExamCarePlans';
@@ -43,6 +44,9 @@ const revisionNotes = {
 for (const [id, sections] of Object.entries(appendSections)) {
   revisionNotes[id] = { ...revisionNotes[id], sections: [...revisionNotes[id].sections, ...sections] };
 }
+
+// Complete editorial replacements supersede older appended follow-ups.
+Object.assign(revisionNotes, chapters2to6Notes);
 
 // Chapter names and sequence transcribed from the user's Greek contents photos.
 export const oralChapters = [
@@ -104,6 +108,8 @@ const editorialOverrides = {
 
 export function chapterForQuestion(id) {
   if (Object.hasOwn(chapterOnePrompts, id)) return 1;
+  const addition = chapters2to6Additions.find(question => question.id === id);
+  if (addition) return addition.chapter;
   const examQuestion = extraQuestions.find(question => question.id === id);
   if (examQuestion) return examQuestion.chapter;
   const foundation = chapterThirteenFoundations.find(question => question.id === id);
@@ -172,6 +178,11 @@ function chapterThirteenGroup(question) {
 export function orderOralQuestions(questions) {
   return questions.map((question, originalIndex) => ({ question, originalIndex }))
     .sort((a, b) => {
+      if (a.question.chapter === b.question.chapter && chapters2to6Order[a.question.chapter]) {
+        const order = chapters2to6Order[a.question.chapter];
+        const rank = id => { const index = order.indexOf(id); return index < 0 ? 1000 : index; };
+        return rank(a.question.id) - rank(b.question.id) || a.originalIndex - b.originalIndex;
+      }
       if (a.question.chapter === 1 && b.question.chapter === 1) {
         const rank = id => { const index = chapterOneOrder.indexOf(id); return index < 0 ? 1000 : index; };
         return rank(a.question.id) - rank(b.question.id) || a.originalIndex - b.originalIndex;
@@ -192,15 +203,15 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     (topic.subtopics || [topic]).flatMap(section => (section.questions || []).map(q => ({
       ...q, kind: 'past', context: [topic.title, section !== topic && section.title].filter(Boolean).join(' · '),
     })))));
-  return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...chapterOneAdditions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
+  return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...chapterOneAdditions, ...chapters2to6Additions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
     .filter(q => !Object.hasOwn(oralRetirements, q.id))
     .map(q => {
       const base = revisionNotes[q.id] || q.studyNotes;
-      const extra = followupSections[q.id];
+      const extra = Object.hasOwn(chapters2to6Notes, q.id) ? undefined : followupSections[q.id];
       // Follow-ups extend the displayed answer, preserving older plain text.
       const sections = base?.sections || (extra ? [{ title: 'Κύρια στοιχεία', paragraphs: [q.answer] }] : []);
-      return { ...q, text: chapterOnePrompts[q.id] || q.text, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
+      return { ...q, text: chapterOnePrompts[q.id] || chapters2to6Prompts[q.id] || q.text, chapter: chapterForQuestion(q.id), additionalAnswer: oralConsolidatedPoints[q.id] || [],
         ...((base || extra) ? { studyNotes: { ...base, hideSources: true,
           sections: [...sections, ...(extra || [])] } } : {}),
       };
