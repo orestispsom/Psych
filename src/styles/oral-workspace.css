@@ -32,7 +32,7 @@
 .oral-reading-heading h4 { font-size: clamp(21px, 2vw, 27px); line-height: 1.5; margin: 0; }
 .oral-check { width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--rule); border-radius: 50%; background: transparent; color: var(--ink-3); flex: none; }
 .oral-check.is-checked { background: var(--pass); border-color: var(--pass); color: var(--ground); }
-.oral-reading-answer { margin-top: 24px; font-family: var(--read); font-size: var(--t-read); line-height: 1.85; }
+.oral-reading-answer { margin-top: 24px; font-family: var(--read); font-size: var(--t-body); line-height: 1.75; }
 .oral-reading-answer h4 { font-family: var(--ui); font-size: 18px; }
 .oral-reading-answer :is(.oral-para, .oral-bullet-item, .oral-model-answer, .oral-model-answer p, .oral-reference-section, .oral-reference-section p, .oral-reference-section li, .crucial-examiner-item) { max-width: none; }
 .oral-related { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rule); }
