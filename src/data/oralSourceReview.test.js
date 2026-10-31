@@ -14,8 +14,8 @@ describe('oral source review traceability', () => {
     expect(additions).toHaveLength(75);
     expect(new Set(additions).size).toBe(75);
     const bank = buildOralBank(previous, clinical, crucial);
-    expect(bank).toHaveLength(370);
-    expect(new Set(bank.map(q => q.id)).size).toBe(370);
+    expect(bank).toHaveLength(371);
+    expect(new Set(bank.map(q => q.id)).size).toBe(371);
     expect(additions.every(id => bank.some(q => q.id === id))).toBe(true);
     for (const q of bank) {
       expect(q.studyNotes?.hideSources, q.id).toBe(true);

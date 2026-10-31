@@ -53,7 +53,7 @@ describe('Greek oral chapter organization', () => {
   });
   it('consolidates Chapter 1 while retaining clinical distinctions and unique treatment details', () => {
     const bank = buildOralBank(previous, clinical, crucial);
-    expect(bank.filter(q => q.chapter === 1)).toHaveLength(12);
+    expect(bank.filter(q => q.chapter === 1)).toHaveLength(13);
     ['Q10', 'oral_core_017_fu02', 'oral_core_035_fu03', 'oral_core_035_fu05', 'oral_core_035_fu06'].forEach(id => expect(bank.some(q => q.id === id)).toBe(true));
     const catatonia = bank.find(q => q.id === 'Q10');
     expect(catatonia.modelAnswer.join(' ')).toContain('Τα 12 χαρακτηριστικά σημεία');
