@@ -109,7 +109,7 @@ describe("golden path smoke tests", () => {
     await user.click(within(chapters).getByRole("link", { name: /03\s*Αξιολόγηση/ }));
     expect(window.location.pathname).toBe("/oral/chapters/3");
     expect(screen.getByRole("navigation", { name: "Κεφάλαια προφορικών" })).toBeInTheDocument();
-    const question = await screen.findByRole("link", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ });
+    const question = await screen.findByRole("link", { name: /Τι περιλαμβάνει η ψυχιατρική αξιολόγηση/ });
     await user.click(question);
     expect(screen.queryByRole("button", { name: "Εμφάνιση απάντησης" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Αρχική ψυχιατρική εκτίμηση" })).toBeInTheDocument();
@@ -144,7 +144,7 @@ describe("golden path smoke tests", () => {
     expect(workspace.queryByText(/Απάντησε προφορικά/)).not.toBeInTheDocument();
     await user.click(workspace.getByRole("button", { name: "Ολοκληρώθηκε" }));
     await user.click(workspace.getByRole("link", { name: "Λίστα ερωτήσεων" }));
-    expect(workspace.getByRole("link", { name: /Πώς προσεγγίζετε έναν νέο ψυχιατρικό ασθενή/ })).toHaveClass("is-checked");
+    expect(workspace.getByRole("link", { name: /Τι περιλαμβάνει η ψυχιατρική αξιολόγηση/ })).toHaveClass("is-checked");
     expect(window.location.pathname).toBe("/oral/chapters/3");
     expect(window.location.search).toBe("");
     await user.click(workspace.getByRole("button", { name: "Περιεχόμενα" }));
@@ -234,7 +234,7 @@ describe("golden path smoke tests", () => {
     first.unmount();
     window.history.pushState({}, '', '/oral?chapter=3&question=oral_challenge_007');
     renderApp();
-    expect(await screen.findByRole('heading', { name: 'Πώς εκτιμάτε αν ένας ασθενής μπορεί να δώσει έγκυρη ενημερωμένη συναίνεση;' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Τι είναι η ενημερωμένη συναίνεση και η ικανότητα λήψης απόφασης;' })).toBeInTheDocument();
     expect(window.location.pathname).toBe('/oral/chapters/4/questions/Q8');
     expect(window.location.search).toBe('');
   });
