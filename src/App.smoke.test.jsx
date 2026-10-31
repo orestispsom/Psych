@@ -160,7 +160,7 @@ describe("golden path smoke tests", () => {
     first.unmount();
     window.history.pushState({}, '', '/oral/chapters/1/questions/1Aa2');
     renderApp();
-    expect(await screen.findByRole('heading', { name: /Ποια τα συμπτώματα α΄ τάξης/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /συμπτώματα πρώτης τάξης του Schneider/ })).toBeInTheDocument();
     const related = await screen.findByRole('navigation', { name: 'Σχετικές ερωτήσεις' });
     expect(within(related).getAllByRole('link')).toHaveLength(1);
     expect(document.querySelector('.oral-reading-answer').textContent).toContain('Δεν είναι παθογνωμονικά');
@@ -204,7 +204,7 @@ describe("golden path smoke tests", () => {
     expect(loadStudyPosition(profile.id).path).toBe('/oral/chapters/11/questions/jan2026_16');
     await user.click(screen.getByRole('link', { name: /^01\s*Σημεία και συμπτώματα/ }));
     expect(screen.queryByRole('link', { name: /Τι είναι τα ήπια νευρολογικά σημεία/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Πώς αναγνωρίζετε την κατατονία/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Αναπτύξτε το σύνδρομο της κατατονίας/ })).toBeInTheDocument();
   });
 
   it('resumes a retired saved question at its replacement without losing historical checks', async () => {
@@ -219,7 +219,7 @@ describe("golden path smoke tests", () => {
     saveStudyPosition(profile.id, { path: '/oral/chapters/1/questions/oral_core_017_fu04', title: 'Παλιό θέμα', section: 'Προφορικά' });
     renderApp();
     await user.click(await screen.findByRole('button', { name: /Συνέχεια:.*Παλιό θέμα/ }));
-    expect(await screen.findByRole('heading', { name: /Πώς αναγνωρίζετε την κατατονία/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Αναπτύξτε το σύνδρομο της κατατονίας/ })).toBeInTheDocument();
     expect(window.location.pathname).toBe('/oral/chapters/1/questions/Q10');
     expect(screen.getByRole('button', { name: 'Ολοκληρώθηκε' })).toHaveAttribute('aria-pressed', 'false');
     expect(readProfileStore().profiles[profile.id].oralProgress.mastered['oral_core_017_fu04']).toBe(true);
