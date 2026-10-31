@@ -1,13 +1,30 @@
 # Chapter 1 psychopathology coverage
 
-Reviewed 2026-10-31 against Psych `2f9ba2a56ac8739f41009d11938d1d1c07da5ce5`.
+Clinical source review began against Psych `2f9ba2a56ac8739f41009d11938d1d1c07da5ce5`.
+The editorial revision follows the user's correction to the Chapter 1 version
+published in `69d760984b2bb45fe3ced1c1079b2f613488fab9`.
 
-The requested deliverable is a complete Chapter 1 study sequence with questions
-that identify the subject without supplying a list of answers. Thirteen existing
-questions remain live under their previous IDs. Thirteen focused questions are
-added. Prompt overrides apply only to the unified oral bank; source records and
-other chapters remain intact. Explicit ordering governs the chapter list and
-previous/next navigation. No retirement or progress-key migration is introduced.
+The current chapter contains 20 questions with direct subject/comparison titles
+and explanatory prose, lists and tables. Recall axes, exam key points and trap
+sections have been removed. The psychopathology-definition card and its answer
+are removed at the user's request. Original question wording is restored where
+it existed; the apathy/depression title uses the user's supplied wording.
+Schneider's question is in Chapter 11 under its original ID and title.
+
+Four overlapping cards are consolidated without losing their distinct content:
+
+- `oral_core_035_fu03` → `oral_core_035_fu02`: slowing, inhibition and stupor
+  now accompany the general psychomotor description.
+- `oral_core_035_fu05` → `Q10`: gegenhalten and the interpretation of postural signs.
+- `oral_core_035_fu06` → `Q10`: ambivalence of will and motor ambitendency.
+- `oral_core_017_fu02` → `Q10`: catatonia differential, including parkinsonism and akathisia.
+
+Legacy links redirect directly to live destinations, including older links that
+previously targeted a now-consolidated card. Existing historical checkmarks are
+retained; they are not silently converted into completion of the larger answer.
+Source audits retain historical IDs and resolve them through the current
+retirement map when validating the retained content. The user’s latest editorial
+direction supersedes the earlier exam-template and non-leading-title decisions.
 
 ## Source hierarchy and method
 
@@ -34,32 +51,26 @@ Verification-sensitive clinical details use:
 
 | Order | Question ID | Coverage | Guide paragraphs |
 | --- | --- | --- | --- |
-| 1 | ch1_definitions | Descriptive/experimental psychopathology; symptom, sign, syndrome; context | 1–18 |
-| 2 | ch1_mood_affect | Subjective mood, observed affect, quality/range/reactivity, ambivalence, anhedonia, alexithymia | 49–131 |
-| 3 | Q57 | Apathy, depression and neurological differential | 130–131; retained reviewed answer |
-| 4 | 3D1 | Illusions, hallucinations, modalities, special forms, recognition experiences, sleep and sensory loss | 134–240; 662 |
-| 5 | ch1_self_body | Self-experience, depersonalisation/derealisation, agency, body representation | 239–240; 433–451; 515–532 |
-| 6 | ch1_speech | Speech production, articulation, prosody, language and aphasia | 20–47; 268–270 |
-| 7 | ch1_thought_form | Form, flow, continuity, goal, associations and illustrative distinctions | 243–270 |
-| 8 | Q2 | Delusion, overvalued belief, obsession, cultural context | 273–291; 665 |
-| 9 | oral_core_009_fu01 | Obsessions and compulsions | Retained reviewed answer |
-| 10 | ch1_delusional_experiences | Primary/secondary, delusional mood, perception, intuition and memory | 293–317 |
-| 11 | ch1_delusional_themes | Themes, mood congruence, shared beliefs, Cotard, erotomania, jealousy, infestation | 318–345; Oxford Chapter 1 |
-| 12 | ch1_misidentification | Capgras/Frégoli and related syndromes; recognition versus belief; safety | 331–334; 664; verified supplementary sources |
-| 13 | 1Aa2 | Schneider first-rank symptoms and modern diagnostic limits | 186–189; 308–312; 327–329 |
-| 14 | exam_volition | Diminished/increased volition, conflicting intentions and passivity | 346–431; 663 |
-| 15 | oral_core_035 | Volition versus movement; extrapyramidal effects, chorea, tics, other involuntary or execution disorders | 346–431; 666 |
-| 16 | oral_core_035_fu02 | Quantity, quality, purpose, posture, interaction and catatonic findings | 346–431; 667 |
-| 17 | oral_core_035_fu03 | Slowing, inhibition and stupor; consciousness and urgent care | 346–431 |
-| 18 | oral_core_035_fu05 | Negativism, gegenhalten, catalepsy and waxy flexibility | 416–430 |
-| 19 | oral_core_035_fu06 | Conflicting intentions and motor ambitendency versus affective ambivalence | 346–431 |
-| 20 | oral_core_017_fu02 | Catatonia mimics and medication-induced movement disorders | Retained reviewed answer; BAP Table 10 |
-| 21 | ch1_consciousness | Arousal, awareness, orientation, quantitative/qualitative disturbances and stupor | 497–537 |
-| 22 | ch1_attention | Attention, concentration, distractibility, testing and confounders | 540–550 |
-| 23 | ch1_memory | Encoding/storage/retrieval, temporal types, amnesia, recognition and confabulation | 454–494 |
-| 24 | ch1_confusion | Confusion versus delirium/delusion; acute assessment and supportive care | 534–537; 668; NICE/MSD |
-| 25 | ch1_insight | Dimensions of insight, judgment, decision-specific ability and engagement | 553–560 |
-| 26 | Q10 | Full catatonia syndrome, all 12 DSM-5-TR signs, causes, workup, differential, challenge, treatment, malignant presentation and follow-up | 567–652; retained reviewed answer; BAP |
+| 1 | ch1_mood_affect | Subjective mood, observed affect, quality/range/reactivity, ambivalence, anhedonia, alexithymia | 49–131 |
+| 2 | Q57 | Apathy, depression and neurological differential | 130–131; retained reviewed answer |
+| 3 | 3D1 | Illusions, hallucinations, modalities, special forms, recognition experiences, sleep and sensory loss | 134–240; 662 |
+| 4 | ch1_self_body | Self-experience, depersonalisation/derealisation, agency, body representation | 239–240; 433–451; 515–532 |
+| 5 | ch1_speech | Speech production, articulation, prosody, language and aphasia | 20–47; 268–270 |
+| 6 | ch1_thought_form | Form, flow, continuity, goal, associations and illustrative distinctions | 243–270 |
+| 7 | Q2 | Delusion, overvalued belief, obsession, cultural context | 273–291; 665 |
+| 8 | oral_core_009_fu01 | Obsessions and compulsions | Retained reviewed answer |
+| 9 | ch1_delusional_experiences | Primary/secondary, delusional mood, perception, intuition and memory | 293–317 |
+| 10 | ch1_delusional_themes | Themes, mood congruence, shared beliefs, Cotard, erotomania, jealousy, infestation | 318–345; Oxford Chapter 1 |
+| 11 | ch1_misidentification | Capgras/Frégoli and related syndromes; recognition versus belief; safety | 331–334; 664; verified supplementary sources |
+| 12 | exam_volition | Diminished/increased volition, conflicting intentions and passivity | 346–431; 663 |
+| 13 | oral_core_035 | Volition versus movement; extrapyramidal effects, chorea, tics, other involuntary or execution disorders | 346–431; 666 |
+| 14 | oral_core_035_fu02 | Quantity, quality, purpose, posture, interaction and catatonic findings; slowing, inhibition and stupor | 346–431; 667 |
+| 15 | ch1_consciousness | Arousal, awareness, orientation, quantitative/qualitative disturbances and stupor | 497–537 |
+| 16 | ch1_attention | Attention, concentration, distractibility, testing and confounders | 540–550 |
+| 17 | ch1_memory | Encoding/storage/retrieval, temporal types, amnesia, recognition and confabulation | 454–494 |
+| 18 | ch1_confusion | Confusion versus delirium/delusion; acute assessment and supportive care | 534–537; 668; NICE/MSD |
+| 19 | ch1_insight | Dimensions of insight, judgment, decision-specific ability and engagement | 553–560 |
+| 20 | Q10 | Full catatonia syndrome, all 12 DSM-5-TR signs, causes, workup, differential, challenge, treatment, malignant presentation and follow-up; merged postural signs, ambitendency and detailed differential | 567–652; retained reviewed answer; BAP |
 
 ## Corrections and boundaries
 
@@ -88,8 +99,9 @@ Verification-sensitive clinical details use:
 
 ## Validation
 
-The focused tests exercise all 26 destinations, non-leading index display,
-previous/next sequence, the existing catatonia bookmark and all twelve displayed
-criteria. Existing bank, retirement, source-traceability and global-search tests
-also run. Browser QA and production deployment are checked before completion;
-the PR records the final results rather than treating this document as proof.
+The focused tests exercise all 20 current destinations, exact restored titles,
+absence of the removed exam scaffolding, previous/next sequence, the existing
+catatonia bookmark, all twelve displayed criteria, and legacy links after
+consolidation or chapter movement. Existing bank, retirement, source-traceability
+and global-search tests also run. Browser QA and production deployment are
+checked before completion; the PR records final results.

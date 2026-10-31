@@ -7,6 +7,7 @@ import { buildOralBank } from './oralChapters';
 import bankClinicalNotes from './oralBankClinicalNotes';
 import bankEthicsNotes from './oralBankEthicsNotes';
 import bankPharmacologyNotes from './oralBankPharmacologyNotes';
+import { oralRetirements } from './oralRetirements';
 
 describe('oral source review traceability', () => {
   it('finishes the 75 bank-only conversions and renders structured notes for the whole bank', () => {
@@ -14,9 +15,9 @@ describe('oral source review traceability', () => {
     expect(additions).toHaveLength(75);
     expect(new Set(additions).size).toBe(75);
     const bank = buildOralBank(previous, clinical, crucial);
-    expect(bank).toHaveLength(384);
-    expect(new Set(bank.map(q => q.id)).size).toBe(384);
-    expect(additions.every(id => bank.some(q => q.id === id))).toBe(true);
+    expect(bank).toHaveLength(379);
+    expect(new Set(bank.map(q => q.id)).size).toBe(379);
+    expect(additions.every(id => bank.some(q => q.id === (oralRetirements[id] || id)))).toBe(true);
     for (const q of bank) {
       expect(q.studyNotes?.hideSources, q.id).toBe(true);
       expect(q.studyNotes?.sections.length, q.id).toBeGreaterThan(0);
@@ -57,7 +58,7 @@ describe('oral source review traceability', () => {
     for (const requirement of review.requirements) {
       expect(requirement.destinations.length, requirement.id).toBeGreaterThan(0);
       for (const id of requirement.destinations) {
-        const q = bank.get(id);
+        const q = bank.get(oralRetirements[id] || id);
         expect(q, `${requirement.id}: ${id}`).toBeDefined();
         expect(q.studyNotes?.sections.length || q.answer?.length || q.modelAnswer?.length, id).toBeGreaterThan(0);
       }
@@ -70,7 +71,7 @@ describe('oral source review traceability', () => {
     const bank = new Map(buildOralBank(previous, clinical, crucial).map(q => [q.id, q]));
     const destinations = new Set(review.requirements.flatMap(x => x.destinations));
     for (const id of destinations) {
-      const notes = bank.get(id).studyNotes;
+      const notes = bank.get(oralRetirements[id] || id).studyNotes;
       expect(notes?.sections.length, id).toBeGreaterThan(0);
       expect(notes.hideSources, id).toBe(true);
     }

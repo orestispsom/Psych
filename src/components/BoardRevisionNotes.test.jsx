@@ -19,7 +19,7 @@ describe('Chapter 13 board revision', () => {
   it.each([
     [4, 'Q8', 'Λειτουργική κλινική αξιολόγηση', 'Στάθμιση'],
     [25, 'Q83', 'Μετά από διακοπή', '5 ημιζωές'],
-    [1, '1Aa2', 'Συμπτώματα πρώτης τάξης', 'Schneider'],
+    [11, '1Aa2', 'Συμπτώματα πρώτης τάξης', 'Schneider'],
   ])('opens the converted bank entry %s/%s through its existing route', async (chapter, id, heading, detail) => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     const renderCrucial = vi.fn(() => <p>Old model answer</p>);
