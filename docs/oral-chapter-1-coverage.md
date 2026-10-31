@@ -1,5 +1,32 @@
 # Chapter 1 psychopathology coverage
 
+## Delusional-themes rewrite, 1 November 2026
+
+At the user's request, `ch1_delusional_themes` is rewritten from main
+`7633b8f67fe921a4815893faf1cd103c6f10c074`. Persecution/reference,
+grandeur/religious content, guilt/poverty and somatic/infestation no longer
+share entries. Each has its own definition; insertion, withdrawal and
+broadcasting of thought also have individual entries. Passivity/control remain
+one concept, labelled with a parenthetical synonym. Infestation is explicitly
+a somatic subtype, not an unrelated category or a synonym for all somatic
+delusions. Cotard, Ekbom, Othello and de Clérambault are tied to the relevant
+themes. Shared delusion and mood congruence are explained separately because
+they describe different features. The adjacent misidentification answer and
+Schneider placement remain intact.
+
+The desktop guide was re-read at paragraphs 286–357, especially 318–357;
+Shorter Oxford Chapter 1, Box 1.2 and printed pp. 11–13 (PDF pp. 20–22)
+provided the thematic distinctions. The [NIMH coordinated-specialty-care
+implementation manual](https://www.nimh.nih.gov/sites/default/files/documents/health/topics/schizophrenia/raise/csc-for-fep-manual-ii-implementation-manual.pdf)
+also distinguishes reference, persecution and somatic content. Reference need
+not be hostile; culturally shared religious belief is not automatically
+pathological; no inevitable erotomanic sequence or demographic rule is taught.
+The original question title, ID, position and chapter counts are preserved.
+The regression test checks separately rendered rows and specific syndrome
+associations, including that Ekbom is not applied to all somatic beliefs.
+
+## Earlier source review
+
 Clinical source review began against Psych `2f9ba2a56ac8739f41009d11938d1d1c07da5ce5`.
 The editorial revision follows the user's correction to the Chapter 1 version
 published in `69d760984b2bb45fe3ced1c1079b2f613488fab9`.

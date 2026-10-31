@@ -19,6 +19,24 @@ function openChapter(path = '/oral/chapters/1') {
 }
 
 describe('Chapter 1 psychopathology coverage', () => {
+  it('separates delusional themes and associates syndromes with the specific relevant theme', async () => {
+    openChapter('/oral/chapters/1/questions/ch1_delusional_themes');
+    const types = await screen.findByRole('region', { name: 'Τύποι παραληρητικών ιδεών' });
+    for (const name of ['Διωκτικές', 'Αναφοράς', 'Μεγαλείου', 'Θρησκευτικές', 'Ενοχής', 'Πτωχείας', 'Σωματικές', 'Παρασιτώσεως', 'Πρόσδοσης σκέψης', 'Αφαίρεσης σκέψης', 'Εκπομπής σκέψης']) {
+      expect(within(types).getByRole('rowheader', { name, exact: true })).toBeInTheDocument();
+    }
+    const row = name => within(types).getByRole('rowheader', { name, exact: true }).closest('tr');
+    expect(row('Αναφοράς')).toHaveTextContent('δεν είναι υποχρεωτικά απειλητική');
+    expect(row('Διωκτικές')).toHaveTextContent('εχθρική πρόθεση');
+    expect(row('Παρασιτώσεως')).toHaveTextContent('Ekbom');
+    expect(row('Σωματικές')).not.toHaveTextContent('Ekbom');
+    expect(row('Μηδενιστικές')).toHaveTextContent('Cotard');
+    expect(row('Ζηλοτυπικές')).toHaveTextContent('Othello');
+    expect(row('Ερωτομανιακές')).toHaveTextContent('de Clérambault');
+    expect(screen.getByRole('heading', { name: 'Επινεμόμενο παραλήρημα — folie à deux' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Σχέση με τη διάθεση' })).toBeInTheDocument();
+  });
+
   it('defines the complete mood and affect phenomena rather than only mentioning their names', () => {
     const question = buildOralBank(previous, clinical, crucial).find(q => q.id === 'ch1_mood_affect');
     const section = title => question.studyNotes.sections.find(s => s.title === title);
