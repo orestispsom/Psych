@@ -2,6 +2,7 @@ import { prose, bullets, table, study, classification, eeg } from './oralExamStu
 import { bipolarBiology, bipolarCognition, depressionCourse } from './oralExamMoodPsychosis';
 import { antidepressants, hepatic, flumazenil, stimulation } from './oralExamPharmacology';
 import { datScanNotes, stabilizerNotes, psychodynamicNotes } from './oralExamFollowupNotes';
+import volitionNotes from './oralVolitionNotes';
 
 const opioidReceptors = study(
   prose('Υποδοχείς και κυτταρική δράση', 'Οι κλασικοί οπιοειδείς υποδοχείς μ, δ και κ είναι συζευγμένοι με πρωτεΐνες Gi/o. Η ενεργοποίησή τους μειώνει την αδενυλική κυκλάση, περιορίζει την προσυναπτική είσοδο ασβεστίου και αυξάνει τη μετασυναπτική αγωγιμότητα καλίου, με αναστολή νευρωνικής δραστηριότητας και απελευθέρωσης νευροδιαβιβαστών.'),
@@ -74,6 +75,7 @@ const alcoholTypes = study(
 );
 
 export const extraQuestions = [
+  { id: 'exam_volition', chapter: 1, text: 'Τι γνωρίζετε για τις διαταραχές βούλησης;', studyNotes: volitionNotes },
   { id: 'exam_classification', chapter: 2, text: 'Ποιες είναι οι βασικές διαφορές DSM-5-TR, ICD-10 και ICD-11 και ποια τα όρια της ψυχιατρικής ταξινόμησης;', studyNotes: classification },
   { id: 'exam_neurotransmitters', chapter: 5, text: 'Πού εντοπίζονται τα κύρια νευροδιαβιβαστικά συστήματα και πώς οργανώνονται οι υποδοχείς και οι οδοί της ντοπαμίνης;', studyNotes: transmitters },
   { id: 'exam_coping', chapter: 7, text: 'Ποιες είναι οι αντιδράσεις στο στρες και οι προσαρμοστικές ή δυσπροσαρμοστικές στρατηγικές αντιμετώπισης;', studyNotes: coping },
