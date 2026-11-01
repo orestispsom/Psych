@@ -9,8 +9,8 @@ import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 test('full bank has stable unique IDs, Greek content and valid answers',async()=>{
-  const bank=await loadBank(); assert.equal(bank.questions.length,2052);
-  assert.equal(new Set(bank.questions.map(q=>q.id)).size,2052);
+  const bank=await loadBank(); assert.equal(bank.questions.length,2044);
+  assert.equal(new Set(bank.questions.map(q=>q.id)).size,2044);
   assert.ok(bank.questions.every(q=>q.options.length>=2 && q.correct<q.options.length));
   assert.equal((await loadBank()).bankVersion,bank.bankVersion);
   const reordered=[...bank.questions].reverse().sort((a,b)=>a.id-b.id).map(({contentHash,...q})=>q);
