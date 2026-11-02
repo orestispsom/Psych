@@ -14,7 +14,7 @@ import examMoodPsychosis from './oralExamMoodPsychosis';
 import examPharmacology from './oralExamPharmacology';
 import examClinicalExpansions, { appendSections } from './oralExamClinicalExpansions';
 import { extraQuestions } from './oralExamAdditionalContent';
-import chapters2to6Notes, { chapters2to6Additions, chapters2to6Prompts, chapters2to6Order } from './oralChapters2to6Notes';
+import chapters2to6Notes, { chapters2to6Additions, chapters2to6Prompts, chapters2to6Order, oralRequestedRemovals } from './oralChapters2to6Notes';
 import chapterOneNotes, { chapterOneAdditions, chapterOneOrder, chapterOnePrompts } from './oralChapter1Notes';
 import examFoundations from './oralExamFoundations';
 import examCarePlans from './oralExamCarePlans';
@@ -87,6 +87,13 @@ const crucial = [3,1,3,21,21,18,3,4,4,1,11,11,11,5,11,11,11,11,25,9,9,9,10,10,10
 // Standalone follow-ups must be placed by the question's main task, not only
 // by their original anchor's chapter. These moves were reviewed individually.
 const editorialOverrides = {
+  '5A5': 11,
+  'jan2026_03': 11,
+  'Q14': 11,
+  '3D12': 9,
+  'jan2026_22': 8,
+  'jan2026_05': 8,
+  'jan2026_17': 20,
   "oral_core_016_fu04": 4,
   "1Ae5": 11,
   "jan2026_04": 11,
@@ -205,7 +212,7 @@ export function buildOralBank(previous, clinical, crucialQuestions) {
     })))));
   return [...history, ...chapterThirteenFoundations, ...extraQuestions, ...chapterOneAdditions, ...chapters2to6Additions, ...clinical.map(q => ({ ...q, text: q.question, kind: 'clinical', context: q.subtopic })),
     ...crucialQuestions.map(q => ({ ...q, text: q.title, kind: 'crucial', context: '100 Κρίσιμα Θέματα' }))]
-    .filter(q => !Object.hasOwn(oralRetirements, q.id))
+    .filter(q => !Object.hasOwn(oralRetirements, q.id) && !oralRequestedRemovals.has(q.id))
     .map(q => {
       const base = revisionNotes[q.id] || q.studyNotes;
       const extra = Object.hasOwn(chapters2to6Notes, q.id) ? undefined : followupSections[q.id];

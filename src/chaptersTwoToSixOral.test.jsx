@@ -21,9 +21,47 @@ function open(path) {
 }
 
 describe('Chapters 2–6 editorial review', () => {
+  it('removes the four requested cards from browsing and search', async () => {
+    const removed = ['exam_classification', '4B5', 'ch4_research_ethics', 'ch6_evidence'];
+    const index = (await getSearchIndex()).filter(q => q.scope === 'oral');
+    for (const id of removed) {
+      expect(bank.some(q => q.id === id), id).toBe(false);
+      expect(index.some(q => q.state.oralQuestionId === id), id).toBe(false);
+    }
+    expect(chapters2to6Order[4]).toEqual(['ch4_ethics', 'Q8', 'Q9', 'oral_core_016_fu04']);
+  });
+
+  it('provides specific causes and the four classic capacity abilities in displayed notes', async () => {
+    open('/oral/chapters/3/questions/Q3');
+    expect(await screen.findByRole('heading', { name: 'Αίτιο, κλινική εικόνα και στοιχείο διάκρισης' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: /Υπερθυρεοειδισμός/ })).toBeInTheDocument();
+    cleanup();
+    open('/oral/chapters/4/questions/Q8');
+    expect(await screen.findByRole('heading', { name: 'Κλασικός ορισμός της ικανότητας' })).toBeInTheDocument();
+    const region = screen.getByRole('region', { name: 'Τα τέσσερα κλασικά κριτήρια' });
+    expect(within(region).getAllByRole('row')).toHaveLength(5);
+    for (const term of ['understanding', 'appreciation', 'reasoning', 'expressing a choice']) {
+      expect(within(region).getByRole('rowheader', { name: new RegExp(term) })).toBeInTheDocument();
+    }
+  });
+
+  it.each([
+    ['5A5', 11], ['jan2026_03', 11], ['Q14', 11], ['3D12', 9],
+    ['jan2026_22', 8], ['jan2026_05', 8], ['jan2026_17', 20],
+  ])('moves %s once, updates search, and opens the old chapter-5 bookmark', async (id, chapter) => {
+    expect(bank.filter(q => q.id === id)).toHaveLength(1);
+    expect(bank.find(q => q.id === id).chapter).toBe(chapter);
+    const index = await getSearchIndex();
+    expect(index.find(q => q.scope === 'oral' && q.state.oralQuestionId === id).path)
+      .toBe(`/oral/chapters/${chapter}/questions/${id}`);
+    open(`/oral/chapters/5/questions/${id}`);
+    const back = await screen.findByRole('link', { name: 'Λίστα ερωτήσεων' });
+    expect(back).toHaveAttribute('href', `/oral/chapters/${chapter}`);
+  });
+
   it('orders the restrained set of questions and avoids template sections or duplicate headings', () => {
     const questions = bank.filter(q => q.chapter >= 2 && q.chapter <= 6);
-    expect(questions).toHaveLength(37);
+    expect(questions).toHaveLength(26);
     for (const [chapter, order] of Object.entries(chapters2to6Order)) {
       expect(orderOralQuestions(questions.filter(q => q.chapter === Number(chapter))).map(q => q.id)).toEqual(order);
     }
@@ -69,7 +107,6 @@ describe('Chapters 2–6 editorial review', () => {
     expect(notes('Q9')).toContain('σίτιση, ενυδάτωση');
     expect(notes('Q9')).toContain('δεν αποφασίζει μόνη της');
     expect(notes('Q1')).toContain('ιστορικό περιγράφει τη διαχρονική πορεία');
-    expect(notes('ch6_evidence')).toContain('PICO');
     expect(notes('ch6_diagnostic_accuracy')).toContain('90/180 = 50%');
     expect(notes('5A10')).toContain('απόκρυψη κατανομής');
     expect(notes('5A12')).toContain('Δεν είναι η πιθανότητα να είναι σωστή η μηδενική υπόθεση');
@@ -79,7 +116,7 @@ describe('Chapters 2–6 editorial review', () => {
     const user = userEvent.setup();
     open('/oral/chapters/5');
     const index = await screen.findByRole('region', { name: 'Ερωτήσεις κεφαλαίου' });
-    expect(within(index).getAllByRole('link')).toHaveLength(18);
+    expect(within(index).getAllByRole('link')).toHaveLength(11);
     expect(within(index).queryByText(/Μεθυλίωση DNA|Παθητική|MAOA/)).not.toBeInTheDocument();
     await user.click(within(index).getByRole('link', { name: /Τι είναι η επιγενετική/ }));
     expect(await screen.findByRole('heading', { name: 'Κύριοι μηχανισμοί' })).toBeInTheDocument();
