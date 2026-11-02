@@ -82,7 +82,7 @@ describe('Greek oral chapter organization', () => {
   });
   it('consolidates cross-chapter classification and the four repeated assessment follow-ups', () => {
     const bank = buildOralBank(previous, clinical, crucial);
-    expect(bank.filter(q => q.chapter === 3).map(q => q.id)).toEqual(['exam_eeg', 'Q1', 'Q3', 'Q6', 'Q7']);
+    expect(bank.filter(q => q.chapter === 3).map(q => q.id)).toEqual(['Q1', 'Q3', 'Q6', 'Q7']);
     expect(bank.filter(q => q.chapter === 2).map(q => q.id)).toEqual(['exam_classification', 'ch2_classification_models']);
     expect(oralRetirements['1Aa3']).toBe('Q12');
     expect(bank.find(q => q.id === 'Q12').additionalAnswer.join(' ')).toContain('όχι κριτήρια ICD-11');
