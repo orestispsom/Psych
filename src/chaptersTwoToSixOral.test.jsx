@@ -35,6 +35,16 @@ describe('Chapters 2–6 editorial review', () => {
     }
   });
 
+  it('places the EEG and evoked potentials question only in chapter 5', async () => {
+    const eegQuestions = bank.filter(q => q.id === 'exam_eeg');
+    expect(eegQuestions).toHaveLength(1);
+    expect(eegQuestions[0].chapter).toBe(5);
+    expect(chapters2to6Order[3]).not.toContain('exam_eeg');
+    expect(chapters2to6Order[5]).toContain('exam_eeg');
+    const searchEntry = (await getSearchIndex()).find(q => q.scope === 'oral' && q.state.oralQuestionId === 'exam_eeg');
+    expect(searchEntry.path).toBe('/oral/chapters/5/questions/exam_eeg');
+  });
+
   it('makes the recalled genetics questions findable without collapsing distinct concepts', () => {
     expect(bank.find(q => q.id === '5A6').text).toBe('Τι είναι η επίσταση;');
     expect(bank.find(q => q.id === '5A3').text).not.toContain('μικρό risk');
@@ -69,7 +79,7 @@ describe('Chapters 2–6 editorial review', () => {
     const user = userEvent.setup();
     open('/oral/chapters/5');
     const index = await screen.findByRole('region', { name: 'Ερωτήσεις κεφαλαίου' });
-    expect(within(index).getAllByRole('link')).toHaveLength(17);
+    expect(within(index).getAllByRole('link')).toHaveLength(18);
     expect(within(index).queryByText(/Μεθυλίωση DNA|Παθητική|MAOA/)).not.toBeInTheDocument();
     await user.click(within(index).getByRole('link', { name: /Τι είναι η επιγενετική/ }));
     expect(await screen.findByRole('heading', { name: 'Κύριοι μηχανισμοί' })).toBeInTheDocument();
