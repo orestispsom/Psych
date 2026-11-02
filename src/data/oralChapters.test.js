@@ -7,7 +7,7 @@ import clinical from './oralCore';
 import crucial from './crucialQuestionsContent';
 import chapterThirteenFoundations from './oralChapter13Foundations';
 import { extraQuestions } from './oralExamAdditionalContent';
-import { chapters2to6Additions, chapters2to6Prompts } from './oralChapters2to6Notes';
+import { chapters2to6Additions, chapters2to6Prompts, oralRequestedRemovals } from './oralChapters2to6Notes';
 import { chapterOneAdditions, chapterOnePrompts } from './oralChapter1Notes';
 import { buildOralBank, chapterForQuestion, oralChapters } from './oralChapters';
 import { oralRetirements, oralConsolidatedPoints } from './oralRetirements';
@@ -30,11 +30,11 @@ describe('Greek oral chapter organization', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     const history = previous.flatMap(g => g.topics.flatMap(t => (t.subtopics || [t]).flatMap(s => s.questions || [])));
     expect(Object.keys(oralRetirements)).toHaveLength(190);
-    expect(bank).toHaveLength(380);
-    expect(bank).toHaveLength(history.length + clinical.length + crucial.length + chapterThirteenFoundations.length + extraQuestions.length + chapterOneAdditions.length + chapters2to6Additions.length - Object.keys(oralRetirements).length);
+    expect(bank).toHaveLength(376);
+    expect(bank).toHaveLength(history.length + clinical.length + crucial.length + chapterThirteenFoundations.length + extraQuestions.length + chapterOneAdditions.length + chapters2to6Additions.length - Object.keys(oralRetirements).length - oralRequestedRemovals.size);
     expect(new Set(bank.map(q => q.id)).size).toBe(bank.length);
     expect(bank.filter(q => !oralChapters.some(ch => ch.id === q.chapter))).toEqual([]);
-    history.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject({
+    history.filter(q => !oralRetirements[q.id] && !oralRequestedRemovals.has(q.id)).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject({
       ...q, text: chapterOnePrompts[q.id] || chapters2to6Prompts[q.id] || q.text,
     }));
     clinical.filter(q => !oralRetirements[q.id]).forEach(q => expect(bank.find(item => item.id === q.id)).toMatchObject(q));
@@ -83,18 +83,19 @@ describe('Greek oral chapter organization', () => {
   it('consolidates cross-chapter classification and the four repeated assessment follow-ups', () => {
     const bank = buildOralBank(previous, clinical, crucial);
     expect(bank.filter(q => q.chapter === 3).map(q => q.id)).toEqual(['Q1', 'Q3', 'Q6', 'Q7']);
-    expect(bank.filter(q => q.chapter === 2).map(q => q.id)).toEqual(['exam_classification', 'ch2_classification_models']);
+    expect(bank.filter(q => q.chapter === 2).map(q => q.id)).toEqual(['ch2_classification_models']);
     expect(oralRetirements['1Aa3']).toBe('Q12');
     expect(bank.find(q => q.id === 'Q12').additionalAnswer.join(' ')).toContain('όχι κριτήρια ICD-11');
     for (const item of secondPass) {
       expect(oralRetirements[item.retired]).toBe(item.retained);
       expect(bank.some(q => q.id === item.retired)).toBe(false);
-      expect(bank.find(q => q.id === item.retained)?.chapter).toBe(item.toChapter);
+      const laterPlacements = { Q14: 11, '5A5': 11, jan2026_03: 11, jan2026_22: 8, jan2026_05: 8, jan2026_17: 20, '3D12': 9 };
+      expect(bank.find(q => q.id === item.retained)?.chapter).toBe(laterPlacements[item.retained] ?? item.toChapter);
     }
   });
   it('uses the same active bank in global search, excluding all retired cards', async () => {
     const oral = (await getSearchIndex()).filter(item => item.scope === 'oral');
-    expect(oral).toHaveLength(380);
+    expect(oral).toHaveLength(376);
     expect(oral.some(item => oralRetirements[item.state.oralQuestionId])).toBe(false);
     expect(oral.find(item => item.state.oralQuestionId === '2Ag1').body).toContain('SERT');
   });
@@ -121,7 +122,7 @@ describe('Greek oral chapter organization', () => {
     expect(chapterForQuestion('oral_core_001_fu07')).toBe(25);
     expect(chapterForQuestion('oral_core_009')).toBe(8);
     expect(chapterForQuestion('oral_core_009_fu01')).toBe(1);
-    expect(chapterForQuestion('Q14')).toBe(5);
+    expect(chapterForQuestion('Q14')).toBe(11);
     expect(chapterForQuestion('jan2026_04')).toBe(11);
   });
   it('distinguishes symptom chapters, ethics, research, suicide and biological therapies', () => {
