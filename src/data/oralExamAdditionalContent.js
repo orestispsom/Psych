@@ -90,7 +90,7 @@ export const extraQuestions = [
   { id: 'exam_hepatic', chapter: 25, text: 'Πώς επηρεάζει η ηπατική ανεπάρκεια την αξιολόγηση και την επιλογή ψυχοτρόπων;', studyNotes: hepatic },
   { id: 'exam_flumazenil', chapter: 25, text: 'Ποια είναι η θέση της φλουμαζενίλης σε μικτή υπερδοσολογία βενζοδιαζεπινών και τρικυκλικών;', studyNotes: flumazenil },
   { id: 'exam_stimulation', chapter: 25, text: 'Πώς συγκρίνονται ECT, rTMS, tDCS, VNS και DBS ως προς τεχνική, ενδείξεις και κινδύνους;', studyNotes: stimulation },
-  { id: 'exam_eeg', chapter: 3, text: 'Τι πληροφορίες παρέχουν το ΗΕΓ και τα προκλητά δυναμικά στην ψυχιατρική και ποια είναι τα διαγνωστικά τους όρια;', studyNotes: eeg },
+  { id: 'exam_eeg', chapter: 5, text: 'Τι πληροφορίες παρέχουν το ΗΕΓ και τα προκλητά δυναμικά στην ψυχιατρική και ποια είναι τα διαγνωστικά τους όρια;', studyNotes: eeg },
   { id: 'exam_dat_scan', chapter: 14, text: 'Τι δείχνει το DAT-SPECT και ποια φάρμακα χρειάζονται έλεγχο πριν από την εξέταση;', studyNotes: datScanNotes },
   { id: 'exam_stabilizers', chapter: 25, text: 'Ποιοι είναι οι μηχανισμοί δράσης και τα επίπεδα ορού των βασικών σταθεροποιητών διάθεσης;', studyNotes: stabilizerNotes },
   { id: 'exam_psychodynamic', chapter: 24, text: 'Πώς διαφέρουν η ψυχανάλυση και η ψυχοδυναμική ψυχοθεραπεία και ποιες τεχνικές χρησιμοποιούν;', studyNotes: psychodynamicNotes },
