@@ -182,10 +182,10 @@ export const chapters2to6Prompts = {
 
 export const chapters2to6Order = {
   2: ['ch2_classification_models', 'exam_classification'],
-  3: ['Q1', 'Q3', 'exam_eeg', 'Q6', 'Q7'],
+  3: ['Q1', 'Q3', 'Q6', 'Q7'],
   4: ['ch4_ethics', 'Q8', '4B5', 'Q9', 'oral_core_016_fu04', 'ch4_research_ethics'],
   5: ['ch5_aetiology', 'Q96', '5A2', '5A6', 'ch5_epigenetics', 'ch5_gene_environment', '5A3', '5A5',
-    'Q94', 'exam_neurotransmitters', 'Q95', 'jan2026_22', 'jan2026_05', 'jan2026_17', 'jan2026_03', 'Q14', '3D12'],
+    'Q94', 'exam_neurotransmitters', 'exam_eeg', 'Q95', 'jan2026_22', 'jan2026_05', 'jan2026_17', 'jan2026_03', 'Q14', '3D12'],
   6: ['ch6_evidence', '5A8', '5A10', '5A11', '5A9', 'ch6_diagnostic_accuracy', '5A12'],
 };
 
