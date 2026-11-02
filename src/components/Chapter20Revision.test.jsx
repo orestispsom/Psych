@@ -22,8 +22,8 @@ const chapter = bank.filter(q => q.chapter === 20);
 const earlier = { ...ch13, ...ch14, ...ch15, ...ch16, ...ch17to19 };
 
 describe('Chapter 20 board revision', () => {
-  it('covers the 29 prior and two additional questions and preserves imported records and earlier notes', () => {
-    expect(chapter).toHaveLength(31);
+  it('covers the prior questions, additions and moved neurobiology entry and preserves imported records and earlier notes', () => {
+    expect(chapter).toHaveLength(32);
     expect(Object.keys(notes).sort()).toEqual(chapter.filter(q => notes[q.id]).map(q => q.id).sort());
     for (const q of chapter.filter(q => notes[q.id])) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(notes[q.id].sections));
     for (const q of bank.filter(q => earlier[q.id] && q.id !== 'Q67')) expect(q.studyNotes.sections).toEqual(expect.arrayContaining(earlier[q.id].sections));

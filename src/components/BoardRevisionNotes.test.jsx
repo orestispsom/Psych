@@ -17,7 +17,7 @@ describe('Chapter 13 board revision', () => {
   const bank = buildOralBank(previous, clinical, crucial);
 
   it.each([
-    [4, 'Q8', 'Λειτουργική κλινική αξιολόγηση', 'Στάθμιση'],
+    [4, 'Q8', 'Τα τέσσερα κλασικά κριτήρια', 'Συλλογισμός και στάθμιση — reasoning'],
     [25, 'Q83', 'Μετά από διακοπή', '5 ημιζωές'],
     [11, '1Aa2', 'Συμπτώματα πρώτης τάξης', 'Schneider'],
   ])('opens the converted bank entry %s/%s through its existing route', async (chapter, id, heading, detail) => {
