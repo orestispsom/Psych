@@ -46,7 +46,7 @@ describe('Chapters 2–6 editorial review', () => {
   });
 
   it.each([
-    ['5A5', 11], ['jan2026_03', 11], ['Q14', 11], ['3D12', 9],
+    ['5A2', 11], ['5A5', 11], ['jan2026_03', 11], ['Q14', 11], ['3D12', 9],
     ['jan2026_22', 8], ['jan2026_05', 8], ['jan2026_17', 20],
   ])('moves %s once, updates search, and opens the old chapter-5 bookmark', async (id, chapter) => {
     expect(bank.filter(q => q.id === id)).toHaveLength(1);
@@ -61,7 +61,7 @@ describe('Chapters 2–6 editorial review', () => {
 
   it('orders the restrained set of questions and avoids template sections or duplicate headings', () => {
     const questions = bank.filter(q => q.chapter >= 2 && q.chapter <= 6);
-    expect(questions).toHaveLength(26);
+    expect(questions).toHaveLength(25);
     for (const [chapter, order] of Object.entries(chapters2to6Order)) {
       expect(orderOralQuestions(questions.filter(q => q.chapter === Number(chapter))).map(q => q.id)).toEqual(order);
     }
@@ -116,7 +116,7 @@ describe('Chapters 2–6 editorial review', () => {
     const user = userEvent.setup();
     open('/oral/chapters/5');
     const index = await screen.findByRole('region', { name: 'Ερωτήσεις κεφαλαίου' });
-    expect(within(index).getAllByRole('link')).toHaveLength(11);
+    expect(within(index).getAllByRole('link')).toHaveLength(10);
     expect(within(index).queryByText(/Μεθυλίωση DNA|Παθητική|MAOA/)).not.toBeInTheDocument();
     await user.click(within(index).getByRole('link', { name: /Τι είναι η επιγενετική/ }));
     expect(await screen.findByRole('heading', { name: 'Κύριοι μηχανισμοί' })).toBeInTheDocument();

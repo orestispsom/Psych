@@ -20,7 +20,7 @@ the four explicit user exclusions supersede their active-card expectations.
 
 | IDs | Destination |
 | --- | --- |
-| 5A5, jan2026_03, Q14 | 11 — Schizophrenia |
+| 5A2, 5A5, jan2026_03, Q14 | 11 — Schizophrenia |
 | 3D12 | 9 — Depression |
 | jan2026_22, jan2026_05 | 8 — Anxiety and obsessive-compulsive disorders |
 | jan2026_17 | 20 — Alcohol and substance use |
@@ -28,7 +28,7 @@ the four explicit user exclusions supersede their active-card expectations.
 General aetiology, genetics, epigenetics, brain circuits, neurotransmission
 and EEG remain in chapter 5. Existing answer content and question IDs are
 preserved for moved cards. The workspace corrects old chapter URLs and search
-builds paths from the new placement. Chapter 5 now has 11 entries; the active
+builds paths from the new placement. Chapter 5 now has 10 entries; the active
 bank has 376.
 
 ## Clinical verification
@@ -43,4 +43,4 @@ was checked against these sources on 2 November 2026:
 - [MedlinePlus: Mental Disorders](https://medlineplus.gov/mentaldisorders.html): multifactorial risk framework, kept distinct from direct secondary causes.
 
 The historical second-pass consolidation destinations are superseded only
-for the seven placements above; consolidations themselves remain intact.
+for the eight placements above; consolidations themselves remain intact.

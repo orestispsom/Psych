@@ -190,7 +190,7 @@ export const chapters2to6Order = {
   2: ['ch2_classification_models'],
   3: ['Q1', 'Q3', 'Q6', 'Q7'],
   4: ['ch4_ethics', 'Q8', 'Q9', 'oral_core_016_fu04'],
-  5: ['ch5_aetiology', 'Q96', '5A2', '5A6', 'ch5_epigenetics', 'ch5_gene_environment', '5A3',
+  5: ['ch5_aetiology', 'Q96', '5A6', 'ch5_epigenetics', 'ch5_gene_environment', '5A3',
     'Q94', 'exam_neurotransmitters', 'exam_eeg', 'Q95'],
   6: ['5A8', '5A10', '5A11', '5A9', 'ch6_diagnostic_accuracy', '5A12'],
 };

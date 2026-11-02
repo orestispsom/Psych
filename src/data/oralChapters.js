@@ -87,6 +87,7 @@ const crucial = [3,1,3,21,21,18,3,4,4,1,11,11,11,5,11,11,11,11,25,9,9,9,10,10,10
 // Standalone follow-ups must be placed by the question's main task, not only
 // by their original anchor's chapter. These moves were reviewed individually.
 const editorialOverrides = {
+  '5A2': 11,
   '5A5': 11,
   'jan2026_03': 11,
   'Q14': 11,
