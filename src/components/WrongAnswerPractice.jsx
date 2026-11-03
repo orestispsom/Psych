@@ -5,6 +5,7 @@ import { useWindowKeydown } from '../lib/useWindowKeydown.js';
 function optionOrders(questions) {
   return Object.fromEntries(questions.map(question => {
     const order = question.options.map((_, index) => index);
+    if (question.preserveOptionOrder) return [question.id, order];
     for (let index = order.length - 1; index > 0; index -= 1) {
       const other = Math.floor(Math.random() * (index + 1));
       [order[index], order[other]] = [order[other], order[index]];

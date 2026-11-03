@@ -111,12 +111,14 @@ function shuffleItems(items) {
 
 function createOptionOrder(question) {
   if (!question || !Array.isArray(question.options)) return [];
+  if (question.preserveOptionOrder) return question.options.map((_, index) => index);
   return shuffleItems(question.options.map((_, index) => index));
 }
 
 function normalizeOptionOrder(question, order) {
   if (!question || !Array.isArray(question.options)) return [];
   const optionIndexes = question.options.map((_, index) => index);
+  if (question.preserveOptionOrder) return optionIndexes;
   if (
     Array.isArray(order) &&
     order.length === optionIndexes.length &&
@@ -142,6 +144,7 @@ function getStoredOptionOrder(question, optionOrders = {}) {
   if (!question || !Array.isArray(question.options)) return [];
   const order = optionOrders?.[question.id] || optionOrders?.[String(question.id)];
   const optionIndexes = question.options.map((_, index) => index);
+  if (question.preserveOptionOrder) return optionIndexes;
   if (
     Array.isArray(order) &&
     order.length === optionIndexes.length &&
@@ -398,6 +401,7 @@ const MCQ_TOPIC_CATEGORIES = [
   THESSALONIKI_EXAMINER_BANK_TOPIC,
   "Σεπτεμβρίου 2026",
   "Φεβρουαρίου 2026",
+  "Προηγούμενα Ολόκληρα",
 ];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Διπλότυπη ερώτηση" },
