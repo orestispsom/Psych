@@ -396,6 +396,7 @@ const MCQ_TOPIC_CATEGORIES = [
   "\u03a8\u03c5\u03c7\u03b9\u03b1\u03c4\u03c1\u03b9\u03ba\u03ae \u03b7\u03bb\u03b9\u03ba\u03b9\u03c9\u03bc\u03ad\u03bd\u03c9\u03bd",
   "\u0399\u03c3\u03c4\u03bf\u03c1\u03af\u03b1, \u03ad\u03c1\u03b5\u03c5\u03bd\u03b1 \u03ba\u03b1\u03b9 \u03c4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7",
   THESSALONIKI_EXAMINER_BANK_TOPIC,
+  "Σεπτεμβρίου 2026",
 ];
 const MCQ_FEEDBACK_OPTIONS = [
   { value: "duplicate", label: "Διπλότυπη ερώτηση" },
