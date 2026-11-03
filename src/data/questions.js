@@ -35275,7 +35275,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποια κατάσταση μπορεί να προκαλέσει καταθλιπτική διαταραχή από ουσίες;",
     "options": [
       "Διακοπή χρόνιας χρήσης διεγερτικών",
@@ -35290,7 +35290,8 @@ export default [
     "recalledItemNumbers": [
       61
     ],
-    "reconstructionNote": "Η αρχική σημείωση αναφέρει μόνο «διακοπή κατάχρησης ουσιών»."
+    "reconstructionNote": "Η αρχική σημείωση αναφέρει μόνο «διακοπή κατάχρησης ουσιών».",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3346,
@@ -35407,7 +35408,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ασθενής παρουσιάζει πολλαπλές παραληρητικές ιδέες και πιστεύει ότι το φως μιας λάμπας θεραπεύει τη σύφιλη. Ποια διάγνωση είναι πιθανότερη;",
     "options": [
       "Σχιζοφρένεια",
@@ -35422,7 +35423,8 @@ export default [
     "recalledItemNumbers": [
       23
     ],
-    "reconstructionNote": "Η σημείωση δεν τεκμηριώνει διάρκεια ή επαρκή συμπτώματα για ασφαλή διάγνωση· επισημασμένο κλειδί σχιζοφρένεια."
+    "reconstructionNote": "Η σημείωση δεν τεκμηριώνει διάρκεια ή επαρκή συμπτώματα για ασφαλή διάγνωση· επισημασμένο κλειδί σχιζοφρένεια.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3352,
@@ -35450,7 +35452,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "fabricated",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιοι νευροβιολογικοί μηχανισμοί έχουν συνδεθεί με μη αυτοκτονικό αυτοτραυματισμό;",
     "options": [
       "Δυσλειτουργία ενδογενούς οπιοειδούς συστήματος",
@@ -35465,14 +35467,15 @@ export default [
     "recalledItemNumbers": [
       34
     ],
-    "reconstructionNote": "Η αρχική φωτογραφία δεν διασώζει επιλογές: ανασύνθεση με διατήρηση της σημείωσης «όλα τα παραπάνω»."
+    "reconstructionNote": "Η αρχική φωτογραφία δεν διασώζει επιλογές: ανασύνθεση με διατήρηση της σημείωσης «όλα τα παραπάνω».",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3354,
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιο σύμπτωμα χαρακτηρίζει προχωρημένο στερητικό σύνδρομο από οπιοειδή;",
     "options": [
       "Δακρύρροια",
@@ -35487,14 +35490,15 @@ export default [
     "recalledItemNumbers": [
       38
     ],
-    "reconstructionNote": "Η σημείωση επισημαίνει Β. Ωστόσο αρκετά από τα άλλα συμπτώματα επίσης εμφανίζονται στη στέρηση· απαιτείται αναφορά στη συγκεκριμένη σταδιοποίηση."
+    "reconstructionNote": "Η σημείωση επισημαίνει Β. Ωστόσο αρκετά από τα άλλα συμπτώματα επίσης εμφανίζονται στη στέρηση· απαιτείται αναφορά στη συγκεκριμένη σταδιοποίηση.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3355,
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Τι ισχύει για CBT και ψυχοδυναμική ψυχοθεραπεία στην κατάθλιψη;",
     "options": [
       "Η CBT υπερέχει σαφώς σε όλες τις εκβάσεις",
@@ -35509,7 +35513,8 @@ export default [
     "recalledItemNumbers": [
       44
     ],
-    "reconstructionNote": "Διατηρείται η διατύπωση και το σημειωμένο κλειδί· η συστηματική τεκμηρίωση δεν υποστηρίζει καθολική μακροπρόθεσμη υπεροχή."
+    "reconstructionNote": "Διατηρείται η διατύπωση και το σημειωμένο κλειδί· η συστηματική τεκμηρίωση δεν υποστηρίζει καθολική μακροπρόθεσμη υπεροχή.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3356,
@@ -35537,7 +35542,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιος από τους παρακάτω ψυχοκοινωνικούς παράγοντες αυξάνει ιδιαίτερα τον κίνδυνο κατάθλιψης;",
     "options": [
       "Διαζύγιο",
@@ -35552,7 +35557,8 @@ export default [
     "recalledItemNumbers": [
       46
     ],
-    "reconstructionNote": "Το αρχικό χειρόγραφο υπογραμμίζει σεξουαλική κακοποίηση, χωρίς αυστηρά ποσοτική σύγκριση με άλλους παράγοντες."
+    "reconstructionNote": "Το αρχικό χειρόγραφο υπογραμμίζει σεξουαλική κακοποίηση, χωρίς αυστηρά ποσοτική σύγκριση με άλλους παράγοντες.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3358,
@@ -35585,7 +35591,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποια διαχείριση της κλοζαπίνης αναφερόταν σε παλαιότερες οδηγίες μετά από λευκοπενία;",
     "options": [
       "Με λευκά <2.000/μL διακόπτεται οριστικά",
@@ -35600,14 +35606,15 @@ export default [
     "recalledItemNumbers": [
       49
     ],
-    "reconstructionNote": "Η σημείωση αφορά παλαιό όριο ολικών λευκών, όχι σύγχρονο πρωτόκολλο. Δεν υπάρχει σαφώς επισημασμένο αρχικό κλειδί, το Α έχει χειρόγραφο ερωτηματικό."
+    "reconstructionNote": "Η σημείωση αφορά παλαιό όριο ολικών λευκών, όχι σύγχρονο πρωτόκολλο. Δεν υπάρχει σαφώς επισημασμένο αρχικό κλειδί, το Α έχει χειρόγραφο ερωτηματικό.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3360,
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιο ψυχοπαθολογικό σύμπτωμα εμφανίζεται συχνά στο τελικό στάδιο μεταστατικού καρκίνου;",
     "options": [
       "Παραληρητικές ιδέες",
@@ -35628,7 +35635,7 @@ export default [
       "https://www.jpsmjournal.com/article/S0885-3924%2820%2930604-7/fulltext",
       "https://www.cancer.gov/about-cancer/advanced-cancer/caregivers/planning/last-days-hp-pdq"
     ],
-    "reviewStatus": "exam_key_unverified"
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3361,
@@ -37672,7 +37679,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιος είναι περίπου ο κίνδυνος διπολικής διαταραχής Ι σε παιδί με έναν γονέα που πάσχει από διπολική διαταραχή;",
     "options": [
       "5–10%",
@@ -37687,7 +37694,8 @@ export default [
     "recalledItemNumbers": [
       6
     ],
-    "reconstructionNote": "Η φωτογραφία αναφέρει 5–10% αλλά υπάρχει χειρόγραφη σημείωση 28%. Διατηρήθηκε η τυπωμένη απάντηση, με ένδειξη αβεβαιότητας."
+    "reconstructionNote": "Η φωτογραφία αναφέρει 5–10% αλλά υπάρχει χειρόγραφη σημείωση 28%. Διατηρήθηκε η τυπωμένη απάντηση, με ένδειξη αβεβαιότητας.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3457,
@@ -37879,7 +37887,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "fabricated",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποιο σύνδρομο σχετίζεται με αλκοολικές ψευδαισθήσεις σε διατηρημένη συνείδηση;",
     "options": [
       "Αλκοολική ψευδαισθήτωση",
@@ -37894,14 +37902,15 @@ export default [
     "recalledItemNumbers": [
       27
     ],
-    "reconstructionNote": "Η σημείωση καταγράφει μόνο «παλιά θέματα με αλκοολική ψευδαίσθητωση»."
+    "reconstructionNote": "Η σημείωση καταγράφει μόνο «παλιά θέματα με αλκοολική ψευδαίσθητωση».",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3466,
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Τι είναι οι πρωτεΐνες G στη μεταγωγή κυτταρικών σημάτων;",
     "options": [
       "Νευροδραστικά πεπτίδια",
@@ -37916,7 +37925,8 @@ export default [
     "recalledItemNumbers": [
       31
     ],
-    "reconstructionNote": "Αυστηρά οι πρωτεΐνες G είναι πρωτεΐνες σύζευξης και μεταγωγής σήματος, όχι κλασικοί δεύτεροι αγγελιοφόροι."
+    "reconstructionNote": "Αυστηρά οι πρωτεΐνες G είναι πρωτεΐνες σύζευξης και μεταγωγής σήματος, όχι κλασικοί δεύτεροι αγγελιοφόροι.",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3467,
@@ -38009,7 +38019,7 @@ export default [
     "topic": "Φεβρουαρίου 2026",
     "source": "february_2026_recall",
     "sourceStatus": "near_exact",
-    "qualityStatus": "unchecked",
+    "qualityStatus": "good",
     "stem": "Ποια νευροβιολογική μεταβολή έχει περιγραφεί στη μείζονα κατάθλιψη;",
     "options": [
       "Μειωμένος όγκος ιπποκάμπου",
@@ -38024,7 +38034,8 @@ export default [
     "recalledItemNumbers": [
       47
     ],
-    "reconstructionNote": "Οι Α, Β και Δ έχουν αναφερθεί σε υποομάδες ασθενών· το αρχικό κλειδί δεν είναι σαφές (χειρόγραφο ερωτηματικό στην Α)."
+    "reconstructionNote": "Οι Α, Β και Δ έχουν αναφερθεί σε υποομάδες ασθενών· το αρχικό κλειδί δεν είναι σαφές (χειρόγραφο ερωτηματικό στην Α).",
+    "reviewStatus": "finalized_as_recalled"
   },
   {
     "id": 3472,
