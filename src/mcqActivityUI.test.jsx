@@ -39,6 +39,7 @@ it('renders per-mode totals, with no question list, and starts one review per wr
   await user.keyboard(`${buttons.findIndex(button => button.textContent.includes('right')) + 1} `)
   expect(screen.getByText('An explanation.')).toBeInTheDocument()
   expect(document.querySelector('.mcq-side-rail')).toBeTruthy()
+  expect(document.querySelector('.activity-results')).toBeNull()
   await user.click(screen.getByRole('button', {name:'Επιστροφή στα αποτελέσματα ημέρας',exact:true}))
   expect(document.querySelector('.activity-stats')).toBeTruthy()
   expect(onRecordAnswer).toHaveBeenCalledTimes(1)
