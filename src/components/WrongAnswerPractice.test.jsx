@@ -1,5 +1,6 @@
+import { McqPracticeProvider } from '../App.jsx';
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import WrongAnswerPractice from './WrongAnswerPractice.jsx';
 
@@ -14,19 +15,19 @@ it('grades multiple selections exactly and retries only the remaining wrong answ
   const onBack = vi.fn();
   render(<WrongAnswerPractice questions={questions} title="Original test" context="Original case" onAnswer={onAnswer} onBack={onBack} />);
   expect(screen.getByText('Original case')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Correct' }));
+  await user.click(screen.getByRole('button', { name: /^Correct/ }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   expect(screen.getByText('Single explanation')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: /Επόμενη/ }));
-  await user.click(screen.getByRole('button', { name: 'First' }));
+  await user.click(screen.getByRole('button', { name: /^First/ }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   expect(screen.getByText('1/2')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Επανάληψη των υπόλοιπων 1 λαθών' }));
   expect(screen.getByText('Multiple answers')).toBeInTheDocument();
   expect(screen.queryByText('Single answer')).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'First' })).toHaveAttribute('aria-pressed', 'false');
-  await user.click(screen.getByRole('button', { name: 'First' }));
-  await user.click(screen.getByRole('button', { name: 'Second' }));
+  expect(screen.getByRole('button', { name: /^First/ })).toHaveAttribute('aria-pressed', 'false');
+  await user.click(screen.getByRole('button', { name: /^First/ }));
+  await user.click(screen.getByRole('button', { name: /^Second/ }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   expect(onAnswer).toHaveBeenCalledTimes(3);
@@ -44,5 +45,55 @@ it('ignores keyboard input when a kept-mounted mini-test is hidden', async () =>
   render(<WrongAnswerPractice questions={[questions[0]]} isActive={false} onAnswer={onAnswer} />);
   await user.keyboard('1{Enter}');
   expect(onAnswer).not.toHaveBeenCalled();
-  expect(screen.getByRole('button', { name: 'Correct' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByRole('button', { name: /^Correct/ })).toHaveAttribute('aria-pressed', 'false');
+});
+
+function render(ui) { return rtlRender(<McqPracticeProvider>{ui}</McqPracticeProvider>); }
+
+it('uses classic keyboard selection, submission and navigation, including focused buttons', async () => {
+  const user = userEvent.setup();
+  const onAnswer = vi.fn();
+  const items = [1, 2, 3].map(id => ({ id: `keys-${id}`, stem: `Keyboard ${id}`, options: ['Yes', 'No'], correct: 0, preserveOptionOrder: true, explanation: `Explanation ${id}` }));
+  const { container } = render(<WrongAnswerPractice questions={items} onAnswer={onAnswer} />);
+  expect(container.querySelector('.mcq-side-rail')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Καλή ερώτηση' })).toBeInTheDocument();
+  await user.keyboard('{ArrowUp}');
+  expect(screen.getByRole('button', { name: /^No/ })).toHaveAttribute('aria-pressed', 'true');
+  await user.keyboard('{ArrowDown}');
+  expect(screen.getByRole('button', { name: /^Yes/ })).toHaveAttribute('aria-pressed', 'true');
+  await user.keyboard(' ');
+  expect(screen.getByText('Explanation 1')).toBeInTheDocument();
+  await user.keyboard(' ');
+  expect(screen.getByText('Keyboard 2')).toBeInTheDocument();
+  await user.keyboard('{ArrowLeft}');
+  expect(screen.getByText('Keyboard 1')).toBeInTheDocument();
+  await user.keyboard('{ArrowRight}2');
+  screen.getByRole('button', { name: /Καταχώρηση/ }).focus();
+  await user.keyboard('{Enter}');
+  expect(screen.getByText('Explanation 2')).toBeInTheDocument();
+  await user.keyboard('{Enter}');
+  expect(screen.getByText('Keyboard 3')).toBeInTheDocument();
+  await user.keyboard('1{Enter}{Enter}');
+  expect(onAnswer).toHaveBeenCalledTimes(3);
+  expect(onAnswer.mock.calls.map(call => call[1])).toEqual([0, 1, 0]);
+  expect(screen.getByText('Explanation 3')).toBeInTheDocument();
+});
+
+it('preserves fixed option order, multi-answer toggling and ignores shortcuts in comments', async () => {
+  const user = userEvent.setup();
+  const onAnswer = vi.fn();
+  render(<WrongAnswerPractice questions={[{ ...questions[1], preserveOptionOrder: true }]} onAnswer={onAnswer} />);
+  await user.click(screen.getByRole('button', { name: '💬 Σχόλιο' }));
+  await user.click(screen.getByRole('button', { name: 'Σχόλιο', exact: true }));
+  await user.type(screen.getByPlaceholderText('Σύντομο σχόλιο...'), '12 ');
+  await user.keyboard('{Enter}');
+  expect(onAnswer).not.toHaveBeenCalled();
+  expect(screen.getByRole('button', { name: /^First/ })).toHaveAttribute('aria-pressed', 'false');
+  await user.click(screen.getByRole('button', { name: 'Άκυρο', exact: true }));
+  await user.keyboard('11');
+  expect(screen.getByRole('button', { name: /Καταχώρηση/ })).toBeDisabled();
+  await user.keyboard('12 ');
+  expect(onAnswer).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: 'multi' }), [0, 1], expect.any(Object));
+  expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
+  expect(screen.getByText('Multiple explanation')).toBeInTheDocument();
 });

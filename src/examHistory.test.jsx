@@ -61,8 +61,13 @@ it('reopens saved results after reload, reviews mistakes, and retries without ov
   await user.click(screen.getByRole('button', { name: /Results/ }));
   await user.click(screen.getByRole('button', { name: /Εξάσκηση μόνο των λαθών \(1\)/ }));
   expect(view.container.querySelector('.mcq-q-index').textContent).toMatch(/1\s*\/\s*1/);
-  await user.click(within(view.container.querySelector('.options-list')).getByText(question.options[question.correct], { exact: true }));
-  await user.keyboard('{Enter}');
+  const retryOptions = [...view.container.querySelectorAll('.options-list button')];
+  await user.keyboard('{ArrowDown}');
+  expect(retryOptions[0]).toHaveAttribute('aria-pressed', 'true');
+  await user.keyboard('{ArrowUp}');
+  expect(retryOptions.at(-1)).toHaveAttribute('aria-pressed', 'true');
+  const correctPosition = retryOptions.findIndex(button => button.querySelector('span:nth-child(2)').textContent === question.options[question.correct]);
+  await user.keyboard(`${correctPosition + 1} `);
   await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Επιστροφή στα αποτελέσματα' }));
   expect(screen.getByRole('button', { name: /Εξάσκηση μόνο των λαθών \(1\)/ })).toBeInTheDocument();
   expect(profile().mcqProgress.writtenExamDraft).toEqual(draft);

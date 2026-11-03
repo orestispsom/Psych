@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
-import App from './App';
+import App, { McqPracticeProvider } from './App';
 import bank from './data/questions.js';
 import scans from './data/exam-recall/previous-whole-scans.json';
 import WrongAnswerPractice from './components/WrongAnswerPractice';
@@ -98,7 +98,7 @@ it('grades 3494 using the scan-marked Δ and displays its source explanation', a
 it('keeps source letter references in their original positions during mistake retries', () => {
   vi.spyOn(Math, 'random').mockReturnValue(0);
   const question = bank.find(item => item.id === 3554);
-  const { container } = render(<WrongAnswerPractice questions={[question]} title={topic} onBack={() => {}} />);
+  const { container } = render(<McqPracticeProvider><WrongAnswerPractice questions={[question]} title={topic} onBack={() => {}} /></McqPracticeProvider>);
   const options = [...container.querySelectorAll('.options-list button')];
   expect(options).toHaveLength(5);
   question.options.forEach((option, index) => expect(options[index]).toHaveTextContent(option));
