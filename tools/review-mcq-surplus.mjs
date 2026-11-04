@@ -60,7 +60,36 @@ for (const question of bank) {
   byStem.set(stem, group);
 }
 const duplicateLeads = [...byStem.values()].filter(group => group.length > 1);
-const report = { bankSize: bank.length, proposedCount: proposed.size, projectedSize: bank.length - proposed.size, problems, rows, duplicateLeads };
+// A short second pass. Shared answer text and overlapping stems are review leads only.
+const words = text => new Set(text.normalize('NFD').toLocaleLowerCase('el-GR')
+  .replace(/\p{M}/gu, '').match(/[\p{L}\p{N}]{4,}/gu) ?? []);
+const boilerplate = new Set(['ποιος', 'ποιο', 'ποια', 'παρακατω', 'περισσοτερο', 'καλυτερα', 'ειναι', 'ισχυει']);
+const byAnswer = new Map();
+for (const question of bank) {
+  const key = normalize(question.options[question.correct]);
+  const group = byAnswer.get(key) ?? [];
+  const tokens = words(question.stem);
+  for (const word of boilerplate) tokens.delete(word);
+  group.push({ question, tokens });
+  byAnswer.set(key, group);
+}
+const similarLeads = [];
+for (const group of byAnswer.values()) {
+  for (const [index, left] of group.entries()) {
+    for (const right of group.slice(index + 1)) {
+      const pair = [left.question, right.question];
+      if (pair.every(q => isProtected(q) || tracked.has(q.id))) continue;
+      if (normalize(pair[0].stem) === normalize(pair[1].stem)) continue;
+      const shared = [...left.tokens].filter(word => right.tokens.has(word)).length;
+      const overlap = shared / Math.min(left.tokens.size, right.tokens.size);
+      if (shared >= 3 && overlap >= 0.6) {
+        similarLeads.push({ ids: pair.map(q => q.id), overlap: Number(overlap.toFixed(2)) });
+      }
+    }
+  }
+}
+similarLeads.sort((a, b) => b.overlap - a.overlap);
+const report = { bankSize: bank.length, proposedCount: proposed.size, projectedSize: bank.length - proposed.size, problems, rows, duplicateLeads, similarLeads };
 if (process.argv.includes('--json')) console.log(JSON.stringify(report, null, 2));
 else {
   console.log(`Bank: ${report.bankSize} | proposed: ${report.proposedCount} | projected: ${report.projectedSize}`);
@@ -70,6 +99,8 @@ else {
   }
   console.log(`\n${duplicateLeads.length} normalized same-stem groups for manual comparison. * marks protected IDs.`);
   for (const group of duplicateLeads) console.log(group.map(q => q.id + (q.protected ? '*' : '')).join(' / '));
+  console.log(`\n${similarLeads.length} additional same-answer, similar-stem leads for review.`);
+  for (const lead of similarLeads) console.log(lead.ids.join(' / ') + ' (' + lead.overlap + ')');
   for (const problem of problems) console.error(problem);
 }
 if (problems.length) process.exitCode = 1;

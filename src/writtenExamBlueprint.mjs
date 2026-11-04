@@ -24,6 +24,10 @@ const recurringGroups = new Map(evidence.recurringTargets.flatMap((group, index)
   group.map(key => [key, index])
 ));
 
+const bankVariants = new Map(Object.entries(evidence.bankVariants).flatMap(([target, { ids, domain }]) =>
+  ids.map(id => [id, { target, domain }])
+));
+
 function sourceItems(question) {
   if (question.source === "previous_whole_scans") return ["scanned", [question.scanQuestionNumber]];
   if (question.recalledExam === "2026-02") return ["february", question.recalledItemNumbers ?? []];
@@ -52,6 +56,11 @@ export function getWrittenExamTraits(question) {
 
   // Catch recurring targets in the general bank as well as in the recall sets.
   const recurring = numbers.map(n => recurringGroups.get(source + ":" + n)).filter(id => id !== undefined);
+  const variant = bankVariants.get(question.id);
+  if (variant) {
+    domain = variant.domain;
+    recurring.push(variant.target);
+  }
   if (domain === "H" && /λιθι/.test(stem) && /cade|κ[εα]ιντ/.test(answer)) recurring.push("cade");
   if (domain === "B" && /(?:μεταιχμιακο|λιμβικο).*συστημα/.test(stem) &&
     /περιλαμβαν|ανηκ/.test(stem)) recurring.push("limbic-structures");
@@ -76,10 +85,17 @@ export function isWrittenExamEligible(question) {
 export function selectByWrittenBlueprint({
   questions, count = 100, scoreQuestion, isRecent, trySelect, shuffle,
 }) {
-  const ranked = questions.filter(isWrittenExamEligible).map(question => ({
-    question, ...getWrittenExamTraits(question), recent: isRecent(question), score: scoreQuestion(question),
-  })).filter(row => WRITTEN_BLUEPRINT[row.domain][0] > 0)
-    .sort((a, b) => Number(a.recent) - Number(b.recent) || b.score - a.score);
+  const rows = questions.map(question => ({
+    question, ...getWrittenExamTraits(question), recent: isRecent(question),
+  }));
+  const recentTargets = new Set(rows.filter(row => row.recent).flatMap(row => row.recurring));
+  const ranked = rows.filter(row => WRITTEN_BLUEPRINT[row.domain][0] > 0 && isWrittenExamEligible(row.question))
+    .map(row => ({
+      ...row,
+      recency: row.recent ? 2 : Number(row.recurring.some(key => recentTargets.has(key))),
+      score: scoreQuestion(row.question),
+    }))
+    .sort((a, b) => a.recency - b.recency || b.score - a.score);
   const picked = [];
   const usedIds = new Set();
   const usedRecurring = new Set();

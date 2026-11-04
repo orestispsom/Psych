@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
 import App from './App';
 import bank from './data/questions.js';
-import { getWrittenExamTraits, isWrittenExamEligible, WRITTEN_BLUEPRINT } from './writtenExamBlueprint.mjs';
+import { getWrittenExamTraits, isWrittenExamEligible, selectByWrittenBlueprint, WRITTEN_BLUEPRINT } from './writtenExamBlueprint.mjs';
 
 const storageKey = 'psychiatry-study-profiles-v1';
 const profile = () => Object.values(JSON.parse(localStorage.getItem(storageKey)).profiles)[0];
@@ -100,3 +100,20 @@ it('keeps the chosen mini-test length for the next test', async () => {
   await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /Επόμενο Mini-test/ }));
   expect(container.querySelector('.mcq-q-index').textContent).toMatch(/1\s*\/\s*25/);
 }, 20000);
+
+
+it('prefers a fresh learning target over a recently seen question variant', () => {
+  const seen = bank.find(q => q.id === 2584);
+  const variant = bank.find(q => q.id === 1096);
+  const fresh = bank.find(q => q.id === 2581);
+  const select = questions => selectByWrittenBlueprint({
+    questions,
+    count: 1,
+    scoreQuestion: q => q === variant ? 100 : 0,
+    isRecent: q => q === seen,
+    trySelect: () => true,
+    shuffle: rows => rows,
+  }).map(q => q.id);
+  expect(select([seen, variant, fresh])).toEqual([fresh.id]);
+  expect(select([seen, variant])).toEqual([variant.id]);
+});

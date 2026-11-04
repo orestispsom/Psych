@@ -277,5 +277,97 @@
     88,
     91,
     95
-  ]
+  ],
+  "bankVariants": {
+    "ampa": {
+      "domain": "B",
+      "ids": [
+        1344,
+        3428,
+        3565
+      ]
+    },
+    "bupropion-seizures": {
+      "domain": "P",
+      "ids": [
+        1096,
+        2584,
+        3536
+      ]
+    },
+    "ssri-discontinuation-half-life": {
+      "domain": "P",
+      "ids": [
+        2581,
+        3573
+      ]
+    },
+    "clozapine-carbamazepine": {
+      "domain": "P",
+      "ids": [
+        158,
+        311,
+        1688,
+        3543
+      ]
+    },
+    "hoover-sign": {
+      "domain": "X",
+      "ids": [
+        1502,
+        3124
+      ]
+    },
+    "autism-sex-ratio": {
+      "domain": "C",
+      "ids": [
+        86,
+        3519
+      ]
+    },
+    "huntington-caudate": {
+      "domain": "B",
+      "ids": [
+        1553,
+        2781,
+        3427,
+        3474
+      ]
+    },
+    "dlpfc-schizophrenia-executive": {
+      "domain": "B",
+      "ids": [
+        69,
+        3493
+      ]
+    },
+    "n3-delta": {
+      "domain": "B",
+      "ids": [
+        566,
+        3566
+      ]
+    },
+    "medication-induced-parkinsonism-age": {
+      "domain": "P",
+      "ids": [
+        561,
+        3564
+      ]
+    },
+    "splitting-object-relations": {
+      "domain": "T",
+      "ids": [
+        582,
+        3572
+      ]
+    },
+    "cohort-design-limitations": {
+      "domain": "R",
+      "ids": [
+        3416,
+        3567
+      ]
+    }
+  }
 }

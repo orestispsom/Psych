@@ -312,5 +312,135 @@
       1247
     ],
     "fingerprint": "9c41ef501d08367dd3f3a00e6cfb074471e383e79e06654e867d2fe778690e5c"
+  },
+  {
+    "id": 2584,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "Bupropion and epilepsy. The NZ item and the scan already test the same contraindication.",
+    "keepIds": [
+      1096,
+      3536
+    ],
+    "fingerprint": "d825f1d8587a55b23657c2b5d8078bed020d6514a4b98b8da1e24f575d9a4d50"
+  },
+  {
+    "id": 2581,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "The scan asks the same SSRI discontinuation half-life question.",
+    "keepIds": [
+      3573
+    ],
+    "fingerprint": "d83370dc6c809f7678dd8b2aeb369a353f2e3162dc9dcad4e6c920269c2f4fa4"
+  },
+  {
+    "id": 1688,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "The clozapine/carbamazepine combination and its hematologic rationale are already tested.",
+    "keepIds": [
+      158,
+      311,
+      3543
+    ],
+    "fingerprint": "172f00bd4b5eb4fac6b9f37ea166360e8500509efa91b3594a5982cade27ecf7"
+  },
+  {
+    "id": 1502,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "Two Hoover-sign vignettes differ mainly in the side of the weak hip. Keep the clearer vignette.",
+    "keepIds": [
+      3124
+    ],
+    "fingerprint": "b93ff2841184c8b99fe72e451dc823d9e09d2ad167e841af5680423a5e87687a"
+  },
+  {
+    "id": 1209,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Isolated EEG finding in delirium. Keep bedside recognition and discrimination from dementia.",
+    "keepIds": [
+      57,
+      291
+    ],
+    "fingerprint": "67f6c52f2ee03e62830dc50f3aec78a097ab5305b3dd021091dce0680016120d"
+  },
+  {
+    "id": 1362,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Tricyclic distractor trivia in tic suppression. Keep the clinical assessment and comorbidity questions.",
+    "keepIds": [
+      1105,
+      2296
+    ],
+    "fingerprint": "6bd9a014e09c105531b68b8f529322f5b009cb77f443424aaef2a22e07bdf9ed"
+  },
+  {
+    "id": 1395,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "The retained Tourette comorbidity item tests the OCD association and adds ADHD.",
+    "keepIds": [
+      1105
+    ],
+    "fingerprint": "9bede6aebda62b242b95cc9468eb8bd9e4ab00d1e01b29e99b627b5121cfc1eb"
+  },
+  {
+    "id": 2284,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Fixed IQ band recall. Keep applied adaptive functioning and severity assessment.",
+    "keepIds": [
+      2283,
+      2311
+    ],
+    "fingerprint": "7f77b3ab79c17654c0ba070df423ab2f447fd8b999f35eebe8e5620e403497c1"
+  },
+  {
+    "id": 2314,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Fixed proportion of ASD with intellectual disability. Keep recognition and functional assessment.",
+    "keepIds": [
+      2292,
+      2283
+    ],
+    "fingerprint": "0f7ece116b1725f1fb745b37e35805681bd50ce753b1245d3a5392f458375180"
+  },
+  {
+    "id": 2485,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Specialist comparison of reboxetine with imipramine for enuresis. Keep course, behavioral treatment and medication safety.",
+    "keepIds": [
+      2481,
+      2483,
+      2484
+    ],
+    "fingerprint": "38a7498fffe5080d4060ce428ce81707c8efdff47cb47485dfc74a6c1ee3851a"
+  },
+  {
+    "id": 2754,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Specific neonatal dysmorphology vignette leading to later ADHD. Keep representative diagnosis and treatment coverage.",
+    "keepIds": [
+      2293,
+      2294
+    ],
+    "fingerprint": "ef3492babc899e825d75c73d8e3472ea742e5f012b37ff3088807378ff3f9495"
+  },
+  {
+    "id": 2809,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Narrow historical infant separation sequence. Keep applied attachment assessment.",
+    "keepIds": [
+      1247
+    ],
+    "fingerprint": "2e5922fb4e2832e619fd0bf36a862c3c3a7cde768c4a00e217d5e719f808bb44"
   }
 ]
