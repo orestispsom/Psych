@@ -82,8 +82,10 @@ it('retries matching items with the original choice identities and restores the 
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   await user.click(screen.getByRole('button', { name: 'Εξάσκηση μόνο των λαθών (1)' }));
   expect(container.querySelector('.question-stem').textContent).toBe(prompt);
-  const buttons = [...container.querySelectorAll('.options-list button')];
-  for (const id of item.correct) await user.keyboard(String(buttons.findIndex(button => button.querySelector('span:nth-child(2)').textContent === set.choices.find(choice => choice.id === id).label) + 1));
+  const options = within(container.querySelector('.options-list'));
+  for (const id of item.correct) {
+    await user.click(options.getByText(set.choices.find(choice => choice.id === id).label, { exact: true }));
+  }
   await user.keyboard(' ');
   expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Επιστροφή στο αρχικό τεστ' }));
