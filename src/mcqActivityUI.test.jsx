@@ -1,5 +1,6 @@
+import { McqPracticeProvider } from './App.jsx';
 import { afterEach, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { McqActivityCalendar, McqActivityDay } from './components/McqActivityCalendar.jsx'
 import { athensDayKey } from './lib/mcqActivity.mjs'
@@ -34,8 +35,13 @@ it('renders per-mode totals, with no question list, and starts one review per wr
   await user.click(screen.getByRole('button', {name:'Επανάληψη λαθών (1)'}))
   expect(await screen.findByText('Calendar question one')).toBeTruthy()
   expect(screen.queryByText('Calendar question two')).toBeNull()
-  await user.click(screen.getByRole('button', {name:/right/}))
-  await user.click(screen.getByRole('button', {name:/Καταχώρηση/}))
+  const buttons = [...document.querySelectorAll('.options-list button')]
+  await user.keyboard(`${buttons.findIndex(button => button.textContent.includes('right')) + 1} `)
+  expect(screen.getByText('An explanation.')).toBeInTheDocument()
+  expect(document.querySelector('.mcq-side-rail')).toBeTruthy()
+  expect(document.querySelector('.activity-results')).toBeNull()
+  await user.click(screen.getByRole('button', {name:'Επιστροφή στα αποτελέσματα ημέρας',exact:true}))
+  expect(document.querySelector('.activity-stats')).toBeTruthy()
   expect(onRecordAnswer).toHaveBeenCalledTimes(1)
   expect(onRecordAnswer.mock.calls[0][0].id).toBe(1)
 })
@@ -51,3 +57,5 @@ it('shows a calendar for Athens today and opens a clicked date', async () => {
   await user.click(within(calendar).getByRole('button',{name:/1 απαντήσεις/}))
   expect(onOpenDay).toHaveBeenCalledWith(today)
 })
+
+function render(ui) { return rtlRender(<McqPracticeProvider>{ui}</McqPracticeProvider>); }

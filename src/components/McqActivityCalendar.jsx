@@ -106,8 +106,7 @@ export function McqActivityDay({ date, profileId, progress, loadRemote, getQuest
   const wrongCount = daily.length - correctCount
   const modes = useMemo(() => dayModeCounts(daily), [daily])
 
-  return <div className="activity-results">
-    {reviewing ? <WrongAnswerPractice
+  if (reviewing) return <WrongAnswerPractice
       key={date}
       questions={wrong}
       title={dayLabel(date)}
@@ -115,7 +114,9 @@ export function McqActivityDay({ date, profileId, progress, loadRemote, getQuest
       onBack={() => setReviewing(false)}
       backLabel="Επιστροφή στα αποτελέσματα ημέρας"
       onAnswer={(question, selection, meta) => onRecordAnswer(question, selection, meta)}
-    /> : <>
+    />;
+
+  return <div className="activity-results">
       <button type="button" className="back-link" onClick={onBack}><Icons.ChevronLeft /> Αρχική</button>
       <div className="sheet-head"><div className="sheet-head-text">
         <span className="sheet-eyebrow">Αποτελέσματα ημέρας · ώρα Ελλάδας</span>
@@ -143,6 +144,5 @@ export function McqActivityDay({ date, profileId, progress, loadRemote, getQuest
           {wrongCount > 0 && wrong.length === 0 ? ' Δεν υπάρχουν διαθέσιμα ερωτήματα στην τρέχουσα τράπεζα.' : ''}
         </p>}
       </>}
-    </>}
   </div>
 }

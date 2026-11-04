@@ -47,11 +47,18 @@ it.each(['sprint', 'random', 'category', 'weakness', 'bookmarks', 'daily'])('ret
   const originalIndex = container.querySelector('.mcq-q-index').textContent;
   const originalAttempts = profile().mcqProgress.questions[id].attempts;
   await user.click(screen.getByRole('button', { name: 'Εξάσκηση μόνο των λαθών (1)' }));
-  expect(screen.getByText(/Ερώτηση 1\/1/)).toBeInTheDocument();
+  expect(container.querySelector('.mcq-q-index')).toHaveTextContent('Ερώτηση 1 / 1');
+  expect(container.querySelector('.mcq-side-rail')).toBeTruthy();
+  expect(screen.getByRole('button', { name: /στα σημειωμένα|από τα σημειωμένα/ })).toBeInTheDocument();
   expect(container.querySelector('.question-stem').textContent).toBe(originalStem);
   expect(container.querySelector('.option-btn.selected')).toBeNull();
-  await user.click(within(container.querySelector('.options-list')).getByText(question.options[question.correct], { exact: true }));
-  await user.keyboard('{Enter}');
+  const retryButtons = [...container.querySelectorAll('.options-list button')];
+  await user.keyboard('{ArrowDown}');
+  expect(retryButtons[0]).toHaveAttribute('aria-pressed', 'true');
+  await user.keyboard('{ArrowUp}');
+  expect(retryButtons.at(-1)).toHaveAttribute('aria-pressed', 'true');
+  const correctPosition = retryButtons.findIndex(button => button.querySelector('span:nth-child(2)').textContent === question.options[question.correct]);
+  await user.keyboard(`${correctPosition + 1} `);
   expect(await screen.findByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   expect(profile().mcqProgress.questions[id].attempts).toBe(originalAttempts + 1);
   expect(profile().mcqProgress.attempts[0].mode).toBe('weakness');
@@ -75,8 +82,11 @@ it('retries matching items with the original choice identities and restores the 
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   await user.click(screen.getByRole('button', { name: 'Εξάσκηση μόνο των λαθών (1)' }));
   expect(container.querySelector('.question-stem').textContent).toBe(prompt);
-  for (const id of item.correct) await user.click(screen.getByRole('button', { name: set.choices.find(choice => choice.id === id).label, exact: true }));
-  await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
+  const options = within(container.querySelector('.options-list'));
+  for (const id of item.correct) {
+    await user.click(options.getByText(set.choices.find(choice => choice.id === id).label, { exact: true }));
+  }
+  await user.keyboard(' ');
   expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Επιστροφή στο αρχικό τεστ' }));
   expect(container.querySelector('.structured-question').textContent).toBe(prompt);
@@ -96,8 +106,9 @@ it('retries vignette mistakes with the full clinical case and preserves original
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   await user.click(screen.getByRole('button', { name: 'Εξάσκηση μόνο των λαθών (1)' }));
   expect(container.querySelector('.vignette-text').textContent).toBe(vignette.vignette);
-  for (const index of question.correct) await user.click(screen.getByRole('button', { name: question.options[index], exact: true }));
-  await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
+  const buttons = [...container.querySelectorAll('.options-list button')];
+  for (const index of question.correct) await user.keyboard(String(buttons.findIndex(button => button.querySelector('span:nth-child(2)').textContent === question.options[index]) + 1));
+  await user.keyboard(' ');
   expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Επιστροφή στο αρχικό τεστ' }));
   expect(container.querySelector('.structured-option.incorrect')).toBeTruthy();
@@ -111,8 +122,8 @@ it('retries DSM5 mistakes using the DSM answer key and preserves the chapter ses
   await user.click(screen.getByText(question.options[(question.correct + 1) % question.options.length], { exact: true }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
   await user.click(screen.getByRole('button', { name: 'Εξάσκηση μόνο των λαθών (1)' }));
-  await user.click(screen.getByRole('button', { name: question.options[question.correct], exact: true }));
-  await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
+  const buttons = [...container.querySelectorAll('.options-list button')];
+  await user.keyboard(`${buttons.findIndex(button => button.querySelector('span:nth-child(2)').textContent === question.options[question.correct]) + 1} `);
   expect(screen.getByText('Όλες οι απαντήσεις σωστές!')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Επιστροφή στο αρχικό τεστ' }));
   expect(container.querySelector('.DSM5-option.incorrect')).toBeTruthy();

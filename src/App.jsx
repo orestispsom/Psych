@@ -10,7 +10,7 @@ import OralWorkspace from "./components/OralWorkspace.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ScaleStrip from "./components/ScaleStrip.jsx";
 import ShortcutSheet from "./components/ShortcutSheet.jsx";
-import WrongAnswerPractice from "./components/WrongAnswerPractice.jsx";
+import WrongAnswerPractice, { McqPracticeContext } from "./components/WrongAnswerPractice.jsx";
 import { McqActivityCalendar, McqActivityDay } from "./components/McqActivityCalendar.jsx";
 import { remoteAttemptToRecord } from "./progressPersistence.mjs";
 import SupportWidget from "./components/SupportWidget.jsx";
@@ -2547,7 +2547,7 @@ function recordQuestionAnswer(progress, question, selected, {
   streakPosition = 0,
 } = {}) {
   const current = getQuestionProgress(progress, question.id);
-  const isCorrect = selected === question.correct;
+  const isCorrect = isMcqSelectionCorrect(question, selected);
   const previousMastery = getMasteryLevel(current);
   const consecutiveCorrect = isCorrect ? getConsecutiveCorrect(current) + 1 : 0;
   const consecutiveWrong = isCorrect ? 0 : (current.consecutiveWrong || current.consecutive_wrong || 0) + 1;
@@ -4580,7 +4580,35 @@ function McqMatchingMode({ onBack, onHome, matchingSets: mcqMatchingSets }) {
   );
 }
 
-function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, practiceSize = WEAKNESS_SESSION_SIZE, historicalExam = null }) {
+// Retry entry points share the classic engine; the source session stays mounted.
+export function McqPracticeProvider({ children, progress, onProgressChange }) {
+  const [localProgress, setLocalProgress] = useState(() => normalizeMcqProgress({}));
+  const value = useMemo(() => ({
+    Component: ClassicWrongAnswerPractice,
+    progress: progress ?? localProgress,
+    onProgressChange: onProgressChange ?? setLocalProgress,
+  }), [progress, localProgress, onProgressChange]);
+  return <McqPracticeContext.Provider value={value}>{children}</McqPracticeContext.Provider>;
+}
+
+function ClassicWrongAnswerPractice({ questions, title, context, onBack, onAnswer, progress, onProgressChange, isActive = true, backLabel = 'Επιστροφή στο αρχικό τεστ' }) {
+  const sessionQuestions = useMemo(() => questions.map(question => ({
+    ...question,
+    stem: question.stem || question.question || question.prompt,
+    explanation: question.explanation || question.answer,
+  })), [questions]);
+  const practice = useMemo(() => ({ title, context, backLabel, onAnswer }), [title, context, backLabel, onAnswer]);
+  return <McqTest mode="weakness" sessionQuestions={sessionQuestions} progress={progress}
+    onProgressChange={onProgressChange} onBack={onBack} onHome={onBack} isActive={isActive} practice={practice} />;
+}
+
+function isMcqSelectionCorrect(question, selection) {
+  if (!Array.isArray(question.correct)) return selection === question.correct;
+  const values = Array.isArray(selection) ? selection : selection === undefined ? [] : [selection];
+  return values.length === question.correct.length && question.correct.every(index => values.includes(index));
+}
+
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, practiceSize = WEAKNESS_SESSION_SIZE, historicalExam = null, practice = null }) {
   const initialHistoryRef = useRef(historicalExam);
   const sprintSizeRef = useRef(sprintSize);
   const initialWrittenDraftRef = useRef(mode === "written" && !historicalExam ? getWrittenExamDraft(progress) : null);
@@ -4615,6 +4643,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [currentIdx, setCurrentIdx] = useState(() =>
     initialWrittenDraftRef.current?.currentIdx ?? initialCategoryDraftRef.current?.currentIdx ?? 0
   );
+  const [optionCursor, setOptionCursor] = useState(null);
   const [answers, setAnswers] = useState(() =>
     initialWrittenDraftRef.current?.answers || initialCategoryDraftRef.current?.answers || {}
   );
@@ -4678,7 +4707,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const categoryAllAnswered = mode === "category" && questions.length > 0 && questions.every(question => locked[question.id]);
   const wrongSessionQuestions = categoryCycle
     ? categoryCycle.wrongQuestionIds.map(getQuestionById).filter(Boolean)
-    : questions.filter(question => locked[question.id] && answers[question.id] !== undefined && answers[question.id] !== null && answers[question.id] !== question.correct);
+    : questions.filter(question => locked[question.id] && answers[question.id] !== undefined && answers[question.id] !== null && !isMcqSelectionCorrect(question, answers[question.id]));
   const prevIdx = currentIdx - 1;
   const nextIdx = currentIdx + 1;
   const dailyReason = mode === "daily" && q ? getDailyReason(progress, q.id) : null;
@@ -4686,7 +4715,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     ? questions.filter(question => answers[question.id] !== undefined && answers[question.id] !== null).length
     : 0;
   const writtenUnansweredCount = mode === "written" ? totalQ - writtenAnsweredCount : 0;
-  const modeTitle = practiceWrittenWrongActive
+  const modeTitle = practice?.title || (practiceWrittenWrongActive
     ? "Εξάσκηση Λαθών Προσομοίωσης"
     : {
         daily: "Αδύναμα Θέματα",
@@ -4695,7 +4724,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         weakness: "Επανάληψη λαθών",
         written: "Προσομοίωση με 100 Πολλαπλής",
         category: sessionTitle || "Ερωτήσεις ανά Κατηγορία",
-      }[mode] || "MCQ";
+      }[mode] || "MCQ");
 
   const startPracticeWrittenWrong = useCallback(() => {
     if (!writtenResult?.wrongItems?.length) return;
@@ -4861,6 +4890,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     if (questionViewEffectKeyRef.current === viewEffectKey) return;
     questionViewEffectKeyRef.current = viewEffectKey;
     startedAtRef.current = Date.now();
+    setOptionCursor(null);
     setLastBreakdown(null);
     setFeedbackMenuOpen(false);
     setFeedbackStatus(null);
@@ -4945,10 +4975,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const submitAnswer = useCallback((selectedOverride = selected, timedOut = false) => {
     blurActiveElement();
     if (mode === "written" && !practiceWrittenWrongActive) return;
-    if ((selectedOverride === undefined || selectedOverride === null) && !timedOut) return;
+    if ((selectedOverride === undefined || selectedOverride === null || (Array.isArray(selectedOverride) && !selectedOverride.length)) && !timedOut) return;
     if (isLocked || !q) return;
 
-    const isCorrect = selectedOverride === q.correct;
+    const isCorrect = isMcqSelectionCorrect(q, selectedOverride);
     const nextStreak = isCorrect ? sessionStats.currentStreak + 1 : 0;
     const timeTakenMs = Math.max(0, Date.now() - startedAtRef.current);
     const inferredConfidence = inferAnswerConfidence();
@@ -4982,6 +5012,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           sessionStats: nextStats,
         })
       : null;
+    if (practice?.onAnswer) {
+      practice.onAnswer(q, selectedOverride, { sessionId: sessionIdRef.current, timeTakenMs });
+      return;
+    }
     onProgressChange(prev => {
       const answeredProgress = recordQuestionAnswer(prev, q, selectedOverride, {
         mode: practiceWrittenWrongActive ? "weakness" : mode,
@@ -5010,12 +5044,18 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     locked,
     buildCurrentCategoryDraft,
     sessionTitle,
+    practice,
   ]);
 
   const selectOption = (idx) => {
     blurActiveElement();
     if (isLocked || (writtenResult && !practiceWrittenWrongActive) || !q) return;
-    const nextAnswers = { ...answers, [q.id]: idx };
+    const nextSelection = Array.isArray(q.correct)
+      ? (answers[q.id] || []).includes(idx)
+        ? answers[q.id].filter(value => value !== idx)
+        : [...(answers[q.id] || []), idx]
+      : idx;
+    const nextAnswers = { ...answers, [q.id]: nextSelection };
     setAnswers(nextAnswers);
 
     if (mode === "written" && !practiceWrittenWrongActive) {
@@ -5054,12 +5094,16 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       if ((event.key === "ArrowDown" || event.key === "ArrowUp") && !isLocked) {
         if (!currentOptionOrder.length) return;
         event.preventDefault();
-        const selectedPosition = currentOptionOrder.indexOf(selected);
+        const selectedPosition = currentOptionOrder.indexOf(Array.isArray(q.correct) ? optionCursor : selected);
         const step = event.key === "ArrowDown" ? 1 : -1;
         const nextPosition = selectedPosition < 0
           ? (step > 0 ? 0 : currentOptionOrder.length - 1)
           : (selectedPosition + step + currentOptionOrder.length) % currentOptionOrder.length;
-        selectOption(currentOptionOrder[nextPosition]);
+        const nextOption = currentOptionOrder[nextPosition];
+        if (Array.isArray(q.correct)) {
+          setOptionCursor(nextOption);
+          selectOption(nextOption);
+        } else selectOption(nextOption);
         return;
       }
 
@@ -5512,6 +5556,19 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       completedAt: null,
     }));
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const retryPracticeWrong = () => {
+    setQuestions(wrongSessionQuestions);
+    setOptionOrders(createOptionOrders(wrongSessionQuestions));
+    setCurrentIdx(0);
+    setAnswers({});
+    setLocked({});
+    setOptionCursor(null);
+    setLastBreakdown(null);
+    setSessionStats({ correct: 0, incorrect: 0, total: 0, currentStreak: 0, maxStreak: 0, points: 0 });
+    sessionIdRef.current = `mistakes-${crypto.randomUUID()}`;
+    questionViewEffectKeyRef.current = null;
   };
 
   if (retryQuestions) {
@@ -6021,7 +6078,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   return (
     <div className="test-container mcq-layout-wrap" {...mcqSwipe}>
       <button className="back-link" onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack}>
-        <Icons.ChevronLeft /> {practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
+        <Icons.ChevronLeft /> {practice?.backLabel || (practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ")}
       </button>
 
       <div className="mcq-main-pane">
@@ -6032,8 +6089,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               type="button"
               className="mcq-header-back-btn"
               onClick={practiceWrittenWrongActive ? exitPracticeWrittenWrong : onBack}
-              aria-label={practiceWrittenWrongActive ? "Επιστροφή στα αποτελέσματα" : "Επιστροφή στο Μενού MCQ"}
-              title={practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ"}
+              aria-label={practice ? `Πίσω: ${practice.backLabel}` : practiceWrittenWrongActive ? "Επιστροφή στα αποτελέσματα" : "Επιστροφή στο Μενού MCQ"}
+              title={practice?.backLabel || (practiceWrittenWrongActive ? "Αποτελέσματα" : "Μενού MCQ")}
             >
               <Icons.ChevronLeft />
             </button>
@@ -6110,36 +6167,40 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             {writtenSubmitError}
           </div>
         )}
+        {practice?.context && <div className="vignette-text">{practice.context}</div>}
+        {Array.isArray(q.correct) && <p className="structured-instruction">Επίλεξε όλες τις σωστές απαντήσεις.</p>}
         <div className="question-stem" id="mcq-question-stem">{getMcqStem(q)}</div>
 
         <div className="options-list">
           {displayedOptions.map((option, i) => {
             const originalIndex = option.originalIndex;
             const letter = String.fromCharCode(913 + i);
+            const optionCorrect = Array.isArray(q.correct) ? q.correct.includes(originalIndex) : originalIndex === q.correct;
+            const optionSelected = Array.isArray(selected) ? selected.includes(originalIndex) : originalIndex === selected;
             let cls = 'option-btn';
             if (isLocked) {
               cls += ' locked';
-              if (originalIndex === q.correct)                                  cls += ' correct';
-              else if (originalIndex === selected && originalIndex !== q.correct) cls += ' incorrect';
-            } else if (originalIndex === selected) cls += ' selected';
+              if (optionCorrect)                                  cls += ' correct';
+              else if (optionSelected && !optionCorrect) cls += ' incorrect';
+            } else if (optionSelected) cls += ' selected';
             return (
               <button
                 key={originalIndex}
                 className={cls}
                 onClick={() => selectOption(originalIndex)}
-                aria-pressed={originalIndex === selected}
+                aria-pressed={optionSelected}
                 aria-describedby="mcq-question-stem"
               >
                 <span className="option-letter" aria-hidden="true">{letter}</span>
                 <span>{option.text}</span>
                 <span className="answer-glyph" aria-hidden="true">
-                  {isLocked && originalIndex === q.correct ? <Icons.Check /> :
-                   isLocked && originalIndex === selected && originalIndex !== q.correct ? <Icons.X /> : null}
+                  {isLocked && optionCorrect ? <Icons.Check /> :
+                   isLocked && optionSelected && !optionCorrect ? <Icons.X /> : null}
                 </span>
                 <span className="sr-only">
-                  {isLocked && originalIndex === q.correct
+                  {isLocked && optionCorrect
                     ? `Επιλογή ${letter}. Σωστή απάντηση.`
-                    : isLocked && originalIndex === selected
+                    : isLocked && optionSelected
                       ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
                       : `Επιλογή ${letter}.`}
                 </span>
@@ -6150,9 +6211,11 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
         {isLocked && (
           <p className="answer-verdict sr-only" role="status">
-            {selected === q.correct
+            {isMcqSelectionCorrect(q, selected)
               ? "Σωστή απάντηση."
-              : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
+              : Array.isArray(q.correct)
+                ? `Λάθος. Σωστές επιλογές: ${displayedOptions.flatMap((option, index) => q.correct.includes(option.originalIndex) ? [String.fromCharCode(913 + index)] : []).join(', ')}.`
+                : `Λάθος. Σωστή είναι η ${String.fromCharCode(913 + displayedOptions.findIndex(option => option.originalIndex === q.correct))}.`}
           </p>
         )}
 
@@ -6168,13 +6231,21 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </div>
         )}
 
+        {practice && questions.length > 0 && questions.every(question => locked[question.id]) && (
+          <section className="results written-results" aria-label="Αποτελέσματα επανάληψης">
+            <h2>Αποτελέσματα επανάληψης</h2>
+            <div className="results-score">{questions.length - wrongSessionQuestions.length}/{questions.length}</div>
+            <p>{wrongSessionQuestions.length ? `${wrongSessionQuestions.length} λάθη χρειάζονται ακόμη επανάληψη.` : 'Όλες οι απαντήσεις σωστές!'}</p>
+            {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn primary" onClick={retryPracticeWrong}>Επανάληψη των υπόλοιπων {wrongSessionQuestions.length} λαθών</button>}
+          </section>
+        )}
         {mode === "category" && currentIdx === totalQ - 1 && isLocked && !categoryCycle?.isComplete && <div className="results-actions">
           <p role="status">Τέλος ομάδας · {categoryCycle.remainingQuestions.length} ερωτήσεις απομένουν στην κατηγορία.</p>
           <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Επόμενες {Math.min(categoryChunkSize === 'all' ? Infinity : categoryChunkSize, categoryCycle.remainingQuestions.length)} ερωτήσεις</button>
           <button type="button" className="results-btn" onClick={() => startNewCategory('all')}>Όλες οι υπόλοιπες</button>
           <button type="button" className="results-btn" onClick={() => setCategoryDraftChoice('choice')}>Αλλαγή μεγέθους ομάδας / μηδενισμός</button>
         </div>}
-        {mode !== "written" && wrongSessionQuestions.length > 0 && (
+        {!practice && mode !== "written" && wrongSessionQuestions.length > 0 && (
           <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
             <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})
           </button>
@@ -6197,7 +6268,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <Icons.ChevronLeft /> Προηγούμενη
             </button>
             {!isLocked && (
-              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined || (Array.isArray(selected) && !selected.length)}>
                 <Icons.Lock /> Καταχώρηση
               </button>
             )}
@@ -6211,7 +6282,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <Icons.ChevronLeft /> Προηγούμενη
             </button>
             {!isLocked && (
-              <button className="nav-btn primary" onClick={() => { submitAnswer(); setShowSprintCompleteModal(true); }} disabled={selected === undefined}>
+              <button className="nav-btn primary" onClick={() => { submitAnswer(); setShowSprintCompleteModal(true); }} disabled={selected === undefined || (Array.isArray(selected) && !selected.length)}>
                 <Icons.Lock /> Καταχώρηση
               </button>
             )}
@@ -6223,7 +6294,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
               <Icons.ChevronLeft /> Προηγούμενη
             </button>
             {!isLocked && (
-              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined}>
+              <button className="nav-btn primary" onClick={() => submitAnswer()} disabled={selected === undefined || (Array.isArray(selected) && !selected.length)}>
                 <Icons.Lock /> Καταχώρηση
               </button>
             )}
@@ -9411,6 +9482,7 @@ export default function App() {
   const inMcqTest = Boolean(activeProfile && screen === 'mcq' && testMode);
 
   return (
+    <McqPracticeProvider progress={mcqProgress} onProgressChange={updateMcqProgress}>
     <div className="app">
       <a className="skip-link" href="#main-content">Μετάβαση στο κύριο περιεχόμενο</a>
       <AppShell
@@ -9754,5 +9826,6 @@ export default function App() {
       <ShortcutSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       {supportWidgetEnabled && <SupportWidget delayMinutes={supportWidgetDelayMinutes} />}
     </div>
+    </McqPracticeProvider>
   );
 }
