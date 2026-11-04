@@ -5557,6 +5557,9 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="results-actions">
           <button type="button" className="results-btn" onClick={onHome}>Αρχική</button>
           <button type="button" className="results-btn" onClick={() => setConfirmCategoryReset(true)}>Νέα συνεδρία από την αρχή</button>
+          {categoryCycleComplete && (
+            <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Έναρξη επόμενου κύκλου</button>
+          )}
           {!categoryCycleComplete && [10, 25].map(count => (
             <button key={count} type="button" className="results-btn primary" onClick={() => startNewCategory(count)}>
               Συνέχεια με έως {count} ερωτήσεις
@@ -5569,7 +5572,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             }}>Ανασκόπηση λαθών ({wrongBatchQuestions.length})</button>
           )}
           {categoryCycleComplete && wrongSessionQuestions.length > 0 && (
-            <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση λαθών κύκλου ({wrongSessionQuestions.length})</button>
+            <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})</button>
           )}
         </div>
         {confirmCategoryReset && <div className="explanation-box" role="group" aria-label="Επιβεβαίωση μηδενισμού">
