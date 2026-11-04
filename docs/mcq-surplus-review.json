@@ -136,7 +136,7 @@
   },
   {
     "id": 1263,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Conduction aphasia subtype. Keep the organic differential and a broad language discriminator.",
     "keepIds": [
@@ -147,7 +147,7 @@
   },
   {
     "id": 1566,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Stroke arterial territory localization. Keep recognition of urgent organic causes.",
     "keepIds": [
@@ -177,7 +177,7 @@
   },
   {
     "id": 1384,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Historical mental-age IQ calculation. Keep assessment of adaptive function.",
     "keepIds": [
@@ -197,7 +197,7 @@
   },
   {
     "id": 2279,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Williams syndrome dysmorphology. Keep a representative neurodevelopmental genetics vignette.",
     "keepIds": [
@@ -207,7 +207,7 @@
   },
   {
     "id": 2287,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Pediatric metabolic disease recognition. Keep representative developmental assessment.",
     "keepIds": [
@@ -218,7 +218,7 @@
   },
   {
     "id": 2290,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Isolated articulation milestone and follow-up. Keep broader language-delay assessment.",
     "keepIds": [
@@ -294,7 +294,7 @@
   },
   {
     "id": 2758,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Exact age of one infant milestone. Keep applied attachment and development assessment.",
     "keepIds": [
@@ -305,7 +305,7 @@
   },
   {
     "id": 2764,
-    "status": "proposed",
+    "status": "retired",
     "kind": "scope",
     "reason": "Isolated infant social referencing term. Keep a broader applied attachment vignette.",
     "keepIds": [
@@ -315,7 +315,7 @@
   },
   {
     "id": 2584,
-    "status": "proposed",
+    "status": "kept",
     "kind": "duplicate",
     "reason": "Bupropion and epilepsy. The NZ item and the scan already test the same contraindication.",
     "keepIds": [
@@ -326,7 +326,7 @@
   },
   {
     "id": 2581,
-    "status": "proposed",
+    "status": "kept",
     "kind": "duplicate",
     "reason": "The scan asks the same SSRI discontinuation half-life question.",
     "keepIds": [
@@ -336,7 +336,7 @@
   },
   {
     "id": 1688,
-    "status": "proposed",
+    "status": "kept",
     "kind": "duplicate",
     "reason": "The clozapine/carbamazepine combination and its hematologic rationale are already tested.",
     "keepIds": [
@@ -348,7 +348,7 @@
   },
   {
     "id": 1502,
-    "status": "proposed",
+    "status": "kept",
     "kind": "duplicate",
     "reason": "Two Hoover-sign vignettes differ mainly in the side of the weak hip. Keep the clearer vignette.",
     "keepIds": [
@@ -358,7 +358,7 @@
   },
   {
     "id": 1209,
-    "status": "proposed",
+    "status": "kept",
     "kind": "depth",
     "reason": "Isolated EEG finding in delirium. Keep bedside recognition and discrimination from dementia.",
     "keepIds": [
@@ -369,7 +369,7 @@
   },
   {
     "id": 1362,
-    "status": "proposed",
+    "status": "kept",
     "kind": "depth",
     "reason": "Tricyclic distractor trivia in tic suppression. Keep the clinical assessment and comorbidity questions.",
     "keepIds": [
@@ -380,7 +380,7 @@
   },
   {
     "id": 1395,
-    "status": "proposed",
+    "status": "kept",
     "kind": "duplicate",
     "reason": "The retained Tourette comorbidity item tests the OCD association and adds ADHD.",
     "keepIds": [
@@ -390,7 +390,7 @@
   },
   {
     "id": 2284,
-    "status": "proposed",
+    "status": "kept",
     "kind": "depth",
     "reason": "Fixed IQ band recall. Keep applied adaptive functioning and severity assessment.",
     "keepIds": [
@@ -401,7 +401,7 @@
   },
   {
     "id": 2314,
-    "status": "proposed",
+    "status": "kept",
     "kind": "depth",
     "reason": "Fixed proportion of ASD with intellectual disability. Keep recognition and functional assessment.",
     "keepIds": [
@@ -412,7 +412,7 @@
   },
   {
     "id": 2485,
-    "status": "proposed",
+    "status": "kept",
     "kind": "scope",
     "reason": "Specialist comparison of reboxetine with imipramine for enuresis. Keep course, behavioral treatment and medication safety.",
     "keepIds": [
@@ -424,7 +424,7 @@
   },
   {
     "id": 2754,
-    "status": "proposed",
+    "status": "kept",
     "kind": "scope",
     "reason": "Specific neonatal dysmorphology vignette leading to later ADHD. Keep representative diagnosis and treatment coverage.",
     "keepIds": [
@@ -435,7 +435,7 @@
   },
   {
     "id": 2809,
-    "status": "proposed",
+    "status": "kept",
     "kind": "depth",
     "reason": "Narrow historical infant separation sequence. Keep applied attachment assessment.",
     "keepIds": [

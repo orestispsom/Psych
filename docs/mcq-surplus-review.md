@@ -1,6 +1,6 @@
 # MCQ surplus review
 
-Reviewed against the 2,260-question bank at 94855ca and f615e65. This is an approval queue. All entries are currently proposed and the active bank remains at 2,260.
+Reviewed against the 2,260-question bank at 94855ca and f615e65. The active bank contains 2,252 questions after eight approved removals. The tracker records 12 keepers and 22 remaining proposals.
 
 ## What qualifies
 
@@ -48,3 +48,7 @@ Spot inspection across a projected mock found the intended mixture, including an
 The simulations support coverage and rotation for this batch. They do not establish psychometric difficulty, discrimination or score reliability, and the spot inspection was not a clinical re-audit of every sampled item.
 
 For the second batch, 40 seeded sequential mocks on the full bank and 40 on the 2,218-item projection each met every topic and format quota. The new rotation logic also reduced repetition of known concepts across different IDs. See the [blueprint follow-up](written-exam-blueprint.md#rotation-follow-up).
+
+## Decision on the two batches
+
+The latest 12 were kept. Eight first-batch IDs were retired: 1263 (conduction aphasia), 1566 (stroke arterial territory), 1384 (mental-age IQ arithmetic), 2279 (Williams dysmorphology), 2287 (pediatric metabolic disease recognition), 2290 (isolated articulation), 2758 (infant milestone age), and 2764 (infant social referencing). The tracker lists retained coverage for each. The first-batch and second-batch projections above are historical.
