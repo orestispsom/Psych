@@ -1,3 +1,4 @@
+import { getWrittenExamTraits, selectByWrittenBlueprint } from "./writtenExamBlueprint.mjs";
 import { totalAnswers } from "./lib/answerTotals.js";
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
@@ -40,7 +41,6 @@ import {
   getMcqQualityPreference,
   rankQuestionsWithQuality,
   selectAdaptiveQuestionOrder,
-  selectWrittenExamByTopic,
 } from "./mcqSelection.mjs";
 import {
   parseAppPath,
@@ -1942,7 +1942,7 @@ function isNearDuplicateQuestion(candidate, selectedQuestions) {
   if (candidateTokens.size < 5) return false;
 
   return selectedQuestions.some(existing => {
-    if (getQuestionTopic(existing) !== getQuestionTopic(candidate)) return false;
+    if (getWrittenExamTraits(existing).domain !== getWrittenExamTraits(candidate).domain) return false;
     const existingTokens = getQuestionSignatureTokens(existing);
     if (existingTokens.size < 5) return false;
     let overlap = 0;
@@ -2041,67 +2041,8 @@ function scoreQuestionForWrittenExam(question, progress, qualitySignals = {}, no
   return score;
 }
 
-function buildWrittenTopicQuotas(eligible, targetCount) {
-  const topicMap = new Map();
-  eligible.forEach(question => {
-    const topic = getQuestionTopic(question);
-    if (!topicMap.has(topic)) topicMap.set(topic, []);
-    topicMap.get(topic).push(question);
-  });
-
-  const topics = [...topicMap.keys()];
-  const majorThreshold = Math.max(80, Math.floor(eligible.length * 0.04));
-  const minTopicQuota = targetCount >= 60 ? 2 : 1;
-  const maxMajorTopic = Math.max(14, Math.ceil(targetCount * 0.20));
-  const maxMinorTopic = Math.max(4, Math.ceil(targetCount * 0.08));
-  const quotaRows = topics.map(topic => {
-    const available = topicMap.get(topic).length;
-    const raw = (available / eligible.length) * targetCount;
-    const maxForTopic = available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-    const includeTopic = available >= minTopicQuota && raw >= 0.45;
-    const quota = includeTopic
-      ? Math.min(available, maxForTopic, Math.max(minTopicQuota, Math.floor(raw)))
-      : 0;
-    return { topic, available, raw, quota, remainder: raw - Math.floor(raw) };
-  });
-
-  let total = quotaRows.reduce((sum, row) => sum + row.quota, 0);
-
-  while (total > targetCount) {
-    const row = quotaRows
-      .filter(item => item.quota > minTopicQuota)
-      .sort((a, b) => a.remainder - b.remainder || b.quota - a.quota)[0];
-    if (!row) break;
-    row.quota -= 1;
-    total -= 1;
-  }
-
-  while (total < targetCount) {
-    const row = quotaRows
-      .filter(item => {
-        const maxForTopic = item.available >= majorThreshold ? maxMajorTopic : maxMinorTopic;
-        return item.quota > 0 && item.quota < item.available && item.quota < maxForTopic;
-      })
-      .sort((a, b) => b.remainder - a.remainder || b.available - a.available)[0];
-    if (!row) break;
-    row.quota += 1;
-    total += 1;
-  }
-
-  return new Map(quotaRows.filter(row => row.quota > 0).map(row => [row.topic, row.quota]));
-}
-
 function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, qualitySignals = {}) {
-  const eligible = QUESTIONS.filter(question =>
-    Array.isArray(question.options) &&
-    question.options.length === 5 &&
-    Number.isInteger(question.correct) &&
-    question.correct >= 0 &&
-    question.correct < question.options.length
-  );
-  const targetCount = Math.min(count, eligible.length);
   const now = new Date();
-  const topicQuotas = buildWrittenTopicQuotas(eligible, targetCount);
   const selected = [];
   const usedIds = new Set();
   const usedSignatures = new Set();
@@ -2124,15 +2065,12 @@ function selectWrittenExamQuestions(progress, count = WRITTEN_EXAM_SIZE, quality
     return true;
   };
 
-  return selectWrittenExamByTopic({
-    eligible,
-    targetCount,
-    topicQuotas,
-    getTopic: getQuestionTopic,
-    scoreQuestion: question => scoreQuestionForWrittenExam(question, progress, qualitySignals, now),
+  return selectByWrittenBlueprint({
+    questions: QUESTIONS,
+    count,
+    scoreQuestion: question => scoreQuestionForWrittenExam(question, progress, qualitySignals, now) + Math.random() * 40,
     isRecent: question => recentWrittenIds.has(String(question.id)),
     trySelect: pushQuestion,
-    getSelected: () => selected,
     shuffle: shuffleItems,
   });
 }
