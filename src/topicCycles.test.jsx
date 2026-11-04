@@ -53,6 +53,7 @@ it('preserves a legacy draft on cold load, excludes prior answers, and starts a 
   await answer(user, view.container);
   await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
   await answer(user, view.container);
+  await user.click(screen.getByRole('button', { name: 'Αποτελέσματα ομάδας' }));
   expect(await screen.findByText('Ο κύκλος 1 ολοκληρώθηκε')).toBeInTheDocument();
   const lifetime = structuredClone(profile().mcqProgress.questions);
   await user.click(screen.getByRole('button', { name: 'Έναρξη επόμενου κύκλου' }));
@@ -75,6 +76,7 @@ it('retains mistakes from a completed topic round after reload', async () => {
   await waitFor(() => expect(view.container.querySelector('.mcq-q-id')).toBeTruthy());
   await user.click(within(view.container.querySelector('.options-list')).getByText(lastQuestion.options[(lastQuestion.correct + 1) % lastQuestion.options.length], { exact: true }));
   await user.click(screen.getByRole('button', { name: /Καταχώρηση/ }));
+  await user.click(screen.getByRole('button', { name: 'Αποτελέσματα ομάδας' }));
   await screen.findByText('Ο κύκλος 1 ολοκληρώθηκε');
   view.unmount();
   window.history.pushState({}, '', '/mcq/category');
@@ -135,7 +137,8 @@ it('opens categories before choosing size, completes chunks without repeats, and
     if (index < 24) await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
   }
   expect(profile().mcqProgress.topicCycles[topic].coveredQuestionIds).toHaveLength(25);
-  await user.click(screen.getByRole('button', { name: 'Επόμενες 25 ερωτήσεις' }));
+  await user.click(screen.getByRole('button', { name: 'Αποτελέσματα ομάδας' }));
+  await user.click(screen.getByRole('button', { name: 'Συνέχεια με έως 25 ερωτήσεις' }));
   expect(profile().mcqProgress.categoryDrafts[topic].questionIds).toHaveLength(25);
   expect(profile().mcqProgress.categoryDrafts[topic].questionIds.some(id => covered.includes(id))).toBe(false);
   await answer(user, view.container);
@@ -181,6 +184,7 @@ it('caps the final chunk and offers a fresh round after all remaining questions 
   await answer(user, view.container);
   await user.click(screen.getByRole('button', { name: 'Επόμενη ερώτηση' }));
   await answer(user, view.container);
+  await user.click(screen.getByRole('button', { name: 'Αποτελέσματα ομάδας' }));
   expect(await screen.findByText('Ο κύκλος 1 ολοκληρώθηκε')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Έναρξη επόμενου κύκλου' }));
   expect(profile().mcqProgress.categoryDrafts[topic].questionIds).toHaveLength(25);
