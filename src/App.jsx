@@ -4609,6 +4609,8 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const [simSeconds, setSimSeconds] = useState(0);
   const [showSimTimer, setShowSimTimer] = useState(true);
   const [retryQuestions, setRetryQuestions] = useState(null);
+  const [showCategoryResults, setShowCategoryResults] = useState(false);
+  const [categoryReviewIndex, setCategoryReviewIndex] = useState(null);
   const [showSprintCompleteModal, setShowSprintCompleteModal] = useState(false);
   const [practiceWrittenWrongActive, setPracticeWrittenWrongActive] = useState(false);
   const [showPracticeWrongCompleteModal, setShowPracticeWrongCompleteModal] = useState(false);
@@ -5014,7 +5016,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   // 1–5 and Up/Down pick an option; Enter/Space submit, then advance.
   useWindowKeydown(event => {
     {
-      if (!isActive || retryQuestions) return;
+      if (!isActive || retryQuestions || showCategoryResults) return;
       if (mode === "category" && categoryDraftChoice === "choice") return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
@@ -5101,7 +5103,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   const mcqSwipe = useSwipeGesture({
     onSwipeLeft: handleMcqSwipeLeft,
     onSwipeRight: handleMcqSwipeRight,
-    enabled: isActive && !retryQuestions && (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
+    enabled: isActive && !retryQuestions && !showCategoryResults && (!writtenResult || practiceWrittenWrongActive) && Boolean(q),
   });
 
   const submitMcqFeedback = async (feedbackType, feedbackComment = "", feedbackQuestion = q) => {
@@ -5450,6 +5452,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     setFeedbackCommentText("");
     setCategoryChunkSize(count);
     setConfirmCategoryReset(false);
+    setShowCategoryResults(false);
     setCategoryDraftChoice("active");
     if (nextDraft) {
       onProgressChange(prev => {
@@ -5517,18 +5520,65 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
       }))} />;
   }
 
-  if (mode === "category" && categoryCycle?.isComplete && (!q || categoryAllAnswered)) {
-    return <div className="results written-results category-cycle-complete">
-      <h2>{sessionTitle}</h2>
-      <div className="results-label">Ο κύκλος {categoryCycle.round} ολοκληρώθηκε</div>
-      <div className="results-score">{categoryCycle.completed}/{categoryCycle.total}</div>
-      <p>Απάντησες σε όλες τις ερωτήσεις της κατηγορίας. Ο επόμενος κύκλος ξεκινά από την αρχή, με διατήρηση της συνολικής επίδοσης και του mastery.</p>
-      <div className="results-actions">
-        {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})</button>}
-        <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Έναρξη επόμενου κύκλου</button>
-        <button type="button" className="results-btn" onClick={onBack}>Κατηγορίες</button>
-      </div>
-    </div>;
+  const categoryBatchComplete = categoryDraftChoice === "active" && categoryAllAnswered;
+  const categoryCycleComplete = categoryCycle?.isComplete;
+
+  if (mode === "category" && ((categoryBatchComplete && showCategoryResults) || (categoryCycleComplete && categoryDraftChoice === "choice"))) {
+    const wrongBatchQuestions = questions.filter(question => locked[question.id] && answers[question.id] !== question.correct);
+    const reviewQuestion = wrongBatchQuestions[categoryReviewIndex];
+
+    if (reviewQuestion) {
+      return (
+        <section className="test-container">
+          <h2>Λάθος {categoryReviewIndex + 1} από {wrongBatchQuestions.length}</h2>
+          {renderLockedWrittenQuestion({ question: reviewQuestion, selected: answers[reviewQuestion.id] })}
+          <div className="results-actions">
+            <button type="button" className="results-btn" onClick={() => {
+              setCategoryReviewIndex(null);
+              window.scrollTo(0, 0);
+            }}>Πίσω στα αποτελέσματα</button>
+            {categoryReviewIndex + 1 < wrongBatchQuestions.length && (
+              <button type="button" className="results-btn primary" onClick={() => {
+                setCategoryReviewIndex(categoryReviewIndex + 1);
+                window.scrollTo(0, 0);
+              }}>Επόμενο λάθος</button>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <section className="results written-results category-cycle-complete">
+        <h2>{sessionTitle}</h2>
+        <div className="results-label">{categoryCycleComplete ? `Ο κύκλος ${categoryCycle.round} ολοκληρώθηκε` : "Η ομάδα ολοκληρώθηκε"}</div>
+        {categoryBatchComplete && <div className="results-score">{totalQ - wrongBatchQuestions.length}/{totalQ}</div>}
+        <p>{categoryCycle.remainingQuestions.length} ερωτήσεις απομένουν στην κατηγορία.</p>
+        <div className="results-actions">
+          <button type="button" className="results-btn" onClick={onHome}>Αρχική</button>
+          <button type="button" className="results-btn" onClick={() => setConfirmCategoryReset(true)}>Νέα συνεδρία από την αρχή</button>
+          {!categoryCycleComplete && [10, 25].map(count => (
+            <button key={count} type="button" className="results-btn primary" onClick={() => startNewCategory(count)}>
+              Συνέχεια με έως {count} ερωτήσεις
+            </button>
+          ))}
+          {wrongBatchQuestions.length > 0 && (
+            <button type="button" className="results-btn" onClick={() => {
+              setCategoryReviewIndex(0);
+              window.scrollTo(0, 0);
+            }}>Ανασκόπηση λαθών ({wrongBatchQuestions.length})</button>
+          )}
+          {categoryCycleComplete && wrongSessionQuestions.length > 0 && (
+            <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση λαθών κύκλου ({wrongSessionQuestions.length})</button>
+          )}
+        </div>
+        {confirmCategoryReset && <div className="explanation-box" role="group" aria-label="Επιβεβαίωση μηδενισμού">
+          <p>Να ξεκινήσει νέος κύκλος για αυτή την κατηγορία; Η συνολική επίδοση, το mastery και οι άλλες κατηγορίες διατηρούνται.</p>
+          <button type="button" className="results-btn" onClick={() => startNewCategory(categoryChunkSize, true)}>Μηδενισμός και νέα ομάδα</button>
+          <button type="button" className="results-btn" onClick={() => setConfirmCategoryReset(false)}>Άκυρο</button>
+        </div>}
+      </section>
+    );
   }
 
   if (mode === "category" && categoryDraftChoice === "choice") {
@@ -6177,12 +6227,12 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             {wrongSessionQuestions.length > 0 && <button type="button" className="results-btn primary" onClick={retryPracticeWrong}>Επανάληψη των υπόλοιπων {wrongSessionQuestions.length} λαθών</button>}
           </section>
         )}
-        {mode === "category" && currentIdx === totalQ - 1 && isLocked && !categoryCycle?.isComplete && <div className="results-actions">
-          <p role="status">Τέλος ομάδας · {categoryCycle.remainingQuestions.length} ερωτήσεις απομένουν στην κατηγορία.</p>
-          <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Επόμενες {Math.min(categoryChunkSize === 'all' ? Infinity : categoryChunkSize, categoryCycle.remainingQuestions.length)} ερωτήσεις</button>
-          <button type="button" className="results-btn" onClick={() => startNewCategory('all')}>Όλες οι υπόλοιπες</button>
-          <button type="button" className="results-btn" onClick={() => setCategoryDraftChoice('choice')}>Αλλαγή μεγέθους ομάδας / μηδενισμός</button>
-        </div>}
+        {categoryBatchComplete && (
+          <button type="button" className="results-btn primary" onClick={() => {
+            setShowCategoryResults(true);
+            window.scrollTo(0, 0);
+          }}>Αποτελέσματα ομάδας</button>
+        )}
         {!practice && mode !== "written" && wrongSessionQuestions.length > 0 && (
           <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
             <Icons.Bolt /> Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})

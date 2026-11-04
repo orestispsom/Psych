@@ -263,6 +263,42 @@ describe("golden path smoke tests", () => {
     expect(screen.getByText("Αντιστοίχηση")).toBeInTheDocument();
   });
 
+  it("finishes a category batch, reviews mistakes, and continues without repeats", async () => {
+    const user = userEvent.setup();
+    const { container } = renderApp();
+    const home = await createProfile(user, "Category practice", container);
+    await user.click(home.getByText("Πολλαπλής Επιλογής"));
+    await user.click(await screen.findByText("Ερωτήσεις ανά Κατηγορία"));
+    const largeTopic = (await screen.findAllByRole("button", { name: /\d+ απομένουν/ }))
+      .find(button => Number(button.textContent.match(/(\d+) απομένουν/)?.[1]) >= 20);
+    expect(largeTopic).toBeTruthy();
+    await user.click(largeTopic);
+
+    await user.click(screen.getByRole("button", { name: "10 ερωτήσεις", exact: true }));
+
+    const stems = new Set();
+    for (let index = 0; index < 10; index += 1) {
+      stems.add(container.querySelector(".question-stem").textContent);
+      await user.click(container.querySelector(".option-btn"));
+      await user.click(screen.getByRole("button", { name: "Καταχώρηση" }));
+      if (index < 9) await user.click(screen.getByRole("button", { name: "Επόμενη ερώτηση" }));
+    }
+    await user.click(screen.getByRole("button", { name: "Αποτελέσματα ομάδας" }));
+    const results = screen.getByText("Η ομάδα ολοκληρώθηκε");
+    expect(results).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Νέα συνεδρία από την αρχή" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Ανασκόπηση λαθών/ }));
+    let nextWrong = screen.queryByRole("button", { name: "Επόμενο λάθος" });
+    while (nextWrong) {
+      await user.click(nextWrong);
+      nextWrong = screen.queryByRole("button", { name: "Επόμενο λάθος" });
+    }
+    await user.click(screen.getByRole("button", { name: "Πίσω στα αποτελέσματα" }));
+    await user.click(screen.getByRole("button", { name: "Συνέχεια με έως 10 ερωτήσεις" }));
+    expect(container.querySelector(".mcq-q-index").textContent).toMatch(/Ερώτηση 1\b/);
+    expect(stems.has(container.querySelector(".question-stem").textContent)).toBe(false);
+  }, 20000);
+
   it("resumes category study at the saved position and can start that category over", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();
