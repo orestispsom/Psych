@@ -283,17 +283,29 @@ describe("golden path smoke tests", () => {
       await user.click(screen.getByRole("button", { name: "Καταχώρηση" }));
       if (index < 9) await user.click(screen.getByRole("button", { name: "Επόμενη ερώτηση" }));
     }
-    await user.click(screen.getByRole("button", { name: "Αποτελέσματα ομάδας" }));
-    const results = screen.getByText("Η ομάδα ολοκληρώθηκε");
-    expect(results).toBeInTheDocument();
+    await user.keyboard("{Enter}");
+    expect(screen.getByText("Η ομάδα ολοκληρώθηκε")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Νέα συνεδρία από την αρχή" })).toBeInTheDocument();
+    const review = screen.getByRole("button", { name: /Ανασκόπηση λαθών/ });
+    await user.click(review);
+    await user.keyboard("{Escape}");
+    expect(screen.getByText("Η ομάδα ολοκληρώθηκε")).toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: /Ανασκόπηση λαθών/ }));
-    let nextWrong = screen.queryByRole("button", { name: "Επόμενο λάθος" });
-    while (nextWrong) {
-      await user.click(nextWrong);
-      nextWrong = screen.queryByRole("button", { name: "Επόμενο λάθος" });
+    if (screen.queryByRole("button", { name: "Επόμενο λάθος" })) {
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByRole("heading", { name: /Λάθος 2 από/ })).toBeInTheDocument();
+      await user.keyboard("{ArrowLeft}");
+      expect(screen.getByRole("heading", { name: /Λάθος 1 από/ })).toBeInTheDocument();
     }
-    await user.click(screen.getByRole("button", { name: "Πίσω στα αποτελέσματα" }));
+    while (screen.queryByRole("button", { name: "Επόμενο λάθος" })) {
+      await user.keyboard(" ");
+    }
+    expect(screen.getByRole("button", { name: "Ολοκλήρωση ανασκόπησης" })).toBeInTheDocument();
+    await user.keyboard("{Enter}");
+    expect(screen.getByText("Η ομάδα ολοκληρώθηκε")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ερωτήσεις ανά Κατηγορία" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Μενού MCQ" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Συνέχεια με έως 10 ερωτήσεις" }));
     expect(container.querySelector(".mcq-q-index").textContent).toMatch(/Ερώτηση 1\b/);
     expect(stems.has(container.querySelector(".question-stem").textContent)).toBe(false);

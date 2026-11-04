@@ -4540,13 +4540,13 @@ export function McqPracticeProvider({ children, progress, onProgressChange }) {
   return <McqPracticeContext.Provider value={value}>{children}</McqPracticeContext.Provider>;
 }
 
-function ClassicWrongAnswerPractice({ questions, title, context, onBack, onAnswer, progress, onProgressChange, isActive = true, backLabel = 'Επιστροφή στο αρχικό τεστ' }) {
+function ClassicWrongAnswerPractice({ questions, title, context, onBack, onAnswer, progress, onProgressChange, isActive = true, backLabel = 'Επιστροφή στο αρχικό τεστ', finishLabel = null }) {
   const sessionQuestions = useMemo(() => questions.map(question => ({
     ...question,
     stem: question.stem || question.question || question.prompt,
     explanation: question.explanation || question.answer,
   })), [questions]);
-  const practice = useMemo(() => ({ title, context, backLabel, onAnswer }), [title, context, backLabel, onAnswer]);
+  const practice = useMemo(() => ({ title, context, backLabel, finishLabel, onAnswer }), [title, context, backLabel, finishLabel, onAnswer]);
   return <McqTest mode="weakness" sessionQuestions={sessionQuestions} progress={progress}
     onProgressChange={onProgressChange} onBack={onBack} onHome={onBack} isActive={isActive} practice={practice} />;
 }
@@ -4557,7 +4557,7 @@ function isMcqSelectionCorrect(question, selection) {
   return values.length === question.correct.length && question.correct.every(index => values.includes(index));
 }
 
-function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, practiceSize = WEAKNESS_SESSION_SIZE, historicalExam = null, practice = null, onlyUnmastered = false }) {
+function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack, onHome, sessionQuestions = null, sessionTitle = null, isActive = true, sprintSize = SPRINT_SESSION_SIZE, practiceSize = WEAKNESS_SESSION_SIZE, historicalExam = null, practice = null, onlyUnmastered = false, onMcqMenu }) {
   const initialHistoryRef = useRef(historicalExam);
   const sprintSizeRef = useRef(sprintSize);
   const initialWrittenDraftRef = useRef(mode === "written" && !historicalExam ? getWrittenExamDraft(progress) : null);
@@ -5026,13 +5026,72 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
   };
 
   // Keyboard: answering thousands of MCQs should not require the mouse.
+  const categoryBatchComplete = categoryDraftChoice === "active" && categoryAllAnswered;
+  const categoryCycleComplete = categoryCycle?.isComplete;
+  const categoryResultsVisible = mode === "category" &&
+    ((categoryBatchComplete && showCategoryResults) || (categoryCycleComplete && categoryDraftChoice === "choice"));
+  const wrongBatchQuestions = categoryResultsVisible
+    ? questions.filter(question => locked[question.id] && !isMcqSelectionCorrect(question, answers[question.id]))
+    : [];
+  const reviewQuestion = wrongBatchQuestions[categoryReviewIndex];
+  const categoryRetryComplete = practice?.finishLabel && questions.length > 0 && questions.every(question => locked[question.id]);
+  const categoryResultsHeading = useRef(null);
+
+  useEffect(() => {
+    if (isActive && categoryResultsVisible && !retryQuestions) categoryResultsHeading.current?.focus({ preventScroll: true });
+  }, [isActive, categoryResultsVisible, categoryReviewIndex, retryQuestions]);
+
+  const showBatchResults = () => {
+    setShowCategoryResults(true);
+    window.scrollTo(0, 0);
+  };
+
+  const goToCategoryReview = index => {
+    setCategoryReviewIndex(index);
+    setFeedbackMenuOpen(false);
+    setFeedbackCommentOpen(false);
+    setFeedbackStatus(null);
+    setFeedbackCommentText("");
+    window.scrollTo(0, 0);
+  };
+
+  const advanceCategoryReview = () => {
+    goToCategoryReview(categoryReviewIndex + 1 < wrongBatchQuestions.length ? categoryReviewIndex + 1 : null);
+  };
+
   // 1–5 and Up/Down pick an option; Enter/Space submit, then advance.
   useWindowKeydown(event => {
     {
-      if (!isActive || retryQuestions || showCategoryResults) return;
-      if (mode === "category" && categoryDraftChoice === "choice") return;
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (!isActive || retryQuestions || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
       if (isShortcutIgnoredTarget(event.target)) return;
+
+      const advance = isSubmitOrAdvanceKey(event);
+      const categoryShortcut = mode === "category" || practice?.finishLabel;
+      if (categoryShortcut && advance && event.target instanceof Element && event.target.closest("button, a[href]")) return;
+
+      if (reviewQuestion) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          goToCategoryReview(null);
+        } else if (advance || event.key === "ArrowRight") {
+          event.preventDefault();
+          if (!event.repeat) advanceCategoryReview();
+        } else if (event.key === "ArrowLeft" && categoryReviewIndex > 0) {
+          event.preventDefault();
+          goToCategoryReview(categoryReviewIndex - 1);
+        }
+        return;
+      }
+
+      if (categoryResultsVisible || (mode === "category" && categoryDraftChoice === "choice")) return;
+      if ((categoryBatchComplete || categoryRetryComplete) && (advance || event.key === "ArrowRight")) {
+        event.preventDefault();
+        if (!event.repeat) {
+          if (categoryBatchComplete) showBatchResults();
+          else onBack();
+        }
+        return;
+      }
       if ((writtenResult && !practiceWrittenWrongActive) || !q) return;
 
       if (event.key >= "1" && event.key <= "9") {
@@ -5289,22 +5348,24 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
         <div className="options-list">
           {orderedOptions.map((option, i) => {
             const originalIndex = option.originalIndex;
+            const correct = Array.isArray(question.correct) ? question.correct.includes(originalIndex) : originalIndex === question.correct;
+            const chosen = Array.isArray(item.selected) ? item.selected.includes(originalIndex) : originalIndex === item.selected;
             const letter = String.fromCharCode(913 + i);
             let cls = "option-btn locked";
-            if (originalIndex === question.correct) cls += " correct";
-            else if (originalIndex === item.selected && originalIndex !== question.correct) cls += " incorrect";
+            if (correct) cls += " correct";
+            else if (chosen) cls += " incorrect";
             return (
-              <button key={originalIndex} className={cls} type="button" aria-disabled="true">
+              <button key={originalIndex} className={cls} type="button" disabled>
                 <span className="option-letter" aria-hidden="true">{letter}</span>
                 <span>{option.text}</span>
                 <span className="answer-glyph" aria-hidden="true">
-                  {originalIndex === question.correct ? <Icons.Check /> :
-                   originalIndex === item.selected && originalIndex !== question.correct ? <Icons.X /> : null}
+                  {correct ? <Icons.Check /> :
+                   chosen ? <Icons.X /> : null}
                 </span>
                 <span className="sr-only">
-                  {originalIndex === question.correct
+                  {correct
                     ? `Επιλογή ${letter}. Σωστή απάντηση.`
-                    : originalIndex === item.selected
+                    : chosen
                       ? `Επιλογή ${letter}. Η απάντησή σου — λάθος.`
                       : `Επιλογή ${letter}.`}
                 </span>
@@ -5532,14 +5593,15 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
   if (retryQuestions) {
     return <WrongAnswerPractice questions={retryQuestions.map(question => ({ ...question, stem: getMcqStem(question) }))} title={modeTitle} isActive={isActive}
-      onBack={() => setRetryQuestions(null)}
+      onBack={() => {
+        setRetryQuestions(null);
+        window.scrollTo(0, 0);
+      }}
+      finishLabel={mode === "category" ? "Ολοκλήρωση εξάσκησης" : null}
       onAnswer={(question, answer, metadata) => onProgressChange(previous => recordQuestionAnswer(previous, question, answer, {
         ...metadata, mode: "weakness", confidence: 3, pointsAwarded: 0,
       }))} />;
   }
-
-  const categoryBatchComplete = categoryDraftChoice === "active" && categoryAllAnswered;
-  const categoryCycleComplete = categoryCycle?.isComplete;
 
   if (mode === "category" && onlyUnmastered && !categoryRemaining && !categoryCycleComplete && categoryDraftChoice === "choice") {
     return (
@@ -5551,26 +5613,22 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
     );
   }
 
-  if (mode === "category" && ((categoryBatchComplete && showCategoryResults) || (categoryCycleComplete && categoryDraftChoice === "choice"))) {
-    const wrongBatchQuestions = questions.filter(question => locked[question.id] && answers[question.id] !== question.correct);
-    const reviewQuestion = wrongBatchQuestions[categoryReviewIndex];
+  if (categoryResultsVisible) {
 
     if (reviewQuestion) {
       return (
         <section className="test-container">
-          <h2>Λάθος {categoryReviewIndex + 1} από {wrongBatchQuestions.length}</h2>
+          <h2 ref={categoryResultsHeading} tabIndex={-1}>Λάθος {categoryReviewIndex + 1} από {wrongBatchQuestions.length}</h2>
           {renderLockedWrittenQuestion({ question: reviewQuestion, selected: answers[reviewQuestion.id] })}
+          <p>Enter, διάστημα ή → για συνέχεια. Esc για επιστροφή στα αποτελέσματα.</p>
           <div className="results-actions">
-            <button type="button" className="results-btn" onClick={() => {
-              setCategoryReviewIndex(null);
-              window.scrollTo(0, 0);
-            }}>Πίσω στα αποτελέσματα</button>
-            {categoryReviewIndex + 1 < wrongBatchQuestions.length && (
-              <button type="button" className="results-btn primary" onClick={() => {
-                setCategoryReviewIndex(categoryReviewIndex + 1);
-                window.scrollTo(0, 0);
-              }}>Επόμενο λάθος</button>
+            <button type="button" className="results-btn" onClick={() => goToCategoryReview(null)}>Πίσω στα αποτελέσματα</button>
+            {categoryReviewIndex > 0 && (
+              <button type="button" className="results-btn" onClick={() => goToCategoryReview(categoryReviewIndex - 1)}>Προηγούμενο λάθος</button>
             )}
+            <button type="button" className="results-btn primary" onClick={advanceCategoryReview}>
+              {categoryReviewIndex + 1 < wrongBatchQuestions.length ? "Επόμενο λάθος" : "Ολοκλήρωση ανασκόπησης"}
+            </button>
           </div>
         </section>
       );
@@ -5578,13 +5636,13 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
 
     return (
       <section className="results written-results category-cycle-complete">
-        <h2>{sessionTitle}</h2>
+        <h2 ref={categoryResultsHeading} tabIndex={-1}>{sessionTitle}</h2>
         <div className="results-label">{categoryCycleComplete ? `Ο κύκλος ${categoryCycle.round} ολοκληρώθηκε` : "Η ομάδα ολοκληρώθηκε"}</div>
         {categoryBatchComplete && <div className="results-score">{totalQ - wrongBatchQuestions.length}/{totalQ}</div>}
         <p>{categoryRemaining} ερωτήσεις απομένουν στην κατηγορία.</p>
         <div className="results-actions">
-          <button type="button" className="results-btn" onClick={onHome}>Αρχική</button>
-          {onlyUnmastered && <button type="button" className="results-btn" onClick={onBack}>Κατηγορίες</button>}
+          <button type="button" className="results-btn" onClick={onBack}>Ερωτήσεις ανά Κατηγορία</button>
+          <button type="button" className="results-btn" onClick={onMcqMenu}>Μενού MCQ</button>
           {(!onlyUnmastered || hasUnmasteredInTopic) && <button type="button" className="results-btn" onClick={() => setConfirmCategoryReset(true)}>Νέα συνεδρία από την αρχή</button>}
           {categoryCycleComplete && (!onlyUnmastered || hasUnmasteredInTopic) && (
             <button type="button" className="results-btn primary" onClick={() => startNewCategory()}>Έναρξη επόμενου κύκλου</button>
@@ -5595,10 +5653,7 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
             </button>
           ))}
           {wrongBatchQuestions.length > 0 && (
-            <button type="button" className="results-btn" onClick={() => {
-              setCategoryReviewIndex(0);
-              window.scrollTo(0, 0);
-            }}>Ανασκόπηση λαθών ({wrongBatchQuestions.length})</button>
+            <button type="button" className="results-btn" onClick={() => goToCategoryReview(0)}>Ανασκόπηση λαθών ({wrongBatchQuestions.length})</button>
           )}
           {categoryCycleComplete && wrongSessionQuestions.length > 0 && (
             <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>Εξάσκηση μόνο των λαθών ({wrongSessionQuestions.length})</button>
@@ -6260,10 +6315,10 @@ function McqTest({ mode, progress, qualitySignals = {}, onProgressChange, onBack
           </section>
         )}
         {categoryBatchComplete && (
-          <button type="button" className="results-btn primary" onClick={() => {
-            setShowCategoryResults(true);
-            window.scrollTo(0, 0);
-          }}>Αποτελέσματα ομάδας</button>
+          <button type="button" className="results-btn primary" onClick={showBatchResults}>Αποτελέσματα ομάδας</button>
+        )}
+        {categoryRetryComplete && (
+          <button type="button" className="results-btn primary" onClick={onBack}>{practice.finishLabel}</button>
         )}
         {!practice && mode !== "written" && wrongSessionQuestions.length > 0 && (
           <button type="button" className="results-btn" onClick={() => setRetryQuestions(wrongSessionQuestions)}>
@@ -9690,6 +9745,7 @@ export default function App() {
             onlyUnmastered={retainedMcqMode === "category" && retainedOnlyUnmastered}
             sessionQuestions={retainedMcqMode === 'category' ? selectedMcqTopicQuestions : null}
             sessionTitle={retainedMcqMode === 'category' ? retainedMcqTopic : null}
+            onMcqMenu={() => setTestMode(null)}
             onBack={() => {
               if (testMode === 'category') {
                 setSelectedMcqTopic(null);
