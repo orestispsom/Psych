@@ -1,0 +1,316 @@
+[
+  {
+    "id": 1344,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "AMPA receptor identification is already tested in the September recall.",
+    "keepIds": [
+      3428,
+      3565
+    ],
+    "fingerprint": "922897d94ccd0aef622575a07aee50853b147fac0aeade53eec30cb8559462f5"
+  },
+  {
+    "id": 2289,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "The same first decision, hearing assessment for delayed speech.",
+    "keepIds": [
+      1521
+    ],
+    "fingerprint": "95d2287dc61ca1f69b643349170aa925cf792b8708fbdce605cc9d77da6c3acb"
+  },
+  {
+    "id": 1572,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "The retained fragile X vignette integrates macroorchidism with the phenotype.",
+    "keepIds": [
+      1412
+    ],
+    "fingerprint": "1091af9b1f070a5b0ae778fe41c7a1738d57e62a86f96698d06e0bd34d12b651"
+  },
+  {
+    "id": 2274,
+    "status": "proposed",
+    "kind": "duplicate",
+    "reason": "An extra fragile X genetics vignette framed as ADHD assessment.",
+    "keepIds": [
+      1412,
+      2288
+    ],
+    "fingerprint": "a013df6685fabec93d9a088f03ddc008d876e35980f6f654cbabd2fbabb1a68e"
+  },
+  {
+    "id": 450,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Isolated donanemab drug class. Keep class safety and baseline assessment.",
+    "keepIds": [
+      449,
+      451
+    ],
+    "fingerprint": "71854a870f4a488bfe61719007248a24dea6cbb8c2563322c1ec514ac41f8dd9"
+  },
+  {
+    "id": 466,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Extra lecanemab MRI detail beyond ARIA monitoring and baseline assessment.",
+    "keepIds": [
+      449,
+      451
+    ],
+    "fingerprint": "6e9c869da7831576e3dc37d12473c75ccd7d09c9e788e6135324348bfdda0240"
+  },
+  {
+    "id": 564,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Fixed Alzheimer frequency doubling interval. Keep the age gradient.",
+    "keepIds": [
+      747
+    ],
+    "fingerprint": "f5dbcf28a3a9885170dbf558fcd8b2961bbc41291ade4a8686c9a3412973984a"
+  },
+  {
+    "id": 944,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Pimavanserin receptor detail. Keep neuroleptic sensitivity and clinical management.",
+    "keepIds": [
+      429,
+      946
+    ],
+    "fingerprint": "383d3063c74f641a53e02c0ce839bfc9b1831fa7b0b0c286787119472bd3d7f4"
+  },
+  {
+    "id": 947,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Specialist drug pair for pseudobulbar affect. This particular drug-pair target would leave the bank.",
+    "keepIds": [],
+    "fingerprint": "0209ca325640273513404f27aafc8949d8aad5d2df0149cd3caac176572a2c7a"
+  },
+  {
+    "id": 1014,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "CADASIL as an Alzheimer pathology exception. Keep the direct pathology and dementia differential.",
+    "keepIds": [
+      932,
+      933
+    ],
+    "fingerprint": "f8339051e9180681d58f41af3bcf9c2099c11c37af6655eb0b31d9d8a5e9a14c"
+  },
+  {
+    "id": 1028,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Isolated psychiatric association with brucellosis. Prioritize actionable mimics and red flags.",
+    "keepIds": [
+      219,
+      1070
+    ],
+    "fingerprint": "9b7b32f72fcf49e0cd40e138a4e03c7487f39cb20d2bde63e06e80c06f29a9ec"
+  },
+  {
+    "id": 1043,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Wilson disease as a taxonomy exception. Keep clinical recognition.",
+    "keepIds": [
+      1259
+    ],
+    "fingerprint": "5f113d7ac6e06837bbcbc49b030f38d080001c831336fa2302d2de2d2e156270"
+  },
+  {
+    "id": 1164,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Confirmatory Huntington gene assay. Keep the recalled anatomy target.",
+    "keepIds": [
+      3427
+    ],
+    "fingerprint": "e3f2a391fa1ea043f091670e9ff5dd409311c12bbc8c73def1ebba31be58a085"
+  },
+  {
+    "id": 1263,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Conduction aphasia subtype. Keep the organic differential and a broad language discriminator.",
+    "keepIds": [
+      219,
+      2259
+    ],
+    "fingerprint": "fc9db3fcd0359894e6211b48e84e63305bf24e549ce7ae9741c58f2ef2f2eef4"
+  },
+  {
+    "id": 1566,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Stroke arterial territory localization. Keep recognition of urgent organic causes.",
+    "keepIds": [
+      219
+    ],
+    "fingerprint": "faaf356d259d8e21826883be32c777b168e9f6190ac207ddbb9c44d1a16f46f3"
+  },
+  {
+    "id": 1244,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Separate Piaget conservation detail. Keep a representative stage vignette.",
+    "keepIds": [
+      1289
+    ],
+    "fingerprint": "46fc4993edc83ebcca76ea22f5ccb0978702e907b5186861f9983cd6491da2ba"
+  },
+  {
+    "id": 1366,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Additional Piaget stage vignette. Keep one representative example.",
+    "keepIds": [
+      1289
+    ],
+    "fingerprint": "86810ff18018533d9b0aefa8f691ef91b209debbcc584a846c3b524bd659bb0c"
+  },
+  {
+    "id": 1384,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Historical mental-age IQ calculation. Keep assessment of adaptive function.",
+    "keepIds": [
+      2283
+    ],
+    "fingerprint": "ed364e0f26e05d29fade6c5ace1100c2caf18fcb6585e0194bda19859e308f64"
+  },
+  {
+    "id": 2271,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Preschool test-domain emphasis. Keep actionable language-delay assessment.",
+    "keepIds": [
+      1521
+    ],
+    "fingerprint": "f0709ea02d4c05e06b9cfcf4f3519ce30de5e415dec8e4c004663c1cca0cc4af"
+  },
+  {
+    "id": 2279,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Williams syndrome dysmorphology. Keep a representative neurodevelopmental genetics vignette.",
+    "keepIds": [
+      1412
+    ],
+    "fingerprint": "5af8539e6286f0cefea2a2ab36b9032b33467149249758212ac19f94c2e05515"
+  },
+  {
+    "id": 2287,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Pediatric metabolic disease recognition. Keep representative developmental assessment.",
+    "keepIds": [
+      1521,
+      2283
+    ],
+    "fingerprint": "3ddf366d3540e007abe247eb884bf412e29b50c38eb3d94ecaf876060082c4dc"
+  },
+  {
+    "id": 2290,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Isolated articulation milestone and follow-up. Keep broader language-delay assessment.",
+    "keepIds": [
+      1521
+    ],
+    "fingerprint": "4e9e5172cc3c0cf11ae642ec356f2a921a5a9528506dc9ad72d0affb0853c455"
+  },
+  {
+    "id": 2304,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Fixed age of reduction of physiological separation anxiety. Keep applied attachment.",
+    "keepIds": [
+      1247
+    ],
+    "fingerprint": "2b99f8cb1eecf086f898b0046a43eb0c00a606cee9fc2be0e5f0af8e61ae8b16"
+  },
+  {
+    "id": 2476,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Standalone encopresis specifier. Keep the diagnostic vignette and constipation association.",
+    "keepIds": [
+      2477,
+      2479
+    ],
+    "fingerprint": "463341e42932a3a2c4893921d32daa32a31cfd76b0053b8bca0fcfac0b58ab4e"
+  },
+  {
+    "id": 2480,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Secondary ADHD association in enuresis. Keep course, behavior and medication safety.",
+    "keepIds": [
+      2481,
+      2483,
+      2484
+    ],
+    "fingerprint": "63f563401720db242a713c98861afc45ead8893a402e6c28a6cfb9d2c477bcd4"
+  },
+  {
+    "id": 2486,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Most frequent enuresis time-of-day subtype. Keep clinically useful course and management.",
+    "keepIds": [
+      2481,
+      2483,
+      2484
+    ],
+    "fingerprint": "6eff68ab0108c822337f59aad113ad221806a396a8f385b8d2b918cc3798ae17"
+  },
+  {
+    "id": 2612,
+    "status": "proposed",
+    "kind": "depth",
+    "reason": "Specific second stimulant choice in a pediatric vignette. Keep child and adult ADHD treatment anchors.",
+    "keepIds": [
+      2293,
+      2294
+    ],
+    "fingerprint": "443878fb0e3c42ca804ccba50e3954cbdd0109fab8477169571a6924d01bfdad"
+  },
+  {
+    "id": 2725,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Age inference from a child's understanding of terminal illness. Keep representative developmental theory.",
+    "keepIds": [
+      1289
+    ],
+    "fingerprint": "79bd10b48210c7146d934012ff9c58293a0f467dc573265a16f9b24765270e8e"
+  },
+  {
+    "id": 2758,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Exact age of one infant milestone. Keep applied attachment and development assessment.",
+    "keepIds": [
+      1247,
+      1521
+    ],
+    "fingerprint": "b190ed395355e2767abbac1d26ed7672421b50981082d7ff6ace45191e424664"
+  },
+  {
+    "id": 2764,
+    "status": "proposed",
+    "kind": "scope",
+    "reason": "Isolated infant social referencing term. Keep a broader applied attachment vignette.",
+    "keepIds": [
+      1247
+    ],
+    "fingerprint": "9c41ef501d08367dd3f3a00e6cfb074471e383e79e06654e867d2fe778690e5c"
+  }
+]

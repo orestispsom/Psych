@@ -18,6 +18,7 @@
     "backup:supabase": "node scripts/backup-supabase.cjs",
     "audit:mcq": "node tools/audit-mcq-bank.mjs",
     "audit:mcq:strict": "node tools/audit-mcq-bank.mjs --strict",
+    "review:mcq:surplus": "node tools/review-mcq-surplus.mjs",
     "audit:mcq:recent": "node tools/audit-recent-mcq-quality.mjs"
   },
   "keywords": [],
