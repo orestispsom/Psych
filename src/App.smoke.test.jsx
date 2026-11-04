@@ -299,6 +299,39 @@ describe("golden path smoke tests", () => {
     expect(stems.has(container.querySelector(".question-stem").textContent)).toBe(false);
   }, 20000);
 
+  it("skips a mastered question when resuming a category with the filter enabled", async () => {
+    const user = userEvent.setup();
+    const app = renderApp();
+    const home = await createProfile(user, "Category mastery filter", app.container);
+    await user.click(home.getByText("Πολλαπλής Επιλογής"));
+    await user.click(await screen.findByText("Ερωτήσεις ανά Κατηγορία"));
+    const topicButton = (await screen.findAllByRole("button", { name: /\d+ απομένουν/ }))
+      .find(button => Number(button.textContent.match(/(\d+) απομένουν/)?.[1]) >= 10);
+    const topic = topicButton.querySelector(".item-title").textContent;
+    await user.click(topicButton);
+    await user.click(screen.getByRole("button", { name: "10 ερωτήσεις", exact: true }));
+    const masteredStem = app.container.querySelector(".question-stem").textContent;
+    await user.click(screen.getByRole("button", { name: "Επιστροφή στο Μενού MCQ" }));
+
+    const store = readProfileStore();
+    const profile = Object.values(store.profiles)[0];
+    const [masteredId] = profile.mcqProgress.categoryDrafts[topic].questionIds;
+    profile.mcqProgress.questions[masteredId] = { ...profile.mcqProgress.questions[masteredId], masteryLevel: 5 };
+    app.unmount();
+    window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(store));
+    const restored = renderApp();
+
+    const filter = await screen.findByRole("checkbox", { name: "Μόνο μη mastered ερωτήσεις" });
+    expect(filter).not.toBeChecked();
+    await user.click(filter);
+    await user.click(screen.getByRole("button", { name: name => name.startsWith(topic) }));
+    await user.click(screen.getByRole("button", { name: /Συνέχεια από την ερώτηση 1/ }));
+    expect(restored.container.querySelector(".mcq-q-index").textContent).toMatch(/Ερώτηση 1\s*\/\s*9/);
+    expect(restored.container.querySelector(".question-stem").textContent).not.toBe(masteredStem);
+    await user.click(screen.getByRole("button", { name: "Επιστροφή στο Μενού MCQ" }));
+    expect(screen.getByRole("checkbox", { name: "Μόνο μη mastered ερωτήσεις" })).toBeChecked();
+  }, 20000);
+
   it("resumes category study at the saved position and can start that category over", async () => {
     const user = userEvent.setup();
     const { container } = renderApp();
