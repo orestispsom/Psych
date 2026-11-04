@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router';
 import App from './App';
 import bank from './data/questions.js';
+import { getWrittenExamTraits, isWrittenExamEligible, WRITTEN_BLUEPRINT } from './writtenExamBlueprint.mjs';
 
 const storageKey = 'psychiatry-study-profiles-v1';
 const profile = () => Object.values(JSON.parse(localStorage.getItem(storageKey)).profiles)[0];
@@ -34,7 +35,18 @@ it('reopens saved results after reload, reviews mistakes, and retries without ov
   let view = await boot(user);
   await user.click(screen.getByText('Προσομοίωση Εξετάσεων', { exact: true }));
   await waitFor(() => expect(profile().mcqProgress.writtenExamDraft).toBeTruthy());
-  const question = bank.find(q => q.id === profile().mcqProgress.writtenExamDraft.questionIds[0]);
+  const draftIds = profile().mcqProgress.writtenExamDraft.questionIds;
+  const chosen = draftIds.map(id => bank.find(q => q.id === id));
+  expect(new Set(draftIds).size).toBe(100);
+  expect(chosen.every(isWrittenExamEligible)).toBe(true);
+  const traits = chosen.map(getWrittenExamTraits);
+  expect(traits.filter(row => row.vignette)).toHaveLength(26);
+  for (const [domain, [count]] of Object.entries(WRITTEN_BLUEPRINT)) {
+    expect(traits.filter(row => row.domain === domain), domain).toHaveLength(count);
+  }
+  const recurrence = traits.flatMap(row => row.recurring);
+  expect(new Set(recurrence).size).toBe(recurrence.length);
+  const question = chosen[0];
   const wrongIndex = (question.correct + 1) % question.options.length;
   await user.click(within(view.container.querySelector('.options-list')).getByText(question.options[wrongIndex], { exact: true }));
   await user.click(screen.getByRole('button', { name: 'Υποβολή εξέτασης' }));
