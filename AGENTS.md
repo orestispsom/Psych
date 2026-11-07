@@ -13,13 +13,12 @@ For multi-agent and cross-repository coordination, follow `orestispsom/mental-he
 
 ## Reusable knowledge asset detection
 
-While completing the primary exam-app/content task, flag only **unusually reusable original clinical synthesis**: differential frameworks, algorithms, comparison tables, high-value cases, clear explanations, common-clinician traps, patient/family explanations, teaching material, clinical-AI evaluation cases, or clinician-workflow insights.
+The protocol is canonical in [`mental-health-core/docs/REUSE_CANDIDATE_PROTOCOL.md`](https://github.com/orestispsom/mental-health-core/blob/main/docs/REUSE_CANDIDATE_PROTOCOL.md). Follow it there — the callout format and all eight rules live in one place, so they stop drifting between repositories.
 
-At a natural pause, use:
+Only the local specifics are recorded here.
 
-> **REUSE CANDIDATE — [topic]**  
-> Potential uses: **[2–4 concrete destinations such as professional education, clinician resource/product, article/website, patient/family handoff, clinical-AI evaluation, or clinician software]**.  
-> Why: [one sentence].  
-> **Capture now, note for later, or ignore?**
+**What counts as a candidate in this repository:** differential frameworks, algorithms, comparison tables, high-value cases, clear explanations, common-clinician traps, patient or family explanations, teaching material, clinical-AI evaluation cases, and clinician-workflow insights.
 
-Do not derail the primary task; during board preparation default to **note for later** unless capture takes only a few minutes and reinforces learning. Do not generate a full derivative asset without explicit user opt-in. Avoid routine/generic suggestions and normally surface no more than 1–2 candidates per substantive session. Preserve provenance and copyright; source-locked or proprietary material must not be repurposed as publishable/commercial copy.
+**Where a candidate could go:** professional education · clinician resource or product · article or website · patient/family handoff · clinical-AI evaluation · clinician software.
+
+**Local emphasis:** During board preparation the default is **note for later** unless capture takes only a few minutes and reinforces learning.
