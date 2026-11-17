@@ -39,6 +39,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Oral examiner pilot integrity and routing
+        run: node --test tools/oral-pilot/pilot.test.mjs
+
       - name: Progress persistence and WoW bridge
         run: |
           node scripts/test-progress-persistence.mjs
