@@ -76,12 +76,11 @@ export async function buildPack() {
 
 // Judgments come from a model or human. This function routes them; it does not
 // infer clinical understanding from keywords. Candidate text is untrusted data.
-export function nextAction(topic, judgments, { candidateAnswer, askedIds = [], answerCount = 1, maxAnswers = 4 } = {}) {
+function validatedJudgments(topic, judgments, candidateAnswer) {
   if (typeof candidateAnswer !== 'string' || !candidateAnswer.trim()) throw new Error('Candidate answer required');
-  if (!Number.isInteger(answerCount) || answerCount < 1 || !Number.isInteger(maxAnswers) || maxAnswers < 1) throw new Error('Invalid answer budget');
   const statuses = new Set(['covered', 'partial', 'missing', 'incorrect', 'uncertain']);
-  if (judgments.length !== topic.criteria.length || new Set(judgments.map(j => j.criterionId)).size !== judgments.length) throw new Error('Require one judgment per criterion');
-  const rows = topic.criteria.map(c => {
+  if (!Array.isArray(judgments) || judgments.some(j => !j || typeof j !== 'object') || judgments.length !== topic.criteria.length || new Set(judgments.map(j => j.criterionId)).size !== judgments.length) throw new Error('Require one judgment per criterion');
+  return topic.criteria.map(c => {
     const j = judgments.find(j => j.criterionId === c.id);
     if (!j || !statuses.has(j.status)) throw new Error(`Invalid judgment ${c.id}`);
     if (['covered', 'partial', 'incorrect'].includes(j.status) && (typeof j.evidence !== 'string' || !j.evidence.trim() || !candidateAnswer.includes(j.evidence))) throw new Error(`Exact evidence required: ${c.id}`);
@@ -89,6 +88,11 @@ export function nextAction(topic, judgments, { candidateAnswer, askedIds = [], a
     // attribution remain authoritative even if extra JSON fields are present.
     return { ...c, criterionId: j.criterionId, status: j.status, evidence: j.evidence };
   });
+}
+
+export function nextAction(topic, judgments, { candidateAnswer, askedIds = [], answerCount = 1, maxAnswers = 4 } = {}) {
+  const rows = validatedJudgments(topic, judgments, candidateAnswer);
+  if (!Number.isInteger(answerCount) || answerCount < 1 || !Number.isInteger(maxAnswers) || maxAnswers < 1) throw new Error('Invalid answer budget');
   const unresolved = rows.filter(r => r.status !== 'covered' && (r.essential || r.status === 'incorrect'));
   if (answerCount >= maxAnswers) return { action: 'finish_topic', reason: 'budget', unresolved, provisionalOnly: true };
   const uncertain = rows.find(r => r.status === 'uncertain');
@@ -100,6 +104,27 @@ export function nextAction(topic, judgments, { candidateAnswer, askedIds = [], a
   if (unresolved.length) return { action: 'finish_topic', reason: 'unresolved_after_prompting', unresolved, provisionalOnly: true };
   const extension = topic.followUps.find(f => !askedIds.includes(f.id) && f.trigger === 'if_good_answer');
   return extension ? { action: 'extension', questionId: extension.id, question: extension.question } : { action: 'finish_topic', reason: 'core_covered', unresolved: [], provisionalOnly: true };
+}
+
+// Clinical statuses remain external judgments. Answer chronology, quotations and
+// spontaneous/prompted provenance are enforced here, rather than asserted by a model.
+export function summarizeCoverage(topic, answers) {
+  if (!Array.isArray(answers) || answers.length < 1 || answers.length > 4) throw new Error('Require 1–4 chronological candidate answers');
+  const turns = answers.map(answer => validatedJudgments(topic, answer.judgments, answer.candidateAnswer));
+  return topic.criteria.map((criterion, index) => {
+    const events = turns.map((rows, answerIndex) => ({ answerNumber: answerIndex + 1, status: rows[index].status, evidence: rows[index].evidence ?? null }));
+    const mentioned = events.filter(event => event.status !== 'missing');
+    const latest = mentioned.at(-1) ?? events[0];
+    const errors = events.filter(event => event.status === 'incorrect');
+    const corrections = events.filter(event => event.status === 'covered' && errors.some(error => error.answerNumber < event.answerNumber));
+    return {
+      criterionId: criterion.id, sourceId: criterion.sourceId,
+      initialStatus: events[0].status, finalStatus: latest.status,
+      evidence: latest.evidence, evidenceAnswerNumber: latest.answerNumber,
+      coverageOrigin: latest.status === 'covered' ? (latest.answerNumber === 1 ? 'spontaneous' : 'after_follow_up') : 'not_fully_covered',
+      errors, corrections, events, provisionalOnly: true,
+    };
+  });
 }
 
 export function renderGuide(pack) {

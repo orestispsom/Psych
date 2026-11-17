@@ -2,6 +2,8 @@
 
 Status: **REQUIRES_CLINICIAN_REVIEW**. This is the first portable ChatGPT pilot, separate from the production simulator. It contains 10 source-grounded draft examiner guides and 30 synthetic responses with proposed criterion judgments. No clinician-rating agreement or Greek speech accuracy has been measured. There is no live model integration in this milestone.
 
+The user provisionally approved proceeding with the pilot direction on November 17, 2026. This authorizes trial work; individual criterion labels have not been clinically adjudicated.
+
 ## Generate the pilot
 
 From the repository root (Node.js required; no additional packages):
@@ -19,7 +21,7 @@ The output has `examiner-instructions.md`, `examiner-guides.md`, `examiner-pack.
 2. Copy `examiner-instructions.md` into Project instructions and add `examiner-guides.md` as a reference file. Keep calibration examples out of the Project: they are evaluation material.
 3. Start a fresh chat: `Εξέταση, oral_core_001. Πρώτα επιβεβαίωσε ότι έχεις τον οδηγό και μετά ρώτησέ με την αρχική ερώτηση.`
 4. Answer in text first. Check question relevance, source use, single-question turns, four-answer limit, delayed feedback and exact evidence for judgments.
-5. Test voice separately, including medication names and negation. Ask for clarification of an uncertain transcript before scoring. Project files and instructions support a pilot; this setup has not been verified in a live ChatGPT session.
+5. Test voice separately, including medication names and negation. Ask for clarification of an uncertain transcript before scoring. The signed-in Project setup and voice behavior remain unverified. One anonymous inline-guide text trial is described below.
 
 Topic IDs: `001` first psychosis; `003` clozapine; `004` mania; `006` depression; `007` suicidality; `011` delirium; `016` agitation; `017` catatonia; `018` NMS/serotonin syndrome; `031` involuntary admission. Prefix each with `oral_core_`.
 
@@ -33,7 +35,17 @@ The 10 topics are an editorial pilot selection, not inferred exam-frequency esti
 
 `calibration-review.json` contains 21 development examples and 9 holdout examples separated by topic. All are synthetic; the proposed labels are hypotheses, not clinician-rated gold. For each case, a clinician should correct the per-criterion statuses, add exact candidate evidence, and fill `reviewer`, `reviewedAt` and `reviewStatus`. Review optional criterion scope and safe alternatives, not only wording. Add real deidentified volunteered practice responses and more nuanced borderline/alternative answers before claiming grading reliability.
 
-After review, use a separate fresh evaluation chat per response: provide the applicable guide, candidate text, and a request for per-criterion status plus exact candidate evidence. **Do not provide proposed labels to the model.** Keep holdout examples out of prompt tuning. Save actual model judgments separately; model API/ChatGPT execution has not occurred yet. Measure missed explicit errors, false error flags on correct alternatives, exact-evidence failures, and agreement with clinician judgments by criterion. An average agreement figure must not hide missed safety errors. Agree acceptance thresholds with the clinician before evaluating; do not invent a pass threshold from these 30 cases. Re-run after source, rubric, prompt or model changes.
+After review, use a separate fresh evaluation chat per response: provide the applicable guide, candidate text, and a request for per-criterion status plus exact candidate evidence. **Do not provide proposed labels to the model.** Keep holdout examples out of prompt tuning. Save actual model judgments separately; the 30-case calibration exercise has not run. Measure missed explicit errors, false error flags on correct alternatives, exact-evidence failures, and agreement with clinician judgments by criterion. An average agreement figure must not hide missed safety errors. Agree acceptance thresholds with the clinician before evaluating; do not invent a pass threshold from these 30 cases. Re-run after source, rubric, prompt or model changes.
+
+## First live text trial — November 17, 2026
+
+A completed anonymous ChatGPT web conversation used the original protocol and a single inline psychosis guide, with four synthetic candidate answers. The UI reported only model `default`; an underlying model/version was not available. This tested inline conversation behavior, not Project retrieval or API integration. It was not a clinician-calibrated evaluation or a held-out benchmark.
+
+Observed: the opening question matched the guide, omitted risk led to a relevant follow-up, a request to reveal the answer and award a pass grade was resisted, and the topic closed after four answers. Three defects were visible: correctness feedback appeared before closure, answer-four examination/work-up was mislabeled spontaneous, and some quoted evidence changed capitalization. The transcript-derived excerpts and synthetic per-turn routing judgments are in `fixtures/psychosis-dialogue.json`; their provenance labels distinguish observed text from proposed judgments.
+
+The protocol now explicitly requires question-only intermediate turns, verbatim clarifications, original answer numbers, and exact evidence quotes. `summarizeCoverage()` independently derives initial/final status, evidence answer number, spontaneous versus after-follow-up origin, and preserved error/correction history from supplied per-answer judgments. These deterministic checks do not establish the clinical validity of those judgments. Only the initial answer to the opening question counts as spontaneous; later coverage is conservatively labeled after-follow-up.
+
+**The revised protocol has not been live-retested.** ChatGPT presented a sign-in gate after the anonymous run; a signed-in session is required to create the persistent Project and continue trials. A passing code regression does not establish that the conversational model now follows the revised prompt.
 
 ## What the code does
 
