@@ -1,6 +1,6 @@
 # Oral examiner pilot
 
-Status: **REQUIRES_CLINICIAN_REVIEW**. This is the first portable ChatGPT pilot, separate from the production simulator. It contains 10 source-grounded draft examiner guides and 30 synthetic responses with proposed criterion judgments. No clinician-rating agreement or Greek speech accuracy has been measured. There is no live model integration in this milestone.
+Status: **REQUIRES_CLINICIAN_REVIEW**. This is the first portable ChatGPT pilot, separate from the production simulator. It contains 10 source-grounded draft examiner guides and 30 synthetic responses with proposed criterion judgments. No clinician-rating agreement or Greek speech accuracy has been measured. The configured Project uses ChatGPT directly; the production app has no AI grading integration.
 
 The user provisionally approved proceeding with the pilot direction on November 17, 2026. This authorizes trial work; individual criterion labels have not been clinically adjudicated.
 
@@ -21,7 +21,7 @@ The output has `examiner-instructions.md`, `examiner-guides.md`, `examiner-pack.
 2. Copy `examiner-instructions.md` into Project instructions and add `examiner-guides.md` as a reference file. Keep calibration examples out of the Project: they are evaluation material.
 3. Start a fresh chat: `Εξέταση, oral_core_001. Πρώτα επιβεβαίωσε ότι έχεις τον οδηγό και μετά ρώτησέ με την αρχική ερώτηση.`
 4. Answer in text first. Check question relevance, source use, single-question turns, four-answer limit, delayed feedback and exact evidence for judgments.
-5. Test voice separately, including medication names and negation. Ask for clarification of an uncertain transcript before scoring. The signed-in Project setup and voice behavior remain unverified. One anonymous inline-guide text trial is described below.
+5. Test voice separately, including medication names and negation. Ask for clarification of an uncertain transcript before scoring. A signed-in Project has been configured and the revised text protocol retested as described below. Voice behavior remains unverified.
 
 Topic IDs: `001` first psychosis; `003` clozapine; `004` mania; `006` depression; `007` suicidality; `011` delirium; `016` agitation; `017` catatonia; `018` NMS/serotonin syndrome; `031` involuntary admission. Prefix each with `oral_core_`.
 
@@ -45,7 +45,15 @@ Observed: the opening question matched the guide, omitted risk led to a relevant
 
 The protocol now explicitly requires question-only intermediate turns, verbatim clarifications, original answer numbers, and exact evidence quotes. `summarizeCoverage()` independently derives initial/final status, evidence answer number, spontaneous versus after-follow-up origin, and preserved error/correction history from supplied per-answer judgments. These deterministic checks do not establish the clinical validity of those judgments. Only the initial answer to the opening question counts as spontaneous; later coverage is conservatively labeled after-follow-up.
 
-**The revised protocol has not been live-retested.** ChatGPT presented a sign-in gate after the anonymous run; a signed-in session is required to create the persistent Project and continue trials. A passing code regression does not establish that the conversational model now follows the revised prompt.
+## Signed-in Project retest — November 17, 2026
+
+The [examiner Project](https://chatgpt.com/g/g-p-6afc266c2f5c8191873279d67d8ae3cd/project) now contains the revised Greek instructions and the generated `examiner-guides.md` source file with all ten guides. The Project instruction text was checked against the normalized repository version (5,955 characters and matching checksum). Calibration examples were not uploaded. These links require access to the user's ChatGPT account; they are not public sharing links.
+
+In the [psychosis retest](https://chatgpt.com/g/g-p-6afc266c2f5c8191873279d67d8ae3cd/c/6afc270e-c43c-83eb-8f01-be925fa52af7), the opening and subsequent clarification questions matched the guide. A partial history answer was followed by the risk question; an explicitly incorrect answer plus a request to reveal the solution/pass grade did not cause early feedback or a grade. The third candidate answer combined the corrected risk/history response and examination/work-up response. The examiner then closed within the four-answer limit, correctly attributed full coverage to answer 3 after follow-up, preserved prior errors, and used exact candidate evidence for the three criteria. It also retained the diagnostic certainty error that had not explicitly been retracted. This run differs from the original four-answer fixture because work-up was supplied in answer 3.
+
+In a separate [clozapine scope trial](https://chatgpt.com/g/g-p-6afc266c2f5c8191873279d67d8ae3cd/c/6afc27f0-e848-83ed-acb8-151ab955c9d4), answer 1 supplied only the source's indication sentence; answers 2–4 were "Δεν το θυμάμαι." The examiner correctly credited the sole essential opening criterion as spontaneous, labeled the other two criteria as optional at opening and missing after follow-ups, and distinguished omissions from explicit errors. It closed after four answers and deferred precise monitoring schedules/thresholds to current verification. It did ask optional extensions and then a related source follow-up after the essential opening criterion was covered, whereas `nextAction()` would have closed the topic. This conversation-control deviation remains a pilot limitation; the ChatGPT UI does not execute the router.
+
+This is limited observed behavior from a small development trial, not evidence of grading accuracy, stable model adherence across topics, or clinician agreement. The 30-case calibration exercise, independent clinical adjudication, voice testing and app/API integration remain outstanding. No validated score or pass prediction is provided.
 
 ## What the code does
 
