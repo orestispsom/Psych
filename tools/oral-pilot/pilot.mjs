@@ -85,7 +85,9 @@ export function nextAction(topic, judgments, { candidateAnswer, askedIds = [], a
     const j = judgments.find(j => j.criterionId === c.id);
     if (!j || !statuses.has(j.status)) throw new Error(`Invalid judgment ${c.id}`);
     if (['covered', 'partial', 'incorrect'].includes(j.status) && (typeof j.evidence !== 'string' || !j.evidence.trim() || !candidateAnswer.includes(j.evidence))) throw new Error(`Exact evidence required: ${c.id}`);
-    return { ...c, ...j };
+    // Model output supplies judgments only; rubric scope, routing and source
+    // attribution remain authoritative even if extra JSON fields are present.
+    return { ...c, criterionId: j.criterionId, status: j.status, evidence: j.evidence };
   });
   const unresolved = rows.filter(r => r.status !== 'covered' && (r.essential || r.status === 'incorrect'));
   if (answerCount >= maxAnswers) return { action: 'finish_topic', reason: 'budget', unresolved, provisionalOnly: true };
