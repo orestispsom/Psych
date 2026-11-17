@@ -4,12 +4,48 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { assertSourceHashes, buildPack, exportPack, nextAction, renderGuide } from './pilot.mjs';
+import { assertSourceHashes, buildPack, exportPack, nextAction, renderGuide, summarizeCoverage } from './pilot.mjs';
 
 const pack = await buildPack();
 const topic = pack.topics[0];
 const judgments = (t, states) => t.criteria.map((c, i) => ({ criterionId: c.id, status: states[i], evidence: ['covered', 'partial', 'incorrect'].includes(states[i]) ? 'απάντηση' : null }));
 const context = { candidateAnswer: 'Η απάντηση του υποψηφίου.' };
+const dialogue = JSON.parse(await fs.readFile(new URL('./fixtures/psychosis-dialogue.json', import.meta.url), 'utf8'));
+
+test('live-trial chronology never credits answer four as spontaneous', () => {
+  const summary = summarizeCoverage(topic, dialogue.answers);
+  assert.equal(summary[2].initialStatus, 'missing');
+  assert.equal(summary[2].finalStatus, 'covered');
+  assert.equal(summary[2].evidenceAnswerNumber, 4);
+  assert.equal(summary[2].coverageOrigin, 'after_follow_up');
+  assert.equal(summary[0].initialStatus, 'missing');
+  assert.equal(summary[0].errors[0].answerNumber, 2);
+  assert.equal(summary[0].corrections[0].answerNumber, 3);
+  assert.equal(summary[0].evidenceAnswerNumber, 3);
+  assert.equal(summary[1].initialStatus, 'partial');
+});
+
+test('true opening coverage stays spontaneous when later answers address other criteria', () => {
+  const answers = structuredClone(dialogue.answers);
+  answers[0].candidateAnswer += ' ' + dialogue.answers[3].candidateAnswer;
+  answers[0].judgments[2] = dialogue.answers[3].judgments[2];
+  answers[3].judgments[2] = { criterionId: topic.criteria[2].id, status: 'missing', evidence: null };
+  const summary = summarizeCoverage(topic, answers);
+  assert.equal(summary[2].coverageOrigin, 'spontaneous');
+  assert.equal(summary[2].evidenceAnswerNumber, 1);
+});
+
+test('changed capitalization in an observed evidence quote is rejected', () => {
+  const answers = structuredClone(dialogue.answers);
+  answers[2].judgments[0].evidence = dialogue.observedExcerpts.changedCandidateQuote;
+  assert.throws(() => summarizeCoverage(topic, answers), /Exact evidence required/);
+});
+
+test('malformed or over-budget dialogue cannot create provenance', () => {
+  assert.throws(() => summarizeCoverage(topic, []), /chronological/);
+  assert.throws(() => summarizeCoverage(topic, [...dialogue.answers, dialogue.answers[0]]), /chronological/);
+  assert.throws(() => summarizeCoverage(topic, [{ candidateAnswer: 'text', judgments: null }]), /one judgment/);
+});
 
 test('changed clinical wording invalidates source identity, while line endings do not', () => {
   const text = 'source\nstatement\n';
